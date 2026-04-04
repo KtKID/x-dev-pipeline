@@ -1,5 +1,5 @@
 {
-  "name": "x-local",
+  "name": "x-dev-pipeline",
   "description": "Local plugin marketplace for x-dev-pipeline",
   "owner": {
     "name": "kid"
