@@ -1,0 +1,16 @@
+{
+  "name": "x-dev-pipeline",
+  "description": "Development workflow plugin — structured req/plan/dev/cr/fix pipeline with lightweight quick-dev and code review capabilities",
+  "version": "0.1.0",
+  "author": {
+    "name": "kid"
+  },
+  "license": "MIT",
+  "keywords": [
+    "development",
+    "workflow",
+    "code-review",
+    "planning",
+    "task-management"
+  ]
+}
