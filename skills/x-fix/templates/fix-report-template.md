@@ -1,7 +1,7 @@
 # [Bug 名称] 修复报告
 
 > 修复时间：YYYY-MM-DD HH:mm
-> 修复人：Claude (x-fix)
+> 修复人：xxx (x-fix)
 > Bug 来源：用户报告
 
 ---
