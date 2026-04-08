@@ -3,7 +3,7 @@
   "description": "Development workflow plugin — structured spec/req/plan/dev/cr/fix pipeline with lightweight quick-dev and code review capabilities",
   "version": "0.1.2",
   "author": {
-    "name": "kid"
+    "name": "ktkid"
   },
   "license": "MIT",
   "keywords": [
