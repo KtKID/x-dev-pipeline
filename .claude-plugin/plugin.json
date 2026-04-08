@@ -1,6 +1,6 @@
 {
   "name": "x-dev-pipeline",
-  "description": "Development workflow plugin — structured spec/req/plan/dev/cr/fix pipeline with lightweight quick-dev and code review capabilities",
+  "description": "Structured dev workflow with spec, requirements, planning, execution, code review, and fix loops",
   "version": "0.1.2",
   "author": {
     "name": "ktkid"

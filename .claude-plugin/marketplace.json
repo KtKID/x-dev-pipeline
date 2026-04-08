@@ -1,13 +1,13 @@
 {
   "name": "x-dev-pipeline",
-  "description": "Local plugin marketplace for x-dev-pipeline",
+  "description": "Structured AI development workflow — build, review, and fix with traceable engineering artifacts",
   "owner": {
     "name": "ktkid"
   },
   "plugins": [
     {
       "name": "x-dev-pipeline",
-      "description": "Development workflow plugin — structured spec/req/plan/dev/cr/fix pipeline with lightweight quick-dev and code review capabilities",
+      "description": "Structured dev workflow with spec, requirements, planning, execution, code review, and fix loops",
       "version": "0.1.2",
       "source": "./",
       "author": {
