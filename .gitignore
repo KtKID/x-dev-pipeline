@@ -3,3 +3,4 @@ node_modules/
 Thumbs.db
 .serena/project.yml
 .serena/.gitignore
+.claude/settings.local.json
