@@ -4,6 +4,8 @@
 
 # x-dev-pipeline
 
+[中文说明](./README_zh.md)
+
 > A recordable, auditable, and reviewable workflow framework for AI-assisted development.
 
 Most of the time, AI coding agents don't fail because they can't write code — they fail because they drift off track mid-task, and leave behind little useful process information:
