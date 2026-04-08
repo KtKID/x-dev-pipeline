@@ -1,0 +1,41 @@
+{
+  "name": "x-dev-pipeline",
+  "version": "0.1.2",
+  "description": "Structured AI development workflow with qdev, review, and fix loops.",
+  "author": {
+    "name": "ktkid",
+    "url": "https://github.com/KtKID"
+  },
+  "homepage": "https://github.com/KtKID/x-dev-pipeline",
+  "repository": "https://github.com/KtKID/x-dev-pipeline",
+  "license": "MIT",
+  "keywords": [
+    "ai-development",
+    "workflow",
+    "code-review",
+    "planning",
+    "task-management",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "x-dev-pipeline",
+    "shortDescription": "Structured dev workflow for Codex",
+    "longDescription": "Turn ad-hoc AI coding sessions into a traceable workflow with quick development, planning, review, and fix loops.",
+    "developerName": "ktkid",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/KtKID/x-dev-pipeline",
+    "brandColor": "#3B82F6",
+    "defaultPrompt": [
+      "x-qdev add dark mode toggle to settings page",
+      "x-cr review the current diff",
+      "x-fix fix issues from the latest review report"
+    ],
+    "composerIcon": "./assets/logo.png",
+    "logo": "./assets/logo.png"
+  }
+}
