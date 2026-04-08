@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/pic.png" alt="x-dev-pipeline" />
+</p>
+
 # x-dev-pipeline
 
 > 给 AI 辅助开发一套可记录、可审计、可回顾的工作流框架。
@@ -261,6 +265,17 @@ codex
 }
 ```
 
+也可以直接参考仓库里的示例文件：
+
+```text
+examples/codex-marketplace.json
+```
+
+注意两点：
+
+- `source.path` 是相对 `~/.agents/plugins/marketplace.json` 所在根目录解析的
+- 对个人 marketplace，官方文档里的常见写法就是 `./.codex/plugins/<plugin-name>`
+
 如果你已经有 `~/.agents/plugins/marketplace.json`，只需要把上面的 `plugins` 条目追加进去，不要覆盖已有插件。保存后重启 Codex，然后运行：
 
 ```bash
@@ -268,7 +283,7 @@ codex
 /plugins
 ```
 
-在插件目录里找到 `x-dev-pipeline` 并安装即可。
+在插件目录里找到 `x-dev-pipeline` 并安装即可。(可能需要切换本地)
 
 安装完成后，第一次体验建议直接试：
 
@@ -308,6 +323,29 @@ codex
 > "在保持 x-dev-pipeline 工作流不变的情况下，帮我适配到 Cursor（或你使用的工具）。"
 
 AI 会根据目标工具的目录结构和交互方式，自动调整任务目录位置和触发方式，同时保留完整的工作流链路。
+
+> **提示**：当前 skill 中的任务产出目录默认是 `.claude/tasks/`。适配时 AI 可能会询问你是否要更改为其他路径（如 `.codex/tasks/`），根据你的实际情况确认即可。
+
+## 统一状态标记
+
+所有 skill 共享一套任务状态体系：
+
+| 符号 | 状态 | 说明 |
+|------|------|------|
+| ⏳ | 未开始 | 等待处理 |
+| ▶️ | 进行中 | 正在执行 |
+| 🟡 | 待测试 | 开发完成，等待验证 |
+| 🔴 | 测试失败 | 需要修复 |
+| 🟢 | 测试通过 | 验证通过，等待 review 确认 |
+| ✅ | 已完成 | review 确认后标记 |
+
+### 优先级
+
+| 优先级 | 说明 |
+|--------|------|
+| P0 | 阻塞性问题，必须立即处理 |
+| P1 | 重要功能，必须完成 |
+| P2 | 优化或增强，可后续处理 |
 
 ## 这个仓库的核心理念
 
