@@ -1,0 +1,10 @@
+{
+  "merge": "extend",
+  "code": [
+    "skills/**",
+    ".claude-plugin/**"
+  ],
+  "docs": [
+    ".claude/tasks/**"
+  ]
+}
