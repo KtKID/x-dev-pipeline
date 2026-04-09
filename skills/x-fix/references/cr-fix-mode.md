@@ -8,7 +8,7 @@
 报告查找优先级：
 1. 用户在指令中显式指定路径 → 直接使用
 2. 当前工作目录下最新的 `cr-report-*.md`
-3. `.claude/tasks/` 各子目录下最新的 `cr-report-*.md`
+3. `dev-pipeline/tasks/` 各子目录下最新的 `cr-report-*.md`
 
 **无报告时**：立即停止，输出：
 ```
