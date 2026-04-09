@@ -5,7 +5,7 @@ description: |
   仍然在 dev-pipeline/tasks/<功能名称>/ 下创建任务记录（README.md + changelog.md），使用与 x-dev 一致的状态标记体系。
   开发完成后自动进行代码审查。
   当用户输入 "x-qdev <功能名称>"、"快速开发 <功能名称>"、"小功能 <功能名称>"、或描述一个明显是小改动的任务时使用。
-  与 x-dev 的区别：x-dev 需要先有 x-req 和 x-plan 产出的 req.md、plan.md、dev-checklist.md，适合复杂功能；
+  与 x-dev 的区别：x-dev 需要先有 x-req 和 x-plan 产出的计划文件（plan.md、dev-checklist.md），适合复杂功能；
   x-qdev 自包含，一步到位，适合一两个小时内能完成的改动。
 ---
 

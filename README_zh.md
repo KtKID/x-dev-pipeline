@@ -51,7 +51,7 @@
 典型产物会像这样：
 
 ```text
-.claude/tasks/<task-name>/
+dev-pipeline/tasks/<task-name>/
 ├── README.md
 ├── changelog.md
 └── cr-report-*.md
@@ -324,7 +324,7 @@ codex
 
 AI 会根据目标工具的目录结构和交互方式，自动调整任务目录位置和触发方式，同时保留完整的工作流链路。
 
-> **提示**：当前 skill 中的任务产出目录默认是 `.claude/tasks/`。适配时 AI 可能会询问你是否要更改为其他路径（如 `.codex/tasks/`），根据你的实际情况确认即可。
+> **提示**：当前 skill 中的任务产出目录默认是 `dev-pipeline/tasks/`。适配时 AI 可能会询问你是否要更改为其他路径（如 `.codex/tasks/`），根据你的实际情况确认即可。
 
 ## 统一状态标记
 

@@ -2,7 +2,7 @@
 name: x-dev
 description: |
   开发任务执行 skill。基于现有功能计划目录执行开发任务，
-  读取 dev-pipeline/tasks/<功能名称>/README.md、req.md、plan.md、dev-checklist.md、changelog.md，
+  读取 dev-pipeline/tasks/<功能名称>/README.md、plan.md、dev-checklist.md、changelog.md，
   按开发清单中的未完成任务进行实现、修复、测试，并回写任务状态与变更记录。
   触发方式：用户输入 "x-dev <功能名称>" 或提供现有功能目录路径。
 ---
