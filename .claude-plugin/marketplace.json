@@ -1,6 +1,6 @@
 {
   "name": "x-dev-pipeline",
-  "description": "Local plugin marketplace for x-dev-pipeline",
+  "description": "Claude Code plugin marketplace for x-dev-pipeline",
   "owner": {
     "name": "ktkid"
   },
