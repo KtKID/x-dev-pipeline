@@ -1,6 +1,10 @@
 # 持续开发驱动机制
 
-> 状态：方案确认中
+> ⚠️ **当前主方案已替换为 [00-simplified-plan.md](./00-simplified-plan.md)**（2026-04-09）
+> 本 README 及 `02-module-breakdown.md` / `90-task-map.md` 描述的是 v1 完整版方案，作为历史参考保留。
+> 简化原因与取舍见 00-simplified-plan.md 的「为什么不做 v1 完整版」章节。
+
+> 状态：历史版本（v1）
 > 目标：将 superpowers 的连续开发驱动机制移植到 x-dev-pipeline 项目
 
 ## 系统目标

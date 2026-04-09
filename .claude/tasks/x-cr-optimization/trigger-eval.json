@@ -1,0 +1,82 @@
+[
+  {
+    "query": "帮我 review 一下这段代码，是我刚写的登录接口：src/auth/login.ts 里用 jwt 校验，怕有漏洞",
+    "should_trigger": true
+  },
+  {
+    "query": "看看 feat/payment 这个分支的改动有没有问题，我准备合 main 了。diff 大概 300 行，改了 3 个文件",
+    "should_trigger": true
+  },
+  {
+    "query": "这段 TypeScript 我写得对吗？感觉有点怪：`async function fetchUser(id) { const data = await db.query('SELECT * FROM users WHERE id=' + id); return data[0]; }`",
+    "should_trigger": true
+  },
+  {
+    "query": "我刚改了 UserService 里的权限判断逻辑，帮我确认下有没有安全漏洞或者越权的可能，文件在 src/services/UserService.ts",
+    "should_trigger": true
+  },
+  {
+    "query": "PR #234 CI 都过了，但我还是想在合之前找人看一眼整体架构有没有问题，特别是新增的 PaymentProcessor 类和现有 OrderService 的耦合",
+    "should_trigger": true
+  },
+  {
+    "query": "这是我实习生写的订单取消功能，我担心边界情况没考虑全，尤其是并发取消和已发货订单的处理，帮我检查一下 OrderController.cancel 方法",
+    "should_trigger": true
+  },
+  {
+    "query": "重构了一下 payment 模块，从 3 个文件合成 1 个，总共 200 多行，帮我看看抽象是不是合理、有没有把本该分开的职责硬糅到一起",
+    "should_trigger": true
+  },
+  {
+    "query": "我们 QA 反馈生产环境偶尔会返回 500，我怀疑是 createSession 里 await 没加 try/catch，能不能帮我扫一下 src/auth/session.ts 和 src/auth/login.ts",
+    "should_trigger": true
+  },
+  {
+    "query": "快看看我这段代码有没有明显的问题，就 30 行左右，刚粘到 src/utils/parseConfig.ts",
+    "should_trigger": true
+  },
+  {
+    "query": "把刚提交的这三个文件过一眼吧：src/api/users.ts、src/api/posts.ts、src/middleware/auth.ts",
+    "should_trigger": true
+  },
+  {
+    "query": "帮我写一个登录接口，要求用 JWT，支持手机号和邮箱两种方式，接口放在 src/auth/login.ts",
+    "should_trigger": false
+  },
+  {
+    "query": "这个 bug 怎么修？我传 null 进 parseConfig 的时候报 `Cannot read property 'host' of undefined`，我想直接改掉",
+    "should_trigger": false
+  },
+  {
+    "query": "帮我解释一下 src/auth/session.ts 这段代码是做什么的，我接手这个项目两天，没看懂 `makeSession` 这个函数的逻辑",
+    "should_trigger": false
+  },
+  {
+    "query": "我想重构 UserService，现在一个类 800 行太难维护了，你帮我想想怎么拆比较好，是按功能拆还是按数据模型拆",
+    "should_trigger": false
+  },
+  {
+    "query": "给我讲一下 TypeScript 的 generic constraint 是怎么用的，我看到 `<T extends Record<string, unknown>>` 不太理解",
+    "should_trigger": false
+  },
+  {
+    "query": "我的 vite build 为什么报 `TS2322: Type 'string' is not assignable to type 'number'`？报错指向 src/config.ts:42",
+    "should_trigger": false
+  },
+  {
+    "query": "帮我跑一下 pnpm test 看看单元测试都过了没，特别是 auth 相关的那几个 spec",
+    "should_trigger": false
+  },
+  {
+    "query": "这个代码库是什么架构？我第一次接手，想先建立一个整体印象。看起来是个 monorepo，有 packages/ 目录",
+    "should_trigger": false
+  },
+  {
+    "query": "帮我把 src/legacy/user.js 这个文件从 JS 改成 TS，加上类型，函数签名保持兼容",
+    "should_trigger": false
+  },
+  {
+    "query": "看一下 git log 里最近的 5 个 commit 都改了什么",
+    "should_trigger": false
+  }
+]

@@ -1,0 +1,840 @@
+{
+  "exit_reason": "max_iterations (3)",
+  "original_description": "\u7ed3\u6784\u5316\u4ee3\u7801\u5ba1\u67e5 skill\u3002\u6309 P0-P3 \u4e25\u91cd\u5ea6\u5206\u5c42\u68c0\u67e5\u529f\u80fd\u6b63\u786e\u6027\u3001\u7a33\u5b9a\u6027\u3001\u67b6\u6784\u3001\u53ef\u7ef4\u62a4\u6027\uff0c\u81ea\u52a8\u52a0\u8f7d\u8bed\u8a00\u4e13\u9879\u89c4\u5219\uff0c\u8f93\u51fa\u7edf\u4e00\u683c\u5f0f\u7684 review \u62a5\u544a\u3002 \u53ea\u8981\u7528\u6237\u8bf7\u6c42 review\u3001\u5ba1\u67e5\u4ee3\u7801\u3001\u68c0\u67e5\u4ee3\u7801\u3001\u770b\u770b\u8fd9\u6bb5\u4ee3\u7801\u6709\u6ca1\u6709\u95ee\u9898\u3001PR \u524d\u68c0\u67e5\u3001\u63d0\u4ea4\u524d\u786e\u8ba4\u3001\u5408\u5e76\u524d\u9a8c\u8bc1\u3001\u4ee3\u7801\u5ba1\u8ba1\u3001\u91cd\u6784 review\u3001\u4ee3\u7801\u8d28\u91cf\u8bc4\u4f30\uff0c \u6216\u63d0\u4f9b diff / \u6587\u4ef6 / \u76ee\u5f55 / \u4ee3\u7801\u7247\u6bb5\u5e0c\u671b\u8bc4\u4f30\u65f6\uff0c\u90fd\u5e94\u8be5\u4f7f\u7528\u672c skill\u3002 \u4e5f\u8981\u5728 x-dev \u5b8c\u6210\u5f00\u53d1\u4efb\u52a1\u540e\u81ea\u52a8\u89e6\u53d1\uff0c\u4f5c\u4e3a\u8fde\u7eed\u5f00\u53d1\u5faa\u73af\u4e2d\u7684\u8d28\u91cf\u95e8\u63a7\u73af\u8282\u3002 \u4e0d\u8981\u56e0\u4e3a\u7528\u6237\u8bf4\"\u53ea\u662f\u770b\u4e00\u4e0b\"\u3001\"\u968f\u4fbf\u626b\u4e00\u773c\"\u5c31\u8df3\u8fc7\u672c skill \u2014\u2014 \u7ed3\u6784\u5316 P0/P1 \u68c0\u67e5\u7684\u4ef7\u503c\u6b63\u662f\u53d1\u73b0\u4eba\u773c\u5bb9\u6613\u6f0f\u6389\u7684\u95ee\u9898\u3002 \u89e6\u53d1\u5173\u952e\u8bcd\uff1areview\u3001code review\u3001\u4ee3\u7801\u5ba1\u67e5\u3001\u68c0\u67e5\u4e00\u4e0b\u3001\u770b\u770b\u6709\u6ca1\u6709\u95ee\u9898\u3001\u5e2e\u6211 review\u3001PR \u524d\u68c0\u67e5\u3001\u5408\u5e76\u524d\u68c0\u67e5\u3001\u63d0\u4ea4\u524d\u68c0\u67e5\u3001\u4ee3\u7801\u5ba1\u8ba1\u3001\u5ba1\u67e5\u8fd9\u6bb5\u4ee3\u7801\u3002",
+  "best_description": "\u7ed3\u6784\u5316\u4ee3\u7801\u5ba1\u67e5 skill\u3002\u6309 P0-P3 \u4e25\u91cd\u5ea6\u5206\u5c42\u68c0\u67e5\u529f\u80fd\u6b63\u786e\u6027\u3001\u7a33\u5b9a\u6027\u3001\u67b6\u6784\u3001\u53ef\u7ef4\u62a4\u6027\uff0c\u81ea\u52a8\u52a0\u8f7d\u8bed\u8a00\u4e13\u9879\u89c4\u5219\uff0c\u8f93\u51fa\u7edf\u4e00\u683c\u5f0f\u7684 review \u62a5\u544a\u3002 \u53ea\u8981\u7528\u6237\u8bf7\u6c42 review\u3001\u5ba1\u67e5\u4ee3\u7801\u3001\u68c0\u67e5\u4ee3\u7801\u3001\u770b\u770b\u8fd9\u6bb5\u4ee3\u7801\u6709\u6ca1\u6709\u95ee\u9898\u3001PR \u524d\u68c0\u67e5\u3001\u63d0\u4ea4\u524d\u786e\u8ba4\u3001\u5408\u5e76\u524d\u9a8c\u8bc1\u3001\u4ee3\u7801\u5ba1\u8ba1\u3001\u91cd\u6784 review\u3001\u4ee3\u7801\u8d28\u91cf\u8bc4\u4f30\uff0c \u6216\u63d0\u4f9b diff / \u6587\u4ef6 / \u76ee\u5f55 / \u4ee3\u7801\u7247\u6bb5\u5e0c\u671b\u8bc4\u4f30\u65f6\uff0c\u90fd\u5e94\u8be5\u4f7f\u7528\u672c skill\u3002 \u4e5f\u8981\u5728 x-dev \u5b8c\u6210\u5f00\u53d1\u4efb\u52a1\u540e\u81ea\u52a8\u89e6\u53d1\uff0c\u4f5c\u4e3a\u8fde\u7eed\u5f00\u53d1\u5faa\u73af\u4e2d\u7684\u8d28\u91cf\u95e8\u63a7\u73af\u8282\u3002 \u4e0d\u8981\u56e0\u4e3a\u7528\u6237\u8bf4\"\u53ea\u662f\u770b\u4e00\u4e0b\"\u3001\"\u968f\u4fbf\u626b\u4e00\u773c\"\u5c31\u8df3\u8fc7\u672c skill \u2014\u2014 \u7ed3\u6784\u5316 P0/P1 \u68c0\u67e5\u7684\u4ef7\u503c\u6b63\u662f\u53d1\u73b0\u4eba\u773c\u5bb9\u6613\u6f0f\u6389\u7684\u95ee\u9898\u3002 \u89e6\u53d1\u5173\u952e\u8bcd\uff1areview\u3001code review\u3001\u4ee3\u7801\u5ba1\u67e5\u3001\u68c0\u67e5\u4e00\u4e0b\u3001\u770b\u770b\u6709\u6ca1\u6709\u95ee\u9898\u3001\u5e2e\u6211 review\u3001PR \u524d\u68c0\u67e5\u3001\u5408\u5e76\u524d\u68c0\u67e5\u3001\u63d0\u4ea4\u524d\u68c0\u67e5\u3001\u4ee3\u7801\u5ba1\u8ba1\u3001\u5ba1\u67e5\u8fd9\u6bb5\u4ee3\u7801\u3002",
+  "best_score": "4/8",
+  "best_train_score": "6/12",
+  "best_test_score": "4/8",
+  "final_description": "\u4ee3\u7801\u5ba1\u67e5/\u8bc4\u5ba1\u5de5\u5177\u3002\u5f53\u7528\u6237\u8bf4\"review\"\u3001\"\u5e2e\u6211\u770b\u770b\"\u3001\"\u8fc7\u4e00\u773c\"\u3001\"\u68c0\u67e5\u4e00\u4e0b\"\u5e76\u6307\u5411\u5177\u4f53\u4ee3\u7801\uff08\u6587\u4ef6/\u65b9\u6cd5/\u5206\u652f/PR/diff\uff09\u65f6\u89e6\u53d1\u3002\u5178\u578b\u573a\u666f\uff1a\u5408\u5e76\u524d\u68c0\u67e5\u3001\u62c5\u5fc3\u8fb9\u754c\u60c5\u51b5\u3001\u8bc4\u4f30\u62bd\u8c61\u8bbe\u8ba1\u3001\u5b9e\u4e60\u751f\u4ee3\u7801\u628a\u5173\u3001\u91cd\u6784\u540e\u9a8c\u8bc1\u3002\u6838\u5fc3\u5224\u65ad\uff1a\u7528\u6237\u60f3\u8981\"\u8bc4\u4ef7\u5df2\u6709\u4ee3\u7801\"\u800c\u975e\"\u5199\u65b0\u4ee3\u7801\"\u6216\"\u4feebug\"\u3002\u4e0d\u89e6\u53d1\uff1a\u5199\u4ee3\u7801\u3001\u6539bug\u7528x-fix\u3001\u8dd1\u6d4b\u8bd5\u3001\u770bgit log\u3001\u4e86\u89e3\u9879\u76ee\u7ed3\u6784\u3002",
+  "iterations_run": 3,
+  "holdout": 0.4,
+  "train_size": 12,
+  "test_size": 8,
+  "history": [
+    {
+      "iteration": 1,
+      "description": "\u7ed3\u6784\u5316\u4ee3\u7801\u5ba1\u67e5 skill\u3002\u6309 P0-P3 \u4e25\u91cd\u5ea6\u5206\u5c42\u68c0\u67e5\u529f\u80fd\u6b63\u786e\u6027\u3001\u7a33\u5b9a\u6027\u3001\u67b6\u6784\u3001\u53ef\u7ef4\u62a4\u6027\uff0c\u81ea\u52a8\u52a0\u8f7d\u8bed\u8a00\u4e13\u9879\u89c4\u5219\uff0c\u8f93\u51fa\u7edf\u4e00\u683c\u5f0f\u7684 review \u62a5\u544a\u3002 \u53ea\u8981\u7528\u6237\u8bf7\u6c42 review\u3001\u5ba1\u67e5\u4ee3\u7801\u3001\u68c0\u67e5\u4ee3\u7801\u3001\u770b\u770b\u8fd9\u6bb5\u4ee3\u7801\u6709\u6ca1\u6709\u95ee\u9898\u3001PR \u524d\u68c0\u67e5\u3001\u63d0\u4ea4\u524d\u786e\u8ba4\u3001\u5408\u5e76\u524d\u9a8c\u8bc1\u3001\u4ee3\u7801\u5ba1\u8ba1\u3001\u91cd\u6784 review\u3001\u4ee3\u7801\u8d28\u91cf\u8bc4\u4f30\uff0c \u6216\u63d0\u4f9b diff / \u6587\u4ef6 / \u76ee\u5f55 / \u4ee3\u7801\u7247\u6bb5\u5e0c\u671b\u8bc4\u4f30\u65f6\uff0c\u90fd\u5e94\u8be5\u4f7f\u7528\u672c skill\u3002 \u4e5f\u8981\u5728 x-dev \u5b8c\u6210\u5f00\u53d1\u4efb\u52a1\u540e\u81ea\u52a8\u89e6\u53d1\uff0c\u4f5c\u4e3a\u8fde\u7eed\u5f00\u53d1\u5faa\u73af\u4e2d\u7684\u8d28\u91cf\u95e8\u63a7\u73af\u8282\u3002 \u4e0d\u8981\u56e0\u4e3a\u7528\u6237\u8bf4\"\u53ea\u662f\u770b\u4e00\u4e0b\"\u3001\"\u968f\u4fbf\u626b\u4e00\u773c\"\u5c31\u8df3\u8fc7\u672c skill \u2014\u2014 \u7ed3\u6784\u5316 P0/P1 \u68c0\u67e5\u7684\u4ef7\u503c\u6b63\u662f\u53d1\u73b0\u4eba\u773c\u5bb9\u6613\u6f0f\u6389\u7684\u95ee\u9898\u3002 \u89e6\u53d1\u5173\u952e\u8bcd\uff1areview\u3001code review\u3001\u4ee3\u7801\u5ba1\u67e5\u3001\u68c0\u67e5\u4e00\u4e0b\u3001\u770b\u770b\u6709\u6ca1\u6709\u95ee\u9898\u3001\u5e2e\u6211 review\u3001PR \u524d\u68c0\u67e5\u3001\u5408\u5e76\u524d\u68c0\u67e5\u3001\u63d0\u4ea4\u524d\u68c0\u67e5\u3001\u4ee3\u7801\u5ba1\u8ba1\u3001\u5ba1\u67e5\u8fd9\u6bb5\u4ee3\u7801\u3002",
+      "train_passed": 6,
+      "train_failed": 6,
+      "train_total": 12,
+      "train_results": [
+        {
+          "query": "\u91cd\u6784\u4e86\u4e00\u4e0b payment \u6a21\u5757\uff0c\u4ece 3 \u4e2a\u6587\u4ef6\u5408\u6210 1 \u4e2a\uff0c\u603b\u5171 200 \u591a\u884c\uff0c\u5e2e\u6211\u770b\u770b\u62bd\u8c61\u662f\u4e0d\u662f\u5408\u7406\u3001\u6709\u6ca1\u6709\u628a\u672c\u8be5\u5206\u5f00\u7684\u804c\u8d23\u786c\u7cc5\u5230\u4e00\u8d77",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u628a\u521a\u63d0\u4ea4\u7684\u8fd9\u4e09\u4e2a\u6587\u4ef6\u8fc7\u4e00\u773c\u5427\uff1asrc/api/users.ts\u3001src/api/posts.ts\u3001src/middleware/auth.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u662f\u6211\u5b9e\u4e60\u751f\u5199\u7684\u8ba2\u5355\u53d6\u6d88\u529f\u80fd\uff0c\u6211\u62c5\u5fc3\u8fb9\u754c\u60c5\u51b5\u6ca1\u8003\u8651\u5168\uff0c\u5c24\u5176\u662f\u5e76\u53d1\u53d6\u6d88\u548c\u5df2\u53d1\u8d27\u8ba2\u5355\u7684\u5904\u7406\uff0c\u5e2e\u6211\u68c0\u67e5\u4e00\u4e0b OrderController.cancel \u65b9\u6cd5",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "PR #234 CI \u90fd\u8fc7\u4e86\uff0c\u4f46\u6211\u8fd8\u662f\u60f3\u5728\u5408\u4e4b\u524d\u627e\u4eba\u770b\u4e00\u773c\u6574\u4f53\u67b6\u6784\u6709\u6ca1\u6709\u95ee\u9898\uff0c\u7279\u522b\u662f\u65b0\u589e\u7684 PaymentProcessor \u7c7b\u548c\u73b0\u6709 OrderService \u7684\u8026\u5408",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u5e2e\u6211 review \u4e00\u4e0b\u8fd9\u6bb5\u4ee3\u7801\uff0c\u662f\u6211\u521a\u5199\u7684\u767b\u5f55\u63a5\u53e3\uff1asrc/auth/login.ts \u91cc\u7528 jwt \u6821\u9a8c\uff0c\u6015\u6709\u6f0f\u6d1e",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u770b\u770b feat/payment \u8fd9\u4e2a\u5206\u652f\u7684\u6539\u52a8\u6709\u6ca1\u6709\u95ee\u9898\uff0c\u6211\u51c6\u5907\u5408 main \u4e86\u3002diff \u5927\u6982 300 \u884c\uff0c\u6539\u4e86 3 \u4e2a\u6587\u4ef6",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u4e2a bug \u600e\u4e48\u4fee\uff1f\u6211\u4f20 null \u8fdb parseConfig \u7684\u65f6\u5019\u62a5 `Cannot read property 'host' of undefined`\uff0c\u6211\u60f3\u76f4\u63a5\u6539\u6389",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u628a src/legacy/user.js \u8fd9\u4e2a\u6587\u4ef6\u4ece JS \u6539\u6210 TS\uff0c\u52a0\u4e0a\u7c7b\u578b\uff0c\u51fd\u6570\u7b7e\u540d\u4fdd\u6301\u517c\u5bb9",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u8fd9\u4e2a\u4ee3\u7801\u5e93\u662f\u4ec0\u4e48\u67b6\u6784\uff1f\u6211\u7b2c\u4e00\u6b21\u63a5\u624b\uff0c\u60f3\u5148\u5efa\u7acb\u4e00\u4e2a\u6574\u4f53\u5370\u8c61\u3002\u770b\u8d77\u6765\u662f\u4e2a monorepo\uff0c\u6709 packages/ \u76ee\u5f55",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u5199\u4e00\u4e2a\u767b\u5f55\u63a5\u53e3\uff0c\u8981\u6c42\u7528 JWT\uff0c\u652f\u6301\u624b\u673a\u53f7\u548c\u90ae\u7bb1\u4e24\u79cd\u65b9\u5f0f\uff0c\u63a5\u53e3\u653e\u5728 src/auth/login.ts",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u8dd1\u4e00\u4e0b pnpm test \u770b\u770b\u5355\u5143\u6d4b\u8bd5\u90fd\u8fc7\u4e86\u6ca1\uff0c\u7279\u522b\u662f auth \u76f8\u5173\u7684\u90a3\u51e0\u4e2a spec",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u770b\u4e00\u4e0b git log \u91cc\u6700\u8fd1\u7684 5 \u4e2a commit \u90fd\u6539\u4e86\u4ec0\u4e48",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 4,
+      "test_failed": 4,
+      "test_total": 8,
+      "test_results": [
+        {
+          "query": "\u6211\u4eec QA \u53cd\u9988\u751f\u4ea7\u73af\u5883\u5076\u5c14\u4f1a\u8fd4\u56de 500\uff0c\u6211\u6000\u7591\u662f createSession \u91cc await \u6ca1\u52a0 try/catch\uff0c\u80fd\u4e0d\u80fd\u5e2e\u6211\u626b\u4e00\u4e0b src/auth/session.ts \u548c src/auth/login.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u6211\u521a\u6539\u4e86 UserService \u91cc\u7684\u6743\u9650\u5224\u65ad\u903b\u8f91\uff0c\u5e2e\u6211\u786e\u8ba4\u4e0b\u6709\u6ca1\u6709\u5b89\u5168\u6f0f\u6d1e\u6216\u8005\u8d8a\u6743\u7684\u53ef\u80fd\uff0c\u6587\u4ef6\u5728 src/services/UserService.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u5feb\u770b\u770b\u6211\u8fd9\u6bb5\u4ee3\u7801\u6709\u6ca1\u6709\u660e\u663e\u7684\u95ee\u9898\uff0c\u5c31 30 \u884c\u5de6\u53f3\uff0c\u521a\u7c98\u5230 src/utils/parseConfig.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u6bb5 TypeScript \u6211\u5199\u5f97\u5bf9\u5417\uff1f\u611f\u89c9\u6709\u70b9\u602a\uff1a`async function fetchUser(id) { const data = await db.query('SELECT * FROM users WHERE id=' + id); return data[0]; }`",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u6211\u60f3\u91cd\u6784 UserService\uff0c\u73b0\u5728\u4e00\u4e2a\u7c7b 800 \u884c\u592a\u96be\u7ef4\u62a4\u4e86\uff0c\u4f60\u5e2e\u6211\u60f3\u60f3\u600e\u4e48\u62c6\u6bd4\u8f83\u597d\uff0c\u662f\u6309\u529f\u80fd\u62c6\u8fd8\u662f\u6309\u6570\u636e\u6a21\u578b\u62c6",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u6211\u7684 vite build \u4e3a\u4ec0\u4e48\u62a5 `TS2322: Type 'string' is not assignable to type 'number'`\uff1f\u62a5\u9519\u6307\u5411 src/config.ts:42",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u89e3\u91ca\u4e00\u4e0b src/auth/session.ts \u8fd9\u6bb5\u4ee3\u7801\u662f\u505a\u4ec0\u4e48\u7684\uff0c\u6211\u63a5\u624b\u8fd9\u4e2a\u9879\u76ee\u4e24\u5929\uff0c\u6ca1\u770b\u61c2 `makeSession` \u8fd9\u4e2a\u51fd\u6570\u7684\u903b\u8f91",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u7ed9\u6211\u8bb2\u4e00\u4e0b TypeScript \u7684 generic constraint \u662f\u600e\u4e48\u7528\u7684\uff0c\u6211\u770b\u5230 `<T extends Record<string, unknown>>` \u4e0d\u592a\u7406\u89e3",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 6,
+      "failed": 6,
+      "total": 12,
+      "results": [
+        {
+          "query": "\u91cd\u6784\u4e86\u4e00\u4e0b payment \u6a21\u5757\uff0c\u4ece 3 \u4e2a\u6587\u4ef6\u5408\u6210 1 \u4e2a\uff0c\u603b\u5171 200 \u591a\u884c\uff0c\u5e2e\u6211\u770b\u770b\u62bd\u8c61\u662f\u4e0d\u662f\u5408\u7406\u3001\u6709\u6ca1\u6709\u628a\u672c\u8be5\u5206\u5f00\u7684\u804c\u8d23\u786c\u7cc5\u5230\u4e00\u8d77",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u628a\u521a\u63d0\u4ea4\u7684\u8fd9\u4e09\u4e2a\u6587\u4ef6\u8fc7\u4e00\u773c\u5427\uff1asrc/api/users.ts\u3001src/api/posts.ts\u3001src/middleware/auth.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u662f\u6211\u5b9e\u4e60\u751f\u5199\u7684\u8ba2\u5355\u53d6\u6d88\u529f\u80fd\uff0c\u6211\u62c5\u5fc3\u8fb9\u754c\u60c5\u51b5\u6ca1\u8003\u8651\u5168\uff0c\u5c24\u5176\u662f\u5e76\u53d1\u53d6\u6d88\u548c\u5df2\u53d1\u8d27\u8ba2\u5355\u7684\u5904\u7406\uff0c\u5e2e\u6211\u68c0\u67e5\u4e00\u4e0b OrderController.cancel \u65b9\u6cd5",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "PR #234 CI \u90fd\u8fc7\u4e86\uff0c\u4f46\u6211\u8fd8\u662f\u60f3\u5728\u5408\u4e4b\u524d\u627e\u4eba\u770b\u4e00\u773c\u6574\u4f53\u67b6\u6784\u6709\u6ca1\u6709\u95ee\u9898\uff0c\u7279\u522b\u662f\u65b0\u589e\u7684 PaymentProcessor \u7c7b\u548c\u73b0\u6709 OrderService \u7684\u8026\u5408",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u5e2e\u6211 review \u4e00\u4e0b\u8fd9\u6bb5\u4ee3\u7801\uff0c\u662f\u6211\u521a\u5199\u7684\u767b\u5f55\u63a5\u53e3\uff1asrc/auth/login.ts \u91cc\u7528 jwt \u6821\u9a8c\uff0c\u6015\u6709\u6f0f\u6d1e",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u770b\u770b feat/payment \u8fd9\u4e2a\u5206\u652f\u7684\u6539\u52a8\u6709\u6ca1\u6709\u95ee\u9898\uff0c\u6211\u51c6\u5907\u5408 main \u4e86\u3002diff \u5927\u6982 300 \u884c\uff0c\u6539\u4e86 3 \u4e2a\u6587\u4ef6",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u4e2a bug \u600e\u4e48\u4fee\uff1f\u6211\u4f20 null \u8fdb parseConfig \u7684\u65f6\u5019\u62a5 `Cannot read property 'host' of undefined`\uff0c\u6211\u60f3\u76f4\u63a5\u6539\u6389",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u628a src/legacy/user.js \u8fd9\u4e2a\u6587\u4ef6\u4ece JS \u6539\u6210 TS\uff0c\u52a0\u4e0a\u7c7b\u578b\uff0c\u51fd\u6570\u7b7e\u540d\u4fdd\u6301\u517c\u5bb9",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u8fd9\u4e2a\u4ee3\u7801\u5e93\u662f\u4ec0\u4e48\u67b6\u6784\uff1f\u6211\u7b2c\u4e00\u6b21\u63a5\u624b\uff0c\u60f3\u5148\u5efa\u7acb\u4e00\u4e2a\u6574\u4f53\u5370\u8c61\u3002\u770b\u8d77\u6765\u662f\u4e2a monorepo\uff0c\u6709 packages/ \u76ee\u5f55",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u5199\u4e00\u4e2a\u767b\u5f55\u63a5\u53e3\uff0c\u8981\u6c42\u7528 JWT\uff0c\u652f\u6301\u624b\u673a\u53f7\u548c\u90ae\u7bb1\u4e24\u79cd\u65b9\u5f0f\uff0c\u63a5\u53e3\u653e\u5728 src/auth/login.ts",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u8dd1\u4e00\u4e0b pnpm test \u770b\u770b\u5355\u5143\u6d4b\u8bd5\u90fd\u8fc7\u4e86\u6ca1\uff0c\u7279\u522b\u662f auth \u76f8\u5173\u7684\u90a3\u51e0\u4e2a spec",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u770b\u4e00\u4e0b git log \u91cc\u6700\u8fd1\u7684 5 \u4e2a commit \u90fd\u6539\u4e86\u4ec0\u4e48",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "iteration": 2,
+      "description": "Use when user wants code evaluated for quality, correctness, or issues. Triggers for: reviewing files/diffs/PRs/branches before merge; checking code for problems, bugs, edge cases, security issues; evaluating abstractions, architecture, or design decisions; \"\u770b\u770b/\u8fc7\u4e00\u773c/\u68c0\u67e5\u4e00\u4e0b\" + code paths; concerns about intern/junior code; pre-merge confidence checks. Key patterns: user provides specific files/methods/branches AND wants evaluation (not implementation). Do NOT trigger for: writing new code, fixing bugs (use x-fix), running tests, exploring codebase structure, or git log viewing.",
+      "train_passed": 6,
+      "train_failed": 6,
+      "train_total": 12,
+      "train_results": [
+        {
+          "query": "\u628a\u521a\u63d0\u4ea4\u7684\u8fd9\u4e09\u4e2a\u6587\u4ef6\u8fc7\u4e00\u773c\u5427\uff1asrc/api/users.ts\u3001src/api/posts.ts\u3001src/middleware/auth.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u662f\u6211\u5b9e\u4e60\u751f\u5199\u7684\u8ba2\u5355\u53d6\u6d88\u529f\u80fd\uff0c\u6211\u62c5\u5fc3\u8fb9\u754c\u60c5\u51b5\u6ca1\u8003\u8651\u5168\uff0c\u5c24\u5176\u662f\u5e76\u53d1\u53d6\u6d88\u548c\u5df2\u53d1\u8d27\u8ba2\u5355\u7684\u5904\u7406\uff0c\u5e2e\u6211\u68c0\u67e5\u4e00\u4e0b OrderController.cancel \u65b9\u6cd5",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u91cd\u6784\u4e86\u4e00\u4e0b payment \u6a21\u5757\uff0c\u4ece 3 \u4e2a\u6587\u4ef6\u5408\u6210 1 \u4e2a\uff0c\u603b\u5171 200 \u591a\u884c\uff0c\u5e2e\u6211\u770b\u770b\u62bd\u8c61\u662f\u4e0d\u662f\u5408\u7406\u3001\u6709\u6ca1\u6709\u628a\u672c\u8be5\u5206\u5f00\u7684\u804c\u8d23\u786c\u7cc5\u5230\u4e00\u8d77",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "PR #234 CI \u90fd\u8fc7\u4e86\uff0c\u4f46\u6211\u8fd8\u662f\u60f3\u5728\u5408\u4e4b\u524d\u627e\u4eba\u770b\u4e00\u773c\u6574\u4f53\u67b6\u6784\u6709\u6ca1\u6709\u95ee\u9898\uff0c\u7279\u522b\u662f\u65b0\u589e\u7684 PaymentProcessor \u7c7b\u548c\u73b0\u6709 OrderService \u7684\u8026\u5408",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u5e2e\u6211 review \u4e00\u4e0b\u8fd9\u6bb5\u4ee3\u7801\uff0c\u662f\u6211\u521a\u5199\u7684\u767b\u5f55\u63a5\u53e3\uff1asrc/auth/login.ts \u91cc\u7528 jwt \u6821\u9a8c\uff0c\u6015\u6709\u6f0f\u6d1e",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u770b\u770b feat/payment \u8fd9\u4e2a\u5206\u652f\u7684\u6539\u52a8\u6709\u6ca1\u6709\u95ee\u9898\uff0c\u6211\u51c6\u5907\u5408 main \u4e86\u3002diff \u5927\u6982 300 \u884c\uff0c\u6539\u4e86 3 \u4e2a\u6587\u4ef6",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u4e2a bug \u600e\u4e48\u4fee\uff1f\u6211\u4f20 null \u8fdb parseConfig \u7684\u65f6\u5019\u62a5 `Cannot read property 'host' of undefined`\uff0c\u6211\u60f3\u76f4\u63a5\u6539\u6389",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u628a src/legacy/user.js \u8fd9\u4e2a\u6587\u4ef6\u4ece JS \u6539\u6210 TS\uff0c\u52a0\u4e0a\u7c7b\u578b\uff0c\u51fd\u6570\u7b7e\u540d\u4fdd\u6301\u517c\u5bb9",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u8fd9\u4e2a\u4ee3\u7801\u5e93\u662f\u4ec0\u4e48\u67b6\u6784\uff1f\u6211\u7b2c\u4e00\u6b21\u63a5\u624b\uff0c\u60f3\u5148\u5efa\u7acb\u4e00\u4e2a\u6574\u4f53\u5370\u8c61\u3002\u770b\u8d77\u6765\u662f\u4e2a monorepo\uff0c\u6709 packages/ \u76ee\u5f55",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u5199\u4e00\u4e2a\u767b\u5f55\u63a5\u53e3\uff0c\u8981\u6c42\u7528 JWT\uff0c\u652f\u6301\u624b\u673a\u53f7\u548c\u90ae\u7bb1\u4e24\u79cd\u65b9\u5f0f\uff0c\u63a5\u53e3\u653e\u5728 src/auth/login.ts",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u8dd1\u4e00\u4e0b pnpm test \u770b\u770b\u5355\u5143\u6d4b\u8bd5\u90fd\u8fc7\u4e86\u6ca1\uff0c\u7279\u522b\u662f auth \u76f8\u5173\u7684\u90a3\u51e0\u4e2a spec",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u770b\u4e00\u4e0b git log \u91cc\u6700\u8fd1\u7684 5 \u4e2a commit \u90fd\u6539\u4e86\u4ec0\u4e48",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 4,
+      "test_failed": 4,
+      "test_total": 8,
+      "test_results": [
+        {
+          "query": "\u6211\u4eec QA \u53cd\u9988\u751f\u4ea7\u73af\u5883\u5076\u5c14\u4f1a\u8fd4\u56de 500\uff0c\u6211\u6000\u7591\u662f createSession \u91cc await \u6ca1\u52a0 try/catch\uff0c\u80fd\u4e0d\u80fd\u5e2e\u6211\u626b\u4e00\u4e0b src/auth/session.ts \u548c src/auth/login.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u6211\u521a\u6539\u4e86 UserService \u91cc\u7684\u6743\u9650\u5224\u65ad\u903b\u8f91\uff0c\u5e2e\u6211\u786e\u8ba4\u4e0b\u6709\u6ca1\u6709\u5b89\u5168\u6f0f\u6d1e\u6216\u8005\u8d8a\u6743\u7684\u53ef\u80fd\uff0c\u6587\u4ef6\u5728 src/services/UserService.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u5feb\u770b\u770b\u6211\u8fd9\u6bb5\u4ee3\u7801\u6709\u6ca1\u6709\u660e\u663e\u7684\u95ee\u9898\uff0c\u5c31 30 \u884c\u5de6\u53f3\uff0c\u521a\u7c98\u5230 src/utils/parseConfig.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u6bb5 TypeScript \u6211\u5199\u5f97\u5bf9\u5417\uff1f\u611f\u89c9\u6709\u70b9\u602a\uff1a`async function fetchUser(id) { const data = await db.query('SELECT * FROM users WHERE id=' + id); return data[0]; }`",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u6211\u60f3\u91cd\u6784 UserService\uff0c\u73b0\u5728\u4e00\u4e2a\u7c7b 800 \u884c\u592a\u96be\u7ef4\u62a4\u4e86\uff0c\u4f60\u5e2e\u6211\u60f3\u60f3\u600e\u4e48\u62c6\u6bd4\u8f83\u597d\uff0c\u662f\u6309\u529f\u80fd\u62c6\u8fd8\u662f\u6309\u6570\u636e\u6a21\u578b\u62c6",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u6211\u7684 vite build \u4e3a\u4ec0\u4e48\u62a5 `TS2322: Type 'string' is not assignable to type 'number'`\uff1f\u62a5\u9519\u6307\u5411 src/config.ts:42",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u89e3\u91ca\u4e00\u4e0b src/auth/session.ts \u8fd9\u6bb5\u4ee3\u7801\u662f\u505a\u4ec0\u4e48\u7684\uff0c\u6211\u63a5\u624b\u8fd9\u4e2a\u9879\u76ee\u4e24\u5929\uff0c\u6ca1\u770b\u61c2 `makeSession` \u8fd9\u4e2a\u51fd\u6570\u7684\u903b\u8f91",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u7ed9\u6211\u8bb2\u4e00\u4e0b TypeScript \u7684 generic constraint \u662f\u600e\u4e48\u7528\u7684\uff0c\u6211\u770b\u5230 `<T extends Record<string, unknown>>` \u4e0d\u592a\u7406\u89e3",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 6,
+      "failed": 6,
+      "total": 12,
+      "results": [
+        {
+          "query": "\u628a\u521a\u63d0\u4ea4\u7684\u8fd9\u4e09\u4e2a\u6587\u4ef6\u8fc7\u4e00\u773c\u5427\uff1asrc/api/users.ts\u3001src/api/posts.ts\u3001src/middleware/auth.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u662f\u6211\u5b9e\u4e60\u751f\u5199\u7684\u8ba2\u5355\u53d6\u6d88\u529f\u80fd\uff0c\u6211\u62c5\u5fc3\u8fb9\u754c\u60c5\u51b5\u6ca1\u8003\u8651\u5168\uff0c\u5c24\u5176\u662f\u5e76\u53d1\u53d6\u6d88\u548c\u5df2\u53d1\u8d27\u8ba2\u5355\u7684\u5904\u7406\uff0c\u5e2e\u6211\u68c0\u67e5\u4e00\u4e0b OrderController.cancel \u65b9\u6cd5",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u91cd\u6784\u4e86\u4e00\u4e0b payment \u6a21\u5757\uff0c\u4ece 3 \u4e2a\u6587\u4ef6\u5408\u6210 1 \u4e2a\uff0c\u603b\u5171 200 \u591a\u884c\uff0c\u5e2e\u6211\u770b\u770b\u62bd\u8c61\u662f\u4e0d\u662f\u5408\u7406\u3001\u6709\u6ca1\u6709\u628a\u672c\u8be5\u5206\u5f00\u7684\u804c\u8d23\u786c\u7cc5\u5230\u4e00\u8d77",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "PR #234 CI \u90fd\u8fc7\u4e86\uff0c\u4f46\u6211\u8fd8\u662f\u60f3\u5728\u5408\u4e4b\u524d\u627e\u4eba\u770b\u4e00\u773c\u6574\u4f53\u67b6\u6784\u6709\u6ca1\u6709\u95ee\u9898\uff0c\u7279\u522b\u662f\u65b0\u589e\u7684 PaymentProcessor \u7c7b\u548c\u73b0\u6709 OrderService \u7684\u8026\u5408",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u5e2e\u6211 review \u4e00\u4e0b\u8fd9\u6bb5\u4ee3\u7801\uff0c\u662f\u6211\u521a\u5199\u7684\u767b\u5f55\u63a5\u53e3\uff1asrc/auth/login.ts \u91cc\u7528 jwt \u6821\u9a8c\uff0c\u6015\u6709\u6f0f\u6d1e",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u770b\u770b feat/payment \u8fd9\u4e2a\u5206\u652f\u7684\u6539\u52a8\u6709\u6ca1\u6709\u95ee\u9898\uff0c\u6211\u51c6\u5907\u5408 main \u4e86\u3002diff \u5927\u6982 300 \u884c\uff0c\u6539\u4e86 3 \u4e2a\u6587\u4ef6",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u4e2a bug \u600e\u4e48\u4fee\uff1f\u6211\u4f20 null \u8fdb parseConfig \u7684\u65f6\u5019\u62a5 `Cannot read property 'host' of undefined`\uff0c\u6211\u60f3\u76f4\u63a5\u6539\u6389",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u628a src/legacy/user.js \u8fd9\u4e2a\u6587\u4ef6\u4ece JS \u6539\u6210 TS\uff0c\u52a0\u4e0a\u7c7b\u578b\uff0c\u51fd\u6570\u7b7e\u540d\u4fdd\u6301\u517c\u5bb9",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u8fd9\u4e2a\u4ee3\u7801\u5e93\u662f\u4ec0\u4e48\u67b6\u6784\uff1f\u6211\u7b2c\u4e00\u6b21\u63a5\u624b\uff0c\u60f3\u5148\u5efa\u7acb\u4e00\u4e2a\u6574\u4f53\u5370\u8c61\u3002\u770b\u8d77\u6765\u662f\u4e2a monorepo\uff0c\u6709 packages/ \u76ee\u5f55",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u5199\u4e00\u4e2a\u767b\u5f55\u63a5\u53e3\uff0c\u8981\u6c42\u7528 JWT\uff0c\u652f\u6301\u624b\u673a\u53f7\u548c\u90ae\u7bb1\u4e24\u79cd\u65b9\u5f0f\uff0c\u63a5\u53e3\u653e\u5728 src/auth/login.ts",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u8dd1\u4e00\u4e0b pnpm test \u770b\u770b\u5355\u5143\u6d4b\u8bd5\u90fd\u8fc7\u4e86\u6ca1\uff0c\u7279\u522b\u662f auth \u76f8\u5173\u7684\u90a3\u51e0\u4e2a spec",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u770b\u4e00\u4e0b git log \u91cc\u6700\u8fd1\u7684 5 \u4e2a commit \u90fd\u6539\u4e86\u4ec0\u4e48",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    },
+    {
+      "iteration": 3,
+      "description": "\u4ee3\u7801\u5ba1\u67e5/\u8bc4\u5ba1\u5de5\u5177\u3002\u5f53\u7528\u6237\u8bf4\"review\"\u3001\"\u5e2e\u6211\u770b\u770b\"\u3001\"\u8fc7\u4e00\u773c\"\u3001\"\u68c0\u67e5\u4e00\u4e0b\"\u5e76\u6307\u5411\u5177\u4f53\u4ee3\u7801\uff08\u6587\u4ef6/\u65b9\u6cd5/\u5206\u652f/PR/diff\uff09\u65f6\u89e6\u53d1\u3002\u5178\u578b\u573a\u666f\uff1a\u5408\u5e76\u524d\u68c0\u67e5\u3001\u62c5\u5fc3\u8fb9\u754c\u60c5\u51b5\u3001\u8bc4\u4f30\u62bd\u8c61\u8bbe\u8ba1\u3001\u5b9e\u4e60\u751f\u4ee3\u7801\u628a\u5173\u3001\u91cd\u6784\u540e\u9a8c\u8bc1\u3002\u6838\u5fc3\u5224\u65ad\uff1a\u7528\u6237\u60f3\u8981\"\u8bc4\u4ef7\u5df2\u6709\u4ee3\u7801\"\u800c\u975e\"\u5199\u65b0\u4ee3\u7801\"\u6216\"\u4feebug\"\u3002\u4e0d\u89e6\u53d1\uff1a\u5199\u4ee3\u7801\u3001\u6539bug\u7528x-fix\u3001\u8dd1\u6d4b\u8bd5\u3001\u770bgit log\u3001\u4e86\u89e3\u9879\u76ee\u7ed3\u6784\u3002",
+      "train_passed": 6,
+      "train_failed": 6,
+      "train_total": 12,
+      "train_results": [
+        {
+          "query": "\u628a\u521a\u63d0\u4ea4\u7684\u8fd9\u4e09\u4e2a\u6587\u4ef6\u8fc7\u4e00\u773c\u5427\uff1asrc/api/users.ts\u3001src/api/posts.ts\u3001src/middleware/auth.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u662f\u6211\u5b9e\u4e60\u751f\u5199\u7684\u8ba2\u5355\u53d6\u6d88\u529f\u80fd\uff0c\u6211\u62c5\u5fc3\u8fb9\u754c\u60c5\u51b5\u6ca1\u8003\u8651\u5168\uff0c\u5c24\u5176\u662f\u5e76\u53d1\u53d6\u6d88\u548c\u5df2\u53d1\u8d27\u8ba2\u5355\u7684\u5904\u7406\uff0c\u5e2e\u6211\u68c0\u67e5\u4e00\u4e0b OrderController.cancel \u65b9\u6cd5",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u91cd\u6784\u4e86\u4e00\u4e0b payment \u6a21\u5757\uff0c\u4ece 3 \u4e2a\u6587\u4ef6\u5408\u6210 1 \u4e2a\uff0c\u603b\u5171 200 \u591a\u884c\uff0c\u5e2e\u6211\u770b\u770b\u62bd\u8c61\u662f\u4e0d\u662f\u5408\u7406\u3001\u6709\u6ca1\u6709\u628a\u672c\u8be5\u5206\u5f00\u7684\u804c\u8d23\u786c\u7cc5\u5230\u4e00\u8d77",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "PR #234 CI \u90fd\u8fc7\u4e86\uff0c\u4f46\u6211\u8fd8\u662f\u60f3\u5728\u5408\u4e4b\u524d\u627e\u4eba\u770b\u4e00\u773c\u6574\u4f53\u67b6\u6784\u6709\u6ca1\u6709\u95ee\u9898\uff0c\u7279\u522b\u662f\u65b0\u589e\u7684 PaymentProcessor \u7c7b\u548c\u73b0\u6709 OrderService \u7684\u8026\u5408",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u770b\u770b feat/payment \u8fd9\u4e2a\u5206\u652f\u7684\u6539\u52a8\u6709\u6ca1\u6709\u95ee\u9898\uff0c\u6211\u51c6\u5907\u5408 main \u4e86\u3002diff \u5927\u6982 300 \u884c\uff0c\u6539\u4e86 3 \u4e2a\u6587\u4ef6",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u4e2a bug \u600e\u4e48\u4fee\uff1f\u6211\u4f20 null \u8fdb parseConfig \u7684\u65f6\u5019\u62a5 `Cannot read property 'host' of undefined`\uff0c\u6211\u60f3\u76f4\u63a5\u6539\u6389",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211 review \u4e00\u4e0b\u8fd9\u6bb5\u4ee3\u7801\uff0c\u662f\u6211\u521a\u5199\u7684\u767b\u5f55\u63a5\u53e3\uff1asrc/auth/login.ts \u91cc\u7528 jwt \u6821\u9a8c\uff0c\u6015\u6709\u6f0f\u6d1e",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u5e2e\u6211\u628a src/legacy/user.js \u8fd9\u4e2a\u6587\u4ef6\u4ece JS \u6539\u6210 TS\uff0c\u52a0\u4e0a\u7c7b\u578b\uff0c\u51fd\u6570\u7b7e\u540d\u4fdd\u6301\u517c\u5bb9",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u5199\u4e00\u4e2a\u767b\u5f55\u63a5\u53e3\uff0c\u8981\u6c42\u7528 JWT\uff0c\u652f\u6301\u624b\u673a\u53f7\u548c\u90ae\u7bb1\u4e24\u79cd\u65b9\u5f0f\uff0c\u63a5\u53e3\u653e\u5728 src/auth/login.ts",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u8fd9\u4e2a\u4ee3\u7801\u5e93\u662f\u4ec0\u4e48\u67b6\u6784\uff1f\u6211\u7b2c\u4e00\u6b21\u63a5\u624b\uff0c\u60f3\u5148\u5efa\u7acb\u4e00\u4e2a\u6574\u4f53\u5370\u8c61\u3002\u770b\u8d77\u6765\u662f\u4e2a monorepo\uff0c\u6709 packages/ \u76ee\u5f55",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u8dd1\u4e00\u4e0b pnpm test \u770b\u770b\u5355\u5143\u6d4b\u8bd5\u90fd\u8fc7\u4e86\u6ca1\uff0c\u7279\u522b\u662f auth \u76f8\u5173\u7684\u90a3\u51e0\u4e2a spec",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u770b\u4e00\u4e0b git log \u91cc\u6700\u8fd1\u7684 5 \u4e2a commit \u90fd\u6539\u4e86\u4ec0\u4e48",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "test_passed": 4,
+      "test_failed": 4,
+      "test_total": 8,
+      "test_results": [
+        {
+          "query": "\u6211\u4eec QA \u53cd\u9988\u751f\u4ea7\u73af\u5883\u5076\u5c14\u4f1a\u8fd4\u56de 500\uff0c\u6211\u6000\u7591\u662f createSession \u91cc await \u6ca1\u52a0 try/catch\uff0c\u80fd\u4e0d\u80fd\u5e2e\u6211\u626b\u4e00\u4e0b src/auth/session.ts \u548c src/auth/login.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u6211\u521a\u6539\u4e86 UserService \u91cc\u7684\u6743\u9650\u5224\u65ad\u903b\u8f91\uff0c\u5e2e\u6211\u786e\u8ba4\u4e0b\u6709\u6ca1\u6709\u5b89\u5168\u6f0f\u6d1e\u6216\u8005\u8d8a\u6743\u7684\u53ef\u80fd\uff0c\u6587\u4ef6\u5728 src/services/UserService.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u5feb\u770b\u770b\u6211\u8fd9\u6bb5\u4ee3\u7801\u6709\u6ca1\u6709\u660e\u663e\u7684\u95ee\u9898\uff0c\u5c31 30 \u884c\u5de6\u53f3\uff0c\u521a\u7c98\u5230 src/utils/parseConfig.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u6bb5 TypeScript \u6211\u5199\u5f97\u5bf9\u5417\uff1f\u611f\u89c9\u6709\u70b9\u602a\uff1a`async function fetchUser(id) { const data = await db.query('SELECT * FROM users WHERE id=' + id); return data[0]; }`",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u6211\u60f3\u91cd\u6784 UserService\uff0c\u73b0\u5728\u4e00\u4e2a\u7c7b 800 \u884c\u592a\u96be\u7ef4\u62a4\u4e86\uff0c\u4f60\u5e2e\u6211\u60f3\u60f3\u600e\u4e48\u62c6\u6bd4\u8f83\u597d\uff0c\u662f\u6309\u529f\u80fd\u62c6\u8fd8\u662f\u6309\u6570\u636e\u6a21\u578b\u62c6",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u6211\u7684 vite build \u4e3a\u4ec0\u4e48\u62a5 `TS2322: Type 'string' is not assignable to type 'number'`\uff1f\u62a5\u9519\u6307\u5411 src/config.ts:42",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u89e3\u91ca\u4e00\u4e0b src/auth/session.ts \u8fd9\u6bb5\u4ee3\u7801\u662f\u505a\u4ec0\u4e48\u7684\uff0c\u6211\u63a5\u624b\u8fd9\u4e2a\u9879\u76ee\u4e24\u5929\uff0c\u6ca1\u770b\u61c2 `makeSession` \u8fd9\u4e2a\u51fd\u6570\u7684\u903b\u8f91",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u7ed9\u6211\u8bb2\u4e00\u4e0b TypeScript \u7684 generic constraint \u662f\u600e\u4e48\u7528\u7684\uff0c\u6211\u770b\u5230 `<T extends Record<string, unknown>>` \u4e0d\u592a\u7406\u89e3",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ],
+      "passed": 6,
+      "failed": 6,
+      "total": 12,
+      "results": [
+        {
+          "query": "\u628a\u521a\u63d0\u4ea4\u7684\u8fd9\u4e09\u4e2a\u6587\u4ef6\u8fc7\u4e00\u773c\u5427\uff1asrc/api/users.ts\u3001src/api/posts.ts\u3001src/middleware/auth.ts",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u662f\u6211\u5b9e\u4e60\u751f\u5199\u7684\u8ba2\u5355\u53d6\u6d88\u529f\u80fd\uff0c\u6211\u62c5\u5fc3\u8fb9\u754c\u60c5\u51b5\u6ca1\u8003\u8651\u5168\uff0c\u5c24\u5176\u662f\u5e76\u53d1\u53d6\u6d88\u548c\u5df2\u53d1\u8d27\u8ba2\u5355\u7684\u5904\u7406\uff0c\u5e2e\u6211\u68c0\u67e5\u4e00\u4e0b OrderController.cancel \u65b9\u6cd5",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u91cd\u6784\u4e86\u4e00\u4e0b payment \u6a21\u5757\uff0c\u4ece 3 \u4e2a\u6587\u4ef6\u5408\u6210 1 \u4e2a\uff0c\u603b\u5171 200 \u591a\u884c\uff0c\u5e2e\u6211\u770b\u770b\u62bd\u8c61\u662f\u4e0d\u662f\u5408\u7406\u3001\u6709\u6ca1\u6709\u628a\u672c\u8be5\u5206\u5f00\u7684\u804c\u8d23\u786c\u7cc5\u5230\u4e00\u8d77",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "PR #234 CI \u90fd\u8fc7\u4e86\uff0c\u4f46\u6211\u8fd8\u662f\u60f3\u5728\u5408\u4e4b\u524d\u627e\u4eba\u770b\u4e00\u773c\u6574\u4f53\u67b6\u6784\u6709\u6ca1\u6709\u95ee\u9898\uff0c\u7279\u522b\u662f\u65b0\u589e\u7684 PaymentProcessor \u7c7b\u548c\u73b0\u6709 OrderService \u7684\u8026\u5408",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u770b\u770b feat/payment \u8fd9\u4e2a\u5206\u652f\u7684\u6539\u52a8\u6709\u6ca1\u6709\u95ee\u9898\uff0c\u6211\u51c6\u5907\u5408 main \u4e86\u3002diff \u5927\u6982 300 \u884c\uff0c\u6539\u4e86 3 \u4e2a\u6587\u4ef6",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u8fd9\u4e2a bug \u600e\u4e48\u4fee\uff1f\u6211\u4f20 null \u8fdb parseConfig \u7684\u65f6\u5019\u62a5 `Cannot read property 'host' of undefined`\uff0c\u6211\u60f3\u76f4\u63a5\u6539\u6389",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211 review \u4e00\u4e0b\u8fd9\u6bb5\u4ee3\u7801\uff0c\u662f\u6211\u521a\u5199\u7684\u767b\u5f55\u63a5\u53e3\uff1asrc/auth/login.ts \u91cc\u7528 jwt \u6821\u9a8c\uff0c\u6015\u6709\u6f0f\u6d1e",
+          "should_trigger": true,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": false
+        },
+        {
+          "query": "\u5e2e\u6211\u628a src/legacy/user.js \u8fd9\u4e2a\u6587\u4ef6\u4ece JS \u6539\u6210 TS\uff0c\u52a0\u4e0a\u7c7b\u578b\uff0c\u51fd\u6570\u7b7e\u540d\u4fdd\u6301\u517c\u5bb9",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u5199\u4e00\u4e2a\u767b\u5f55\u63a5\u53e3\uff0c\u8981\u6c42\u7528 JWT\uff0c\u652f\u6301\u624b\u673a\u53f7\u548c\u90ae\u7bb1\u4e24\u79cd\u65b9\u5f0f\uff0c\u63a5\u53e3\u653e\u5728 src/auth/login.ts",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u8fd9\u4e2a\u4ee3\u7801\u5e93\u662f\u4ec0\u4e48\u67b6\u6784\uff1f\u6211\u7b2c\u4e00\u6b21\u63a5\u624b\uff0c\u60f3\u5148\u5efa\u7acb\u4e00\u4e2a\u6574\u4f53\u5370\u8c61\u3002\u770b\u8d77\u6765\u662f\u4e2a monorepo\uff0c\u6709 packages/ \u76ee\u5f55",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u5e2e\u6211\u8dd1\u4e00\u4e0b pnpm test \u770b\u770b\u5355\u5143\u6d4b\u8bd5\u90fd\u8fc7\u4e86\u6ca1\uff0c\u7279\u522b\u662f auth \u76f8\u5173\u7684\u90a3\u51e0\u4e2a spec",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        },
+        {
+          "query": "\u770b\u4e00\u4e0b git log \u91cc\u6700\u8fd1\u7684 5 \u4e2a commit \u90fd\u6539\u4e86\u4ec0\u4e48",
+          "should_trigger": false,
+          "trigger_rate": 0.0,
+          "triggers": 0,
+          "runs": 3,
+          "pass": true
+        }
+      ]
+    }
+  ]
+}
