@@ -8,7 +8,7 @@
     {
       "name": "x-dev-pipeline",
       "description": "Structured dev workflow with spec, requirements, planning, execution, code review, and fix loops",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "source": "./",
       "author": {
         "name": "ktkid"

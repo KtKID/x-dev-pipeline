@@ -33,7 +33,7 @@ x-req 不负责：
 
 * 没有目录则创建对应目录
 ```
-.claude/tasks/<task-name>/
+dev-pipeline/tasks/<task-name>/
 ├── README.md      # 完整需求报告 + 状态追踪
 ├── plan.md        # 开发计划（x-plan 负责）
 ├── dev-checklist.md     # 开发任务（x-plan 负责）
@@ -41,7 +41,7 @@ x-req 不负责：
 └── artifacts/     # 附件目录
 ```
 
-**task 根目录固定为 `.claude/tasks/`**
+**task 根目录固定为 `dev-pipeline/tasks/`**
 
 ---
 
@@ -150,7 +150,7 @@ x-req 不负责：
 用户确认后，保存到 task 目录的 `README.md`：
 
 ```
-.claude/tasks/<task-name>/
+dev-pipeline/tasks/<task-name>/
 └── README.md    # 完整需求报告
 ```
 
@@ -230,7 +230,7 @@ x-req 不负责：
 ### 5. 完成确认
 
 保存后，向用户报告：
-- 创建的 task 目录路径（`.claude/tasks/<task-name>/`）
+- 创建的 task 目录路径（`dev-pipeline/tasks/<task-name>/`）
 - 包含的文件：README.md（完整需求报告）
 - 推荐下一步：选择同一 task 进入 x-plan
 
@@ -238,11 +238,11 @@ x-req 不负责：
 
 ## 目录命名规范
 
-- **task 目录**：`.claude/tasks/<task-name>/`
+- **task 目录**：`dev-pipeline/tasks/<task-name>/`
 - **task 名称**：使用 URL 友好格式（空格转为 `-`，斜杠转为 `-`，特殊字符去除）
-- **示例**：`用户登录` → `.claude/tasks/user-login/`，`支付/退款功能` → `.claude/tasks/payment-refund/`
+- **示例**：`用户登录` → `dev-pipeline/tasks/user-login/`，`支付/退款功能` → `dev-pipeline/tasks/payment-refund/`
 
-**注意**：task 目录固定在 `.claude/tasks/` 下，不使用 `requirements/`、`plan/` 等平级目录。
+**注意**：task 目录固定在 `dev-pipeline/tasks/` 下，不使用 `requirements/`、`plan/` 等平级目录。
 
 ---
 
@@ -267,7 +267,7 @@ x-req 不负责：
 ### x-req 负责
 - 理解需求、澄清和模块拆分
 - 输出完整需求报告
-- 保存到 `.claude/tasks/<task-name>/README.md`
+- 保存到 `dev-pipeline/tasks/<task-name>/README.md`
 - 自动关联相关文档到需求报告与设计文档导航
 
 ### x-req 不负责

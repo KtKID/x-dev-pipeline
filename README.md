@@ -53,7 +53,7 @@ What you get isn't just "one reply" — it's a process closer to real developmen
 Typical output looks like this:
 
 ```text
-.claude/tasks/<task-name>/
+dev-pipeline/tasks/<task-name>/
 ├── README.md
 ├── changelog.md
 └── cr-report-*.md
@@ -326,7 +326,7 @@ If you're using another tool (Cursor, Codex, Windsurf, Cline, etc.), just tell y
 
 The AI will adjust task directory locations and trigger mechanisms based on the target tool's conventions, while preserving the full workflow chain.
 
-> **Note**: The default task output directory in the skills is `.claude/tasks/`. During adaptation, the AI may ask whether you'd like to change it to a different path (e.g., `.codex/tasks/`) — just confirm based on your setup.
+> **Note**: The default task output directory in the skills is `dev-pipeline/tasks/`. During adaptation, the AI may ask whether you'd like to change it to a different path (e.g., `.codex/tasks/`) — just confirm based on your setup.
 
 ## Shared Status Markers
 

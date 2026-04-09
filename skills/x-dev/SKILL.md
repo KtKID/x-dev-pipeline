@@ -2,7 +2,7 @@
 name: x-dev
 description: |
   开发任务执行 skill。基于现有功能计划目录执行开发任务，
-  读取 .claude/tasks/<功能名称>/README.md、req.md、plan.md、dev-checklist.md、changelog.md，
+  读取 dev-pipeline/tasks/<功能名称>/README.md、plan.md、dev-checklist.md、changelog.md，
   按开发清单中的未完成任务进行实现、修复、测试，并回写任务状态与变更记录。
   触发方式：用户输入 "x-dev <功能名称>" 或提供现有功能目录路径。
 ---
@@ -46,7 +46,7 @@ x-dev <功能目录路径>
 输入可以是：
 
 * 功能名称，例如：`x-dev 设备 Token 认证`
-* 现有目录路径，例如：`x-dev .claude/tasks/设备 Token 认证`
+* 现有目录路径，例如：`x-dev dev-pipeline/tasks/设备 Token 认证`
 
 ---
 
@@ -55,7 +55,7 @@ x-dev <功能目录路径>
 x-dev 默认基于以下目录结构工作：
 
 ```text
-.claude/tasks/<功能名称>/
+dev-pipeline/tasks/<功能名称>/
 ├── README.md      # 完整需求报告（x-req 负责）
 ├── plan.md        # 开发计划（x-plan 负责）
 ├── dev-checklist.md     # 开发任务（x-plan 负责）
@@ -65,7 +65,7 @@ x-dev 默认基于以下目录结构工作：
 处理规则：
 
 1. 优先按用户提供的目录路径读取
-2. 如果用户提供的是功能名称，则查找 `.claude/tasks/<功能名称>/`
+2. 如果用户提供的是功能名称，则查找 `dev-pipeline/tasks/<功能名称>/`
 3. 必须确认以下文件存在：
 
    * `README.md`（含完整需求报告）
@@ -329,7 +329,7 @@ x-dev 在执行任务过程中，必须实时更新 `dev-checklist.md` 中的任
 
 如果找不到目标功能目录：
 
-* 明确提示未找到对应 `.claude/tasks/<功能名称>/`
+* 明确提示未找到对应 `dev-pipeline/tasks/<功能名称>/`
 * 提示用户先通过 x-req + x-plan 创建 task 目录或提供正确路径
 
 ### 缺少计划文件

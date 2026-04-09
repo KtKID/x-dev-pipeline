@@ -2,10 +2,10 @@
 name: x-qdev
 description: |
   轻量级快速开发 skill。用于小功能实现、小修改、bug 修复等不需要走完整 x-req → x-plan → x-dev 流程的场景。
-  仍然在 .claude/tasks/<功能名称>/ 下创建任务记录（README.md + changelog.md），使用与 x-dev 一致的状态标记体系。
+  仍然在 dev-pipeline/tasks/<功能名称>/ 下创建任务记录（README.md + changelog.md），使用与 x-dev 一致的状态标记体系。
   开发完成后自动进行代码审查。
   当用户输入 "x-qdev <功能名称>"、"快速开发 <功能名称>"、"小功能 <功能名称>"、或描述一个明显是小改动的任务时使用。
-  与 x-dev 的区别：x-dev 需要先有 x-req 和 x-plan 产出的 req.md、plan.md、dev-checklist.md，适合复杂功能；
+  与 x-dev 的区别：x-dev 需要先有 x-req 和 x-plan 产出的计划文件（plan.md、dev-checklist.md），适合复杂功能；
   x-qdev 自包含，一步到位，适合一两个小时内能完成的改动。
 ---
 
@@ -31,7 +31,7 @@ description: |
 
 ## 第二步：创建任务记录
 
-在 `.claude/tasks/<功能名称>/` 下创建 README.md：
+在 `dev-pipeline/tasks/<功能名称>/` 下创建 README.md：
 
 ```markdown
 # <功能名称>
@@ -94,7 +94,7 @@ description: |
 
 ## 第四步：记录变更
 
-在 `.claude/tasks/<功能名称>/changelog.md` 中记录关键变更：
+在 `dev-pipeline/tasks/<功能名称>/changelog.md` 中记录关键变更：
 
 ```markdown
 # 变更记录
