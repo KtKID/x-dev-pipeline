@@ -193,7 +193,13 @@ x-spec -> x-req -> x-plan -> x-dev -> x-cr -> x-fix
 
 ## 安装
 
-### Claude Code
+### 一键安装（推荐）
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/KtKID/x-dev-pipeline/main/install.sh | bash
+```
+
+### Claude Code（手动）
 
 ```bash
 git clone https://github.com/KtKID/x-dev-pipeline.git ~/.claude/plugins/x-dev-pipeline

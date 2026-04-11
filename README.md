@@ -195,7 +195,13 @@ System architecture planning. For larger projects, complex modules, architecture
 
 ## Installation
 
-### Claude Code
+### Quick Install (Recommended)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/KtKID/x-dev-pipeline/main/install.sh | bash
+```
+
+### Claude Code (Manual)
 
 ```bash
 git clone https://github.com/KtKID/x-dev-pipeline.git ~/.claude/plugins/x-dev-pipeline
