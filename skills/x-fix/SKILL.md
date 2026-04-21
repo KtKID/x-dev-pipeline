@@ -2,8 +2,8 @@
 name: x-fix
 description: |
   Bug 修复执行 skill。分两种模式：
-  1. 用户直接报告 Bug → 定位根因 → 修复 → 产出 fix-report-*.md（无需 CR 报告）
-  2. 有 x-cr 的 CR 报告 → 按报告逐条修复 → 更新报告状态
+  1. 用户直接报告 Bug → 定位根因 → 修复 → 产出 fix-report-*.md 或 fix-note-*.md（无需 CR 报告）
+  2. 有 x-cr 的 CR 报告 → 按报告逐条修复 → 回写同一份 `reports/cr/cr-report-*.md` 主档并产出修复记录
   触发方式："x-fix"、"修一下这个 bug"、"这个功能坏了"、"按 CR 报告修复"、
   "把 CR 问题修了"。两种模式互斥：有 CR 报告走模式 2，无报告走模式 1。
 ---
@@ -14,14 +14,17 @@ description: |
 
 检查用户是否携带了 CR 报告信息：
 
-- **有 CR 报告**（用户在指令中提供了 `cr-report-*.md` 路径，或提到"按 CR 报告"、"CR 问题"）→ 加载 `references/cr-fix-mode.md` 执行模式 2
+- **有 CR 报告**（用户在指令中提供了 `reports/cr/cr-report-*.md` 路径，或提到"按 CR 报告"、"CR 问题"）→ 加载 `references/cr-fix-mode.md` 执行模式 2
 - **无 CR 报告**（用户直接描述 bug 或问题现象）→ 加载 `references/bug-fix-mode.md` 执行模式 1
 
 ---
 
 ## 修复报告模板（模式 1 产出物）
 
-所有修复完成后，必须在 `docs/fixes/<YYYYMMDD-bug-name>/fix-report.md` 产出报告：
+所有修复完成后，必须在 `reports/fix/` 产出报告或修补单：
+
+- `reports/fix/fix-report-YYYYMMDD-HHmmss.md`：CR 驱动、跨文件、需要完整闭环的修复
+- `reports/fix/fix-note-YYYYMMDD-HHmmss.md`：人工发现的单点小修补
 
 ```markdown
 # [Bug 名称] 修复报告
@@ -52,9 +55,9 @@ description: |
 [验证方式：无/本地测试/用例说明]
 ```
 
-报告路径按以下规则确定：
-1. 查找 `docs/` 下有无与本 bug 功能相关的已有目录 → 产出到该目录作为补充
-2. 无已有目录 → 询问用户是否创建 `docs/fixes/<YYYYMMDD-bug-name>/`，用户拒绝则直接产出一份 fix-report.md 在项目根目录
+报告路径统一写入 `reports/fix/`，文件类型由修复范围决定。
+
+如果是单点人工修补，优先写 `fix-note-YYYYMMDD-HHmmss.md`；如果是完整 bug 修复或 CR 驱动修复，优先写 `fix-report-YYYYMMDD-HHmmss.md`。
 
 ---
 

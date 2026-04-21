@@ -9,6 +9,9 @@
 ```markdown
 # Code Review 报告
 
+> Report ID: YYYYMMDD-HHmmss
+> Scope: task | full-repo
+> Task ID: <如有>
 > Review 日期：YYYY-MM-DD
 > 语言：<识别结果>
 > 审查范围：<文件 / 模块 / diff>
@@ -92,6 +95,14 @@
   - ...
 - 建议修复项：
   - ...
+
+## 修复备注（x-fix 回写）
+
+> 仅在修复后由 x-fix 追加到同一份 CR 主档。
+
+| # | 严重程度 | 文件 | 处置结果 | 修复方式 | 备注 |
+|---|----------|------|----------|----------|------|
+| B1 | P0 | `xxx.ts:32` | ✅已修复 | 同方案 | |
 ```
 
 ---
@@ -114,6 +125,9 @@
 ```markdown
 # Code Review 报告
 
+> Report ID: 20260409-101500
+> Scope: task
+> Task ID: login-fix
 > Review 日期：2026-04-09
 > 语言：TypeScript
 > 审查范围：`src/auth/login.ts`、`src/auth/session.ts`（git diff）
@@ -223,6 +237,15 @@
 - 建议修复项：
   - B3（P1 需讨论）撞库风险与产品体验的权衡
   - 补充登录失败分支的单元测试
+
+## 修复备注（x-fix 回写）
+
+> 修复完成后，x-fix 会在这里追加处置结果。
+
+| # | 严重程度 | 文件 | 处置结果 | 修复方式 | 备注 |
+|---|----------|------|----------|----------|------|
+| B1 | P0 | `src/auth/login.ts:47` | ✅已修复 | `session.clear()` 补回失败路径 | |
+| B2 | P1 | `src/auth/session.ts:22` | ✅已修复 | 给 `await db.insert(...)` 加错误处理 | |
 ```
 
 ---

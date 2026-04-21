@@ -52,7 +52,7 @@ x-cr 审查完成并保存报告后，立刻按下面的流程继续推进，不
 2. 若 P0 + P1 == 0：
    - 在 CR 报告中把 P1.5 / P2 / P3 条目标记为 `⏭auto-loop-skipped`
    - 在 task 的 changelog.md 追加一条汇总：
-     `任务 #N 跳过 P1.5×a / P2×b / P3×c（见 cr-report-*.md）`
+     `任务 #N 跳过 P1.5×a / P2×b / P3×c（见 reports/cr/cr-report-*.md）`
    - 将当前任务状态在 dev-checklist.md 中改为 ✅ 已完成
    - 返回 x-dev，通知"本任务审查通过，请取下一个任务"
 

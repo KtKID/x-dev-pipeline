@@ -55,8 +55,11 @@ Typical output looks like this:
 ```text
 dev-pipeline/tasks/<task-name>/
 ├── README.md
-├── changelog.md
-└── cr-report-*.md
+└── changelog.md
+reports/
+├── cr/cr-report-*.md
+├── fix/fix-report-*.md
+└── fix/fix-note-*.md
 ```
 
 This is the best way to experience `x-dev-pipeline` for the first time:
@@ -118,7 +121,7 @@ Typically, you'll get:
 - Dev checklist
 - Changelog
 - Code review report
-- Fix result record
+- Fix report or fix note
 
 These artifacts mean:
 
@@ -171,11 +174,11 @@ Lightweight quick development entry point. Best for small features, localized op
 
 ### `/x-cr`
 
-Structured code review. Runs tiered checks on changes, flagging issues, risks, and improvement suggestions.
+Structured code review. Runs tiered checks on changes, flags issues, risks, and improvement suggestions, and writes the CR main report to `reports/cr/cr-report-YYYYMMDD-HHmmss.md`.
 
 ### `/x-fix`
 
-Fix by review report. Review doesn't end at reading — problems get actually solved.
+Fix by review report. Review doesn't end at reading — problems get actually solved, and the repair record is written to the same CR main report plus `reports/fix/`.
 
 ### `/x-req`
 

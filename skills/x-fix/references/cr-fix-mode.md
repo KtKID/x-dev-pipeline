@@ -1,14 +1,14 @@
 # 模式 2：CR 报告修复
 
-> 当用户提供了 CR 报告（`cr-report-*.md`）或明确提到"按 CR 报告修复"时执行。
+> 当用户提供了 CR 报告（`reports/cr/cr-report-*.md`）或明确提到"按 CR 报告修复"时执行。
 > 严格按以下步骤执行，不可跳步。
 
 ## 步骤 1：定位报告
 
 报告查找优先级：
 1. 用户在指令中显式指定路径 → 直接使用
-2. 当前工作目录下最新的 `cr-report-*.md`
-3. `dev-pipeline/tasks/` 各子目录下最新的 `cr-report-*.md`
+2. 当前仓库 `reports/cr/` 下最新的 `cr-report-*.md`
+3. 兼容迁移期的当前工作目录或 task 目录下最新的 `cr-report-*.md`
 
 **无报告时**：立即停止，输出：
 ```
@@ -104,6 +104,8 @@
    **处置结果**：✅已修复 / ➖无需修复 / ⏭已跳过
    **处置说明**：[简述处置原因或修复方案]
    ```
+
+3. 同步在 `reports/fix/fix-report-YYYYMMDD-HHmmss.md` 或 `reports/fix/fix-note-YYYYMMDD-HHmmss.md` 记录本次修复过程
 
 ---
 

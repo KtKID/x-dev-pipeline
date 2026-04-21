@@ -1,5 +1,8 @@
 # [Bug 名称] 修复报告
 
+> report_id: YYYYMMDD-HHmmss
+> scope: task | full-repo | bug-fix
+> related_cr: reports/cr/cr-report-YYYYMMDD-HHmmss.md（如有）
 > 修复时间：YYYY-MM-DD HH:mm
 > 修复人：xxx (x-fix)
 > Bug 来源：用户报告

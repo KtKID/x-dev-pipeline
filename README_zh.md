@@ -53,8 +53,11 @@
 ```text
 dev-pipeline/tasks/<task-name>/
 ├── README.md
-├── changelog.md
-└── cr-report-*.md
+└── changelog.md
+reports/
+├── cr/cr-report-*.md
+├── fix/fix-report-*.md
+└── fix/fix-note-*.md
 ```
 
 这也是 `x-dev-pipeline` 最适合第一次体验的地方：
@@ -116,7 +119,7 @@ dev-pipeline/tasks/<task-name>/
 - 开发清单
 - 变更记录
 - 代码审查报告
-- 修复结果记录
+- 修复报告或轻量修补单
 
 这些产物的意义在于：
 
@@ -169,11 +172,11 @@ x-spec -> x-req -> x-plan -> x-dev -> x-cr -> x-fix
 
 ### `/x-cr`
 
-结构化代码审查。对改动进行分级检查，指出问题、风险和改进建议。
+结构化代码审查。对改动进行分级检查，指出问题、风险和改进建议，并把 CR 主报告写到 `reports/cr/cr-report-YYYYMMDD-HHmmss.md`。
 
 ### `/x-fix`
 
-按审查报告修复。不是 review 完就结束，而是把问题真正解决。
+按审查报告修复。不是 review 完就结束，而是把问题真正解决，并在同一份 CR 主报告里回写修复结果，另存 `reports/fix/` 下的修复记录。
 
 ### `/x-req`
 

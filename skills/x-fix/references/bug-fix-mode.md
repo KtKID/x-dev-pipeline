@@ -41,9 +41,9 @@
 
 ### 步骤 5：产出修复报告
 
-按 SKILL.md 中的报告模板生成 `fix-report.md`，路径遵循：
-1. 查 `docs/` 有无同名功能目录 → 产出到该目录作为补充
-2. 无 → 询问用户是否创建独立目录，拒绝则产到项目根目录
+按 SKILL.md 中的报告模板生成 `fix-report.md` 或 `fix-note.md`，路径统一写入 `reports/fix/`：
+1. 完整 bug 修复、跨文件修复、需要完整根因链路 → `reports/fix/fix-report-YYYYMMDD-HHmmss.md`
+2. 单个人工发现的问题、小修补 → `reports/fix/fix-note-YYYYMMDD-HHmmss.md`
 
 ### 步骤 6：提醒提交
 
