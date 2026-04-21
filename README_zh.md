@@ -220,11 +220,21 @@ claude plugin install x-dev-pipeline@x-dev-pipeline --scope user
 
 ### Codex
 
+这个仓库现在自带 repo 级 Codex marketplace：`.agents/plugins/marketplace.json`。
+
+直接在 Codex 里打开这个仓库，Local 就可以从工作区发现 `x-dev-pipeline`。
+
 克隆到本地插件目录：
 
 ```bash
 mkdir -p ~/.codex/plugins
 git clone https://github.com/KtKID/x-dev-pipeline.git ~/.codex/plugins/x-dev-pipeline
+```
+
+Windows 环境可以直接运行下面的脚本，把当前 checkout 同步到 Codex，并刷新用户级 marketplace：
+
+```powershell
+./install-codex.ps1
 ```
 
 目录关系如下：
@@ -276,6 +286,8 @@ codex
 ```text
 examples/codex-marketplace.json
 ```
+
+这个仓库里的 repo 级 marketplace 使用 `../..`，这样 Codex 可以从 `.agents/plugins/marketplace.json` 解析回插件根目录。
 
 注意两点：
 

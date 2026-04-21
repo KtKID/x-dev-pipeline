@@ -222,11 +222,21 @@ claude plugin install x-dev-pipeline@x-dev-pipeline --scope user
 
 ### Codex
 
+This repo ships a repo-scoped Codex marketplace at `.agents/plugins/marketplace.json`.
+
+Open the repo in Codex and Local can discover `x-dev-pipeline` directly from the workspace.
+
 Clone to the local plugin directory:
 
 ```bash
 mkdir -p ~/.codex/plugins
 git clone https://github.com/KtKID/x-dev-pipeline.git ~/.codex/plugins/x-dev-pipeline
+```
+
+On Windows, you can sync the current checkout into Codex and refresh the user-level marketplace files with:
+
+```powershell
+./install-codex.ps1
 ```
 
 Directory layout:
@@ -283,6 +293,7 @@ Two things to note:
 
 - `source.path` is resolved relative to the root directory where `~/.agents/plugins/marketplace.json` lives
 - For personal marketplaces, the common pattern in the official docs is `./.codex/plugins/<plugin-name>`
+- The repo-scoped marketplace in this repo uses `../..` so Codex can resolve the plugin root from `.agents/plugins/marketplace.json`
 
 If you already have `~/.agents/plugins/marketplace.json`, just append the plugin entry above to the `plugins` array — don't overwrite existing plugins. Save, restart Codex, then run:
 
