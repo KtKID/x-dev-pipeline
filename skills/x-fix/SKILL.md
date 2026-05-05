@@ -142,3 +142,47 @@ AI 根据当前对话上下文自主判断是否处于"连续开发模式"：
 - **只修 P0/P1**：不在循环内处理架构级或样式级问题
 - **不自动 commit**：git 操作仍由用户手动触发
 - **不扩大战线**：严格限定在当前任务的问题列表内
+
+---
+
+## 失败回流规则（qa-gate-pipeline 改造）
+
+x-fix 不只服务于 bug 报告与 cr-report，也接收来自 x-verify / x-qua-gate R1/R2/R3 的 fail 触发。fix 完成后，**回到哪个节点重审**按下列优先级匹配（命中即停）：
+
+1. fix 涉及函数签名变化 / 新增/删除公开 API → **必须回 R1**
+2. fix 改动了被测代码的核心业务逻辑文件（非测试 / 非配置 / 非注释）→ **必须回 R1**
+3. fix 只改测试文件 / 配置 / 文档 / 注释 → **回当前失败节点**
+4. 其他不确定情况 → **保守回 R1**
+
+### fix-attempts 6 次共享上限
+
+**fix-counter 文件协议**（与 x-verify / x-qua-gate 共享）：
+
+- 路径：`dev-pipeline/tasks/<task>/reports/.fix-counter`
+- 格式：单行 ASCII 整数 + 行尾换行（如 `3\n`）
+- 读取：`c=$(cat reports/.fix-counter)`；不存在则视为 0
+- 递增（x-fix 的责任）：进入 fix 前 `echo $((c+1)) > reports/.fix-counter`
+- 重置（x-qua-gate 在 R3 通过后做）：`echo 0 > reports/.fix-counter`
+
+行为规则：
+
+- 任何 verify / R1 / R2 / R3 fail 触发 x-fix 时，**先把 fix-counter +1 再开始 fix**（避免崩溃后死循环）。
+- fix-counter >= 6 → 不进 fix，直接生成 `reports/fix-blocked-report.md`，要求用户决策（继续 / 修改需求 / 放弃）。
+- 任务最终通过 x-qua-gate（R3 pass）后，由 x-qua-gate 把 fix-counter 重置为 0。
+
+### fix 报告路径分类
+
+按触发节点分别写到不同子目录：
+
+| 触发节点 | fix 报告路径 |
+|---------|-------------|
+| x-verify fail | `reports/fix/fix-verify-YYYYMMDD-HHmmss.md` |
+| R1 fail | `reports/fix/fix-r1-spec-YYYYMMDD-HHmmss.md` |
+| R2 fail | `reports/fix/fix-r2-boundary-YYYYMMDD-HHmmss.md` |
+| R3 fail | `reports/fix/fix-r3-test-YYYYMMDD-HHmmss.md` |
+
+旧路径 `reports/fix/fix-report-*.md` 与 `fix-note-*.md` 仍保留，**只用于直接 bug fix 模式**（用户报告 bug 走原流程）。
+
+### 子模式
+
+详见 `references/qa-gate-fix-mode.md`，定义 verify-fix / r1-spec-fix / r2-boundary-fix / r3-test-fix 四种子模式的输入识别与特殊规则。

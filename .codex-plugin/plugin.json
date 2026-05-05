@@ -32,8 +32,9 @@
     "brandColor": "#3B82F6",
     "defaultPrompt": [
       "x-qdev add dark mode toggle to settings page",
-      "x-cr review the current diff",
-      "x-fix fix issues from the latest review report"
+      "x-verify run dev-report command list against the latest task",
+      "x-qua-gate review the current task with R1/R2/R3 reviewers",
+      "x-fix fix issues from the latest verify or qa-gate report"
     ],
     "composerIcon": "./assets/logo.png",
     "logo": "./assets/logo.png"

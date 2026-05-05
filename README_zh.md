@@ -83,20 +83,24 @@ reports/
 日常开发里，我最推荐这条路径：
 
 ```text
-/x-qdev -> /x-cr -> /x-fix
+/x-qdev -> /x-verify -> /x-qua-gate -> /x-fix
 ```
 
 ### `/x-qdev`
 
 适合先把一个小功能、小改动、小模块快速落地。
 
-### `/x-cr`
+### `/x-verify`
 
-对已经完成的改动做结构化审查，不再只是“看一眼差不多”。
+Gate ① 事实验证。读 `dev-report.md` 中的命令清单，复跑后比对 exit code 与关键输出，**不主观判断代码质量**。
+
+### `/x-qua-gate`
+
+Gate ② 质量评审（取代老 `/x-cr`）。串行 dispatch 3 个 opus 子 agent reviewer：R1 spec 符合性 → R2 边界完整性 → R3 测试真实性。
 
 ### `/x-fix`
 
-根据审查报告继续修复，让 review 真正形成闭环。
+根据 verify / qa-gate 报告继续修复，让评审真正形成闭环；按 4 条回流规则决定回到哪个节点重审。
 
 这条路径特别适合：
 
@@ -139,10 +143,15 @@ reports/
 对于更复杂的任务，它提供完整开发流程：
 
 ```text
-x-spec -> x-req -> x-plan -> x-dev -> x-cr -> x-fix
+x-spec -> x-req -> x-plan -> x-dev -> x-verify -> x-qua-gate -> x-fix
                     ^
                  x-qdev
 ```
+
+独立巡检（不在主流程内，按需触发）：
+
+- `/x-audit-perf` 性能巡检（手动 / 大里程碑）
+- `/x-audit-style` 规范巡检（手动 / 周期）
 
 你可以这样理解：
 
@@ -170,13 +179,29 @@ x-spec -> x-req -> x-plan -> x-dev -> x-cr -> x-fix
 
 轻量级快速开发入口。适合小功能、局部优化、模块微调，是最推荐的第一次使用方式。
 
-### `/x-cr`
+### `/x-verify`
 
-结构化代码审查。对改动进行分级检查，指出问题、风险和改进建议，并把 CR 主报告写到 `reports/cr/cr-report-YYYYMMDD-HHmmss.md`。
+Gate ① 事实验证。读 `dev-pipeline/tasks/<task>/dev-report.md` 中声明的验证命令清单，逐条复跑，对比实际 exit code 与关键输出片段。任一不一致即生成 `reports/verify/verify-report-*.md` 并触发 x-fix。
+
+### `/x-qua-gate`
+
+Gate ② 质量评审（取代老 `/x-cr`）。串行 dispatch 3 个 opus 子 agent reviewer：R1 spec 符合性 → R2 边界完整性 → R3 测试真实性。聚合报告写到 `reports/qa-gate/qa-gate-report-*.md`。
+
+### `/x-cr`（已废弃）
+
+> ⚠️ 自 qa-gate-pipeline 改造起，本 skill 已被 `/x-qua-gate` 取代。调用会自动重定向。详见 `skills/x-cr/SKILL.md` stub。
 
 ### `/x-fix`
 
-按审查报告修复。不是 review 完就结束，而是把问题真正解决，并在同一份 CR 主报告里回写修复结果，另存 `reports/fix/` 下的修复记录。
+按 verify / qa-gate / 老 CR 报告修复。在新链路下，按 4 条回流规则决定 fix 完后回到哪个节点重审；fix-attempts 与 verify/qa-gate 共享 6 次上限。
+
+### `/x-audit-perf`（独立巡检）
+
+性能巡检 skill，**不在主流程内**。手动或大里程碑触发，输出 `reports/audit/audit-perf-*.md`。
+
+### `/x-audit-style`（独立巡检）
+
+代码规范巡检 skill，**不在主流程内**。手动或周期触发，输出 `reports/audit/audit-style-*.md`。
 
 ### `/x-req`
 

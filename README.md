@@ -85,20 +85,24 @@ Common problems when using AI coding agents directly:
 For day-to-day development, this is the path I recommend most:
 
 ```text
-/x-qdev -> /x-cr -> /x-fix
+/x-qdev -> /x-verify -> /x-qua-gate -> /x-fix
 ```
 
 ### `/x-qdev`
 
 Quickly ship a small feature, tweak, or module.
 
-### `/x-cr`
+### `/x-verify`
 
-Run a structured review on the completed changes — no more "looks fine at a glance."
+Gate ① fact verification. Re-runs the command list declared in `dev-report.md`, compares actual exit codes and key output fragments. **No subjective code-quality judgment.**
+
+### `/x-qua-gate`
+
+Gate ② quality review (replaces the old `/x-cr`). Serially dispatches 3 opus subagent reviewers: R1 spec conformance → R2 boundary coverage → R3 test integrity.
 
 ### `/x-fix`
 
-Fix issues from the review report, closing the feedback loop for real.
+Fix issues from verify / qa-gate reports; uses 4 routing rules to decide which node to re-enter after a fix.
 
 This path is great for:
 
@@ -141,10 +145,15 @@ This is one of the core values of this repo:
 For more complex tasks, it provides a full development flow:
 
 ```text
-x-spec -> x-req -> x-plan -> x-dev -> x-cr -> x-fix
+x-spec -> x-req -> x-plan -> x-dev -> x-verify -> x-qua-gate -> x-fix
                     ^
                  x-qdev
 ```
+
+Independent audits (not in the main flow, triggered on demand):
+
+- `/x-audit-perf` — performance audit (manual / milestone)
+- `/x-audit-style` — style audit (manual / periodic)
 
 Think of it this way:
 
@@ -172,13 +181,29 @@ In short:
 
 Lightweight quick development entry point. Best for small features, localized optimizations, and module tweaks. The recommended way to start.
 
-### `/x-cr`
+### `/x-verify`
 
-Structured code review. Runs tiered checks on changes, flags issues, risks, and improvement suggestions, and writes the CR main report to `reports/cr/cr-report-YYYYMMDD-HHmmss.md`.
+Gate ① fact verification. Reads the validation command list in `dev-pipeline/tasks/<task>/dev-report.md`, re-runs each command, compares actual vs declared exit codes and key output fragments. On any mismatch, generates `reports/verify/verify-report-*.md` and triggers x-fix.
+
+### `/x-qua-gate`
+
+Gate ② quality review (replaces the old `/x-cr`). Serially dispatches 3 opus subagent reviewers: R1 spec conformance → R2 boundary coverage → R3 test integrity. The aggregated report is written to `reports/qa-gate/qa-gate-report-*.md`.
+
+### `/x-cr` (deprecated)
+
+> ⚠️ Since the qa-gate-pipeline rework, this skill has been replaced by `/x-qua-gate`. Calls are auto-redirected. See the stub at `skills/x-cr/SKILL.md`.
 
 ### `/x-fix`
 
-Fix by review report. Review doesn't end at reading — problems get actually solved, and the repair record is written to the same CR main report plus `reports/fix/`.
+Fix by verify / qa-gate / legacy CR reports. Under the new pipeline, 4 routing rules decide which node a fix returns to; the fix-attempts counter is shared with verify/qa-gate at a 6-attempt cap.
+
+### `/x-audit-perf` (independent audit)
+
+Performance audit skill — **not in the main flow**. Triggered manually or at milestones, outputs `reports/audit/audit-perf-*.md`.
+
+### `/x-audit-style` (independent audit)
+
+Style audit skill — **not in the main flow**. Triggered manually or periodically, outputs `reports/audit/audit-style-*.md`.
 
 ### `/x-req`
 

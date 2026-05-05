@@ -10,16 +10,16 @@
 
 | # | 任务 | 涉及文件 | 依赖 | 状态 | fix |
 |---|------|---------|------|------|-----|
-| T1 | dev-report.md schema 与 x-dev/x-qdev 输出改造 | skills/x-dev/templates/dev-report-template.md, skills/x-dev/SKILL.md, skills/x-qdev/SKILL.md | — | ⏳ | — |
-| T2 | x-verify skill 实现（Gate ① 命令复跑） | skills/x-verify/SKILL.md, skills/x-verify/templates/verify-report-template.md | T1 | ⏳ | — |
-| T3 | x-qua-gate skill 框架（Gate ② 评审聚合层） | skills/x-qua-gate/SKILL.md, skills/x-qua-gate/templates/qa-gate-report-template.md | T2 | ⏳ | — |
-| T4 | R1 spec-conformance reviewer prompt | skills/x-qua-gate/references/r1-spec-conformance.md | T3 | ⏳ | — |
-| T5 | R2 boundary-coverage reviewer prompt | skills/x-qua-gate/references/r2-boundary-coverage.md | T3 | ⏳ | — |
-| T6 | R3 test-integrity reviewer prompt（反测试镜像化） | skills/x-qua-gate/references/r3-test-integrity.md | T3 | ⏳ | — |
-| T7 | x-fix 失败回流改造（4 条规则 + fix-counter 共享） | skills/x-fix/SKILL.md, skills/x-fix/references/qa-gate-fix-mode.md | T2,T3 | ⏳ | — |
-| T8 | x-audit-perf skill（独立巡检） | skills/x-audit-perf/SKILL.md, skills/x-audit-perf/templates/audit-perf-template.md | — | ⏳ | — |
-| T9 | x-audit-style skill（独立巡检） | skills/x-audit-style/SKILL.md, skills/x-audit-style/templates/audit-style-template.md | — | ⏳ | — |
-| T10 | 老 x-cr 重定向 stub + 全局文档更新 + e2e smoke | skills/x-cr/SKILL.md, README.md, README_zh.md, manifests, dev-pipeline/tasks/_e2e-smoke/ | T1-T7 | ⏳ | — |
+| T1 | dev-report.md schema 与 x-dev/x-qdev 输出改造 | skills/x-dev/templates/dev-report-template.md, skills/x-dev/SKILL.md, skills/x-qdev/SKILL.md | — | 🟢 | — |
+| T2 | x-verify skill 实现（Gate ① 命令复跑） | skills/x-verify/SKILL.md, skills/x-verify/templates/verify-report-template.md | T1 | 🟢 | — |
+| T3 | x-qua-gate skill 框架（Gate ② 评审聚合层） | skills/x-qua-gate/SKILL.md, skills/x-qua-gate/templates/qa-gate-report-template.md | T2 | 🟢 | — |
+| T4 | R1 spec-conformance reviewer prompt | skills/x-qua-gate/references/r1-spec-conformance.md | T3 | 🟢 | — |
+| T5 | R2 boundary-coverage reviewer prompt | skills/x-qua-gate/references/r2-boundary-coverage.md | T3 | 🟢 | — |
+| T6 | R3 test-integrity reviewer prompt（反测试镜像化） | skills/x-qua-gate/references/r3-test-integrity.md | T3 | 🟢 | — |
+| T7 | x-fix 失败回流改造（4 条规则 + fix-counter 共享） | skills/x-fix/SKILL.md, skills/x-fix/references/qa-gate-fix-mode.md | T2,T3 | 🟢 | — |
+| T8 | x-audit-perf skill（独立巡检） | skills/x-audit-perf/SKILL.md, skills/x-audit-perf/templates/audit-perf-template.md | — | 🟢 | — |
+| T9 | x-audit-style skill（独立巡检） | skills/x-audit-style/SKILL.md, skills/x-audit-style/templates/audit-style-template.md | — | 🟢 | — |
+| T10 | 老 x-cr 重定向 stub + 全局文档更新 + e2e smoke | skills/x-cr/SKILL.md, README.md, README_zh.md, manifests, dev-pipeline/tasks/_e2e-smoke/ | T1-T7 | 🟢 | — |
 
 ## 并行机会
 
@@ -45,17 +45,20 @@ T1 → T2 → T3 → [T4 ‖ T5 ‖ T6 ‖ T8 ‖ T9 (并行)] → T7 → T10
 
 | Task | fix 次数 | 触发节点 | 备注 |
 |------|---------|---------|------|
-| —    | —       | —       | （任务进行中由 x-fix 回写） |
+| —    | 0       | —       | 本次实现期间未触发回流 |
 
-## 验收联通测试（T10 Step 5-6）
+## 验收联通测试（须用户在新会话人工触发）
 
-执行完 T10 必须跑通的 5 项 smoke：
-- [ ] 端到端正向通过：dev → verify → R1 → R2 → R3 → ✅
-- [ ] x-verify 拦截：故意写错预期 exit
-- [ ] R1 拦截：故意漏实现一条 README 要求
-- [ ] R2 拦截：故意不处理 null 输入
-- [ ] R3 拦截：故意写"测试镜像化"代码
+⚠️ AI 实现只准备 5 个 case 的 README.md 脚手架（位于 `dev-pipeline/tasks/_e2e-smoke/`），实际触发跑链路必须由用户在新会话执行。
+
+- [ ] Case 01-positive: 端到端正向通过 — 用户跑过且 reports/.fix-counter 为 0
+- [ ] Case 02-verify-fail: x-verify 拦下 — 用户确认 verify-report status: fail
+- [ ] Case 03-r1-fail: R1 拦下 — 用户确认 qa-gate-report R1 fail
+- [ ] Case 04-r2-fail: R2 拦下 — 用户确认 qa-gate-report R2 fail
+- [ ] Case 05-r3-fail: R3 拦下 — 用户确认 qa-gate-report R3 fail
+
+**在收到用户全部 5 项确认前，本 task 不能进 ✅ 状态**。在 changelog.md 里也写明"待用户 e2e 验收"。
 
 ## changelog 触发
 
-T10 Step 8 完成后，本 task 整体进入 ✅，写入 `changelog.md`。
+T10 Step 8 完成后，本 task 整体进入 🟢 测试通过（待 e2e 用户验收后再升 ✅），写入 `changelog.md`。
