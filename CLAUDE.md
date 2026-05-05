@@ -15,8 +15,12 @@ x-dev-pipeline/
 ├── skills/<name>/SKILL.md            # skill 定义（YAML frontmatter + 正文）
 │   └── references/, templates/        # reviewer prompt、报告模板
 ├── dev-pipeline/tasks/<task>/         # 用 skill 时产出的 task 工件
-│   ├── README.md, plan.md, dev-checklist.md, changelog.md, dev-report.md
-│   └── reports/{verify,qa-gate,fix,audit}/  # 各 gate 的报告 + .fix-counter
+│   ├── README.md, dev-checklist.md, diagram.html, changelog.md, dev-report.md
+│   └── reports/                       # gate 报告（全部在 task 目录下）
+│       ├── .fix-counter               # fix 次数（verify 创建，fix 递增，qua-gate 重置）
+│       ├── verify/*.md, qa-gate/*.md  # Gate ①② 报告
+│       ├── fix/*.md                   # 修复报告（按触发节点分类）
+│       └── audit/*.md                 # 独立巡检报告
 ├── .claude-plugin/                    # Claude Code marketplace 注册
 ├── .codex-plugin/, .agents/           # Codex 注册
 └── examples/, install.sh, install-codex.ps1

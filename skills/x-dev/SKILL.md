@@ -52,12 +52,32 @@ x-dev <功能目录路径>
 x-dev 默认基于以下目录结构工作：
 
 ```text
-dev-pipeline/tasks/<功能名称>/
-├── README.md          # 需求 + 技术设计 + DoD（x-req 负责）
-├── dev-checklist.md   # 开发清单（x-req 负责）
-├── changelog.md       # 关键变更（x-dev 负责）
-└── plan.md            # [可选/历史] 旧 task 可能有，新 task 不再产出
+dev-pipeline/tasks/<task>/
+├── README.md              # 需求 + 技术设计 + DoD（x-req 负责）
+├── dev-checklist.md       # 开发清单（x-req 负责）
+├── diagram.html           # 模块/组件图（x-req 负责）
+├── changelog.md           # 关键变更（x-dev 负责）
+├── dev-report.md          # 完成报告（x-dev 负责，gate 输入）
+├── plan.md                # [可选/历史] 旧 task 可能有
+└── reports/               # gate 产出目录（全部在 task 目录下）
+    ├── .fix-counter        # fix 次数计数器（x-verify 创建，x-fix 递增，x-qua-gate 重置）
+    ├── verify/             # Gate ① 报告
+    │   └── verify-report-YYYYMMDD-HHmmss.md
+    ├── qa-gate/            # Gate ② 报告
+    │   └── qa-gate-report-YYYYMMDD-HHmmss.md
+    ├── fix/                # 修复报告（按触发节点分类）
+    │   ├── fix-verify-*.md     # x-verify fail 触发
+    │   ├── fix-r1-spec-*.md    # R1 fail 触发
+    │   ├── fix-r2-boundary-*.md # R2 fail 触发
+    │   ├── fix-r3-test-*.md    # R3 fail 触发
+    │   ├── fix-report-*.md     # 直接 bug fix 模式
+    │   └── fix-note-*.md       # 单点修补
+    └── audit/              # 独立巡检（手动触发）
+        ├── audit-perf-*.md
+        └── audit-style-*.md
 ```
+
+> **所有 `reports/` 路径都是相对 task 目录**（即 `dev-pipeline/tasks/<task>/reports/`），不是项目根目录。x-verify / x-qua-gate / x-fix / x-audit 写报告时必须确认在 task 目录下操作。
 
 处理规则：
 
@@ -68,8 +88,9 @@ dev-pipeline/tasks/<功能名称>/
    * `README.md`（含需求 + 技术设计 + DoD）
    * `dev-checklist.md`
    * `changelog.md`（不存在则创建空文件）
-4. `plan.md` **不再必需**——新 task 不产出 plan.md；旧 task 如有则仍可读取
-5. 如果目录或关键文件缺失，停止执行，提示用户先通过 x-req 补齐
+4. `plan.md` 不再必需——新 task 不产出；旧 task 如有则仍可读取
+5. `reports/` 目录在首次 gate 执行时自动创建，不需要预创建
+6. 如果目录或关键文件缺失，停止执行，提示用户先通过 x-req 补齐
 
 ---
 
