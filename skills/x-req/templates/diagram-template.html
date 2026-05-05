@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title><!-- TASK_NAME --> · 模块依赖图</title>
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --surface: #F5F5F7;
+    --surface-2: #FAFAFC;
+    --border: #D2D2D7;
+    --hairline: rgba(60,60,67,0.12);
+    --label: #86868B;
+    --text: #1D1D1F;
+    --text-2: #424245;
+    --link: #0071E3;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .wrap { max-width: 1240px; margin: 56px auto; padding: 0 28px; }
+  h1 { font-size: 32px; font-weight: 600; letter-spacing: -0.022em; margin: 0 0 6px; }
+  h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.018em; margin: 40px 0 12px; }
+  .meta { color: var(--label); font-size: 14px; margin-bottom: 28px; }
+  .meta a { color: var(--link); text-decoration: none; }
+  .meta a:hover { text-decoration: underline; }
+  blockquote { border-left: 3px solid var(--border); padding: 10px 16px; color: var(--text-2); margin: 16px 0; background: var(--surface-2); border-radius: 0 6px 6px 0; }
+  blockquote strong { color: var(--text); font-weight: 600; }
+  code { background: var(--surface); padding: 2px 7px; border-radius: 4px; font-size: 0.88em; font-family: "SF Mono", Menlo, Consolas, monospace; color: var(--text); }
+  .diagram { background: var(--bg); border: 1px solid var(--hairline); border-radius: 14px; padding: 28px; margin: 18px 0 28px; overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04); }
+  .legend { display: flex; gap: 22px; flex-wrap: wrap; margin: 8px 0 18px; font-size: 13.5px; color: var(--text-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .legend .swatch { width: 16px; height: 16px; border-radius: 5px; display: inline-block; border: 1.5px solid; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 5px 0; color: var(--text-2); }
+  li strong { color: var(--text); font-weight: 600; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
+      fontSize: '14px',
+      primaryColor: '#FFFFFF',
+      primaryTextColor: '#1D1D1F',
+      primaryBorderColor: '#D2D2D7',
+      lineColor: '#86868B',
+      tertiaryColor: '#F5F5F7',
+      clusterBkg: '#FAFAFC',
+      clusterBorder: '#D2D2D7'
+    },
+    flowchart: { curve: 'basis', padding: 18, nodeSpacing: 38, rankSpacing: 48 }
+  });
+</script>
+</head>
+<body>
+
+<div class="wrap">
+
+<h1><!-- TASK_NAME --> · 模块依赖图</h1>
+<p class="meta">来源：x-req 阶段产出。<a href="./README.md">README.md</a> 是文字事实源，本文件是只读视图。</p>
+
+<div class="legend">
+  <span><span class="swatch" style="background:#E8F1FE;border-color:#0071E3"></span> P0 阻塞性 / 核心</span>
+  <span><span class="swatch" style="background:#FFF4E5;border-color:#FF9500"></span> P1 必须完成 / 主要</span>
+  <span><span class="swatch" style="background:#F2F2F7;border-color:#8E8E93"></span> P2 增强 / 辅助</span>
+</div>
+
+<div class="diagram">
+<pre class="mermaid">
+flowchart TD
+  classDef p0 fill:#E8F1FE,stroke:#0071E3,color:#1D1D1F,stroke-width:1.5px
+  classDef p1 fill:#FFF4E5,stroke:#FF9500,color:#1D1D1F,stroke-width:1.5px
+  classDef p2 fill:#F2F2F7,stroke:#8E8E93,color:#1D1D1F,stroke-width:1.5px
+
+  %% LLM 写图守则：
+  %% 1. 节点格式：ID["模块名<br/>P0/P1/P2 · 一句话职责"]:::p{0|1|2}
+  %% 2. 实线 -->（强依赖）；虚线 -.->（弱依赖、可选、调起）
+  %% 3. 节点超过 ~10 个时用 subgraph 分组（按部署单元 / 技术栈 / 层次）
+  %% 4. 同质重复节点（如 17 个 adapter）压成单节点 + "×N" 后缀，避免图爆炸
+  %% 5. 模块清单必须与 README.md 完全一致——这里是只读视图，README 才是事实源
+
+  ModA["模块 A<br/>P0 · 核心职责一句话"]:::p0
+  ModB["模块 B<br/>P1 · 核心职责一句话"]:::p1
+  ModC["模块 C<br/>P2 · 核心职责一句话"]:::p2
+
+  ModA --> ModB
+  ModA --> ModC
+</pre>
+</div>
+
+</div>
+
+</body>
+</html>

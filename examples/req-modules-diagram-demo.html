@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>x-req 模块依赖图 · 范例</title>
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --surface: #F5F5F7;
+    --surface-2: #FAFAFC;
+    --border: #D2D2D7;
+    --hairline: rgba(60,60,67,0.12);
+    --label: #86868B;
+    --text: #1D1D1F;
+    --text-2: #424245;
+    --link: #0071E3;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  .wrap { max-width: 1240px; margin: 56px auto; padding: 0 28px; }
+  h1 { font-size: 32px; font-weight: 600; letter-spacing: -0.022em; margin: 0 0 6px; }
+  h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.018em; margin: 40px 0 12px; }
+  .meta { color: var(--label); font-size: 14px; margin-bottom: 28px; }
+  .meta a { color: var(--link); text-decoration: none; }
+  .meta a:hover { text-decoration: underline; }
+  blockquote { border-left: 3px solid var(--border); padding: 10px 16px; color: var(--text-2); margin: 16px 0; background: var(--surface-2); border-radius: 0 6px 6px 0; }
+  blockquote strong { color: var(--text); font-weight: 600; }
+  code { background: var(--surface); padding: 2px 7px; border-radius: 4px; font-size: 0.88em; font-family: "SF Mono", Menlo, Consolas, monospace; color: var(--text); }
+  .diagram { background: var(--bg); border: 1px solid var(--hairline); border-radius: 14px; padding: 28px; margin: 18px 0 28px; overflow-x: auto; box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.04); }
+  .legend { display: flex; gap: 22px; flex-wrap: wrap; margin: 8px 0 18px; font-size: 13.5px; color: var(--text-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .legend .swatch { width: 16px; height: 16px; border-radius: 5px; display: inline-block; border: 1.5px solid; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 5px 0; color: var(--text-2); }
+  li strong { color: var(--text); font-weight: 600; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'base',
+    themeVariables: {
+      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif',
+      fontSize: '14px',
+      primaryColor: '#FFFFFF',
+      primaryTextColor: '#1D1D1F',
+      primaryBorderColor: '#D2D2D7',
+      lineColor: '#86868B',
+      tertiaryColor: '#F5F5F7',
+      clusterBkg: '#FAFAFC',
+      clusterBorder: '#D2D2D7'
+    },
+    flowchart: { curve: 'basis', padding: 18, nodeSpacing: 38, rankSpacing: 48 }
+  });
+</script>
+</head>
+<body>
+
+<div class="wrap">
+
+<h1>x-req 模块依赖图 · 范例</h1>
+<p class="meta">双击在浏览器中打开即可看到渲染效果。数据源自仓库内真实 task <code>dev-pipeline/tasks/qa-gate-pipeline/</code>。</p>
+
+<blockquote>
+本文件演示 x-req（或架构总览模式）在 task 目录下产出的 <code>diagram.html</code> 长什么样：单文件，<a href="https://www.jsdelivr.com">jsdelivr CDN</a> 拉 mermaid，浏览器双击就开。
+</blockquote>
+
+<div class="legend">
+  <span><span class="swatch" style="background:#E8F1FE;border-color:#0071E3"></span> 新增模块</span>
+  <span><span class="swatch" style="background:#FFF4E5;border-color:#FF9500"></span> 改造模块</span>
+  <span><span class="swatch" style="background:#F2F2F7;border-color:#8E8E93"></span> 废弃 / 重定向</span>
+</div>
+
+<div class="diagram">
+<pre class="mermaid">
+flowchart TD
+  classDef new fill:#E8F1FE,stroke:#0071E3,color:#1D1D1F,stroke-width:1.5px
+  classDef changed fill:#FFF4E5,stroke:#FF9500,color:#1D1D1F,stroke-width:1.5px
+  classDef deprecated fill:#F2F2F7,stroke:#8E8E93,color:#86868B,stroke-width:1.5px,stroke-dasharray:4 3
+
+  Dev["x-dev / x-qdev<br/>改造 · 输出 dev-report.md"]:::changed
+  Verify["x-verify<br/>新 · Gate ① 命令复跑"]:::new
+  Qua["x-qua-gate<br/>新 · Gate ② R1→R2→R3<br/>串行 opus 子 agent"]:::new
+  Fix["x-fix<br/>改造 · 4 条回流规则<br/>+ fix-counter 共享 6 次"]:::changed
+  Done(["任务完成"]):::changed
+
+  AuditP["x-audit-perf<br/>新 · 独立巡检"]:::new
+  AuditS["x-audit-style<br/>新 · 独立巡检"]:::new
+  Indep((独立报告<br/>reports/audit/))
+
+  Cr["x-cr<br/>废弃 · 重定向 stub"]:::deprecated
+
+  Dev -->|dev-report.md| Verify
+  Verify -->|pass| Qua
+  Qua -->|R1→R2→R3 全通过| Done
+  Verify -.fail.-> Fix
+  Qua -.R1/R2/R3 fail.-> Fix
+  Fix -.回流.-> Verify
+  Fix -.回流.-> Qua
+
+  Cr -.重定向.-> Qua
+  AuditP -.手动触发.-> Indep
+  AuditS -.手动触发.-> Indep
+</pre>
+</div>
+
+<h2>这个方案的工作模式</h2>
+<ul>
+  <li><strong>LLM 写起来 = 写 mermaid</strong>：5-20 行文本即可描述一张图，跟写 markdown 一样轻</li>
+  <li><strong>用户看 = 双击 .html</strong>：浏览器自动拉 mermaid CDN 渲染（首次联网，之后浏览器缓存）</li>
+  <li><strong>git diff 友好</strong>：diff 看的是 mermaid 源码，不是二进制 PNG/SVG</li>
+  <li><strong>self-contained</strong>：单文件，可以邮件 / 复制走</li>
+</ul>
+
+<h2>集成进 x-req</h2>
+<p>x-req 在写 <code>README.md</code> 的同时，多吐一个 <code>diagram.html</code> 到 task 目录。两个文件分工：</p>
+<ul>
+  <li><code>README.md</code> = 文字事实源（LLM 维护）</li>
+  <li><code>diagram.html</code> = 可视化只读视图（mermaid 源码 + HTML 壳）</li>
+</ul>
+<p>用户审需求：双击 <code>diagram.html</code> 看大局；要改细节：去 <code>README.md</code> 改文字 + 同步改 <code>diagram.html</code> 的 mermaid 块。</p>
+
+</div>
+
+</body>
+</html>
