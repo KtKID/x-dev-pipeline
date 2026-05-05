@@ -29,10 +29,12 @@
 
 5. **scope creep**：改动是否影响了任务范围之外的代码？列出 task 边界外的改动文件。
 
+6. **spec 图一致性**：如果 README "涉及模块" 引用了 `docs/` 模块文档，检查 `architecture.html` 里该模块是否已标为当前阶段（蓝色）。如果仍为 Phase 2/3（橙/灰），说明 spec 图未同步更新——列出。
+
 ## 严重度
 
 - 任何 1-4 条命中 → **P0**（spec 不符）
-- 第 5 条（scope creep） → **P1**
+- 第 5-6 条（scope creep / spec 图过时） → **P1**
 
 ## 输出格式
 
