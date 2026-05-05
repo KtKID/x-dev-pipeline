@@ -96,13 +96,13 @@ Agent({
 - 需求调整或方案变更
 - 遇到的关键决策
 
-## 第五步：代码审查（自动衔接 x-verify → x-qua-gate）
+## 第五步：代码审查（自动衔接 x-verify → x-qa-gate）
 
 所有清单项达到 🟢 后，**不再走老 x-cr**，改为：
 
 1. 写 `dev-pipeline/tasks/<task>/dev-report.md`（命令清单 + 自检结论，模板见 `skills/x-dev/templates/dev-report-template.md`）
 2. 自动衔接 x-verify（Gate ① 命令复跑事实验证）
-3. x-verify 通过后自动衔接 x-qua-gate（Gate ② 质量评审：R1 spec → R2 边界 → R3 测试真实性，三个 opus 子 agent 串行）
+3. x-verify 通过后自动衔接 x-qa-gate（Gate ② 质量评审：R1 spec → R2 边界 → R3 测试真实性，三个 opus 子 agent 串行）
 4. 任一节点 fail → 走 x-fix 回流，按 4 条规则回到对应节点重审
 
 `x-qdev` 的 dev-report 命令清单可以短（小功能），但**至少必须包含一条测试类命令**；项目无测试框架时显式写 `no-test-framework: true` + 理由。

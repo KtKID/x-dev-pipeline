@@ -1,6 +1,6 @@
 # R2 — Boundary Coverage Reviewer
 
-> 本文件是 x-qua-gate 在 dispatch R2 子 agent 时塞进 prompt 的"评审手册"。子 agent 必须用 model=opus。
+> 本文件是 x-qa-gate 在 dispatch R2 子 agent 时塞进 prompt 的"评审手册"。子 agent 必须用 model=opus。
 
 ## 你的角色
 

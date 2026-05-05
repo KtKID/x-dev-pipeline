@@ -85,7 +85,7 @@ Common problems when using AI coding agents directly:
 For day-to-day development, this is the path I recommend most:
 
 ```text
-/x-qdev -> /x-verify -> /x-qua-gate -> /x-fix
+/x-qdev -> /x-verify -> /x-qa-gate -> /x-fix
 ```
 
 ### `/x-qdev`
@@ -96,7 +96,7 @@ Quickly ship a small feature, tweak, or module.
 
 Gate ① fact verification. Re-runs the command list declared in `dev-report.md`, compares actual exit codes and key output fragments. **No subjective code-quality judgment.**
 
-### `/x-qua-gate`
+### `/x-qa-gate`
 
 Gate ② quality review (replaces the old `/x-cr`). Serially dispatches 3 opus subagent reviewers: R1 spec conformance → R2 boundary coverage → R3 test integrity.
 
@@ -145,7 +145,7 @@ This is one of the core values of this repo:
 For more complex tasks, it provides a full development flow:
 
 ```text
-x-spec -> x-req -> x-plan -> x-dev -> x-verify -> x-qua-gate -> x-fix
+x-spec -> x-req -> x-plan -> x-dev -> x-verify -> x-qa-gate -> x-fix
                     ^
                  x-qdev
 ```
@@ -185,13 +185,13 @@ Lightweight quick development entry point. Best for small features, localized op
 
 Gate ① fact verification. Reads the validation command list in `dev-pipeline/tasks/<task>/dev-report.md`, re-runs each command, compares actual vs declared exit codes and key output fragments. On any mismatch, generates `reports/verify/verify-report-*.md` and triggers x-fix.
 
-### `/x-qua-gate`
+### `/x-qa-gate`
 
 Gate ② quality review (replaces the old `/x-cr`). Serially dispatches 3 opus subagent reviewers: R1 spec conformance → R2 boundary coverage → R3 test integrity. The aggregated report is written to `reports/qa-gate/qa-gate-report-*.md`.
 
 ### `/x-cr` (deprecated)
 
-> ⚠️ Since the qa-gate-pipeline rework, this skill has been replaced by `/x-qua-gate`. Calls are auto-redirected. See the stub at `skills/x-cr/SKILL.md`.
+> ⚠️ Since the qa-gate-pipeline rework, this skill has been replaced by `/x-qa-gate`. Calls are auto-redirected. See the stub at `skills/x-cr/SKILL.md`.
 
 ### `/x-fix`
 

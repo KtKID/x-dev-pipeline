@@ -33,7 +33,7 @@
     "defaultPrompt": [
       "x-qdev add dark mode toggle to settings page",
       "x-verify run dev-report command list against the latest task",
-      "x-qua-gate review the current task with R1/R2/R3 reviewers",
+      "x-qa-gate review the current task with R1/R2/R3 reviewers",
       "x-fix fix issues from the latest verify or qa-gate report"
     ],
     "composerIcon": "./assets/logo.png",

@@ -20,7 +20,7 @@ flowchart TD
 
   Dev["x-dev / x-qdev<br/>(改造) 输出 dev-report.md"]:::changed
   Verify["x-verify<br/>(新) Gate ① 命令复跑"]:::new
-  Qua["x-qua-gate<br/>(新) Gate ② R1→R2→R3<br/>串行 opus 子 agent"]:::new
+  Qua["x-qa-gate<br/>(新) Gate ② R1→R2→R3<br/>串行 opus 子 agent"]:::new
   Fix["x-fix<br/>(改造) 4 条回流规则<br/>+ fix-counter 共享 6 次"]:::changed
   Done(["✅ 任务完成"]):::done
 
@@ -44,7 +44,7 @@ flowchart TD
 ```
 
 **图例**：
-- 🟢 绿底 = 本次新增模块（x-verify / x-qua-gate / R1/R2/R3 / x-audit-*）
+- 🟢 绿底 = 本次新增模块（x-verify / x-qa-gate / R1/R2/R3 / x-audit-*）
 - 🟠 橙底 = 改造现有模块（x-dev / x-qdev / x-fix）
 - ⚪ 灰虚线 = 废弃但保留（x-cr 重定向）
 - 🔵 蓝底 = 终态
@@ -56,7 +56,7 @@ flowchart TD
 
 一眼看清的事：
 1. **主链路是单线串行**：dev → verify → qua-gate → done
-2. **回流目标只有 2 个**（x-verify 和 x-qua-gate），不是任意跳
+2. **回流目标只有 2 个**（x-verify 和 x-qa-gate），不是任意跳
 3. **独立巡检不在主链路**——视觉上就被剥离开
 4. **x-cr 不是入口**，是被重定向的 alias
 5. **新 vs 改造 vs 废弃**用颜色一眼区分，比读文字快

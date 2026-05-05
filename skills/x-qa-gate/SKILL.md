@@ -1,5 +1,5 @@
 ---
-name: x-qua-gate
+name: x-qa-gate
 description: |
   Gate ② 质量评审 skill（取代 x-cr）。串行 dispatch 3 个 opus 子 agent reviewer：R1 spec 符合性 → R2 边界完整性 → R3 测试真实性。任一 reviewer 失败即触发 x-fix 并回到该 reviewer 重审；全部通过任务才算完成。
   自动触发：x-verify 通过后立即触发。
@@ -8,9 +8,9 @@ description: |
   reviewer 子 agent **必须用 model=opus**（写入 dispatch 模板）。
 ---
 
-# x-qua-gate · Gate ② 质量评审
+# x-qa-gate · Gate ② 质量评审
 
-x-qua-gate 是质量门禁链路的第二层 gate。它前面的 x-verify 已确认"代码能跑"，本 skill 负责回答三个递进问题：
+x-qa-gate 是质量门禁链路的第二层 gate。它前面的 x-verify 已确认"代码能跑"，本 skill 负责回答三个递进问题：
 
 1. **R1：你做的真的是计划要的吗？**（spec 符合性）
 2. **R2：你考虑了所有边界吗？**（边界完整性）
@@ -67,7 +67,7 @@ prompt 必须包含：
 
 ## 失败回流
 
-参见 `skills/x-fix/SKILL.md` 中的 4 条回流规则。x-qua-gate 把控制权交给 x-fix 后，由 x-fix 决定 fix 完后回到哪个节点（当前 reviewer 还是回 R1）。
+参见 `skills/x-fix/SKILL.md` 中的 4 条回流规则。x-qa-gate 把控制权交给 x-fix 后，由 x-fix 决定 fix 完后回到哪个节点（当前 reviewer 还是回 R1）。
 
 ## 6 次上限
 

@@ -60,7 +60,7 @@ dev-pipeline/tasks/<task>/
 ├── dev-report.md          # 完成报告（x-dev 负责，gate 输入）
 ├── plan.md                # [可选/历史] 旧 task 可能有
 └── reports/               # gate 产出目录（全部在 task 目录下）
-    ├── .fix-counter        # fix 次数计数器（x-verify 创建，x-fix 递增，x-qua-gate 重置）
+    ├── .fix-counter        # fix 次数计数器（x-verify 创建，x-fix 递增，x-qa-gate 重置）
     ├── verify/             # Gate ① 报告
     │   └── verify-report-YYYYMMDD-HHmmss.md
     ├── qa-gate/            # Gate ② 报告
@@ -77,7 +77,7 @@ dev-pipeline/tasks/<task>/
         └── audit-style-*.md
 ```
 
-> **所有 `reports/` 路径都是相对 task 目录**（即 `dev-pipeline/tasks/<task>/reports/`），不是项目根目录。x-verify / x-qua-gate / x-fix / x-audit 写报告时必须确认在 task 目录下操作。
+> **所有 `reports/` 路径都是相对 task 目录**（即 `dev-pipeline/tasks/<task>/reports/`），不是项目根目录。x-verify / x-qa-gate / x-fix / x-audit 写报告时必须确认在 task 目录下操作。
 
 处理规则：
 
@@ -140,7 +140,7 @@ Agent({
 - 子 agent **只改自己任务的代码，不更新 dev-checklist.md 和 changelog.md**（主流程统一更新，避免写冲突）
 - 某个子 agent 失败不阻塞其他任务，失败任务回到待处理队列
 
-**结果收集**：所有子 agent 返回后，主流程统一更新状态和 changelog，再逐个进入 x-verify → x-qua-gate 流程。
+**结果收集**：所有子 agent 返回后，主流程统一更新状态和 changelog，再逐个进入 x-verify → x-qa-gate 流程。
 
 **质检标记 🔍**：dev-checklist 质检列标记 🔍 的任务，子 agent 完成后必须立即创建质检 agent 审查，审查通过才继续。未标记的任务走常规流程。
 
@@ -247,16 +247,16 @@ Agent({
 - 复跑 dev-report.md 中的命令清单，对比 exit code + 关键输出
 - 不主观判断代码质量，只看”能不能跑通”
 
-### 3. x-qua-gate（Gate ② 质量评审）
+### 3. x-qa-gate（Gate ② 质量评审）
 
-x-verify 通过后**立即**触发 x-qua-gate：
+x-verify 通过后**立即**触发 x-qa-gate：
 - 串行 dispatch 3 个 opus 子 agent：R1 spec 符合性 → R2 边界完整性 → R3 测试真实性
 - 全部 reviewer pass → 任务状态改为 ✅ 已完成
 
 ### 4. 失败回流
 
 - 任一 gate fail → 进入 x-fix 修复，按 4 条回流规则回到对应节点重审
-- fix-attempts 6 次上限共享（x-verify + x-qua-gate），超限停下问用户
+- fix-attempts 6 次上限共享（x-verify + x-qa-gate），超限停下问用户
 
 ---
 

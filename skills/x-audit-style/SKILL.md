@@ -1,7 +1,7 @@
 ---
 name: x-audit-style
 description: |
-  独立代码规范巡检 skill。不在 x-dev → x-verify → x-qua-gate 主流程内，由用户手动触发或周期性调用。
+  独立代码规范巡检 skill。不在 x-dev → x-verify → x-qa-gate 主流程内，由用户手动触发或周期性调用。
   调 opus 子 agent 做全项目视角的规范审查：命名一致性、复用机会、magic number、函数长度、文件大小、注释合理性、死代码。
   触发：用户说"规范巡检"、"audit style"、"代码规范检查"、"style review"。
 ---

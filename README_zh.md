@@ -83,7 +83,7 @@ reports/
 日常开发里，我最推荐这条路径：
 
 ```text
-/x-qdev -> /x-verify -> /x-qua-gate -> /x-fix
+/x-qdev -> /x-verify -> /x-qa-gate -> /x-fix
 ```
 
 ### `/x-qdev`
@@ -94,7 +94,7 @@ reports/
 
 Gate ① 事实验证。读 `dev-report.md` 中的命令清单，复跑后比对 exit code 与关键输出，**不主观判断代码质量**。
 
-### `/x-qua-gate`
+### `/x-qa-gate`
 
 Gate ② 质量评审（取代老 `/x-cr`）。串行 dispatch 3 个 opus 子 agent reviewer：R1 spec 符合性 → R2 边界完整性 → R3 测试真实性。
 
@@ -143,7 +143,7 @@ Gate ② 质量评审（取代老 `/x-cr`）。串行 dispatch 3 个 opus 子 ag
 对于更复杂的任务，它提供完整开发流程：
 
 ```text
-x-spec -> x-req -> x-plan -> x-dev -> x-verify -> x-qua-gate -> x-fix
+x-spec -> x-req -> x-plan -> x-dev -> x-verify -> x-qa-gate -> x-fix
                     ^
                  x-qdev
 ```
@@ -183,13 +183,13 @@ x-spec -> x-req -> x-plan -> x-dev -> x-verify -> x-qua-gate -> x-fix
 
 Gate ① 事实验证。读 `dev-pipeline/tasks/<task>/dev-report.md` 中声明的验证命令清单，逐条复跑，对比实际 exit code 与关键输出片段。任一不一致即生成 `reports/verify/verify-report-*.md` 并触发 x-fix。
 
-### `/x-qua-gate`
+### `/x-qa-gate`
 
 Gate ② 质量评审（取代老 `/x-cr`）。串行 dispatch 3 个 opus 子 agent reviewer：R1 spec 符合性 → R2 边界完整性 → R3 测试真实性。聚合报告写到 `reports/qa-gate/qa-gate-report-*.md`。
 
 ### `/x-cr`（已废弃）
 
-> ⚠️ 自 qa-gate-pipeline 改造起，本 skill 已被 `/x-qua-gate` 取代。调用会自动重定向。详见 `skills/x-cr/SKILL.md` stub。
+> ⚠️ 自 qa-gate-pipeline 改造起，本 skill 已被 `/x-qa-gate` 取代。调用会自动重定向。详见 `skills/x-cr/SKILL.md` stub。
 
 ### `/x-fix`
 

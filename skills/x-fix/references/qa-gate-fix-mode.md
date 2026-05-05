@@ -1,6 +1,6 @@
 # x-fix · qa-gate-fix-mode
 
-> 当 x-fix 由 x-verify 或 x-qua-gate 的 R1/R2/R3 触发时，进入本模式。
+> 当 x-fix 由 x-verify 或 x-qa-gate 的 R1/R2/R3 触发时，进入本模式。
 
 ## 输入识别
 

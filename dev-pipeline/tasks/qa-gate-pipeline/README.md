@@ -22,7 +22,7 @@
 - **开发**：x-dev / x-qdev 不变骨架，但**输出格式约束**——必须自报"我跑了哪些验证命令"。
 - **质检（强门禁）**：拆成两层 gate
   - `x-verify` → 复跑 dev 自报命令，做**事实验证**（不主观判断）。
-  - `x-qua-gate` → 3 个 reviewer 子 agent **串行**评审，做**质量评审**。**取代老 x-cr**。
+  - `x-qa-gate` → 3 个 reviewer 子 agent **串行**评审，做**质量评审**。**取代老 x-cr**。
 - **优化（独立巡检）**：性能、规范从主流程剥离，变成独立 skill `x-audit-perf` / `x-audit-style`，手动或周期触发。
 
 ## 3. 总览架构
@@ -44,7 +44,7 @@
 └──────────┬───────────────────────┘
            ↓ 通过
 ┌──────────────────────────────────┐
-│ x-qua-gate (新 skill，取代 x-cr) │  Gate ② 质量评审
+│ x-qa-gate (新 skill，取代 x-cr) │  Gate ② 质量评审
 │                                  │
 │  R1 spec-conformance  [P0]       │  ← opus 子 agent
 │   ├─ fail → x-fix → 回 R1        │
@@ -107,13 +107,13 @@
 2. **不裁剪命令**——dev 报告了 5 条命令必须跑 5 条，不许省略。
 3. **不信任 dev 的"自检结论"**——必须自己跑。
 4. **任一命令不一致** → 生成 `reports/verify/verify-report-*.md`，调 x-fix（修复模式：fix verification failure），fix-attempts +1。
-5. **6 次上限共享**：与 x-qua-gate 共用 fix-attempts 计数；超 6 次停下问用户。
+5. **6 次上限共享**：与 x-qa-gate 共用 fix-attempts 计数；超 6 次停下问用户。
 
 **输出**：`reports/verify/verify-report-YYYYMMDD-HHmmss.md`，记录每条命令的实际 exit + 输出。
 
 **实现**：主 agent 直接执行；不需要 opus 子 agent（无判断成分）。
 
-### 4.3 x-qua-gate — Gate ② 质量评审（新 skill，取代 x-cr）
+### 4.3 x-qa-gate — Gate ② 质量评审（新 skill，取代 x-cr）
 
 **核心机制**：3 个 reviewer **串行**跑（不是并行），每个 reviewer 是**独立 Task 子 agent，model 强制 opus**。
 
@@ -194,7 +194,7 @@ def test_workflow():
 
 **fail 处理**：调 x-fix（fix 测试代码，不动业务代码），fix 完回 R3 重审。
 
-#### x-qua-gate 输出聚合
+#### x-qa-gate 输出聚合
 
 3 个 mini-report 聚合到一份 `reports/qa-gate/qa-gate-report-YYYYMMDD-HHmmss.md`：
 
@@ -282,9 +282,9 @@ def test_workflow():
 ## 6. 兼容性与迁移
 
 ### 老 x-cr 处理
-- `skills/x-cr/SKILL.md` 改为**重定向 stub**：内容只剩一句话 + 跳转到 x-qua-gate。
+- `skills/x-cr/SKILL.md` 改为**重定向 stub**：内容只剩一句话 + 跳转到 x-qa-gate。
 - 老的 `reports/cr/cr-report-*.md` 路径**保留**（不重命名历史报告），新报告写到 `reports/qa-gate/`。
-- 文档（README_zh.md / README.md）更新所有指向 x-cr 的链接到 x-qua-gate。
+- 文档（README_zh.md / README.md）更新所有指向 x-cr 的链接到 x-qa-gate。
 
 ### 任务目录扩展
 新增 `reports/` 子目录结构：
@@ -323,7 +323,7 @@ x-qdev 也走完整 verify → qua-gate 流程（不能跳过）；只是它的 
 2. dev-checklist 拆分为可独立交付的小任务：
    - T1. dev-report.md schema 与 x-dev 输出改造
    - T2. x-verify skill 实现
-   - T3. x-qua-gate skill 框架（聚合层）
+   - T3. x-qa-gate skill 框架（聚合层）
    - T4. R1 spec-conformance reviewer
    - T5. R2 boundary-coverage reviewer
    - T6. R3 test-integrity reviewer（含反模式规则集）
@@ -336,7 +336,7 @@ x-qdev 也走完整 verify → qua-gate 流程（不能跳过）；只是它的 
 ## 9. 验收标准
 
 本次改造完成的判定：
-- [ ] 7 个新/改 skill 全部落地（x-dev/x-qdev/x-verify/x-qua-gate/x-fix/x-audit-perf/x-audit-style）
+- [ ] 7 个新/改 skill 全部落地（x-dev/x-qdev/x-verify/x-qa-gate/x-fix/x-audit-perf/x-audit-style）
 - [ ] 用一个真实小功能跑通 dev → verify → qua-gate → ✅ 闭环
 - [ ] 故意引入 spec 偏离，验证 R1 能拦下
 - [ ] 故意写"测试镜像化"代码，验证 R3 能拦下
@@ -344,4 +344,4 @@ x-qdev 也走完整 verify → qua-gate 流程（不能跳过）；只是它的 
 - [ ] 触发 6 次 fix 上限，验证停下问用户
 
 **已知盲点（不在本次解决）**：dev-report 完全漏报某条命令（dev 没跑某个验证），verify 没法察觉——因为 verify 只复跑 dev 自报的命令。这是"自报清单"机制的固有限制。后续可考虑加白名单（package.json 推断出"应该跑的命令"作为最小集合 cross-check），但本次不做。
-- [ ] 老 x-cr 调用能正确重定向到 x-qua-gate
+- [ ] 老 x-cr 调用能正确重定向到 x-qa-gate

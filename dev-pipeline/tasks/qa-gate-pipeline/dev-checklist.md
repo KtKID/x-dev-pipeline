@@ -12,10 +12,10 @@
 |---|------|---------|------|------|-----|
 | T1 | dev-report.md schema 与 x-dev/x-qdev 输出改造 | skills/x-dev/templates/dev-report-template.md, skills/x-dev/SKILL.md, skills/x-qdev/SKILL.md | — | 🟢 | — |
 | T2 | x-verify skill 实现（Gate ① 命令复跑） | skills/x-verify/SKILL.md, skills/x-verify/templates/verify-report-template.md | T1 | 🟢 | — |
-| T3 | x-qua-gate skill 框架（Gate ② 评审聚合层） | skills/x-qua-gate/SKILL.md, skills/x-qua-gate/templates/qa-gate-report-template.md | T2 | 🟢 | — |
-| T4 | R1 spec-conformance reviewer prompt | skills/x-qua-gate/references/r1-spec-conformance.md | T3 | 🟢 | — |
-| T5 | R2 boundary-coverage reviewer prompt | skills/x-qua-gate/references/r2-boundary-coverage.md | T3 | 🟢 | — |
-| T6 | R3 test-integrity reviewer prompt（反测试镜像化） | skills/x-qua-gate/references/r3-test-integrity.md | T3 | 🟢 | — |
+| T3 | x-qa-gate skill 框架（Gate ② 评审聚合层） | skills/x-qa-gate/SKILL.md, skills/x-qa-gate/templates/qa-gate-report-template.md | T2 | 🟢 | — |
+| T4 | R1 spec-conformance reviewer prompt | skills/x-qa-gate/references/r1-spec-conformance.md | T3 | 🟢 | — |
+| T5 | R2 boundary-coverage reviewer prompt | skills/x-qa-gate/references/r2-boundary-coverage.md | T3 | 🟢 | — |
+| T6 | R3 test-integrity reviewer prompt（反测试镜像化） | skills/x-qa-gate/references/r3-test-integrity.md | T3 | 🟢 | — |
 | T7 | x-fix 失败回流改造（4 条规则 + fix-counter 共享） | skills/x-fix/SKILL.md, skills/x-fix/references/qa-gate-fix-mode.md | T2,T3 | 🟢 | — |
 | T8 | x-audit-perf skill（独立巡检） | skills/x-audit-perf/SKILL.md, skills/x-audit-perf/templates/audit-perf-template.md | — | 🟢 | — |
 | T9 | x-audit-style skill（独立巡检） | skills/x-audit-style/SKILL.md, skills/x-audit-style/templates/audit-style-template.md | — | 🟢 | — |

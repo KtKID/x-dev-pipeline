@@ -35,7 +35,7 @@ x-spec ─→ x-req ─→ x-dev ──┐
                             ↓
                        x-verify (Gate ① 命令复跑)
                             ↓
-                       x-qua-gate (Gate ② R1→R2→R3 串行 opus 子 agent)
+                       x-qa-gate (Gate ② R1→R2→R3 串行 opus 子 agent)
                             ↓ fail
                           x-fix ──→ 按 4 条规则回流到对应节点
 ```
@@ -51,11 +51,11 @@ x-spec ─→ x-req ─→ x-dev ──┐
 | 契约 | 内容 |
 |------|------|
 | `dev-report.md` schema | x-dev/x-qdev 输出，是 x-verify 的**唯一输入**。必须含验证命令清单（至少 1 条测试类）+ 改动文件清单 + 自检结论。模板：`skills/x-dev/templates/dev-report-template.md` |
-| `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。x-verify 首次创建，x-fix 递增，x-qua-gate 在 R3 通过后重置。**6 次上限**，三方共享 |
-| reviewer 必须 opus | x-qua-gate 通过 Agent 工具 dispatch R1/R2/R3，**必须传 `model="opus"`**；prompt 必须自包含（fresh subagent 看不到主对话） |
+| `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。x-verify 首次创建，x-fix 递增，x-qa-gate 在 R3 通过后重置。**6 次上限**，三方共享 |
+| reviewer 必须 opus | x-qa-gate 通过 Agent 工具 dispatch R1/R2/R3，**必须传 `model="opus"`**；prompt 必须自包含（fresh subagent 看不到主对话） |
 | reviewer 不写代码 | R1/R2/R3 只输出 mini-report，禁用 Edit/Write；修改一律走 x-fix |
 | x-fix 回流 4 条规则 | 改函数签名/公开 API → R1；改业务核心 → R1；只改测试/配置/文档 → 当前节点；不确定 → R1。详见 `skills/x-fix/SKILL.md` |
-| x-cr 已废弃 | `skills/x-cr/SKILL.md` 仅保留为重定向 stub。**不要往里加新逻辑**，新逻辑写到 x-qua-gate |
+| x-cr 已废弃 | `skills/x-cr/SKILL.md` 仅保留为重定向 stub。**不要往里加新逻辑**，新逻辑写到 x-qa-gate |
 | 状态码 | ⏳ 未开始 / ▶️ 进行中 / 🟡 待测试 / 🔴 测试失败 / 🟢 测试通过 / ✅ 已完成。x-dev 最多到 🟢，✅ 由 review 通过后升级 |
 
 ## 改 skill 时的注意事项
@@ -63,7 +63,7 @@ x-spec ─→ x-req ─→ x-dev ──┐
 - **YAML frontmatter 是触发依据**：`description` 里的关键词决定 skill 何时被自动触发。改正文是低风险，**改 description 等于改触发面**——评估全局影响后再改。
 - **report 路径不能乱**：每类 fail 写到固定子目录，旧链路（直接 bug fix）走 `reports/fix/fix-report-*.md` / `fix-note-*.md`，新链路（gate 回流）走 `fix-{verify,r1-spec,r2-boundary,r3-test}-*.md`。两套路径**并存**，不要合并。
 - **manifest 不显式列 skill**：`.claude-plugin/plugin.json` / `.codex-plugin/plugin.json` 都靠 `./skills/` 目录自动发现，新增 skill 不必改 manifest 字段，除非要更新 `defaultPrompt` 示例。
-- **reference 文件保留制**：`skills/x-cr/references/auto-loop-mode.md` 之类的旧 reference **保留**作历史参考，不要删；新逻辑放到 x-qua-gate / x-fix 的 references。
+- **reference 文件保留制**：`skills/x-cr/references/auto-loop-mode.md` 之类的旧 reference **保留**作历史参考，不要删；新逻辑放到 x-qa-gate / x-fix 的 references。
 
 ## 子 agent dispatch 模板（reviewer 用）
 
@@ -98,4 +98,4 @@ claude plugin install x-dev-pipeline@x-dev-pipeline --scope user
 
 ## 用户当前正在做的改造
 
-`dev-pipeline/tasks/qa-gate-pipeline/` 是当前主线改造任务（v0.2 双层 gate 架构）：把老 `x-cr` 单层闭环升级为 `x-verify` (事实) + `x-qua-gate` (R1/R2/R3 评审) 双层 gate，并把 perf/style 剥离成独立 audit。代码改动已落地，**待用户在新会话跑完 5 个 e2e smoke case 才能升 ✅**。看 `dev-pipeline/tasks/qa-gate-pipeline/changelog.md` 了解最新决策。
+`dev-pipeline/tasks/qa-gate-pipeline/` 是当前主线改造任务（v0.2 双层 gate 架构）：把老 `x-cr` 单层闭环升级为 `x-verify` (事实) + `x-qa-gate` (R1/R2/R3 评审) 双层 gate，并把 perf/style 剥离成独立 audit。代码改动已落地，**待用户在新会话跑完 5 个 e2e smoke case 才能升 ✅**。看 `dev-pipeline/tasks/qa-gate-pipeline/changelog.md` 了解最新决策。
