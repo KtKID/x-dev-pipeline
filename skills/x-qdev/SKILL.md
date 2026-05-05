@@ -44,13 +44,33 @@ description: |
 
 ### 状态 / 优先级 / 质检标记
 
-与 x-dev 完全一致，详见 `skills/x-dev/references/execution-rules.md`。
+详见 `references/execution-rules.md`（本 skill 目录下独立副本）。
 
 核心要点：状态流转 `⏳ → ▶️ → 🟡 → 🟢`（x-qdev 最多到 🟢，✅ 由 review 确认）。优先级 P0 > P1 > P2。质检 🔍 标核心/安全/跨模块任务。
 
-### 并行开发
+### 并行开发（默认优先）
 
-如果清单有 2+ 个无依赖任务，**必须派 opus 子 agent 并行开发**（规则与 x-dev 一致，见 x-dev "并行开发" 段）。x-qdev 虽然轻量，但不允许"为了简单"而串行执行可并行任务。
+> **能并行就并行，不要串行等待。**
+
+如果清单有 2+ 个无依赖任务，**必须**派 opus 子 agent 并行开发。不允许"为了简单"而串行执行可并行任务。
+
+**dispatch 模板**：
+
+```
+Agent({
+  description: "x-qdev #N <任务标题>",
+  subagent_type: "general-purpose",
+  model: "opus",
+  prompt: <功能目录路径 + 任务编号/描述 + README 技术设计段 + 涉及模块文档（如有）>
+})
+```
+
+**硬规则**：
+- 必须 `model: "opus"`
+- 必须同一条消息发出所有 Agent 调用（真正并行）
+- 每个子 agent prompt 自包含（README 技术设计 + DoD 相关条目）
+- 子 agent 只改自己任务的代码，不更新 README 开发清单和 changelog（主流程统一更新）
+- 某个子 agent 失败不阻塞其他任务，失败任务回到待处理队列
 
 ## 第三步：逐项开发
 
