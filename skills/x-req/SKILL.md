@@ -54,14 +54,19 @@ dev-pipeline/tasks/<task-name>/
 收到需求后：
 
 1. 理解核心目标
-2. 如果项目 `docs/` 下有相关模块文档 → 读取，获取模块设计上下文
-3. 如果描述模糊 → 问 1-3 个关键问题（**一次性列出让用户批量答**，不要一个个问）
-4. 如果任务明显太大（预计 >10 个 checklist 项、跨多模块架构改造）→ 建议先跑 x-spec 建立模块文档
+2. **确定归属 spec**：
+   - 用户指定了 spec 路径 → 直接使用
+   - 用户未指定 → 扫描 `docs/` 目录，匹配最相关的 `docs/<模块>/<spec>/`
+   - 找不到匹配 → 提示用户："这个任务属于哪个模块/spec？还是需要先跑 x-spec？"
+   - 项目没有 `docs/` 目录 → `spec:` 留空，不阻塞，README "涉及模块"段直接写代码路径
+3. 如果项目 `docs/` 下有归属 spec → 读取 spec 文档，获取设计上下文
+4. 如果描述模糊 → 问 1-3 个关键问题（**一次性列出让用户批量答**，不要一个个问）
+5. 如果任务明显太大（预计 >10 个 checklist 项、跨多模块架构改造）→ 建议先跑 x-spec
 
-**文档关联规则**：
-- 如果用户通过文档路径或方案文档发起需求，自动关联到 README "涉及模块"段
-- 如果项目已有 `docs/<system>/` 模块文档，自动 reference 相关模块文件
-- 找不到相关模块文档也不阻塞——直接在 README 里简述涉及的代码模块
+**spec 关联规则**：
+- 每个 task 通过 README 头部 `spec:` 字段指向归属 spec（如 `spec: docs/scheduler/cron-parsing`）
+- 一个 task 只指向一个 spec；跨 spec 的大任务应拆成多个 task
+- `spec:` 为可选字段——没有 docs/ 的项目不阻塞
 
 ### 2. 一次确认
 
@@ -69,6 +74,8 @@ dev-pipeline/tasks/<task-name>/
 
 ```markdown
 ## 确认项
+
+**归属 spec**：`docs/<模块>/<spec>` （或"无，项目未建 spec"）
 
 **核心目标**：[一句话]
 
@@ -194,10 +201,10 @@ dev-pipeline/tasks/<task-name>/
 ## 注意事项
 
 - **一次确认**：不走两步，不分"理解确认"和"拆分确认"
-- **不重复 docs/**：已有模块文档的内容 reference 它，不复制
+- **不重复 docs/**：已有 spec 文档的内容 reference 它，不复制
 - **dev-checklist 直接产出**：确认步骤里已预览过，不需要用户单独再确认一次清单
 - **diagram.html 必须与 README 一致**——后续模块变化时同步更新
-- **如果项目没 docs/ 模块文档**：README "涉及模块"段直接写代码路径 + 简述，不强制 ref
-- **spec 图同步**：创建 task 时如果涉及的模块在 `90-task-map.md` 标为 Phase 2/3 但现在要开发 → 先更新 task-map 状态为"开发中" + 更新 `architecture.html` 颜色为蓝，告知用户"已同步更新 spec 图"
+- **如果项目没 docs/ spec 文档**：`spec:` 留空，README "涉及模块"段直接写代码路径 + 简述，不强制 ref
+- **spec 图同步**：创建 task 时如果归属 spec 的 `90-task-map.md` 标为 Phase 2/3 但现在要开发 → 先更新 task-map 状态为"开发中" + 更新 `architecture.html` 颜色为蓝，告知用户"已同步更新 spec 图"
 - **不要跳过确认步骤直接保存**
 - **不要进入开发执行**

@@ -40,8 +40,8 @@ x-spec ─→ x-req ─→ x-dev ──┐
                           x-fix ──→ 按 4 条规则回流到对应节点
 ```
 
-- x-spec 产出 `docs/<system>/`（模块级文档包，独立可传递）
-- x-req 产出 `dev-pipeline/tasks/<task>/`（README + dev-checklist + diagram.html，一步到位）
+- x-spec 产出 `docs/<模块>/<spec>/`（模块/spec 两层目录，多个 spec 组合成完整模块，迭代原地更新）
+- x-req 产出 `dev-pipeline/tasks/<task>/`（README 含 `spec:` 字段指向归属 spec，一步到位）
 - x-plan 已废弃，功能合并到 x-req
 
 独立巡检（不在主流程）：`x-audit-perf` / `x-audit-style`，由用户手动触发或里程碑后跑。
@@ -50,6 +50,7 @@ x-spec ─→ x-req ─→ x-dev ──┐
 
 | 契约 | 内容 |
 |------|------|
+| spec 两层目录 | x-spec 产出 `docs/<模块>/<spec>/`，模块 README 汇总 spec 导航，spec 目录含 7 文件。x-req 的 README `spec:` 字段指向 `docs/<模块>/<spec>`，一个 task 只归属一个 spec |
 | `dev-report.md` schema | x-dev/x-qdev 输出，是 x-verify 的**唯一输入**。必须含验证命令清单（至少 1 条测试类）+ 改动文件清单 + 自检结论。模板：`skills/x-dev/templates/dev-report-template.md` |
 | `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。x-verify 首次创建，x-fix 递增，x-qa-gate 在 R3 通过后重置。**6 次上限**，三方共享 |
 | reviewer 必须 opus | x-qa-gate 通过 Agent 工具 dispatch R1/R2/R3，**必须传 `model="opus"`**；prompt 必须自包含（fresh subagent 看不到主对话） |
