@@ -54,8 +54,9 @@ def test_user_service():
 3. 测试文件完整内容
 4. 被测代码完整内容
 5. 测试运行命令（来自 dev-report.md）
+6. README 中的 Smoke / E2E 验收用例（如有）
 
-## 检查清单（5 条）
+## 检查清单（6 条）
 
 ### 1. import 检查
 
@@ -91,10 +92,18 @@ def test_user_service():
 - 对每个改动函数：grep 测试文件，看是否有调用
 - 如果改动函数 100% 没被任何测试调用 → P0
 
+### 6. Smoke / E2E 验收链路
+
+README 写出的 smoke/e2e 验收用例是否进入 dev-report？
+- 每条 smoke/e2e 用例都应有对应命令或人工验收步骤
+- 只跑单元测试且遗漏 README smoke/e2e 验收链路 → P0
+- smoke/e2e 只检查进程启动或截图存在，未断言用户可见结果 → P1
+
 ## 严重度
 
 - 反模式 A/B/C → **P0**（测试无意义）
 - 改动函数无测试覆盖 → **P0**
+- README smoke/e2e 验收用例未进入 dev-report → **P0**
 - 过度 mock → **P1**
 
 ## 输出格式
