@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.2.0
+
+### 发布更新
+
+- **版本统一**：`package.json`、Claude Code manifest、Claude marketplace、Codex manifest 全部升级到 `0.2.0`
+- **双层 gate 文档对齐**：README 主链路更新为 `x-dev -> x-verify -> x-qa-gate -> x-fix`
+- **Claude / Codex 插件说明**：README 与 README_zh 明确列出 `.claude-plugin/`、`.codex-plugin/`、`.agents/plugins/marketplace.json` 三个入口
+- **安装输出更新**：`install.sh` 命令清单更新到 v0.2 主命令、独立 audit、legacy alias
+- **Codex 同步清理**：`install-codex.ps1` 同步时排除 `.xcodeatlas` 与 `.serena` 本地索引目录
+
 ## v0.1.3
 
 ### 新功能
