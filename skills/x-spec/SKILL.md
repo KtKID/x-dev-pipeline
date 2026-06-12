@@ -314,11 +314,16 @@ classDef p2 fill:#F2F2F7,stroke:#8E8E93,color:#1D1D1F,stroke-width:1.5px
 
 风险等级写入 `02-module-breakdown.md` 每个模块详情；PoC 建议写入 `90-task-map.md` 备注列。
 
-### 7. 生成文档（agent1 创建 + 主 agent 审核 + 修复）
+### 7. 生成文档（子 agent 编写 + 主 agent 审核 + 子 agent 修复）
 
-**主 agent 不直接写产出文件**：创建派给 agent1，审核由主 agent 亲自做（审核基准——确认过的需求要点——就在主 agent 上下文里）。agent1 的 prompt 必须自包含（fresh subagent 看不到主对话）。
+**强约束**：x-spec 文档包必须由子 agent 编写。主 agent 的职责是持有确认过的需求要点、调度子 agent、审核产出、给出修正反馈、确认最终状态。
 
-#### 7.1 agent1（创建者）：产出文档包
+职责边界：
+- **子 agent**：根据自包含 prompt 创建或更新 `docs/<模块>/<spec>/` 文档包。
+- **主 agent**：亲自审核文档包，输出 mini-report，把 P0 修正反馈交回同一个子 agent。
+- **子 agent prompt**：必须包含确认过的需求要点全文、理解总结全文、步骤 2-6 全部结论、模板路径和输出目录。
+
+#### 7.1 子 agent（创建者）：产出文档包
 
 ```
 Agent({
@@ -334,9 +339,9 @@ Agent({
 - **模块 README**（`docs/<模块>/README.md`）：模板见 `templates/module-README.md`。如果模块目录已存在，更新导航表即可
 - **spec 7 文件**（`docs/<模块>/<spec>/` 下）：模板见 `templates/` 下对应文件，将前 6 步的所有结论灌入
 
-#### 7.2 主 agent 审核：出 mini-report
+#### 7.2 主 agent（审核者）：出 mini-report
 
-agent1 产出后，**主 agent 亲自读产出文件**，对照确认过的需求要点逐条审核（按 P0/P1 分级；**只报告不修改**，修改一律交回 agent1）：
+agent1 产出后，**主 agent 亲自读产出文件**，对照确认过的需求要点逐条审核（按 P0/P1 分级；主 agent 输出审核报告，修正文档交回 agent1）：
 
 1. **要点覆盖**：确认过的需求要点每条都落进了 `01-goals-and-boundaries.md` / spec README——漏一条 = P0
 2. **文档间一致**：`02-module-breakdown.md` 组件清单 / `diagrams.md` 节点 / `90-task-map.md` 映射三者对得上——不一致 = P0
