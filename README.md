@@ -6,9 +6,11 @@
 
 [中文说明](./README_zh.md)
 
+**Current release:** v0.2.0
+
 > A recordable, auditable, and reviewable workflow framework for AI-assisted development.
 
-Most of the time, AI coding agents don't fail because they can't write code — they fail because they drift off track mid-task, and leave behind little useful process information:
+Most of the time, AI coding agents can write code, yet they drift off track mid-task and leave behind little useful process information:
 
 - Why was this change made?
 - What exactly was modified?
@@ -20,13 +22,13 @@ When someone picks up the work later, they're forced to re-ask, re-read, and re-
 
 `x-dev-pipeline` exists to solve this problem.
 
-It turns throwaway, chat-style development into something closer to real engineering: get things done, leave a clear trail, and keep reviewing, fixing, and iterating.
+It turns throwaway, chat-style development into an engineering process: get things done, leave a clear trail, and keep reviewing, fixing, and iterating.
 
-> Battle-tested on Claude Code. Designed to work with any AI coding tool.
+> Battle-tested on Claude Code. Ships with Claude Code and Codex plugin manifests.
 
 ## Start with `/x-qdev`
 
-If this is your first time using this repo, don't jump into the full pipeline right away.
+If this is your first time using this repo, start with the lightweight path.
 
 Try `/x-qdev` first:
 
@@ -42,7 +44,7 @@ It's best for:
 - Filling in an interaction detail
 - Running a lightweight validation
 
-What you get isn't just "one reply" — it's a process closer to real development:
+What you get is a process closer to real development:
 
 1. AI understands the task scope
 2. Creates a task directory
@@ -55,18 +57,22 @@ Typical output looks like this:
 ```text
 dev-pipeline/tasks/<task-name>/
 ├── README.md
-└── changelog.md
-reports/
-├── cr/cr-report-*.md
-├── fix/fix-report-*.md
-└── fix/fix-note-*.md
+├── changelog.md
+├── dev-report.md
+└── reports/
+    ├── verify/verify-report-*.md
+    ├── qa-gate/qa-gate-report-*.md
+    ├── fix/fix-verify-*.md
+    ├── fix/fix-r1-spec-*.md
+    ├── fix/fix-r2-boundary-*.md
+    └── fix/fix-r3-test-*.md
 ```
 
 This is the best way to experience `x-dev-pipeline` for the first time:
 
 **Complete a small feature smoothly, and leave an engineering trail behind.**
 
-## It's not about "can AI write code" — it's about "how to make development more reliable"
+## Reliability Over One-Off Code Generation
 
 Common problems when using AI coding agents directly:
 
@@ -76,7 +82,7 @@ Common problems when using AI coding agents directly:
 - Work ends after the fix, with no feedback loop
 - The next person picking it up has no idea what happened before
 
-`x-dev-pipeline` doesn't solve "can AI generate code" — it solves:
+`x-dev-pipeline` gives AI coding work a stable, traceable, engineering-grade rhythm:
 
 **How to make AI work at a more stable, traceable, engineering-grade pace.**
 
@@ -94,7 +100,7 @@ Quickly ship a small feature, tweak, or module.
 
 ### `/x-verify`
 
-Gate ① fact verification. Re-runs the command list declared in `dev-report.md`, compares actual exit codes and key output fragments. **No subjective code-quality judgment.**
+Gate ① fact verification. Re-runs the command list declared in `dev-report.md`, compares actual exit codes and key output fragments. **Fact-only verification.**
 
 ### `/x-qa-gate`
 
@@ -112,11 +118,11 @@ This path is great for:
 - Localized optimizations
 - Small-scale refactors
 
-The point isn't to make the process heavy — it's to give even small tasks a sense of engineering discipline.
+The point is to give even small tasks a sense of engineering discipline.
 
 ## What You Get
 
-With `x-dev-pipeline`, you don't get a throwaway chat log — you get a set of artifacts you can continue using, tracking, and reviewing.
+With `x-dev-pipeline`, you get a set of artifacts you can continue using, tracking, and reviewing.
 
 Typically, you'll get:
 
@@ -136,21 +142,21 @@ These artifacts mean:
 
 This is one of the core values of this repo:
 
-**Don't just get things done — turn the development process into truly traceable engineering assets.**
+**Get things done and turn the development process into truly traceable engineering assets.**
 
 ## For Complex Tasks, Use the Full Pipeline
 
-`x-dev-pipeline` isn't just `/x-qdev`.
+`x-dev-pipeline` includes `/x-qdev` and the full spec-to-gate pipeline.
 
 For more complex tasks, it provides a full development flow:
 
 ```text
-x-spec -> x-req -> x-plan -> x-dev -> x-verify -> x-qa-gate -> x-fix
-                    ^
-                 x-qdev
+x-spec -> x-req -> x-dev -> x-verify -> x-qa-gate -> x-fix
+                 ^
+              x-qdev
 ```
 
-Independent audits (not in the main flow, triggered on demand):
+Independent audits run on demand outside the main flow:
 
 - `/x-audit-perf` — performance audit (manual / milestone)
 - `/x-audit-style` — style audit (manual / periodic)
@@ -163,13 +169,13 @@ Start directly with `/x-qdev` — fast to complete, fast to ship.
 
 ### Medium Tasks
 
-Start with `/x-req -> /x-plan -> /x-dev` — when you need clear requirements and an execution plan.
+Start with `/x-req -> /x-dev` — when you need clear requirements and an execution plan.
 
 ### Large Tasks
 
 Walk the full pipeline — for system design, complex modules, and architecture-level changes.
 
-In short:
+Recommended shape:
 
 - Keep it light for small things
 - Keep it solid for big things
@@ -199,19 +205,19 @@ Fix by verify / qa-gate / legacy CR reports. Under the new pipeline, 4 routing r
 
 ### `/x-audit-perf` (independent audit)
 
-Performance audit skill — **not in the main flow**. Triggered manually or at milestones, outputs `reports/audit/audit-perf-*.md`.
+Performance audit skill outside the main flow. Triggered manually or at milestones, outputs `reports/audit/audit-perf-*.md`.
 
 ### `/x-audit-style` (independent audit)
 
-Style audit skill — **not in the main flow**. Triggered manually or periodically, outputs `reports/audit/audit-style-*.md`.
+Style audit skill outside the main flow. Triggered manually or periodically, outputs `reports/audit/audit-style-*.md`.
 
 ### `/x-req`
 
 Requirements analysis. Turns a development task into a clear, structured requirements spec.
 
-### `/x-plan`
+### `/x-plan` (deprecated alias)
 
-Development plan. Breaks down requirements into steps, scope, and execution order.
+Compatibility entry that redirects to `/x-req`. The former planning output now lives in the x-req task README, `dev-checklist.md`, and `diagram.html`.
 
 ### `/x-dev`
 
@@ -223,7 +229,18 @@ System architecture planning. For larger projects, complex modules, architecture
 
 ## Installation
 
+This repo ships v0.2.0 plugin metadata for both hosts:
+
+```text
+.claude-plugin/plugin.json          # Claude Code plugin manifest
+.claude-plugin/marketplace.json     # Claude Code local marketplace
+.codex-plugin/plugin.json           # Codex plugin manifest
+.agents/plugins/marketplace.json    # Codex repo-scoped marketplace
+```
+
 ### Quick Install (Recommended)
+
+Installs the Claude Code plugin from the GitHub `main` branch:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/KtKID/x-dev-pipeline/main/install.sh | bash
@@ -250,7 +267,7 @@ claude plugin install x-dev-pipeline@x-dev-pipeline --scope user
 
 ### Codex
 
-This repo ships a repo-scoped Codex marketplace at `.agents/plugins/marketplace.json`.
+This repo ships a repo-scoped Codex marketplace at `.agents/plugins/marketplace.json` and a Codex plugin manifest at `.codex-plugin/plugin.json`.
 
 Open the repo in Codex and Local can discover `x-dev-pipeline` directly from the workspace.
 
@@ -261,7 +278,7 @@ mkdir -p ~/.codex/plugins
 git clone https://github.com/KtKID/x-dev-pipeline.git ~/.codex/plugins/x-dev-pipeline
 ```
 
-On Windows, you can sync the current checkout into Codex and refresh the user-level marketplace files with:
+On Windows, sync the current checkout into Codex and refresh the user-level marketplace files with:
 
 ```powershell
 ./install-codex.ps1
@@ -279,14 +296,14 @@ Directory layout:
         └── x-dev-pipeline/
 ```
 
-The current official way to install local plugins is to manually maintain `~/.agents/plugins/marketplace.json`, then open the plugin directory in Codex to install. There's no standalone `plugin install` subcommand, but the official docs provide an interactive entry:
+Codex local plugin installation uses the interactive plugin directory after `~/.agents/plugins/marketplace.json` contains the local marketplace entry:
 
 ```bash
 codex
 /plugins
 ```
 
-You'll need to manually add the local marketplace entry:
+Manual marketplace entry:
 
 ```json
 {
@@ -311,19 +328,19 @@ You'll need to manually add the local marketplace entry:
 }
 ```
 
-You can also reference the example file in the repo:
+Reference example:
 
 ```text
 examples/codex-marketplace.json
 ```
 
-Two things to note:
+Path rules:
 
 - `source.path` is resolved relative to the root directory where `~/.agents/plugins/marketplace.json` lives
 - For personal marketplaces, the common pattern in the official docs is `./.codex/plugins/<plugin-name>`
 - The repo-scoped marketplace in this repo uses `../..` so Codex can resolve the plugin root from `.agents/plugins/marketplace.json`
 
-If you already have `~/.agents/plugins/marketplace.json`, just append the plugin entry above to the `plugins` array — don't overwrite existing plugins. Save, restart Codex, then run:
+If `~/.agents/plugins/marketplace.json` already exists, append the plugin entry above to the `plugins` array and preserve existing plugins. Save, restart Codex, then run:
 
 ```bash
 codex
@@ -343,26 +360,26 @@ After installation, try this to get started:
 This repo is especially suited for:
 
 - Developers using AI coding agents daily who want a more disciplined process
-- People who want AI development to feel more like engineering, not just chat
+- People who want AI development to feel like engineering collaboration
 - Anyone who wants every change to leave a clear record
 - Those who want review and fix to form a real feedback loop
 - People looking to build a stable, repeatable development rhythm
 
-## Who It's Not For (Yet)
+## Current Fit Boundaries
 
-This repo might not be the best fit if you currently need:
+This repo currently fits teams and individuals who accept a lightweight workflow layer. A different tool may fit better for:
 
 - A zero-config, plug-and-play general-purpose coding assistant
 - A heavy enterprise process management platform
 
 ## Adapting to Other Tools
 
-`x-dev-pipeline`'s workflow design is not tied to any specific tool. It's been deeply validated on Claude Code, but the core principles apply to all AI coding agents:
+`x-dev-pipeline`'s workflow design works across AI coding tools. Claude Code has the deepest validation today, and the core principles apply to all AI coding agents:
 
 - Small tasks should ship fast
 - Every change should be recorded
 - Every decision should be traceable
-- Reviews shouldn't stay verbal
+- Reviews should leave written artifacts
 - Fixes should close the loop
 
 If you're using another tool (Cursor, Codex, Windsurf, Cline, etc.), just tell your AI:
@@ -396,11 +413,11 @@ All skills share a unified task status system:
 
 ## Core Philosophy
 
-The goal isn't to make the process heavy — it's to make development:
+The goal is development that stays:
 
-**Structured when you need it, lightweight when you don't.**
+**Structured for complex work, lightweight for simple tasks.**
 
-It's not a rigid methodology you must follow end-to-end. It's a workflow toolkit you can freely pick from based on task complexity.
+Use it as a workflow toolkit you can pick from based on task complexity.
 
 ## Roadmap
 
@@ -411,7 +428,8 @@ We'll continue strengthening these areas:
 - Stronger review / fix feedback loops
 - More real-world usage examples
 - Better multi-language, multi-stack support
-- Official adapters for more tools (Cursor, Codex, Windsurf, etc.)
+- Stronger Claude Code and Codex adapter polish
+- Official adapters for more tools (Cursor, Windsurf, etc.)
 
 ## License
 

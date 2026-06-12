@@ -1,7 +1,7 @@
 {
   "name": "x-dev-pipeline",
-  "version": "0.1.3",
-  "description": "Structured dev workflow with spec, requirements, planning, execution, code review, and fix loops.",
+  "version": "0.2.0",
+  "description": "Structured dev workflow with spec, requirements, execution, verify, qa-gate, fix loops, and audits.",
   "author": {
     "name": "ktkid",
     "url": "https://github.com/KtKID"
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "x-dev-pipeline",
     "shortDescription": "Structured dev workflow for Codex",
-    "longDescription": "Turn ad-hoc AI coding sessions into a traceable workflow with quick development, planning, review, and fix loops.",
+    "longDescription": "Turn ad-hoc AI coding sessions into a traceable workflow with quick development, fact verification, qa-gate review, fix loops, and independent audits.",
     "developerName": "ktkid",
     "category": "Productivity",
     "capabilities": [
@@ -32,6 +32,7 @@
     "brandColor": "#3B82F6",
     "defaultPrompt": [
       "x-qdev add dark mode toggle to settings page",
+      "x-req turn this feature request into a task package",
       "x-verify run dev-report command list against the latest task",
       "x-qa-gate review the current task with R1/R2/R3 reviewers",
       "x-fix fix issues from the latest verify or qa-gate report"

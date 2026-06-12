@@ -136,7 +136,7 @@ Write-Info "Target: $targetDir"
 New-Item -ItemType Directory -Force -Path $codexPluginsDir | Out-Null
 New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
 
-$null = robocopy $sourceRoot $targetDir /MIR /XD .git tmp /NFL /NDL /NJH /NJS /NP
+$null = robocopy $sourceRoot $targetDir /MIR /XD .git tmp .xcodeatlas .serena /NFL /NDL /NJH /NJS /NP
 $robocopyExit = $LASTEXITCODE
 if ($robocopyExit -gt 7) {
     throw "robocopy failed with exit code $robocopyExit"
