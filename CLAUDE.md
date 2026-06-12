@@ -15,7 +15,7 @@ x-dev-pipeline/
 ├── skills/<name>/SKILL.md            # skill 定义（YAML frontmatter + 正文）
 │   └── references/, templates/        # reviewer prompt、报告模板
 ├── dev-pipeline/tasks/<task>/         # 用 skill 时产出的 task 工件
-│   ├── README.md, dev-checklist.md, diagram.html, changelog.md, dev-report.md
+│   ├── README.md, dev-checklist.md, diagram.md, changelog.md, dev-report.md
 │   └── reports/                       # gate 报告（全部在 task 目录下）
 │       ├── .fix-counter               # fix 次数（verify 创建，fix 递增，qa-gate 重置）
 │       ├── verify/*.md, qa-gate/*.md  # Gate ①② 报告

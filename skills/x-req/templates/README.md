@@ -55,6 +55,6 @@ interface NewType {
 
 ## 文件导航
 
-- [模块/组件图](./diagram.html)
+- [模块/组件图](./diagram.md)
 - [开发清单](./dev-checklist.md)
 - [变更记录](./changelog.md)

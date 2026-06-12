@@ -32,7 +32,7 @@
 
 ## 文档导航
 
-- [架构图](./architecture.html)（浏览器双击打开）
+- [图集：总览 + 各模块局部图](./diagrams.md)
 - [目标与完成标准](./01-goals-and-boundaries.md)
 - [模块设计 + 接口 + 数据结构](./02-module-breakdown.md)
 - [核心流程](./03-core-workflows.md)（如有）

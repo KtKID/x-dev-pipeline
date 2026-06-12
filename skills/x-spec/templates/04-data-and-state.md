@@ -22,11 +22,11 @@ interface Message {
 
 ## 实体关系
 
-[用文字或 mermaid ER 图描述实体之间的关系]
+[用文字描述实体之间的关系；ER 图写入 `diagrams.md` 对应模块节，此处只放一句引用]
 
 ## 状态流转
 
-[核心对象的生命周期状态机——从创建到终态]
+[核心对象的生命周期状态机——从创建到终态；状态图写入 `diagrams.md` 对应模块节，此处用文字/简记]
 
 ```
 created → scanning → parsed → aggregated → displayed

@@ -1,7 +1,7 @@
 ---
 name: x-plan
 description: |
-  ⚠️ 已废弃：本 skill 已合并到 x-req。x-req 现在一步产出 README.md + dev-checklist.md + diagram.html。
+  ⚠️ 已废弃：本 skill 已合并到 x-req。x-req 现在一步产出 README.md + dev-checklist.md + diagram.md。
   保留触发关键词兼容：x:plan、计划、制定计划、开发计划、plan。
   调用时自动重定向到 x-req。
 ---
@@ -12,12 +12,12 @@ description: |
 
 ## 调用本 skill 时怎么办
 
-改用 x-req。它现在一步产出 README.md + dev-checklist.md + diagram.html，不再需要先 req 后 plan。
+改用 x-req。它现在一步产出 README.md + dev-checklist.md + diagram.md，不再需要先 req 后 plan。
 
 新链路：
 
 ```
-x-req → README.md + dev-checklist.md + diagram.html → x-dev
+x-req → README.md + dev-checklist.md + diagram.md → x-dev
 ```
 
 ## 旧 plan.md 文件

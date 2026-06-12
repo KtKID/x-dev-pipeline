@@ -82,7 +82,7 @@ docs/<模块>/
 │   ├── 04-data-and-state.md               # 核心数据模型 + 状态流转
 │   ├── 05-validation-and-evolution.md     # 验证策略 + 测试 + 演进
 │   ├── 90-task-map.md                     # 组件→task 映射
-│   └── architecture.html                  # 组件依赖图（浏览器双击打开）
+│   └── diagrams.md                        # 全量图集：纯 mermaid，按模块分节
 ├── <specB>/
 │   └── ...（同上 7 文件）
 ```
@@ -90,7 +90,7 @@ docs/<模块>/
 按需扩展（可选，在 spec 目录下）：
 
 ```text
-│   ├── 03-core-workflows.md               # 核心流程/时序（有明显链路时才加）
+│   ├── 03-core-workflows.md               # 核心流程/时序的文字说明（有明显链路时才加，图在 diagrams.md）
 ```
 
 ### 模块 README
@@ -104,17 +104,19 @@ docs/<模块>/
 
 ### 图类型规范
 
-所有图统一用 **mermaid 格式**，嵌入方式分两种：
-- **独立 HTML**（浏览器双击看）：`architecture.html`，模板见 `skills/x-req/templates/diagram-template.html`
-- **内嵌 markdown**（GitHub/VS Code 渲染）：在 .md 文件里用 ` ```mermaid ` 代码块
+所有图统一用 **mermaid 格式**，**全部集中写入一份 `diagrams.md`**（纯 markdown + mermaid 代码块，编辑器/GitHub 直接渲染）。**按模块分节**：一节总览 + 每个模块一节，顶部锚点目录。**其他 .md 文档一律不内嵌 mermaid**，在对应位置写一句引用（如"状态流转见 `diagrams.md` §<模块名>"）。
 
-| 图类型 | mermaid 类型 | 嵌入位置 | 用途 |
-|--------|------------|---------|------|
-| **模块依赖图** | `flowchart TD` | `architecture.html`（独立 HTML） | 模块间依赖关系，整体架构 |
-| **核心流程图** | `flowchart LR` 或 `flowchart TD` | `03-core-workflows.md` 内嵌 | 业务主链路、数据处理管线 |
-| **时序图** | `sequenceDiagram` | `03-core-workflows.md` 内嵌 | 模块间调用顺序、请求响应链 |
-| **状态流转图** | `stateDiagram-v2` | `04-data-and-state.md` 内嵌 | 核心对象生命周期 |
-| **ER 图** | `erDiagram` | `04-data-and-state.md` 内嵌 | 实体关系、数据库表结构 |
+缩放说明：md 本身不带缩放代码，靠查看器——GitHub 渲染 mermaid 自带缩放/平移控件；VS Code 装 Mermaid Chart（官方）或 Markdown Preview Enhanced 插件。`diagrams.md` 头部固定写一行查看建议（模板已含）。看清的根本保障是拆图规则（单图 ≤12 节点），缩放只是兜底。
+
+| 节 | 放什么图 | mermaid 类型 |
+|----|---------|-------------|
+| **§总览**（必有） | 模块级依赖图：每个模块一个节点，只画模块间关系 | `flowchart TD` |
+| **§\<模块\>**（每模块一节，按需选用以下图） | 局部组件依赖图（模块内组件包 subgraph + 直接邻居） | `flowchart TD` |
+| | 核心流程图 / 时序图（该模块参与的主链路） | `flowchart LR/TD` / `sequenceDiagram` |
+| | 状态流转图（该模块核心对象生命周期） | `stateDiagram-v2` |
+| | ER 图（该模块的数据实体） | `erDiagram` |
+
+§总览必有；模块节按需创建，没有图可画的模块不建空节。跨模块的流程/时序放在主导模块的节里（标注"跨模块"），不另设公共节。
 
 ### 苹果风配色（所有图统一）
 
@@ -132,16 +134,20 @@ classDef p2 fill:#F2F2F7,stroke:#8E8E93,color:#1D1D1F,stroke-width:1.5px
 
 1. 节点格式：`ID["名称<br/>P0/P1/P2 · 一句话"]:::p{0|1|2}`
 2. 实线 `-->`（强依赖）；虚线 `-.->`（弱依赖 / 可选 / 调起）
-3. 超 10 个节点用 `subgraph` 分组（按部署单元 / 技术栈 / 层次）
-4. 同质重复节点压成 "×N"（如 17 个 adapter 压成一个）
-5. 图与文字描述保持一致——增减内容时同步更新
+3. **单图节点上限 ~12**：超限先压缩同质节点（×N），还超就拆图——总览只画模块级，细节下沉到模块节的局部图
+4. **`subgraph` 一律按模块划分**：一个模块一个 subgraph，框线即模块边界，边界类节点放在框内第一位；禁止按技术栈/层次/部署单元混分。局部图里本模块组件包在自己的 subgraph 内，邻居模块压成单节点放框外。subgraph 只管可视化分组，不解决图过大（过大照样拆图）
+5. 同质重复节点压成 "×N"（如 17 个 adapter 压成一个）
+6. 图与文字描述保持一致——增减内容时同步更新
 
-### architecture.html 产出步骤
+### diagrams.md 产出步骤
 
-1. 复制 `skills/x-req/templates/diagram-template.html` 到 `docs/<模块>/<spec>/architecture.html`
-2. 替换 title + h1 中的 TASK_NAME 为 spec 名
-3. 替换 mermaid 块为 02-module-breakdown.md 中所有组件的依赖图
-4. architecture.html 与 02-module-breakdown.md 保持一致——增减组件时同步更新
+1. 复制 `skills/x-spec/templates/diagrams.md` 到 `docs/<模块>/<spec>/diagrams.md`
+2. 替换标题中的 SPEC_NAME 为 spec 名，保留头部的查看/缩放建议引用块
+3. **按模块分节**，每节一个 `## <模块名>` + 若干 ` ```mermaid ` 代码块：
+   - §总览（必有）：模块级依赖图，每模块一个节点，来自 02-module-breakdown.md 模块总览
+   - §\<模块\>（每模块一节）：局部组件依赖 / 流程 / 时序 / 状态 / ER，对应 02/03/04 的内容按需；模块内组件包在该模块的 subgraph 里
+4. 更新顶部目录（各节锚点链接）
+5. diagrams.md 与 02/03/04 的文字描述保持一致——增减内容时同步更新对应节
 
 ### 原则
 
@@ -180,13 +186,11 @@ classDef p2 fill:#F2F2F7,stroke:#8E8E93,color:#1D1D1F,stroke-width:1.5px
 #### 阶段 3：约束（受什么限制）
 
 - "技术栈有偏好或硬限制吗？"
-- "时间和人力：一个人做 / 团队？几周 / 几月？"
 - "数据从哪来？量级多大？有隐私要求吗？"
-- "用错了会怎样？容错要求多高？"
 
 #### 阶段 4：收敛确认
 
-综合所有回答产出一份"理解总结"（目标 / MVP 路径 / 范围 / 模块草稿 / 约束 / DoD），用户确认后进入下一步。
+综合所有回答产出一份"理解总结"，**顶部必须是"需求要点"块**（提炼用户原始需求，大白话 3-7 条，只写"用户要什么"不写"怎么实现"——这是步骤 7 文档审核的基准），其后依次：目标 / MVP 路径 / 范围 / 模块草稿 / 约束 / DoD。用户确认后进入下一步。
 
 #### 追问策略
 
@@ -204,10 +208,13 @@ classDef p2 fill:#F2F2F7,stroke:#8E8E93,color:#1D1D1F,stroke-width:1.5px
 - 用户说"不要问了直接做" → 尊重，按已有信息产出
 - 用户输入已经足够具体 → 跳过
 
+**跳过追问必须申明原因**：除上述三种情况外，默认必须执行至少 1 轮追问。凡跳过追问直接产出，必须在回复开头明确说明命中了哪一条（如"输入已含完整 PRD，跳过追问"）——不允许静默跳过，用户没看到追问时必须能知道为什么。
+
 #### 追问与文档联动
 
 | 追问阶段 | 回答灌进哪个文件 |
 |---------|---------------|
+| 阶段 4 需求要点 | `01-goals-and-boundaries.md` → 需求要点段（文档审核基准） |
 | 阶段 1 目标 | `01-goals-and-boundaries.md` → 系统目标 + DoD |
 | 阶段 2 范围 | `01-goals-and-boundaries.md` → 包含/不包含 |
 | 阶段 2 MVP 路径 | `README.md` → "最小可用路径" 段 |
@@ -251,10 +258,27 @@ classDef p2 fill:#F2F2F7,stroke:#8E8E93,color:#1D1D1F,stroke-width:1.5px
 - 包含范围
 - 不包含范围
 - 依赖
+- **边界类**（模块唯一对外入口，命名见下方设计原则）
 - 数据结构/接口（对外暴露的核心类型）
 - 复用/新建标注（步骤 2 的调研结论）
 - 风险等级（高/中/低）
 - 当前状态
+
+#### 模块边界设计原则（硬性，开发类任务必须遵守）
+
+- **每个模块对外只暴露一个边界类**作为唯一入口：业务域用 `<模块>Service`、资源/生命周期域用 `<模块>Manager`、对接外部系统用 `<系统>Client` / `<系统>Gateway`、数据持久层用 `<实体>Repository`
+- **模块内功能统一由边界类收口调用**，禁止散装函数跨模块直接调用。判定标准："改一个能力只动一处"——跨文件改多处就是边界没收口
+- **模块内高内聚、模块间低耦合**：模块外的代码只 import 边界类，grep 不到对模块内部函数的直接引用
+- **文件级信号配合类名**：Python 内部实现用下划线前缀文件/函数 + `__init__.py` 只导出边界类（显式 `__all__`）；TS 只从 `index.ts` 导出边界，内部实现放 `internal/`
+
+#### 内部功能需要对外暴露时（决策规则）
+
+按序判断：
+1. **是本模块能力** → 边界类加委托方法（转发时顺手补校验，维持不变量），内部函数保持私有
+2. **是通用工具**（与本模块业务无绑定）→ 提取到共享底层模块（`common/` / `core/`），双方都走它的边界
+3. **外部需要的内部能力多到边界形同虚设** → 模块边界画错了，回 x-spec 重新拆
+
+**禁止**：直接 import 内部函数（如 `from mod._internal import foo`）/ 为一个调用方批量 re-export 内部文件 / 复制实现到调用方。
 
 模块状态只使用：
 - 探索中
@@ -290,11 +314,40 @@ classDef p2 fill:#F2F2F7,stroke:#8E8E93,color:#1D1D1F,stroke-width:1.5px
 
 风险等级写入 `02-module-breakdown.md` 每个模块详情；PoC 建议写入 `90-task-map.md` 备注列。
 
-### 7. 生成文档
+### 7. 生成文档（agent1 创建 + 主 agent 审核 + 修复）
+
+**主 agent 不直接写产出文件**：创建派给 agent1，审核由主 agent 亲自做（审核基准——确认过的需求要点——就在主 agent 上下文里）。agent1 的 prompt 必须自包含（fresh subagent 看不到主对话）。
+
+#### 7.1 agent1（创建者）：产出文档包
+
+```
+Agent({
+  description: "x-spec 文档创建",
+  subagent_type: "general-purpose",
+  prompt: <自包含：确认过的需求要点全文 + 理解总结全文 + 步骤 2-6 全部结论
+          （调研可复用清单 / 模块拆分 / 追溯矩阵 / 风险标注）+
+          模板路径 skills/x-spec/templates/ + 输出目录 docs/<模块>/<spec>/>
+})
+```
 
 产出文件：
 - **模块 README**（`docs/<模块>/README.md`）：模板见 `templates/module-README.md`。如果模块目录已存在，更新导航表即可
 - **spec 7 文件**（`docs/<模块>/<spec>/` 下）：模板见 `templates/` 下对应文件，将前 6 步的所有结论灌入
+
+#### 7.2 主 agent 审核：出 mini-report
+
+agent1 产出后，**主 agent 亲自读产出文件**，对照确认过的需求要点逐条审核（按 P0/P1 分级；**只报告不修改**，修改一律交回 agent1）：
+
+1. **要点覆盖**：确认过的需求要点每条都落进了 `01-goals-and-boundaries.md` / spec README——漏一条 = P0
+2. **文档间一致**：`02-module-breakdown.md` 组件清单 / `diagrams.md` 节点 / `90-task-map.md` 映射三者对得上——不一致 = P0
+3. **追溯矩阵双向闭合**：每条 DoD 有模块支撑、每个模块有 DoD 对应——缺任一方向 = P0
+4. **边界设计落实**：每个模块定义了边界类——缺 = P0；数据结构字段缺中文注释 = P1
+5. **规范符合**：spec 7 文件齐全——缺文件 = P0；模板结构 / 状态值 / mermaid 是否全部集中在 diagrams.md（其他 .md 内嵌 = 散落）/ subgraph 是否按模块划分 = P1
+
+#### 7.3 修复（只修一轮，不复审）
+
+- 审核发现 P0 → 把反馈交回 agent1 修复（优先用 SendMessage 续接 agent1，保留它的创建上下文；环境不支持续接则重新派发，prompt 附审核反馈全文）。**修完不复审**，直接进步骤 8
+- 无 P0 → 直接进步骤 8（P1 在收尾时列给用户参考，不阻塞）
 
 spec README 必须包含：
 - spec 目标
@@ -330,8 +383,7 @@ spec README 必须包含：
 | `templates/04-data-and-state.md` | 核心数据模型 + 状态流转 | spec 目录 |
 | `templates/05-validation-and-evolution.md` | 验证策略 + 测试 + 演进 | spec 目录 |
 | `templates/90-task-map.md` | 组件→task 映射 | spec 目录 |
-
-`architecture.html` 使用 `skills/x-req/templates/diagram-template.html`（苹果风 mermaid 共用模板）。
+| `templates/diagrams.md` | 全量图集（纯 mermaid，按模块分节） | spec 目录 |
 
 ---
 
@@ -343,5 +395,6 @@ spec README 必须包含：
 3. 哪些 spec 适合先进入 x-req
 4. 哪些 spec 仍应停留在方案层
 5. 文档保存路径：`docs/<模块>/<spec>/`
+6. 审核结论：主 agent 审核发现的 P0（已由 agent1 修复的列"已修复"）+ 遗留 P1（参考项，不阻塞）
 
 如果用户仍然很模糊，优先先产出最小 3 文件，不要过早扩展全部文档。

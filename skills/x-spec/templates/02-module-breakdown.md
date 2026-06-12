@@ -27,7 +27,11 @@
 
 ```typescript
 // 必须定义：本模块对外暴露的核心类型
-interface ModuleInput { ... }
+// 要求：每个字段必须带中文注释（含义 + 单位/取值范围，如有）
+interface ModuleInput {
+  taskId: string;      // 任务唯一标识，URL 友好格式
+  timeoutMs: number;   // 超时毫秒数，来源 config，不得硬编码
+}
 interface ModuleOutput { ... }
 ```
 
