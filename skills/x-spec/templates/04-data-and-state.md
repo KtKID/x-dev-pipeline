@@ -39,7 +39,7 @@ created → scanning → parsed → aggregated → displayed
 | 数据 | 存储方式 | 位置 | 备注 |
 |------|---------|------|------|
 | 原始 session | 本地文件 | 各 client 目录 | 只读 |
-| 解析缓存 | SQLite | ~/.cache/xxx | 可删除重建 |
+| 解析缓存 | SQLite | 用户缓存目录 `~/.cache/xxx` | 可删除重建 |
 | 聚合结果 | 内存 | 运行时计算 | 不持久化 |
 
 ## 共享数据结构

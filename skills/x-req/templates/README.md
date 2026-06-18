@@ -2,7 +2,7 @@
 
 > 创建时间：YYYY-MM-DD
 > 类型：功能 / 修复 / 优化 / 重构
-> spec: docs/<模块>/<spec>
+> spec: docs/spec/<spec-name>
 
 ## 核心目标
 
@@ -10,10 +10,10 @@
 
 ## 涉及模块
 
-- [模块名](相对路径到 docs/ 模块文档) — 本 task 改动的部分/原因
-- [模块名](相对路径) — ...
+- 模块名：参考 `spec: docs/spec/<spec-name>`，改动 `repo:src/module/...`
+- 模块名：参考 `spec: docs/spec/<spec-name>`，改动 `repo:src/other/...`
 
-> 如果项目没有 docs/ 模块文档（新项目 / 未跑过 x-spec），直接在此写涉及的代码文件/目录 + 简述作用。
+> 如果项目没有 docs/spec/ 需求包文档（新项目 / 未跑过 x-spec），直接在此写涉及的代码文件/目录 + 简述作用。
 
 ## 技术设计
 
