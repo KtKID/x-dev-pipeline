@@ -6,7 +6,7 @@
 
 [中文说明](./README_zh.md)
 
-**Current release:** v0.2.0
+**Current release:** v0.3.0
 
 > A recordable, auditable, and reviewable workflow framework for AI-assisted development.
 
@@ -237,7 +237,7 @@ Two-subagent protocol, data-structure, and process alignment. Use it for contrac
 
 ## Installation
 
-This repo ships v0.2.0 plugin metadata for both hosts:
+This repo ships v0.3.0 plugin metadata for both hosts:
 
 ```text
 .claude-plugin/plugin.json          # Claude Code plugin manifest

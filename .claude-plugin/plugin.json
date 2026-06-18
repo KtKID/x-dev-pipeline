@@ -1,7 +1,7 @@
 {
   "name": "x-dev-pipeline",
   "description": "Structured dev workflow with spec, requirements, execution, verify, qa-gate, fix loops, and audits",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": {
     "name": "ktkid"
   },

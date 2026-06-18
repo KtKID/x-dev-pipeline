@@ -4,7 +4,7 @@
 
 # x-dev-pipeline
 
-**当前版本：** v0.2.0
+**当前版本：** v0.3.0
 
 > 给 AI 辅助开发一套可记录、可审计、可回顾的工作流框架。
 
@@ -235,7 +235,7 @@ Gate ② 质量评审（取代老 `/x-cr`）。串行 dispatch 3 个 opus 子 ag
 
 ## 安装
 
-这个仓库随 v0.2.0 提供两套 host 的插件元数据：
+这个仓库随 v0.3.0 提供两套 host 的插件元数据：
 
 ```text
 .claude-plugin/plugin.json          # Claude Code 插件 manifest
