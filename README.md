@@ -161,6 +161,10 @@ Independent audits run on demand outside the main flow:
 - `/x-audit-perf` — performance audit (manual / milestone)
 - `/x-audit-style` — style audit (manual / periodic)
 
+Alignment utilities also run on demand:
+
+- `/x-multi-llm-align` - two-subagent protocol, data-structure, and process alignment
+
 Think of it this way:
 
 ### Small Tasks
@@ -217,7 +221,7 @@ Requirements analysis. Turns a development task into a clear, structured require
 
 ### `/x-plan` (deprecated alias)
 
-Compatibility entry that redirects to `/x-req`. The former planning output now lives in the x-req task README, `dev-checklist.md`, and `diagram.html`.
+Compatibility entry that redirects to `/x-req`. The former planning output now lives in the x-req task README, `dev-checklist.md`, and `diagram.md`.
 
 ### `/x-dev`
 
@@ -226,6 +230,10 @@ Execute the plan. Development with a checklist, status tracking, and a changelog
 ### `/x-spec`
 
 System architecture planning. For larger projects, complex modules, architecture design, or long-term evolution tasks.
+
+### `/x-multi-llm-align`
+
+Two-subagent protocol, data-structure, and process alignment. Use it for contract review, implementation-side feedback, and multi-round agreement between two subagents representing separate implementation sides.
 
 ## Installation
 
@@ -284,6 +292,12 @@ On Windows, sync the current checkout into Codex and refresh the user-level mark
 ./install-codex.ps1
 ```
 
+The script updates:
+
+- `~/.agents/plugins/marketplace.json`
+- `~/.codex/marketplace.json`
+- `~/.codex/plugins/marketplace.json`
+
 Directory layout:
 
 ```text
@@ -292,11 +306,13 @@ Directory layout:
 │   └── plugins/
 │       └── marketplace.json
 └── .codex/
+    ├── marketplace.json
     └── plugins/
+        ├── marketplace.json
         └── x-dev-pipeline/
 ```
 
-Codex local plugin installation uses the interactive plugin directory after `~/.agents/plugins/marketplace.json` contains the local marketplace entry:
+Codex local plugin installation uses the interactive plugin directory after the user-level marketplace files contain the local marketplace entry:
 
 ```bash
 codex

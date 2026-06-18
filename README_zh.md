@@ -159,6 +159,10 @@ x-spec -> x-req -> x-dev -> x-verify -> x-qa-gate -> x-fix
 - `/x-audit-perf` 性能巡检（手动 / 大里程碑）
 - `/x-audit-style` 规范巡检（手动 / 周期）
 
+独立对齐工具也按需触发：
+
+- `/x-multi-llm-align` 两个子 agent 之间的协议、数据结构和流程对齐
+
 你可以这样理解：
 
 ### 小任务
@@ -215,7 +219,7 @@ Gate ② 质量评审（取代老 `/x-cr`）。串行 dispatch 3 个 opus 子 ag
 
 ### `/x-plan`（兼容入口）
 
-已废弃别名，调用会重定向到 `/x-req`。原计划产物现在位于 x-req task README、`dev-checklist.md` 和 `diagram.html`。
+已废弃别名，调用会重定向到 `/x-req`。原计划产物现在位于 x-req task README、`dev-checklist.md` 和 `diagram.md`。
 
 ### `/x-dev`
 
@@ -224,6 +228,10 @@ Gate ② 质量评审（取代老 `/x-cr`）。串行 dispatch 3 个 opus 子 ag
 ### `/x-spec`
 
 系统方案规划。适合更大的项目、复杂模块、架构设计或长期演进任务。
+
+### `/x-multi-llm-align`
+
+两个子 agent 之间的协议、数据结构和流程对齐。适合 contract review、实现方反馈收敛，以及两个子 agent 分别代表实现方立场的多轮协议确认。
 
 ## 安装
 
@@ -276,11 +284,17 @@ mkdir -p ~/.codex/plugins
 git clone https://github.com/KtKID/x-dev-pipeline.git ~/.codex/plugins/x-dev-pipeline
 ```
 
-Windows 环境可以直接运行下面的脚本，把当前 checkout 同步到 Codex，并刷新用户级 marketplace：
+Windows 环境可以直接运行下面的脚本，把当前 checkout 同步到 Codex，并刷新用户级 marketplace 文件：
 
 ```powershell
 ./install-codex.ps1
 ```
+
+脚本会更新：
+
+- `~/.agents/plugins/marketplace.json`
+- `~/.codex/marketplace.json`
+- `~/.codex/plugins/marketplace.json`
 
 目录关系如下：
 
@@ -290,11 +304,13 @@ Windows 环境可以直接运行下面的脚本，把当前 checkout 同步到 C
 │   └── plugins/
 │       └── marketplace.json
 └── .codex/
+    ├── marketplace.json
     └── plugins/
+        ├── marketplace.json
         └── x-dev-pipeline/
 ```
 
-Codex 本地插件安装方式是：先维护 `~/.agents/plugins/marketplace.json`，再通过交互式插件目录安装：
+Codex 本地插件安装方式是：用户级 marketplace 文件包含本地 marketplace 条目后，再通过交互式插件目录安装：
 
 ```bash
 codex

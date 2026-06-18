@@ -30,7 +30,7 @@ x-dev-pipeline/
 
 ```
 x-spec ─→ x-req ─→ x-dev ──┐
-(docs/)    (task/)    ↑     │
+(docs/spec/) (task/)  ↑     │
                    x-qdev ──┤      (轻量入口，自包含)
                             ↓
                        x-verify (Gate ① 命令复跑)
@@ -40,7 +40,7 @@ x-spec ─→ x-req ─→ x-dev ──┐
                           x-fix ──→ 按 4 条规则回流到对应节点
 ```
 
-- x-spec 产出 `docs/<模块>/<spec>/`（模块/spec 两层目录，多个 spec 组合成完整模块，迭代原地更新）
+- x-spec 产出 `docs/spec/<spec-name>/` 独立需求包，`docs/spec/README.md` 做索引，迭代原地更新
 - x-req 产出 `dev-pipeline/tasks/<task>/`（README 含 `spec:` 字段指向归属 spec，一步到位）
 - x-plan 已废弃，功能合并到 x-req
 
@@ -50,7 +50,7 @@ x-spec ─→ x-req ─→ x-dev ──┐
 
 | 契约 | 内容 |
 |------|------|
-| spec 两层目录 | x-spec 产出 `docs/<模块>/<spec>/`，模块 README 汇总 spec 导航，spec 目录含 7 文件。x-req 的 README `spec:` 字段指向 `docs/<模块>/<spec>`，一个 task 只归属一个 spec |
+| spec 需求包目录 | x-spec 产出 `docs/spec/<spec-name>/`，`docs/spec/README.md` 汇总 spec 导航，spec 目录含 7 文件。x-req 的 README `spec:` 字段指向 `docs/spec/<spec-name>`，一个 task 只归属一个 spec |
 | `dev-report.md` schema | x-dev/x-qdev 输出，是 x-verify 的**唯一输入**。必须含验证命令清单（至少 1 条测试类）+ 改动文件清单 + 自检结论。模板：`skills/x-dev/templates/dev-report-template.md` |
 | 测试分层契约 | x-spec 写验证策略；x-req README 显式列 smoke/e2e 验收用例；单元/契约/边界测试由 x-dev 按实际改动补齐，并写入 `dev-report.md` 验证命令清单 |
 | `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。x-verify 首次创建，x-fix 递增，x-qa-gate 在 R3 通过后重置。**6 次上限**，三方共享 |
