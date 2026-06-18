@@ -110,15 +110,18 @@ docs/<模块>/
 
 | 节 | 放什么图 | mermaid 类型 |
 |----|---------|-------------|
-| **§总览**（必有） | 模块级依赖图：每个模块一个节点，只画模块间关系 | `flowchart TD` |
+| **§总览**（必有） | 模块级依赖图：每个模块一个节点，只画模块间关系；每个节点写中文模块作用和关键类/函数名 | `flowchart TD` |
+| **§E2E 测试链路**（推荐） | 从测试数据准备、用户动作、系统处理到断言的验证路径 | `flowchart LR` |
 | **§\<模块\>**（每模块一节，按需选用以下图） | 局部组件依赖图（模块内组件包 subgraph + 直接邻居） | `flowchart TD` |
 | | 核心流程图 / 时序图（该模块参与的主链路） | `flowchart LR/TD` / `sequenceDiagram` |
 | | 状态流转图（该模块核心对象生命周期） | `stateDiagram-v2` |
-| | ER 图（该模块的数据实体） | `erDiagram` |
+| | 数据关系图（该模块的数据实体） | `flowchart LR` |
 
-§总览必有；模块节按需创建，没有图可画的模块不建空节。跨模块的流程/时序放在主导模块的节里（标注"跨模块"），不另设公共节。
+§总览必有；总览节点包含中文模块作用说明和关键类/函数名。§E2E 测试链路用于描述验证路径，放在总览之后。模块节按需创建，没有图可画的模块不建空节。跨模块的流程/时序放在主导模块的节里（标注"跨模块"），不另设公共节。
 
 ### 苹果风配色（所有图统一）
+
+Flowchart / 局部组件图使用以下节点类：
 
 ```
 classDef p0 fill:#E8F1FE,stroke:#0071E3,color:#1D1D1F,stroke-width:1.5px
@@ -130,22 +133,35 @@ classDef p2 fill:#F2F2F7,stroke:#8E8E93,color:#1D1D1F,stroke-width:1.5px
 - P1（橙）= 主要 / 必须完成
 - P2（灰）= 辅助 / 可选
 
+数据关系图使用 `flowchart LR` 紧凑实体节点，核心信息是实体、关系方向、关系基数和主外键：
+
+```
+%%{init: {"theme": "base", "themeVariables": {"background": "#181A1F", "primaryColor": "#242933", "primaryTextColor": "#F5F7FA", "primaryBorderColor": "#6BA7FF", "lineColor": "#AAB4C0", "textColor": "#F5F7FA", "edgeLabelBackground": "#181A1F"}}}%%
+classDef entity fill:#1F2633,stroke:#6BA7FF,color:#F5F7FA,stroke-width:1.5px
+classDef supporting fill:#191F29,stroke:#AAB4C0,color:#F5F7FA,stroke-width:1.2px
+```
+
+数据关系节点格式：`Entity["ENTITY<br/>────────<br/>PK id<br/>FK parent_id<br/>status"]:::entity`。节点最多保留 3 个字段：主键、外键、状态/类型字段；完整字段清单写入 `04-data-and-state.md`。关系格式：`A -->|owns 1:N| B`。
+
 ### 图的写法守则
 
-1. 节点格式：`ID["名称<br/>P0/P1/P2 · 一句话"]:::p{0|1|2}`
+1. 总览节点格式：`ID["模块名<br/>中文模块作用<br/>类/函数：ClassName.methodName()"]:::module`
 2. 实线 `-->`（强依赖）；虚线 `-.->`（弱依赖 / 可选 / 调起）
 3. **单图节点上限 ~12**：超限先压缩同质节点（×N），还超就拆图——总览只画模块级，细节下沉到模块节的局部图
 4. **`subgraph` 一律按模块划分**：一个模块一个 subgraph，框线即模块边界，边界类节点放在框内第一位；禁止按技术栈/层次/部署单元混分。局部图里本模块组件包在自己的 subgraph 内，邻居模块压成单节点放框外。subgraph 只管可视化分组，不解决图过大（过大照样拆图）
 5. 同质重复节点压成 "×N"（如 17 个 adapter 压成一个）
 6. 图与文字描述保持一致——增减内容时同步更新
+7. 数据关系图使用 `flowchart LR`，保留上面的局部主题配置；一个实体一个紧凑节点，节点内用 `────────` 分出标题和关键字段，关系标签写短动词和基数
 
 ### diagrams.md 产出步骤
 
 1. 复制 `skills/x-spec/templates/diagrams.md` 到 `docs/<模块>/<spec>/diagrams.md`
 2. 替换标题中的 SPEC_NAME 为 spec 名，保留头部的查看/缩放建议引用块
 3. **按模块分节**，每节一个 `## <模块名>` + 若干 ` ```mermaid ` 代码块：
-   - §总览（必有）：模块级依赖图，每模块一个节点，来自 02-module-breakdown.md 模块总览
-   - §\<模块\>（每模块一节）：局部组件依赖 / 流程 / 时序 / 状态 / ER，对应 02/03/04 的内容按需；模块内组件包在该模块的 subgraph 里
+   - §总览（必有）：模块级依赖图，每模块一个节点，来自 02-module-breakdown.md 模块总览；每个节点写中文模块作用和关键类/函数名
+   - §E2E 测试链路（推荐）：来自 05-validation-and-evolution.md 的主验收路径；节点按测试数据 → 用户动作 → 系统处理 → 持久化/副作用 → 断言排列
+   - §\<模块\>（每模块一节）：局部组件依赖 / 流程 / 时序 / 状态 / 数据关系，对应 02/03/04 的内容按需；模块内组件包在该模块的 subgraph 里
+   - 数据关系图：使用 `flowchart LR`，一个实体一个紧凑节点，字段只放主外键和关键状态
 4. 更新顶部目录（各节锚点链接）
 5. diagrams.md 与 02/03/04 的文字描述保持一致——增减内容时同步更新对应节
 

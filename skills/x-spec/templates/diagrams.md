@@ -7,23 +7,23 @@
 ## 目录
 
 - [总览](#总览)
+- [E2E 测试链路](#e2e-测试链路)
 - [模块 A](#模块-a)
 - [模块 B](#模块-b)
 
-图例：🔵 P0 核心/阻塞 · 🟠 P1 主要/必须 · ⚪ P2 辅助/可选
+图例：总览节点写模块名、中文作用、关键类/函数；局部组件图可按 🔵 核心 · 🟠 主要 · ⚪ 辅助 配色。
 
 ## 总览
 
-[模块级依赖图：每模块一个节点，只画模块间关系]
+[模块级依赖图：每模块一个节点，只画模块间关系；每个节点写中文模块作用和关键类/函数名]
 
 ```mermaid
 flowchart TD
-  classDef p0 fill:#E8F1FE,stroke:#0071E3,color:#1D1D1F,stroke-width:1.5px
-  classDef p1 fill:#FFF4E5,stroke:#FF9500,color:#1D1D1F,stroke-width:1.5px
-  classDef p2 fill:#F2F2F7,stroke:#8E8E93,color:#1D1D1F,stroke-width:1.5px
+  classDef module fill:#E8F1FE,stroke:#0071E3,color:#1D1D1F,stroke-width:1.5px
+  classDef support fill:#F2F2F7,stroke:#8E8E93,color:#1D1D1F,stroke-width:1.5px
 
   %% 写图守则：
-  %% 1. 节点格式：ID["名称<br/>P0/P1/P2 · 一句话"]:::p{0|1|2}
+  %% 1. 总览节点格式：ID["模块名<br/>中文模块作用<br/>类/函数：ClassName.methodName()"]:::module
   %% 2. 实线 -->（强依赖）；虚线 -.->（弱依赖/可选/调起）
   %% 3. 单图节点上限 ~12：超限先压缩同质节点（×N），还超就拆图——
   %%    总览只画模块级，细节下沉到模块节的局部图
@@ -32,17 +32,36 @@ flowchart TD
   %% 5. 同质重复节点压成单节点 + "×N" 后缀，避免图爆炸
   %% 6. 图与 02/03/04 文字描述完全一致——这里是只读视图
 
-  ModA["模块 A<br/>P0 · 一句话职责"]:::p0
-  ModB["模块 B<br/>P1 · 一句话职责"]:::p1
-  ModC["模块 C<br/>P2 · 一句话职责"]:::p2
+  ModA["需求入口<br/>收集用户需求并确定任务边界<br/>类/函数：RequirementService.collect()"]:::module
+  ModB["方案拆解<br/>拆分模块职责和开发清单<br/>类/函数：SpecPlanner.buildModules()"]:::module
+  ModC["交付校验<br/>汇总验收条件和风险检查<br/>类/函数：AcceptanceChecker.validate()"]:::support
 
   ModA --> ModB
   ModA -.-> ModC
 ```
 
+## E2E 测试链路
+
+[从测试数据准备到断言的端到端验证路径；节点写动作、入口、关键类/函数或断言点]
+
+```mermaid
+flowchart LR
+  classDef setup fill:#E8F1FE,stroke:#0071E3,color:#1D1D1F,stroke-width:1.5px
+  classDef action fill:#FFF4E5,stroke:#FF9500,color:#1D1D1F,stroke-width:1.5px
+  classDef assert fill:#F2F2F7,stroke:#8E8E93,color:#1D1D1F,stroke-width:1.5px
+
+  Seed["准备测试数据<br/>TestDataFactory.createThread()"]:::setup
+  Act["执行用户动作<br/>CLI: x-spec create"]:::action
+  Service["业务处理<br/>SpecPlanner.buildModules()"]:::action
+  Persist["写入产物<br/>DiagramWriter.write()"]:::action
+  Check["断言结果<br/>diagram.md 存在<br/>包含总览和数据关系"]:::assert
+
+  Seed --> Act --> Service --> Persist --> Check
+```
+
 ## 模块 A
 
-[该模块的局部图，按需保留小节：组件依赖 / 流程 / 时序 / 状态 / ER，没有内容的小节删掉]
+[该模块的局部图，按需保留小节：组件依赖 / 流程 / 时序 / 状态 / 数据关系，没有内容的小节删掉]
 
 ### 组件依赖
 
@@ -75,6 +94,22 @@ stateDiagram-v2
   running --> failed: 出错
   failed --> running: 重试
   done --> [*]
+```
+
+### 数据关系
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"background": "#181A1F", "primaryColor": "#242933", "primaryTextColor": "#F5F7FA", "primaryBorderColor": "#6BA7FF", "lineColor": "#AAB4C0", "textColor": "#F5F7FA", "edgeLabelBackground": "#181A1F"}}}%%
+flowchart LR
+  classDef entity fill:#1F2633,stroke:#6BA7FF,color:#F5F7FA,stroke-width:1.5px
+  classDef supporting fill:#191F29,stroke:#AAB4C0,color:#F5F7FA,stroke-width:1.2px
+
+  THREAD["THREAD<br/>────────<br/>PK thread_id<br/>FK source_id"]:::entity
+  MESSAGE["MESSAGE<br/>────────<br/>PK message_id<br/>FK thread_id<br/>role"]:::entity
+  RUN["RUN<br/>────────<br/>PK run_id<br/>FK thread_id<br/>status"]:::supporting
+
+  THREAD -->|contains 1:N| MESSAGE
+  THREAD -->|starts 1:N| RUN
 ```
 
 ## 模块 B
