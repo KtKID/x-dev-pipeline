@@ -52,7 +52,7 @@ description: |
 
 > **能并行就并行，不要串行等待。**
 
-如果清单有 2+ 个无依赖任务，**必须**派 opus 子 agent 并行开发。不允许"为了简单"而串行执行可并行任务。
+如果清单有 2+ 个无依赖任务，**必须**派子 agent 并行开发。不允许"为了简单"而串行执行可并行任务。
 
 **dispatch 模板**：
 
@@ -60,17 +60,31 @@ description: |
 Agent({
   description: "x-qdev #N <任务标题>",
   subagent_type: "general-purpose",
-  model: "opus",
   prompt: <功能目录路径 + 任务编号/描述 + README 技术设计段 + 涉及模块文档（如有）>
 })
 ```
 
 **硬规则**：
-- 必须 `model: "opus"`
 - 必须同一条消息发出所有 Agent 调用（真正并行）
 - 每个子 agent prompt 自包含（README 技术设计 + DoD 相关条目）
 - 子 agent 只改自己任务的代码，不更新 README 开发清单和 changelog（主流程统一更新）
 - 某个子 agent 失败不阻塞其他任务，失败任务回到待处理队列
+
+**子 agent 完成回报模板**：
+
+```markdown
+## Subagent Completion
+
+**Completed by model:** <actual model id>
+**Task:** #N <任务标题>
+**Status:** done / blocked / failed
+
+## Changes
+- ...
+
+## Verification
+- ...
+```
 
 ## 第三步：逐项开发
 
@@ -102,7 +116,7 @@ Agent({
 
 1. 写 `dev-pipeline/tasks/<task>/dev-report.md`（命令清单 + 自检结论，模板见 `skills/x-dev/templates/dev-report-template.md`）
 2. 自动衔接 x-verify（Gate ① 命令复跑事实验证）
-3. x-verify 通过后自动衔接 x-qa-gate（Gate ② 质量评审：R1 spec → R2 边界 → R3 测试真实性，三个 opus 子 agent 串行）
+3. x-verify 通过后自动衔接 x-qa-gate（Gate ② 质量评审：R1 spec → R2 边界 → R3 测试真实性，三个子 agent 串行）
 4. 任一节点 fail → 走 x-fix 回流，按 4 条规则回到对应节点重审
 
 `x-qdev` 的 dev-report 命令清单可以短（小功能），但**至少必须包含一条测试类命令**；项目无测试框架时显式写 `no-test-framework: true` + 理由。

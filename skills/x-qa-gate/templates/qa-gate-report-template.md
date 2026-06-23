@@ -6,15 +6,15 @@
 
 ## 总览
 
-| Reviewer | 状态 | round |
-|----------|-----|-------|
-| R1 spec-conformance | ✅ pass / ❌ fail / ⏸ pending | 1 |
-| R2 boundary-coverage | ⏸ pending | - |
-| R3 test-integrity | ⏸ pending | - |
+| Reviewer | 状态 | Completed by model | round |
+|----------|-----|--------------------|-------|
+| R1 spec-conformance | ✅ pass / ❌ fail / ⏸ pending | <actual model id> | 1 |
+| R2 boundary-coverage | ⏸ pending | <actual model id / pending> | - |
+| R3 test-integrity | ⏸ pending | <actual model id / pending> | - |
 
 ## R1 spec-conformance 详情
 
-> opus 子 agent 输出（reviewer prompt: references/r1-spec-conformance.md）
+> 子 agent 输出（reviewer prompt: references/r1-spec-conformance.md）
 
 [mini-report 内容粘贴在此]
 

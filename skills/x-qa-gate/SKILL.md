@@ -1,11 +1,10 @@
 ---
 name: x-qa-gate
 description: |
-  Gate ② 质量评审 skill（取代 x-cr）。串行 dispatch 3 个 opus 子 agent reviewer：R1 spec 符合性 → R2 边界完整性 → R3 测试真实性。任一 reviewer 失败即触发 x-fix 并回到该 reviewer 重审；全部通过任务才算完成。
+  Gate ② 质量评审 skill（取代 x-cr）。串行 dispatch 3 个子 agent reviewer：R1 spec 符合性 → R2 边界完整性 → R3 测试真实性。任一 reviewer 失败即触发 x-fix 并回到该 reviewer 重审；全部通过任务才算完成。
   自动触发：x-verify 通过后立即触发。
   手动触发：用户要求"质量门禁"、"qa-gate"、"代码评审"、"review"。
   本 skill **取代老 x-cr**——老的 x-cr 入口仍能调用，但会重定向到本 skill。
-  reviewer 子 agent **必须用 model=opus**（写入 dispatch 模板）。
 ---
 
 # x-qa-gate · Gate ② 质量评审
@@ -41,10 +40,26 @@ R1 spec-conformance ─ pass ─→ R2 boundary-coverage ─ pass ─→ R3 test
 
 ## 硬约束
 
-1. **必须串行**：R1 → R2 → R3 顺序固定，不允许并行（否则修了个寂寞）。
-2. **每个 reviewer 必须是独立 opus 子 agent**：用 Task 工具 dispatch，传 `subagent_type` 与 `model=opus`。
-3. **reviewer 不修改代码**：reviewer 只输出 mini-report；修改由 x-fix 负责。
-4. **聚合不内核重复**：R1/R2/R3 的检查清单分别由 `references/r1-*.md`、`r2-*.md`、`r3-*.md` 定义；本 SKILL.md 不重复检查清单内容。
+1. **必须串行**：R1 → R2 → R3 顺序固定，不要并行。
+2. **每个 reviewer 必须是独立子 agent**：用 Task 工具 dispatch，传 `subagent_type`。
+3. **reviewer 不要修改代码**：reviewer 只输出 mini-report；修改由 x-fix 负责。
+4. **聚合保持单一来源**：R1/R2/R3 的检查清单分别由 `references/r1-*.md`、`r2-*.md`、`r3-*.md` 定义；不要在本 SKILL.md 重复检查清单内容。
+
+## Reviewer context 预算
+
+R1/R2/R3 reviewer 子 agent 的初始 prompt 采用预算制：
+
+- 目标上限：10,000 estimated tokens。
+- 不要把完整 diff、完整源码、完整测试文件、大段日志放入初始 prompt。
+- 大材料保留原路径，或写入 `reports/qa-gate/evidence/<reviewer>-<timestamp>/`；初始 prompt 只传 manifest、路径、hash、行号范围、摘要。
+
+estimated token 采用保守估算：
+
+- Markdown / diff / 代码混合文本按 `4 chars ~= 1 token`。
+- 中文较多时按 `2.5 chars ~= 1 token`。
+- 任一估算超过 10,000 tokens 时，主 agent 必须压缩为 manifest。
+
+上述预算是 prompt 协议。实际硬限制由当前执行 harness 决定；harness 支持硬限制时使用硬限制，harness 只支持普通 prompt 时，通过 manifest、estimated tokens 和 completeness gate 控制成本。
 
 ## Reviewer dispatch 模板（写给主 agent 用）
 
@@ -54,16 +69,80 @@ R1 spec-conformance ─ pass ─→ R2 boundary-coverage ─ pass ─→ R3 test
 Agent({
   description: "<reviewer name> review",
   subagent_type: "general-purpose",
-  model: "opus",          # 强制 opus
-  prompt: <把 references/r{N}-*.md 内容 + 当前 task 上下文 + git diff 全部塞进 prompt>
+  prompt: <reviewer checklist + task manifest + required paths + diff commands + evidence path + context completeness gate + output format>
 })
 ```
 
 prompt 必须包含：
-1. 完整的 reviewer 检查清单（来自 references/r{N}-*.md）
-2. 当前 task 的 README.md / plan.md / dev-checklist.md 全文
-3. git diff 输出
-4. 输出格式约束（mini-report markdown，按严重度列表）
+1. 完整的 reviewer 检查清单（来自 `references/r{N}-*.md`）。
+2. 当前 task root。
+3. 必读文件路径列表：`README.md` / `plan.md` / `dev-checklist.md` / `changelog.md` / `dev-report.md` / 最新 verify report。
+4. diff 获取命令：`git diff --stat`、`git diff --name-only`、按需 `git diff -- <file>`。
+5. evidence 输出路径：`reports/qa-gate/evidence/<reviewer>-<timestamp>/`。
+6. Context Completeness 检查要求。
+7. 输出格式约束（mini-report markdown，按严重度列表）。
+
+不要在 prompt 中内联完整代码。子 agent 通过只读工具按需读取文件、diff 和测试内容，大文件按行号范围读取。
+
+## Context Completeness Gate
+
+每个 reviewer mini-report 开头必须包含：
+
+```markdown
+## Context Completeness
+
+**Completed by model:** <actual model id>
+**Status:** complete / incomplete
+
+**Loaded materials:**
+- [ ] reviewer checklist
+- [ ] README.md
+- [ ] plan.md
+- [ ] dev-checklist.md
+- [ ] changelog.md
+- [ ] dev-report.md
+- [ ] verify report
+- [ ] git diff stat
+- [ ] git diff name-only
+- [ ] relevant implementation files
+- [ ] relevant test files
+
+当前 reviewer 无需加载的项目写 `N/A`，并在同一行说明原因。
+
+**Missing or truncated materials:**
+- none / list items
+
+**Evidence coverage:**
+- changed files reviewed: N / M
+- implementation files reviewed: N
+- test files reviewed: N
+- cited evidence count: N
+```
+
+判定规则：
+
+- `Status: incomplete` → reviewer 必须给出 `fail`，原因写为 `context incomplete`。
+- 必读文件缺失 → `incomplete`。
+- diff 文件列表缺失 → `incomplete`。
+- reviewer 无法确认关键实现文件内容 → `incomplete`。
+- 引用证据少于 3 条且结论为 pass → 主 agent 视为无效报告，重新 dispatch。
+- reviewer 报告缺少 `Context Completeness` 或最终 `Status` → 主 agent 视为无效报告，重新 dispatch。
+
+## Context 文件策略
+
+`reports/qa-gate/context/r{N}-context-*.md` 只保存轻量上下文：
+
+- reviewer 名称和时间戳。
+- task root。
+- checklist 路径。
+- required docs 路径。
+- changed file list。
+- `git diff --stat`。
+- verify report 摘要。
+- evidence bundle 路径。
+- context budget 估算。
+
+context 文件不要保存完整 git diff、完整源码文件、完整测试文件、重复 task 文档全文或大段日志输出。
 
 ## 失败回流
 

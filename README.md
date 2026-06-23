@@ -104,7 +104,7 @@ Gate ① fact verification. Re-runs the command list declared in `dev-report.md`
 
 ### `/x-qa-gate`
 
-Gate ② quality review (replaces the old `/x-cr`). Serially dispatches 3 opus subagent reviewers: R1 spec conformance → R2 boundary coverage → R3 test integrity.
+Gate ② quality review (replaces the old `/x-cr`). Serially dispatches 3 subagent reviewers: R1 spec conformance → R2 boundary coverage → R3 test integrity.
 
 ### `/x-fix`
 
@@ -197,7 +197,7 @@ Gate ① fact verification. Reads the validation command list in `dev-pipeline/t
 
 ### `/x-qa-gate`
 
-Gate ② quality review (replaces the old `/x-cr`). Serially dispatches 3 opus subagent reviewers: R1 spec conformance → R2 boundary coverage → R3 test integrity. The aggregated report is written to `reports/qa-gate/qa-gate-report-*.md`.
+Gate ② quality review (replaces the old `/x-cr`). Serially dispatches 3 subagent reviewers: R1 spec conformance → R2 boundary coverage → R3 test integrity. The aggregated report is written to `reports/qa-gate/qa-gate-report-*.md`.
 
 ### `/x-cr` (deprecated)
 

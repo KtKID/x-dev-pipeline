@@ -35,7 +35,7 @@ x-spec ─→ x-req ─→ x-dev ──┐
                             ↓
                        x-verify (Gate ① 命令复跑)
                             ↓
-                       x-qa-gate (Gate ② R1→R2→R3 串行 opus 子 agent)
+                       x-qa-gate (Gate ② R1→R2→R3 串行子 agent)
                             ↓ fail
                           x-fix ──→ 按 4 条规则回流到对应节点
 ```
@@ -54,7 +54,7 @@ x-spec ─→ x-req ─→ x-dev ──┐
 | `dev-report.md` schema | x-dev/x-qdev 输出，是 x-verify 的**唯一输入**。必须含验证命令清单（至少 1 条测试类）+ 改动文件清单 + 自检结论。模板：`skills/x-dev/templates/dev-report-template.md` |
 | 测试分层契约 | x-spec 写验证策略；x-req README 显式列 smoke/e2e 验收用例；单元/契约/边界测试由 x-dev 按实际改动补齐，并写入 `dev-report.md` 验证命令清单 |
 | `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。x-verify 首次创建，x-fix 递增，x-qa-gate 在 R3 通过后重置。**6 次上限**，三方共享 |
-| reviewer 必须 opus | x-qa-gate 通过 Agent 工具 dispatch R1/R2/R3，**必须传 `model="opus"`**；prompt 必须自包含（fresh subagent 看不到主对话） |
+| reviewer 子 agent | x-qa-gate 通过 Agent 工具 dispatch R1/R2/R3；初始 prompt 预算为 10,000 estimated tokens，使用 manifest + 路径 + diff 命令 + completeness gate；mini-report 填写 `Completed by model` |
 | reviewer 不写代码 | R1/R2/R3 只输出 mini-report，禁用 Edit/Write；修改一律走 x-fix |
 | x-fix 回流 4 条规则 | 改函数签名/公开 API → R1；改业务核心 → R1；只改测试/配置/文档 → 当前节点；不确定 → R1。详见 `skills/x-fix/SKILL.md` |
 | x-cr 已废弃 | `skills/x-cr/SKILL.md` 仅保留为重定向 stub。**不要往里加新逻辑**，新逻辑写到 x-qa-gate |
@@ -73,12 +73,11 @@ x-spec ─→ x-req ─→ x-dev ──┐
 Agent({
   description: "<R1/R2/R3> <name>",
   subagent_type: "general-purpose",
-  model: "opus",
-  prompt: <references/r{N}-*.md 全文 + task 上下文 + git diff，全部塞进 prompt>
+  prompt: <reviewer checklist + task manifest + required paths + diff commands + evidence path + context completeness gate + output format>
 })
 ```
 
-prompt 自包含三件事：reviewer 检查清单、当前 task 的 README/plan/checklist 全文、git diff 输出。
+prompt 预算 10,000 estimated tokens。保留 reviewer 检查清单、task root、必读文件路径、diff 命令、evidence 输出路径和 `Context Completeness` 要求；完整 diff、源码、测试文件通过只读工具按需读取。
 
 ## 常用维护操作
 

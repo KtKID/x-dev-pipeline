@@ -115,7 +115,7 @@ dev-pipeline/tasks/<task>/
 
 > **核心原则：能并行就并行，不要串行等待。** 并行是默认行为，串行是例外——只有明确存在依赖关系时才串行。
 
-同一优先级内有 2+ 个无依赖的待处理任务时，**必须**用 Agent 工具派 opus 子 agent 并行开发。不允许"为了简单"而串行执行可并行任务。
+同一优先级内有 2+ 个无依赖的待处理任务时，**必须**用 Agent 工具派子 agent 并行开发。不允许"为了简单"而串行执行可并行任务。
 
 **依赖判断**（满足任一 → 串行；全不满足 → 并行）：
 - 备注列标注"依赖 #N"
@@ -128,17 +128,31 @@ dev-pipeline/tasks/<task>/
 Agent({
   description: "x-dev #N <任务标题>",
   subagent_type: "general-purpose",
-  model: "opus",
   prompt: <功能目录路径 + 任务编号/描述 + README 技术设计段 + 涉及模块文档（如有）>
 })
 ```
 
 **硬规则**：
-- **必须 `model: "opus"`**——不允许用默认模型或 haiku
 - **必须同一条消息发出所有 Agent 调用**（真正并行，不是伪并行）
 - 每个子 agent prompt **必须自包含**：包含 README 技术设计段 + DoD 相关条目 + 涉及模块的接口定义
 - 子 agent **只改自己任务的代码，不更新 dev-checklist.md 和 changelog.md**（主流程统一更新，避免写冲突）
 - 某个子 agent 失败不阻塞其他任务，失败任务回到待处理队列
+
+**子 agent 完成回报模板**：
+
+```markdown
+## Subagent Completion
+
+**Completed by model:** <actual model id>
+**Task:** #N <任务标题>
+**Status:** done / blocked / failed
+
+## Changes
+- ...
+
+## Verification
+- ...
+```
 
 **结果收集**：所有子 agent 返回后，主流程统一更新状态和 changelog，再逐个进入 x-verify → x-qa-gate 流程。
 
@@ -253,7 +267,7 @@ Agent({
 ### 3. x-qa-gate（Gate ② 质量评审）
 
 x-verify 通过后**立即**触发 x-qa-gate：
-- 串行 dispatch 3 个 opus 子 agent：R1 spec 符合性 → R2 边界完整性 → R3 测试真实性
+- 串行 dispatch 3 个子 agent：R1 spec 符合性 → R2 边界完整性 → R3 测试真实性
 - 全部 reviewer pass → 任务状态改为 ✅ 已完成
 
 ### 4. 失败回流

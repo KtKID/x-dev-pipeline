@@ -2,7 +2,7 @@
 name: x-audit-style
 description: |
   独立代码规范巡检 skill。不在 x-dev → x-verify → x-qa-gate 主流程内，由用户手动触发或周期性调用。
-  调 opus 子 agent 做全项目视角的规范审查：命名一致性、复用机会、magic number、函数长度、文件大小、注释合理性、死代码。
+  调子 agent 做全项目视角的规范审查：命名一致性、复用机会、magic number、函数长度、文件大小、注释合理性、死代码。
   触发：用户说"规范巡检"、"audit style"、"代码规范检查"、"style review"。
 ---
 
@@ -17,7 +17,7 @@ x-audit-style 是独立巡检 skill，不在主流程内。做全项目视角的
 ## 流程
 
 1. 用户触发（手动调用 / 周期性）。
-2. dispatch opus 子 agent。
+2. dispatch 子 agent。
 3. 输出 audit-style 报告到 `reports/audit/audit-style-YYYYMMDD-HHmmss.md`。
 4. 不自动触发 x-fix——由用户决定。
 
@@ -27,10 +27,11 @@ x-audit-style 是独立巡检 skill，不在主流程内。做全项目视角的
 Agent({
   description: "Style audit",
   subagent_type: "general-purpose",
-  model: "opus",
   prompt: <本 SKILL.md 的"检查清单"段 + 项目代码 + 输出格式>
 })
 ```
+
+报告顶部必须填写 `Completed by model`。
 
 ## 检查清单
 

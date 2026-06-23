@@ -1,5 +1,6 @@
 # Style Audit Report — YYYYMMDD-HHmmss
 
+**Completed by model:** <actual model id>
 **审查范围**: <项目根 / 子目录>
 **触发原因**: 手动 / 周期性
 

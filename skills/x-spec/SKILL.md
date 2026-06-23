@@ -362,6 +362,21 @@ Agent({
 })
 ```
 
+agent1 完成时必须按以下模板回报：
+
+```markdown
+## Subagent Completion
+
+**Completed by model:** <actual model id>
+**Status:** done / blocked / failed
+
+## Files written
+- ...
+
+## Notes
+- ...
+```
+
 产出文件：
 - **spec 索引 README**（`docs/spec/README.md`）：模板见 `templates/module-README.md`。如果索引已存在，更新导航表即可
 - **spec 7 文件**（`docs/spec/<spec-name>/` 下）：模板见 `templates/` 下对应文件，将前 6 步的所有结论灌入

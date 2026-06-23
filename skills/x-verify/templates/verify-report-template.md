@@ -1,6 +1,7 @@
 # Verify Report — <task-name> — YYYYMMDD-HHmmss
 
 **Status:** pass / fail
+**Completed by model:** <actual model id>
 **dev-report 来源:** dev-pipeline/tasks/<task>/dev-report.md
 **fix-attempts:** N / 6
 

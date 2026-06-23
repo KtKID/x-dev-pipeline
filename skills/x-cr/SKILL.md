@@ -12,7 +12,7 @@ description: |
 
 ## 调用本 skill 时怎么办
 
-立刻**改用 x-qa-gate**——它做了 x-cr 原本的所有事，并把检查拆成 3 个独立 reviewer（spec / 边界 / 测试真实性），用 opus 子 agent 串行评审。
+立刻**改用 x-qa-gate**——它做了 x-cr 原本的所有事，并把检查拆成 3 个独立 reviewer（spec / 边界 / 测试真实性），用子 agent 串行评审。
 
 新链路：
 

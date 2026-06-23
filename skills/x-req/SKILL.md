@@ -139,6 +139,21 @@ Agent({
 })
 ```
 
+agent1 完成时必须按以下模板回报：
+
+```markdown
+## Subagent Completion
+
+**Completed by model:** <actual model id>
+**Status:** done / blocked / failed
+
+## Files written
+- ...
+
+## Notes
+- ...
+```
+
 在 task 目录下产出 README.md + dev-checklist.md + diagram.md。
 
 #### 3.2 主 agent 审核：出 mini-report
