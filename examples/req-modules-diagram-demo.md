@@ -20,7 +20,7 @@ flowchart TD
 
   Dev["x-dev / x-qdev<br/>(改造) 输出 dev-report.md"]:::changed
   Verify["x-verify<br/>(新) Gate ① 命令复跑"]:::new
-  Qua["x-qa-gate<br/>(新) Gate ② R1→R2→R3<br/>串行 opus 子 agent"]:::new
+  Qua["x-qa-gate<br/>(新) Gate ② R1→R2→R3<br/>串行子 agent"]:::new
   Fix["x-fix<br/>(改造) 4 条回流规则<br/>+ fix-counter 共享 6 次"]:::changed
   Done(["✅ 任务完成"]):::done
 

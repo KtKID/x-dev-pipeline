@@ -39,22 +39,22 @@
 ┌──────────────────────────────────┐
 │ x-verify  (新 skill)             │  Gate ① 事实验证
 │  · 读 dev-report 里的命令清单    │  · 不信任自我报告
-│  · 复跑 → 看 exit code           │  · 主流程使用主 agent，无需 opus 子 agent
+│  · 复跑 → 看 exit code           │  · 主流程使用主 agent
 │  · 任一不一致 → 回 x-fix          │
 └──────────┬───────────────────────┘
            ↓ 通过
 ┌──────────────────────────────────┐
 │ x-qa-gate (新 skill，取代 x-cr) │  Gate ② 质量评审
 │                                  │
-│  R1 spec-conformance  [P0]       │  ← opus 子 agent
+│  R1 spec-conformance  [P0]       │  ← 子 agent
 │   ├─ fail → x-fix → 回 R1        │
 │   └─ pass ↓                      │
 │                                  │
-│  R2 boundary-coverage [P0/P1]    │  ← opus 子 agent
+│  R2 boundary-coverage [P0/P1]    │  ← 子 agent
 │   ├─ fail → x-fix → 回 R2        │
 │   └─ pass ↓                      │
 │                                  │
-│  R3 test-integrity    [P0]       │  ← opus 子 agent
+│  R3 test-integrity    [P0]       │  ← 子 agent
 │   ├─ fail → x-fix → 回 R3        │
 │   └─ pass ✅                     │
 └──────────┬───────────────────────┘
@@ -111,11 +111,11 @@
 
 **输出**：`reports/verify/verify-report-YYYYMMDD-HHmmss.md`，记录每条命令的实际 exit + 输出。
 
-**实现**：主 agent 直接执行；不需要 opus 子 agent（无判断成分）。
+**实现**：主 agent 直接执行。
 
 ### 4.3 x-qa-gate — Gate ② 质量评审（新 skill，取代 x-cr）
 
-**核心机制**：3 个 reviewer **串行**跑（不是并行），每个 reviewer 是**独立 Task 子 agent，model 强制 opus**。
+**核心机制**：3 个 reviewer **串行**跑（不是并行），每个 reviewer 是**独立 Task 子 agent**。
 
 #### 为什么串行不是并行
 - R1 (spec) fail → 功能本身错了 → R2/R3 在错代码上做审查无意义
@@ -207,7 +207,7 @@ def test_workflow():
 - R3 test-integrity:     ⏸ pending
 
 ## R1 详情
-[opus subagent mini-report]
+[subagent mini-report]
 
 ## R2 详情
 [pending / mini-report]
@@ -248,7 +248,7 @@ def test_workflow():
 
 **输出**：`reports/audit/audit-perf-YYYYMMDD.md`。
 
-**子 agent**：opus，单独 Task。
+**子 agent**：单独 Task，报告写明完成模型。
 
 **触发约定**：用户主动调用 `x-audit-perf` 或在大里程碑后建议触发，**不进 x-dev 闭环**。
 
@@ -260,7 +260,7 @@ def test_workflow():
 
 **输出**：`reports/audit/audit-style-YYYYMMDD.md`。
 
-**子 agent**：opus，单独 Task。
+**子 agent**：单独 Task，报告写明完成模型。
 
 ## 5. 失败回流总流程图
 
