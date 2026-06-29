@@ -60,6 +60,7 @@ dev-pipeline/tasks/<task-name>/
 ├── changelog.md
 ├── dev-report.md
 └── reports/
+    ├── cr/cr-report-*.md
     ├── verify/verify-report-*.md
     ├── qa-gate/qa-gate-report-*.md
     ├── fix/fix-verify-*.md
@@ -104,11 +105,11 @@ Gate ① fact verification. Re-runs the command list declared in `dev-report.md`
 
 ### `/x-qa-gate`
 
-Gate ② quality review (replaces the old `/x-cr`). Serially dispatches 3 subagent reviewers: R1 spec conformance → R2 boundary coverage → R3 test integrity.
+Gate ② pipeline quality gate. Serially dispatches 3 subagent reviewers: R1 spec correctness/conformance → R2 boundary correctness/coverage → R3 test integrity.
 
 ### `/x-fix`
 
-Fix issues from verify / qa-gate reports; uses 4 routing rules to decide which node to re-enter after a fix.
+Fix issues from verify / qa-gate / CR reports; uses routing rules to decide which node or report should be rechecked after a fix.
 
 This path is great for:
 
@@ -158,6 +159,7 @@ x-spec -> x-req -> x-dev -> x-verify -> x-qa-gate -> x-fix
 
 Independent audits run on demand outside the main flow:
 
+- `/x-cr` — Bayesian software correctness investigation for known issues, modules, diffs, and PRs
 - `/x-audit-perf` — performance audit (manual / milestone)
 - `/x-audit-style` — style audit (manual / periodic)
 
@@ -197,15 +199,15 @@ Gate ① fact verification. Reads the validation command list in `dev-pipeline/t
 
 ### `/x-qa-gate`
 
-Gate ② quality review (replaces the old `/x-cr`). Serially dispatches 3 subagent reviewers: R1 spec conformance → R2 boundary coverage → R3 test integrity. The aggregated report is written to `reports/qa-gate/qa-gate-report-*.md`.
+Gate ② pipeline quality gate. Serially dispatches 3 subagent reviewers: R1 spec correctness/conformance → R2 boundary correctness/coverage → R3 test integrity. The aggregated report is written to `reports/qa-gate/qa-gate-report-*.md`.
 
-### `/x-cr` (deprecated)
+### `/x-cr`
 
-> ⚠️ Since the qa-gate-pipeline rework, this skill has been replaced by `/x-qa-gate`. Calls are auto-redirected. See the stub at `skills/x-cr/SKILL.md`.
+Bayesian software correctness investigation. It handles known user-reported issues and module correctness reviews through cause hypotheses, evidence updates, root-cause classification, and spec alignment. The report is written to `reports/cr/cr-report-*.md`.
 
 ### `/x-fix`
 
-Fix by verify / qa-gate / legacy CR reports. Under the new pipeline, 4 routing rules decide which node a fix returns to; the fix-attempts counter is shared with verify/qa-gate at a 6-attempt cap.
+Fix by verify / qa-gate / CR reports. Under the pipeline gate, 4 routing rules decide which node a fix returns to; the fix-attempts counter is shared with verify/qa-gate at a 6-attempt cap.
 
 ### `/x-audit-perf` (independent audit)
 

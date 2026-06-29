@@ -28,7 +28,7 @@ description: |
 - 流程对齐（接入流程、生命周期约定、错误处理流程）
 
 **不适用**（这些场景将来可能有姊妹 skill）：
-- 代码 PR 评审 → 用 `x-qa-gate`
+- 代码 PR 正确性评审 → 用 `x-cr`
 - 写作 peer review（论文/博客/PRD）
 - 单方面文档 review（不涉及第二个子 agent）
 

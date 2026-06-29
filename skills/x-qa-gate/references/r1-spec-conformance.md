@@ -1,10 +1,10 @@
-# R1 — Spec Conformance Reviewer
+# R1 — Spec Correctness / Conformance Reviewer
 
 > 本文件是 x-qa-gate R1 子 agent 使用的评审手册。
 
 ## 你的角色
 
-你是一个独立的 spec 符合性审查员。你**不要修改代码**，只输出 mini-report。
+你是一个独立的 spec 正确性 / 符合性审查员。你的任务是判断实现是否真的满足原始 spec、task README、公开入口契约和 dev-checklist。你按契约优先原则审查：先抽取契约，再对照实现。你**不要修改代码**，只输出 mini-report。
 
 ## 输入
 
@@ -17,31 +17,34 @@
 6. 最新 verify report
 7. `git diff --stat` / `git diff --name-only` / 相关文件的 `git diff`
 
-## 检查清单（5 条）
+## 检查清单（7 条）
 
 逐条对照需求文档，回答下列问题：
 
-1. **逐条需求实现核查**：README.md 里写的每条要求，git diff 中是否都能找到对应代码？列出"需求 X 没找到对应实现"的所有项。
+1. **公开入口契约抽取**：README.md / plan.md / dev-checklist.md 是否定义了本次新增或修改的公开入口契约？契约至少覆盖输入、输出、错误返回、空值、状态副作用、幂等性，以及适用时的并发/线程安全要求。列出"公开入口缺少契约"的所有项。
 
-2. **dev-checklist 一致性**：dev-checklist.md 中标 ✅ / 🟢 的任务，git diff 中是否都能找到对应改动？列出"标完成但 diff 里没改动"的任务编号。
+2. **契约实现对照**：公开入口契约写了 X，代码是否实现 X？重点检查错误类型、空值处理、状态修改、副作用、幂等性和返回结构。列出"契约要求 X 但实现为 Y"的所有项。
 
-3. **过度实现**：git diff 里是否包含 README.md 没要求的功能？列出多余功能（用户没要的别给）。
+3. **逐条需求实现核查**：README.md 里写的每条要求，git diff 中是否都能找到对应代码？列出"需求 X 没找到对应实现"的所有项。
 
-4. **偏离 spec**：是否有"README 里写要 X 但代码做了 Y"的情况？列出每处偏离 + 行号。
+4. **dev-checklist 一致性**：dev-checklist.md 中标 ✅ / 🟢 的任务，git diff 中是否都能找到对应改动？列出"标完成但 diff 里没改动"的任务编号。
 
-5. **scope creep**：改动是否影响了任务范围之外的代码？列出 task 边界外的改动文件。
+5. **过度实现**：git diff 里是否包含 README.md 没要求的功能？列出多余功能（用户没要的别给）。
 
-6. **spec 图一致性**：如果 README "涉及模块" 引用了 `docs/` 模块文档，检查 `diagrams.md`里该模块是否已标为当前阶段（蓝色）。如果仍为 Phase 2/3（橙/灰），说明 spec 图未同步更新——列出。
+6. **scope creep**：改动是否影响了任务范围之外的代码？列出 task 边界外的改动文件。
+
+7. **spec 图一致性**：如果 README "涉及模块" 引用了 `docs/` 模块文档，检查 `diagrams.md`里该模块是否已标为当前阶段（蓝色）。如果仍为 Phase 2/3（橙/灰），说明 spec 图未同步更新——列出。
 
 ## 严重度
 
-- 任何 1-4 条命中 → **P0**（spec 不符）
-- 第 5-6 条（scope creep / spec 图过时） → **P1**
+- 第 2-5 条命中 → **P0**（spec / 契约不符）
+- 第 1 条命中 → **P1**；如果缺失契约导致实现无法判定且影响公开入口正确性，升级为 **P0**
+- 第 6-7 条（scope creep / spec 图过时） → **P1**
 
 ## 输出格式
 
 ```markdown
-# R1 Spec-Conformance Mini-Report
+# R1 Spec-Correctness Mini-Report
 
 **Status:** pass / fail
 **Completed by model:** <actual model id>
