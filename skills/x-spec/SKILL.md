@@ -33,6 +33,17 @@ x-spec 负责：
 **核心边界：**
 x-spec 输出系统组织方案；具体代码开发进入 x-req / x-dev。
 
+## 第一性原理产物链路
+
+```text
+事实 / 约束 / 不变量 / DoD
+→ 必要能力集合
+→ 模块划分
+→ 边界类
+→ task
+→ 验证方式
+```
+
 ---
 
 ## 适用场景
@@ -49,56 +60,6 @@ x-spec 输出系统组织方案；具体代码开发进入 x-req / x-dev。
 - 小功能、小修复、单文件改动 → x-qdev
 - 已经有稳定需求报告（README.md），只差 dev-checklist/dev → x-req
 - 用户明确要求立即开发一个清晰范围的功能 → x-dev / x-qdev
-
----
-
-## 目录结构
-
-### spec 需求包模型
-
-spec 采用 `docs/spec/<spec-name>/` 独立需求包目录：
-
-- **docs/spec/**：所有 x-spec 需求包的固定根目录
-- **spec-name**：一个系统切面/主题，每次 x-spec 运行聚焦一个 spec 需求包
-
-多个 spec **组合**成完整系统方案（如 scheduler-cron-parsing + scheduler-task-dispatch + scheduler-retry-backoff 三个 spec 组成 scheduler 方案族），同一个 spec 迭代时**原地更新**（不另起目录）。
-
-### 确定输出目录
-
-1. 用户指定或 agent 推断出 `<spec-name>`，使用 URL 友好命名（空格转 `-`，斜杠转 `-`）
-2. 检查 `docs/spec/` 是否存在：
-   - **不存在** → 创建 `docs/spec/` + `docs/spec/README.md` + spec 需求包目录 + spec 7 文件
-   - **已存在** → 检查 `docs/spec/<spec-name>/`：
-     - spec 不存在 → 创建 spec 需求包目录 + 7 文件，**更新 `docs/spec/README.md` 索引**
-     - spec 已存在 → **增量更新已有文件**（原地迭代），更新前告知用户将改动哪些文件
-
-### 目录结构
-
-```text
-docs/spec/
-├── README.md                              # spec 索引（汇总所有 spec 状态）
-├── <spec-name>/
-│   ├── README.md                          # spec 导航 + 目标
-│   ├── 01-goals-and-boundaries.md         # 目标 + 完成标准 + 范围
-│   ├── 02-module-breakdown.md             # 组件设计 + 接口 + 数据结构
-│   ├── 04-data-and-state.md               # 核心数据模型 + 状态流转
-│   ├── 05-validation-and-evolution.md     # 验证策略 + 测试 + 演进
-│   ├── 90-task-map.md                     # 组件→task 映射
-│   └── diagrams.md                        # 全量图集：纯 mermaid，按模块分节
-├── <other-spec>/
-│   └── ...（同上 7 文件）
-```
-
-按需扩展（可选，在 spec 目录下）：
-
-```text
-│   ├── 03-core-workflows.md               # 核心流程/时序的文字说明（有明显链路时才加，图在 diagrams.md）
-```
-
-### spec 索引 README
-
-spec 索引 README（`docs/spec/README.md`）只做导航和状态汇总，模板见 `templates/module-README.md`（保留旧文件名兼容）。每次新增/更新 spec 时同步更新。
-
 
 ---
 
@@ -210,6 +171,12 @@ spec 需求包必须能整体移动，包内链接保持当前位置可解析的
 
 ### 5. 拆分系统模块
 
+#### 模块来源规则
+
+- 模块不能直接从技术名词、目录习惯或用户口头模块名生成。
+- 每个模块必须由一个或多个必要能力聚合而来。
+- 每个模块必须能追溯到 DoD、约束或不变量。
+
 每个模块至少定义：
 - 模块名称
 - 职责
@@ -293,13 +260,17 @@ agent1 完成时必须按以下模板回报：
 
 agent1 产出后，**主 agent 亲自读产出文件**，对照确认过的需求要点逐条审核（按 P0/P1 分级；主 agent 输出审核报告，修正文档交回 agent1）：
 
-1. **要点覆盖**：确认过的需求要点每条都落进了 `01-goals-and-boundaries.md` / spec README——漏一条 = P0
-2. **判断依据完整**：推荐方案、模块边界、数据归属、验证策略必须写明为什么重要、判断依据、缺失后果——缺任一项 = P0
-3. **文档间一致**：`02-module-breakdown.md` 组件清单 / `diagrams.md` 节点 / `90-task-map.md` 映射三者对得上——不一致 = P0
-4. **追溯矩阵双向闭合**：每条 DoD 有模块支撑、每个模块有 DoD 对应——缺任一方向 = P0
-5. **边界设计落实**：每个模块定义了边界类——缺 = P0；数据结构字段缺中文注释 = P1
-6. **规范符合**：spec 7 文件齐全——缺文件 = P0；模板结构 / 状态值 / mermaid 是否全部集中在 diagrams.md（其他 .md 内嵌 = 散落）/ subgraph 是否按模块划分 = P1
-7. **路径可移动**：Markdown 链接只能是 `./...`；不得出现 `../`、`../../`、`docs/spec/<spec-name>/...`、绝对路径、`file://`、Windows 盘符路径；代码/脚本/配置路径只能是 `repo:<path>` 文本——不符 = P0
+1. **第一性原理产物完整**：事实 / 约束 / 不变量 / DoD 已形成必要能力集合——缺任一项 = P0
+2. **必要能力可追溯**：每个必要能力可回指 DoD、约束或不变量——缺追溯 = P0
+3. **模块来自能力聚合**：每个模块由一个或多个必要能力聚合而来——直接按技术名词、目录习惯或用户口头模块名生成 = P0
+4. **task 来源闭合**：每个 task 来自模块和 DoD，状态不足时记录在 `90-task-map.md`——缺来源 = P0
+5. **要点覆盖**：确认过的需求要点每条都落进了 `01-goals-and-boundaries.md` / spec README——漏一条 = P0
+6. **判断依据完整**：推荐方案、模块边界、数据归属、验证策略必须写明为什么重要、判断依据、缺失后果——缺任一项 = P0
+7. **文档间一致**：`02-module-breakdown.md` 组件清单 / `diagrams.md` 节点 / `90-task-map.md` 映射三者对得上——不一致 = P0
+8. **追溯矩阵双向闭合**：每条 DoD 有模块支撑、每个模块有 DoD 对应——缺任一方向 = P0
+9. **边界设计落实**：每个模块定义了边界类——缺 = P0；数据结构字段缺中文注释 = P1
+10. **规范符合**：spec 7 文件齐全——缺文件 = P0；模板结构 / 状态值 / mermaid 是否全部集中在 diagrams.md（其他 .md 内嵌 = 散落）/ subgraph 是否按模块划分 = P1
+11. **路径可移动**：Markdown 链接只能是 `./...`；不得出现 `../`、`../../`、`docs/spec/<spec-name>/...`、绝对路径、`file://`、Windows 盘符路径；代码/脚本/配置路径只能是 `repo:<path>` 文本——不符 = P0
 
 #### 6.3 修复（只修一轮，不复审）
 
@@ -356,3 +327,52 @@ spec 索引 README 必须包含：
 6. 审核结论：主 agent 审核发现的 P0（已由 agent1 修复的列"已修复"）+ 遗留 P1（参考项，不阻塞）
 
 如果用户仍然很模糊，优先产出最小 3 文件，其余文档标为后续扩展。
+
+---
+
+## 目录结构
+
+### spec 需求包模型
+
+spec 采用 `docs/spec/<spec-name>/` 独立需求包目录：
+
+- **docs/spec/**：所有 x-spec 需求包的固定根目录
+- **spec-name**：一个系统切面/主题，每次 x-spec 运行聚焦一个 spec 需求包
+
+多个 spec **组合**成完整系统方案（如 scheduler-cron-parsing + scheduler-task-dispatch + scheduler-retry-backoff 三个 spec 组成 scheduler 方案族），同一个 spec 迭代时**原地更新**（不另起目录）。
+
+### 确定输出目录
+
+1. 用户指定或 agent 推断出 `<spec-name>`，使用 URL 友好命名（空格转 `-`，斜杠转 `-`）
+2. 检查 `docs/spec/` 是否存在：
+   - **不存在** → 创建 `docs/spec/` + `docs/spec/README.md` + spec 需求包目录 + spec 7 文件
+   - **已存在** → 检查 `docs/spec/<spec-name>/`：
+     - spec 不存在 → 创建 spec 需求包目录 + 7 文件，**更新 `docs/spec/README.md` 索引**
+     - spec 已存在 → **增量更新已有文件**（原地迭代），更新前告知用户将改动哪些文件
+
+### 目录结构
+
+```text
+docs/spec/
+├── README.md                              # spec 索引（汇总所有 spec 状态）
+├── <spec-name>/
+│   ├── README.md                          # spec 导航 + 目标
+│   ├── 01-goals-and-boundaries.md         # 目标 + 完成标准 + 范围
+│   ├── 02-module-breakdown.md             # 组件设计 + 接口 + 数据结构
+│   ├── 04-data-and-state.md               # 核心数据模型 + 状态流转
+│   ├── 05-validation-and-evolution.md     # 验证策略 + 测试 + 演进
+│   ├── 90-task-map.md                     # 组件→task 映射
+│   └── diagrams.md                        # 全量图集：纯 mermaid，按模块分节
+├── <other-spec>/
+│   └── ...（同上 7 文件）
+```
+
+按需扩展（可选，在 spec 目录下）：
+
+```text
+│   ├── 03-core-workflows.md               # 核心流程/时序的文字说明（有明显链路时才加，图在 diagrams.md）
+```
+
+### spec 索引 README
+
+spec 索引 README（`docs/spec/README.md`）只做导航和状态汇总，模板见 `templates/module-README.md`（保留旧文件名兼容）。每次新增/更新 spec 时同步更新。
