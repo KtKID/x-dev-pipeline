@@ -4,6 +4,8 @@
 >
 > **查看与缩放**：GitHub 渲染 mermaid 自带缩放/平移控件；VS Code 建议安装 Mermaid Chart（官方）或 Markdown Preview Enhanced 插件以支持缩放。
 
+<!-- 模板说明：skills/x-spec/templates/TEMPLATE_GUIDE.md。生成产物时删除本注释。 -->
+
 ## 目录
 
 - [总览](./diagrams.md#总览)
@@ -12,6 +14,16 @@
 - [模块 B](./diagrams.md#模块-b)
 
 图例：总览节点写模块名、中文作用、关键类/函数；局部组件图可按 🔵 核心 · 🟠 主要 · ⚪ 辅助 配色。
+
+## 图类型规范
+
+| 节 | 放什么图 | mermaid 类型 |
+|----|---------|-------------|
+| 总览 | 模块级依赖图：每个模块一个节点，只画模块间关系；节点写中文模块作用和关键类/函数名 | `flowchart TD` |
+| E2E 测试链路 | 从测试数据准备、用户动作、系统处理到断言的验证路径 | `flowchart LR` |
+| 模块节 | 局部组件依赖图、核心流程图、时序图、状态流转图、数据关系图 | `flowchart TD/LR` / `sequenceDiagram` / `stateDiagram-v2` |
+
+写图顺序：先总览，再 E2E 测试链路，再按模块拆局部图。单图节点约 12 个以内；更大的图拆到模块节。
 
 ## 总览
 
