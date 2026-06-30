@@ -46,7 +46,7 @@ Agent({
 2. **不主观判断**：只看 exit code 和关键输出片段是否出现。不评价代码风格、不审查逻辑。
 3. **不修改命令**：dev-report 写什么命令就跑什么命令，不许"我觉得这条命令应该改成 X"。
 4. **真跑，不模拟**：必须用 Bash 工具执行，不允许"看起来应该能跑"就跳过。
-5. **fix-attempts 计数**：每次拦下并触发 x-fix 都算 1 次，与 x-qa-gate 共用 6 次上限。
+5. **fix-attempts 计数**：x-verify 只做上限检查；进入 x-fix 后由 x-fix 统一递增，与 x-qa-gate 共用 6 次上限。
 
 ## 比对规则
 
@@ -66,7 +66,7 @@ Agent({
 ## 下游
 
 - pass → 触发 x-qa-gate（自动）
-- fail → 触发 x-fix（mode: verify-fix），fix-attempts +1
+- fail → 触发 x-fix（mode: verify-fix），由 x-fix 递增 fix-counter
 
 ## 6 次上限（与 x-qa-gate 共享 fix-counter）
 
@@ -75,8 +75,8 @@ Agent({
 - 路径：`<task>/reports/.fix-counter`，格式：单行 ASCII 整数 + 换行
 - **首次创建责任在 x-verify**：进入 x-verify 时，如 `reports/.fix-counter` 不存在 → `mkdir -p reports && echo 0 > reports/.fix-counter`
 - 读取时 `c=$(cat reports/.fix-counter)`
-- 触发 x-fix 时（命令复跑出现 fail）：先递增 `echo $((c+1)) > reports/.fix-counter` 再交给 x-fix
-- counter < 6：递增并触发 x-fix（mode: verify-fix）
-- counter >= 6：**不递增**，停下生成 `reports/fix-blocked-report.md` 列出所有积压问题，等用户决策（继续 / 修改需求 / 放弃）
+- 触发 x-fix 前（命令复跑出现 fail）：先检查 `c`
+- counter < 6：生成 fail 报告并触发 x-fix（mode: verify-fix）；x-fix 进入修复前写回 `echo $((c+1)) > reports/.fix-counter`
+- counter >= 6：保持 counter 原值，停下生成 `reports/fix-blocked-report.md` 列出所有积压问题，等用户决策（继续 / 修改需求 / 放弃）
 
 **重置时机**：整个 verify → R1 → R2 → R3 链路全部 pass 时，由 x-qa-gate 在 R3 通过后 `echo 0 > reports/.fix-counter`。x-verify 不负责重置。

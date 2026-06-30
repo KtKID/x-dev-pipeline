@@ -112,7 +112,7 @@ Agent({
 
 ## 第五步：代码审查（自动衔接 x-verify → x-qa-gate）
 
-所有清单项达到 🟢 后，**不再走老 x-cr**，改为：
+所有清单项达到 🟢 后，自动门禁走：
 
 1. 写 `dev-pipeline/tasks/<task>/dev-report.md`（命令清单 + 自检结论，模板见 `skills/x-dev/templates/dev-report-template.md`）
 2. 自动衔接 x-verify（Gate ① 命令复跑事实验证）
@@ -135,7 +135,7 @@ dev-report.md 是 x-verify 的唯一输入。规则：
 1. 验证命令清单**至少包含一条测试类命令**；项目无测试框架时必须显式声明 `no-test-framework: true` + 理由。
 2. 命令必须可在项目根目录直接运行，**不允许依赖 dev 临时设置的环境变量**。
 3. 自检结论段必须由 x-qdev 自己运行命令后填写，不能空着或写"应该能跑"。
-4. 写完 dev-report.md 后，下游自动衔接 x-verify（不再走老 x-cr）。
+4. 写完 dev-report.md 后，下游自动衔接 x-verify。
 
 ## 第六步：收尾
 

@@ -85,7 +85,7 @@ description: |
 - x-cr 报告来自手动软件正确性调查，x-fix 按 `references/cr-fix-mode.md` 修复并回写同一份 `reports/cr/cr-report-*.md`。
 - x-verify / x-qa-gate 报告来自自动门禁，x-fix 按 `references/qa-gate-fix-mode.md` 修复，并由回流规则决定回 R1、R2、R3 或 verify。
 - 当前自动链路是 `x-dev / x-qdev -> x-verify -> x-qa-gate -> x-fix`。
-- 历史 `x-dev -> x-cr -> x-fix` 自动循环已退出主流程。需要再次调查 CR 修复结果时，由用户明确触发 x-cr 复查。
+- 自动门禁链路使用 `x-dev / x-qdev -> x-verify -> x-qa-gate -> x-fix`；手动正确性调查和 CR 复查由用户明确触发 x-cr。
 
 ### 单次修复的边界约束
 

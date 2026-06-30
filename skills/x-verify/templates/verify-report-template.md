@@ -27,4 +27,4 @@
 ## 下游动作
 
 - [ ] 全部 pass → 触发 x-qa-gate
-- [ ] 任一 fail → 触发 x-fix（mode: verify-fix），fix-attempts +1
+- [ ] 任一 fail → 触发 x-fix（mode: verify-fix），由 x-fix 递增 fix-counter

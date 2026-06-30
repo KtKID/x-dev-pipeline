@@ -57,7 +57,7 @@ x-spec ─→ x-req ─→ x-dev ──┐
 | reviewer 子 agent | x-qa-gate 通过 Agent 工具 dispatch R1/R2/R3；初始 prompt 预算为 10,000 estimated tokens，使用 manifest + 路径 + diff 命令 + completeness gate；mini-report 填写 `Completed by model` |
 | reviewer 不写代码 | R1/R2/R3 只输出 mini-report，禁用 Edit/Write；修改一律走 x-fix |
 | x-fix 回流 4 条规则 | 改函数签名/公开 API → R1；改业务核心 → R1；只改测试/配置/文档 → 当前节点；不确定 → R1。详见 `skills/x-fix/SKILL.md` |
-| x-cr 已废弃 | `skills/x-cr/SKILL.md` 仅保留为重定向 stub。**不要往里加新逻辑**，新逻辑写到 x-qa-gate |
+| x-cr 手动调查 | `skills/x-cr/SKILL.md` 是手动软件正确性调查入口，独立于自动门禁；流水线 gate 逻辑写到 x-qa-gate |
 | 状态码 | ⏳ 未开始 / ▶️ 进行中 / 🟡 待测试 / 🔴 测试失败 / 🟢 测试通过 / ✅ 已完成。x-dev 最多到 🟢，✅ 由 review 通过后升级 |
 
 ## 改 skill 时的注意事项

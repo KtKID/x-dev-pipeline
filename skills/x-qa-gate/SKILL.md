@@ -39,7 +39,7 @@ R1 spec-conformance ─ pass ─→ R2 boundary-coverage ─ pass ─→ R3 test
        ↓ fail                       ↓ fail                         ↓ fail
    触发 x-fix                    触发 x-fix                    触发 x-fix
    (mode: r1-spec-fix)          (mode: r2-boundary-fix)      (mode: r3-test-fix)
-   fix-attempts +1              fix-attempts +1              fix-attempts +1
+   x-fix 计数 +1               x-fix 计数 +1               x-fix 计数 +1
        │                            │                              │
        ↓                            ↓                              ↓
    按 x-fix 回流规则               同左                            同左
@@ -158,7 +158,7 @@ context 文件不要保存完整 git diff、完整源码文件、完整测试文
 
 ## 6 次上限
 
-与 x-verify 共用 `reports/.fix-counter`。每次 reviewer fail 触发 x-fix 都 +1，超 6 次停下问用户。
+与 x-verify 共用 `reports/.fix-counter`。每次 reviewer fail 时先检查 counter；counter < 6 时触发 x-fix，由 x-fix 进入修复前 +1；counter >= 6 时停下问用户。
 
 ## 报告输出
 
