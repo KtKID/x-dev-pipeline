@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.3.5
+
+### 发布更新
+
+- **版本统一**：`package.json`、Claude Code manifest（`plugin.json` / `marketplace.json`）、Codex manifest 全部升级到 `0.3.5`
+- **文档同步**：README 与 README_zh 的当前版本号与插件元数据说明更新到 v0.3.5
+- **部署刷新**：执行 `install-codex.ps1` 将新版插件同步到 `~/.codex/plugins/x-dev-pipeline` 并更新三个 marketplace.json
+
 ## v0.2.0
 
 ### 发布更新

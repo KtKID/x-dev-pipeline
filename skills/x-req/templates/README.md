@@ -15,7 +15,7 @@ x-req README 模板填写规则：
 
 > 创建时间：YYYY-MM-DD
 > 类型：功能 / 修复 / 优化 / 重构
-> spec: docs/spec/<spec-name>
+> spec: <有归属 spec 填 docs/spec/<spec-name>；项目未建 docs/spec 则留空>
 
 ## 核心目标
 
@@ -65,13 +65,13 @@ x-req README 模板填写规则：
 
 ## 技术设计
 
-### 架构归属（开发类任务必填）
+### 架构归属
 
 - 边界类：[XxxService / XxxManager / XxxClient / XxxGateway / XxxRepository]
 - 外部入口：[外部调用统一进入的函数/方法/命令/API]
 - 调用约束：[跨模块调用约束或需要新建边界类的决策]
 
-### 公开契约与事实源（开发类任务必填）
+### 公开契约与事实源
 
 | 项目 | 内容 |
 |------|------|
