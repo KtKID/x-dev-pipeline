@@ -4,7 +4,7 @@
 
 # x-dev-pipeline
 
-**当前版本：** v0.3.0
+**当前版本：** v0.3.5
 
 > 给 AI 辅助开发一套可记录、可审计、可回顾的工作流框架。
 
@@ -160,6 +160,7 @@ x-spec -> x-req -> x-dev -> x-verify -> x-qa-gate -> x-fix
 - `/x-cr` 贝叶斯软件正确性调查（已知问题 / 模块 / diff / PR）
 - `/x-audit-perf` 性能巡检（手动 / 大里程碑）
 - `/x-audit-style` 规范巡检（手动 / 周期）
+- `/x-audit-arch` 架构巡检：架构一致性 + 单一事实源（手动 / 大里程碑 / 重构后）
 
 独立对齐工具也按需触发：
 
@@ -215,6 +216,10 @@ Gate ② 流水线质量门禁。串行 dispatch 3 个子 agent reviewer：R1 sp
 
 代码规范巡检 skill，位于主流程之外。手动或周期触发，输出 `reports/audit/audit-style-*.md`。
 
+### `/x-audit-arch`（独立巡检）
+
+架构巡检 skill，位于主流程之外。聚焦架构一致性（模块归属、分层、边界类复用、命名语义、依赖健康）与单一事实源（schema/枚举/默认值/规则多处重复并已漂移）。手动、大里程碑或重构后触发，输出 `reports/audit/audit-arch-*.md`。
+
 ### `/x-req`
 
 需求分析。把一个开发任务整理成更清晰的需求说明。
@@ -237,7 +242,7 @@ Gate ② 流水线质量门禁。串行 dispatch 3 个子 agent reviewer：R1 sp
 
 ## 安装
 
-这个仓库随 v0.3.0 提供两套 host 的插件元数据：
+这个仓库随 v0.3.5 提供两套 host 的插件元数据：
 
 ```text
 .claude-plugin/plugin.json          # Claude Code 插件 manifest

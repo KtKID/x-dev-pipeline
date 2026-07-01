@@ -44,7 +44,7 @@ x-spec ─→ x-req ─→ x-dev ──┐
 - x-req 产出 `dev-pipeline/tasks/<task>/`（README 含 `spec:` 字段指向归属 spec，一步到位）
 - x-plan 已废弃，功能合并到 x-req
 
-独立巡检（不在主流程）：`x-audit-perf` / `x-audit-style`，由用户手动触发或里程碑后跑。
+独立巡检（不在主流程）：`x-audit-perf` / `x-audit-style` / `x-audit-arch`，由用户手动触发或里程碑后跑。`x-audit-arch` 聚焦架构一致性 + 单一事实源（结构性视角），与 `x-audit-style`（表层规范）、`x-qa-gate` R1（spec 正确性）不重叠，边界见 `skills/x-audit-arch/SKILL.md`。
 
 ## skill 间契约（改 skill 前必读）
 

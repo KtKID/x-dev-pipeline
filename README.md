@@ -6,7 +6,7 @@
 
 [中文说明](./README_zh.md)
 
-**Current release:** v0.3.0
+**Current release:** v0.3.5
 
 > A recordable, auditable, and reviewable workflow framework for AI-assisted development.
 
@@ -162,6 +162,7 @@ Independent audits run on demand outside the main flow:
 - `/x-cr` — Bayesian software correctness investigation for known issues, modules, diffs, and PRs
 - `/x-audit-perf` — performance audit (manual / milestone)
 - `/x-audit-style` — style audit (manual / periodic)
+- `/x-audit-arch` — architecture audit: architecture consistency + single source of truth (manual / milestone / post-refactor)
 
 Alignment utilities also run on demand:
 
@@ -217,6 +218,10 @@ Performance audit skill outside the main flow. Triggered manually or at mileston
 
 Style audit skill outside the main flow. Triggered manually or periodically, outputs `reports/audit/audit-style-*.md`.
 
+### `/x-audit-arch` (independent audit)
+
+Architecture audit skill outside the main flow. Focuses on architecture consistency (module ownership, layering, boundary-class reuse, naming semantics, dependency health) and single source of truth (duplicated schemas/enums/defaults/rules that have drifted). Triggered manually, at milestones, or after refactors; outputs `reports/audit/audit-arch-*.md`.
+
 ### `/x-req`
 
 Requirements analysis. Turns a development task into a clear, structured requirements spec.
@@ -239,7 +244,7 @@ Two-subagent protocol, data-structure, and process alignment. Use it for contrac
 
 ## Installation
 
-This repo ships v0.3.0 plugin metadata for both hosts:
+This repo ships v0.3.5 plugin metadata for both hosts:
 
 ```text
 .claude-plugin/plugin.json          # Claude Code plugin manifest
