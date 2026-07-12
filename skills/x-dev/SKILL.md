@@ -60,16 +60,14 @@ dev-pipeline/tasks/<task>/
 ├── dev-report.md          # 完成报告（x-dev 负责，gate 输入）
 ├── plan.md                # [可选/历史] 旧 task 可能有
 └── reports/               # gate 产出目录（全部在 task 目录下）
-    ├── .fix-counter        # fix 次数计数器（x-verify 创建，x-fix 递增，x-qa-gate 重置）
+    ├── .fix-counter        # 批量修轮数计数器（x-verify 创建，x-fix 按轮递增，x-qa-gate 重置）
     ├── verify/             # Gate ① 报告
     │   └── verify-report-YYYYMMDD-HHmmss.md
     ├── qa-gate/            # Gate ② 报告
     │   └── qa-gate-report-YYYYMMDD-HHmmss.md
     ├── fix/                # 修复报告（按触发节点分类）
     │   ├── fix-verify-*.md     # x-verify fail 触发
-    │   ├── fix-r1-spec-*.md    # R1 fail 触发
-    │   ├── fix-r2-boundary-*.md # R2 fail 触发
-    │   ├── fix-r3-test-*.md    # R3 fail 触发
+    │   ├── fix-gate-r<轮次>-*.md # Gate ② reviewer fail 触发（RC/R1/R2/R3 批量修处置表）
     │   ├── fix-report-*.md     # 直接 bug fix 模式
     │   └── fix-note-*.md       # 单点修补
     └── audit/              # 独立巡检（手动触发）
@@ -257,23 +255,25 @@ Agent({
 2. 命令必须可在项目根目录直接运行，不允许依赖临时环境变量。
 3. 自检结论段必须由 x-dev 自己运行命令后填写，不能空着或写”应该能跑”。
 4. 命令清单必须覆盖本次新增或修改的单元/契约/边界测试；README 写有 smoke/e2e 验收用例时，也必须列出对应命令或人工验收步骤。
+5. 必须填写 `risk: default / high` 风险等级字段（Gate ② 路由依据）；命中高危判据（鉴权/权限/加密、不可逆数据写入/迁移、公开 API/协议/schema 变更、并发/状态机/缓存一致性）时写 `high` 并注明判据。
 
 ### 2. x-verify（Gate ① 事实验证）
 
 写完 dev-report.md 后**立即**触发 x-verify：
-- 复跑 dev-report.md 中的命令清单，对比 exit code + 关键输出
+- 复跑 dev-report.md 命令清单 + README Smoke/E2E 用例（manual 用例列入待人工验收），对比 exit code + 关键输出
 - 不主观判断代码质量，只看”能不能跑通”
 
 ### 3. x-qa-gate（Gate ② 质量评审）
 
-x-verify 通过后**立即**触发 x-qa-gate：
-- 串行 dispatch 3 个子 agent：R1 spec 符合性 → R2 边界完整性 → R3 测试真实性
-- 全部 reviewer pass → 任务状态改为 ✅ 已完成
+x-verify 通过后**立即**触发 x-qa-gate，按 dev-report `risk:` 字段路由：
+- 默认线：dispatch 一个综合 reviewer（RC），一轮列全 spec / 边界 / 测试真实性全部问题
+- 高危线：串行 dispatch R1 spec 符合性 → R2 边界完整性 → R3 测试真实性
+- 全部 reviewer pass → 任务状态改为 ✅ 已完成，主 agent 输出门禁回执台账
 
 ### 4. 失败回流
 
-- 任一 gate fail → 进入 x-fix 修复，按 4 条回流规则回到对应节点重审
-- fix-attempts 6 次上限共享（x-verify + x-qa-gate），超限停下问用户
+- 任一 gate fail → x-fix 按发现清单一次批量修完 → 回触发 reviewer 增量复审（不回跳重跑前置段）
+- fix-attempts 按批量修轮数计，3 轮上限共享（x-verify + x-qa-gate），超限停下问用户
 
 ---
 
@@ -293,7 +293,7 @@ gate 通过后（任务 ✅），自动执行：
 | 条件 | 动作 |
 |------|------|
 | 所有任务 ✅ | 输出最终汇报 |
-| fix-attempts ≥ 6 次仍有 P0/P1 | 停下，列出剩余问题 |
+| fix-attempts ≥ 3 轮仍有 P0/P1 | 停下，列出剩余问题 |
 | 任务与 README DoD 冲突 | 停下确认，不擅自改需求 |
 | 环境异常 / 依赖缺失 | 停下上报 |
 

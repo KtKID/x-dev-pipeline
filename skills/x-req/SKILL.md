@@ -21,7 +21,7 @@ x-req 负责：
 4. 从架构设计拆分开发任务（模块边界、契约、数据流、风险、依赖顺序）
 5. 细化技术设计（本 task 的增量决策：数据结构、选型、链路）
 6. 定义 DoD（验收清单——怎么算完成）
-7. 定义 smoke/e2e 验收用例（README 中显式写出）
+7. 定义 smoke/e2e 验收用例（README 中显式写出；优先写成可复跑命令供 x-verify 自动复跑，人工交互类执行方式标 manual）
 8. 记录自动化测试责任：单元/契约/边界测试由 x-dev 按改动补齐并写入 dev-report
 9. 生成 dev-checklist.md
 10. 生成 diagram.md（可视化）
@@ -63,6 +63,15 @@ dev-pipeline/tasks/<task-name>/
   3. 一次确认里明确「变更前后 diff」：改了哪些要点 / 模块 / 任务 / DoD，而非全量重列
   4. 用户确认 Y 后，agent1 在已有文件上**原地更新**（不另起目录），changelog 追加一条更新记录
   5. 审核对照「变更前 diff」逐条核验，而非全量重审
+
+**从 qdev Q3 升级时使用 promotion mode**：
+
+1. 原 qdev task 保持只读，作为原始请求、假设、已有 diff 和验证证据来源。
+2. 默认新建 `<qdev-task-name>-full`；用户指定 task 名时使用用户名称。
+3. 读取原 qdev task 的 README.md / changelog.md / dev-report.md。
+4. 新 task README 头部写 `source-qdev: dev-pipeline/tasks/<qdev-task-name>`。
+5. 按标准新建流程完成需求确认并生成 README.md / dev-checklist.md / diagram.md / changelog.md。
+6. 原 qdev changelog 只追加升级目标路径，避免两个 task 同时维护完整需求。
 
 ### 1. 理解任务
 
@@ -130,7 +139,7 @@ agent1 产出后，**主 agent 亲自读产出文件**，对照确认过的需�
 1. **要点覆盖**：确认过的需求要点每条都落进了 README——漏一条 = P0
 2. **三文件一致**：README "涉及模块" / dev-checklist 任务 / diagram 节点三者对得上——不一致 = P0
 3. **DoD 可验证**：每条 DoD 都能客观判定完成与否——含糊不可测 = P0
-4. **Smoke/E2E 明确**：README 写出可执行或可人工验收的 smoke/e2e 用例，且每条能映射到 DoD 或关键风险——缺失 = P0
+4. **Smoke/E2E 明确**：README 写出 smoke/e2e 用例，优先命令化（供 x-verify 自动复跑），人工交互类标 manual；每条能映射到 DoD 或关键风险——缺失 = P0
 5. **自动化测试责任明确**：README 写明 x-dev 需补齐单元/契约/边界测试并进入 dev-report 命令清单——缺失 = P1
 6. **架构归属落实**：确认过的边界类归属体现在技术设计里——丢失 = P0
 7. **架构拆分可执行**：dev-checklist 任务能从 README 架构拆分策略追溯到模块边界、契约、依赖顺序和风险层级——缺失 = P0

@@ -1,6 +1,6 @@
 # R3 — Test Integrity Reviewer ⭐ 反"测试镜像化" 核心
 
-> 本文件是 x-qa-gate R3 子 agent 使用的评审手册。
+> 本文件是 x-qa-gate 高危线 R3 子 agent 使用的评审手册；默认线综合评审见 `rc-unified.md`。
 
 ## 你的角色
 
@@ -124,13 +124,22 @@ README 写出的 smoke/e2e 验收用例是否进入 dev-report？
 - 过度 mock → **P1**
 - happy path-only 或契约级断言不足 → **P1**
 
+P0/P1/P2 的处置语义与 pass/fail 判定遵循 x-qa-gate SKILL.md「严重度定义」，不得另立分级。
+
+## 一轮列全（硬约束）
+
+1. **先穷尽后判定**：审完全部改动文件和全部检查清单条目后才允许写报告。禁止发现一个足以 fail 的问题就交卷。
+2. **发现全部编号**：所有发现按 F1..Fn 连续编号（复审轮续排），带严重度、位置、失败场景、修复建议。
+3. **穷尽声明**：报告末尾声明"除发现清单外，已检查范围内无其他 P0/P1"。复审轮出现你初审就该看到的同文件同维度新问题，会被记为漏检。
+
 ## 输出格式
 
 ```markdown
-# R3 Test-Integrity Mini-Report
+# R3 Test-Integrity Mini-Report（第 N 轮）
 
 **Status:** pass / fail
 **Completed by model:** <actual model id>
+**Round:** N
 
 ## Context Completeness
 
@@ -160,9 +169,20 @@ README 写出的 smoke/e2e 验收用例是否进入 dev-report？
 - test files reviewed: N
 - cited evidence count: N
 
-## P0 问题（必修）
+## 覆盖声明
 
-### #1 [反模式 A] tests/cart.test.ts:42 用 reduce 在测试里 reimplement total 公式
+- 改动文件已审：N / M（未审文件列出文件名 + 原因）
+- 检查清单结论：1 import ✅/❌ · 2 顶层 API ✅/❌ · 3 断言契约 ✅/❌ · 4 mock 边界 ✅/❌ · 5 改动覆盖 ✅/❌ · 6 smoke/e2e ✅/❌ · 7 对抗覆盖 ✅/❌ · 8 过拟合 ✅/❌
+
+## 发现清单
+
+| # | 严重度 | 位置 | 问题 | 修复建议 |
+|---|--------|------|------|----------|
+| F1 | P0 | tests/... | 一句话问题 | 一句话建议 |
+
+## 发现详述
+
+### F1 [反模式 A] tests/cart.test.ts:42 用 reduce 在测试里 reimplement total 公式
 - 测试代码:
   ```ts
   assert(cart.total === items.reduce((s, i) => s + i.price, 0))
@@ -170,23 +190,34 @@ README 写出的 smoke/e2e 验收用例是否进入 dev-report？
 - 问题: 业务函数改了 total 公式（比如加税）测试不会挂
 - 建议: 改写死值 `assert(cart.total === 30)`
 
-### #2 [反模式 C] tests/user.test.ts:88 mock 掉了被测函数 createUser
+### F2 [反模式 C] tests/user.test.ts:88 mock 掉了被测函数 createUser
 ...
 
-### #3 [改动无覆盖] src/payment.ts:120 函数 refund() 本次改动但无测试触发
+### F3 [改动无覆盖] src/payment.ts:120 函数 refund() 本次改动但无测试触发
 ...
 
-## P1 问题（建议）
-
-### #1 [过度 mock] tests/order.test.ts mock 了 8/10 依赖
+### F4 [过度 mock] P1 · tests/order.test.ts mock 了 8/10 依赖
 ...
+
+## 穷尽声明
+
+除发现清单外，已检查的文件和清单条目中无其他 P0/P1。
 ```
 
 ## 通过条件
 
-- **Status: pass** ⟺ P0 列表为空
-- **Status: fail** ⟺ P0 列表非空
-- P1 **不阻塞 status**，但要列出供 x-fix 选择性修
+- **Status: fail** ⟺ 存在 P0，或存在未处置（未修复且未豁免）的 P1
+- **Status: pass** ⟺ P0 为空，且每条 P1 已修复 / 已带理由豁免 / 已升级处理
+- P2 只登记进发现清单，不阻塞
+
+## 复审模式（第 2 轮起）
+
+主 agent 会给你：你上一轮的 mini-report、x-fix 的逐条处置表、fix 增量 diff。你只做两件事：
+
+1. 逐条验证 F#：已修复 ✅ / 豁免理由成立 ➖ / 未修复 ❌，每条引用代码证据。
+2. 审查 fix diff 触碰的文件是否引入新问题：编号续排并标 `NEW`；属于初审范围内同文件同维度的额外标 `漏检`。
+
+不重新全量评审；fix 改动超出上轮发现文件集时，把新触碰文件纳入并在覆盖声明说明。
 
 ## 工具约束
 
@@ -208,3 +239,4 @@ README 写出的 smoke/e2e 验收用例是否进入 dev-report？
 - ❌ 重新跑测试（x-verify 已做）
 - ❌ 检查 spec 符合性 / 边界完整性（R1/R2 已做）
 - ❌ 评价代码风格 / 性能（audit 的事）
+- ❌ 发现一个问题就停止审查（违反一轮列全）

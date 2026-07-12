@@ -15,51 +15,58 @@
 flowchart TD
   classDef new fill:#a8e6cf,stroke:#1d7c5e,stroke-width:2px,color:#000
   classDef changed fill:#ffd3a5,stroke:#b86e1f,stroke-width:2px,color:#000
-  classDef deprecated fill:#ddd,stroke:#888,color:#666
   classDef done fill:#b3d8ff,stroke:#1e6fbb,color:#000
 
-  Dev["x-dev / x-qdev<br/>(改造) 输出 dev-report.md"]:::changed
+  Dev["x-dev<br/>完整开发输出 gate-compatible dev-report"]:::changed
   Verify["x-verify<br/>(新) Gate ① 命令复跑"]:::new
-  Qua["x-qa-gate<br/>(新) Gate ② R1→R2→R3<br/>串行子 agent"]:::new
-  Fix["x-fix<br/>(改造) 4 条回流规则<br/>+ fix-counter 共享 6 次"]:::changed
+  Qua["x-qa-gate<br/>(新) Gate ② 风险路由<br/>默认 RC 综合 / 高危 R1→R2→R3"]:::new
+  Fix["x-fix<br/>(改造) 批量修 + 增量复审<br/>+ fix-counter 共享 3 轮"]:::changed
   Done(["✅ 任务完成"]):::done
+
+  Qdev["x-qdev<br/>Q0/Q1 定向验证 + DoD 证据"]:::changed
+  Qreview["Q2 综合 reviewer"]:::new
 
   AuditP["x-audit-perf<br/>(新) 独立巡检"]:::new
   AuditS["x-audit-style<br/>(新) 独立巡检"]:::new
   Indep((独立报告<br/>reports/audit/))
 
-  Cr["x-cr (废弃)<br/>重定向 stub"]:::deprecated
+  Cr["x-cr<br/>手动正确性调查"]:::changed
+  CrReport(("reports/cr/"))
 
   Dev -->|dev-report.md| Verify
   Verify -->|pass| Qua
-  Qua -->|R1→R2→R3 全通过| Done
+  Qua -->|评审全通过| Done
   Verify -.fail.-> Fix
-  Qua -.R1/R2/R3 fail.-> Fix
+  Qua -.reviewer fail.-> Fix
   Fix -.回流.-> Verify
   Fix -.回流.-> Qua
 
-  Cr -.重定向.-> Qua
+  Qdev -->|Q0/Q1| Done
+  Qdev -->|Q2| Qreview
+  Qreview -->|pass| Done
+  Qdev -->|Q3| Dev
+
+  Cr -.手动触发.-> CrReport
   AuditP -.手动触发.-> Indep
   AuditS -.手动触发.-> Indep
 ```
 
 **图例**：
 - 🟢 绿底 = 本次新增模块（x-verify / x-qa-gate / R1/R2/R3 / x-audit-*）
-- 🟠 橙底 = 改造现有模块（x-dev / x-qdev / x-fix）
-- ⚪ 灰虚线 = 废弃但保留（x-cr 重定向）
+- 🟠 橙底 = 改造现有模块（x-dev / x-qdev / x-fix / x-cr）
 - 🔵 蓝底 = 终态
-- 实线 = 主流程，虚线 = 回流 / 重定向 / 独立触发
+- 实线 = 开发与验证路径，虚线 = 回流 / 独立触发
 
 ---
 
 ## 这张图能看出什么
 
 一眼看清的事：
-1. **主链路是单线串行**：dev → verify → qua-gate → done
-2. **回流目标只有 2 个**（x-verify 和 x-qa-gate），不是任意跳
-3. **独立巡检不在主链路**——视觉上就被剥离开
-4. **x-cr 不是入口**，是被重定向的 alias
-5. **新 vs 改造 vs 废弃**用颜色一眼区分，比读文字快
+1. **完整链路串行**：dev → verify → qa-gate → done
+2. **qdev 按风险分流**：Q0/Q1 证据闭环，Q2 综合 reviewer，Q3 升级完整链路
+3. **回流目标保持 2 个**：x-verify 和 x-qa-gate
+4. **x-cr 与 audit 独立触发**，各自产出调查或巡检报告
+5. **新增与改造模块**用颜色区分
 
 看不出的事（要别的图补）：
 - 每个 reviewer 内部的 prompt 检查清单 → 要 R1/R2/R3 各自的逻辑图

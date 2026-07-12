@@ -76,7 +76,7 @@
 <div class="legend">
   <span><span class="swatch" style="background:#E8F1FE;border-color:#0071E3"></span> 新增模块</span>
   <span><span class="swatch" style="background:#FFF4E5;border-color:#FF9500"></span> 改造模块</span>
-  <span><span class="swatch" style="background:#F2F2F7;border-color:#8E8E93"></span> 废弃 / 重定向</span>
+  <span><span class="swatch" style="background:#F2F2F7;border-color:#8E8E93"></span> 独立路径</span>
 </div>
 
 <div class="diagram">
@@ -86,27 +86,36 @@ flowchart TD
   classDef changed fill:#FFF4E5,stroke:#FF9500,color:#1D1D1F,stroke-width:1.5px
   classDef deprecated fill:#F2F2F7,stroke:#8E8E93,color:#86868B,stroke-width:1.5px,stroke-dasharray:4 3
 
-  Dev["x-dev / x-qdev<br/>改造 · 输出 dev-report.md"]:::changed
+  Dev["x-dev<br/>完整开发 · gate-compatible dev-report"]:::changed
   Verify["x-verify<br/>新 · Gate ① 命令复跑"]:::new
-  Qua["x-qua-gate<br/>新 · Gate ② R1→R2→R3<br/>串行 opus 子 agent"]:::new
-  Fix["x-fix<br/>改造 · 4 条回流规则<br/>+ fix-counter 共享 6 次"]:::changed
+  Qua["x-qa-gate<br/>新 · Gate ② 风险路由<br/>默认 RC 综合 / 高危 R1→R2→R3"]:::new
+  Fix["x-fix<br/>改造 · 批量修 + 增量复审<br/>+ fix-counter 共享 3 轮"]:::changed
   Done(["任务完成"]):::changed
+
+  Qdev["x-qdev<br/>Q0/Q1 定向验证 + DoD 证据"]:::changed
+  Qreview["Q2 综合 reviewer"]:::new
 
   AuditP["x-audit-perf<br/>新 · 独立巡检"]:::new
   AuditS["x-audit-style<br/>新 · 独立巡检"]:::new
   Indep((独立报告<br/>reports/audit/))
 
-  Cr["x-cr<br/>废弃 · 重定向 stub"]:::deprecated
+  Cr["x-cr<br/>手动正确性调查"]:::changed
+  CrReport(("reports/cr/"))
 
   Dev -->|dev-report.md| Verify
   Verify -->|pass| Qua
-  Qua -->|R1→R2→R3 全通过| Done
+  Qua -->|评审全通过| Done
   Verify -.fail.-> Fix
-  Qua -.R1/R2/R3 fail.-> Fix
+  Qua -.reviewer fail.-> Fix
   Fix -.回流.-> Verify
   Fix -.回流.-> Qua
 
-  Cr -.重定向.-> Qua
+  Qdev -->|Q0/Q1| Done
+  Qdev -->|Q2| Qreview
+  Qreview -->|pass| Done
+  Qdev -->|Q3| Dev
+
+  Cr -.手动触发.-> CrReport
   AuditP -.手动触发.-> Indep
   AuditS -.手动触发.-> Indep
 </pre>
