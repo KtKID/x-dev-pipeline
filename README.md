@@ -6,7 +6,7 @@
 
 [中文说明](./README_zh.md)
 
-**Current release:** v0.3.5
+**Current release:** v0.3.6
 
 > A recordable, auditable, and reviewable workflow framework for AI-assisted development.
 
@@ -50,7 +50,8 @@ What you get is a process closer to real development:
 2. Creates a task directory
 3. Generates a task description and dev checklist
 4. Implements items one by one, recording key changes
-5. Leaves artifacts ready for follow-up review and fix
+5. Closes the task with targeted validation and a DoD evidence matrix
+6. Adds one combined reviewer for medium risk and promotes high-risk work to the full pipeline
 
 Typical output looks like this:
 
@@ -58,16 +59,10 @@ Typical output looks like this:
 dev-pipeline/tasks/<task-name>/
 ├── README.md
 ├── changelog.md
-├── dev-report.md
-└── reports/
-    ├── cr/cr-report-*.md
-    ├── verify/verify-report-*.md
-    ├── qa-gate/qa-gate-report-*.md
-    ├── fix/fix-verify-*.md
-    ├── fix/fix-r1-spec-*.md
-    ├── fix/fix-r2-boundary-*.md
-    └── fix/fix-r3-test-*.md
+└── dev-report.md
 ```
+
+`dev-report.md` records risk level, the actual diff, real validation results, and evidence for every DoD item. Verify, QA-gate, and fix reports appear when the user selects the full gate or the task is promoted.
 
 This is the best way to experience `x-dev-pipeline` for the first time:
 
@@ -87,31 +82,33 @@ Common problems when using AI coding agents directly:
 
 **How to make AI work at a more stable, traceable, engineering-grade pace.**
 
-## Recommended Loop: Build → Review → Fix
+## Recommended Daily Loop: Build → Validate → Close with Evidence
 
 For day-to-day development, this is the path I recommend most:
 
 ```text
-/x-qdev -> /x-verify -> /x-qa-gate -> /x-fix
+/x-qdev -> targeted validation -> DoD evidence closure -> complete
+                                      ├─ Q2: one combined reviewer
+                                      └─ Q3: promote to the full pipeline
 ```
 
 ### `/x-qdev`
 
-Quickly ship a small feature, tweak, or module.
+Quickly ship a small feature, tweak, or module. Q0/Q1 closes in the main agent using the original request, actual diff, and real validation evidence.
 
 ### `/x-verify`
 
-Gate ① fact verification. Re-runs the command list declared in `dev-report.md`, compares actual exit codes and key output fragments. **Fact-only verification.**
+Gate ① fact verification for the x-dev full pipeline, or when the user explicitly sends qdev through the full gate.
 
 ### `/x-qa-gate`
 
-Gate ② pipeline quality gate. Serially dispatches 3 subagent reviewers: R1 spec correctness/conformance → R2 boundary correctness/coverage → R3 test integrity.
+Gate ② pipeline quality gate for Q3 and full development tasks. Risk-routed: one unified reviewer (RC) by default; high-risk changes run R1 spec, R2 boundary, and R3 test-integrity review serially.
 
 ### `/x-fix`
 
-Fix issues from verify / qa-gate / CR reports; uses routing rules to decide which node or report should be rechecked after a fix.
+Fix issues from verify / qa-gate / CR reports; batch-fixes the full findings list in one round, then hands back for an incremental re-review.
 
-This path is great for:
+The default qdev path is great for:
 
 - Small feature iterations
 - UI interaction additions
@@ -119,7 +116,7 @@ This path is great for:
 - Localized optimizations
 - Small-scale refactors
 
-The point is to give even small tasks a sense of engineering discipline.
+The point is to give small tasks direct, traceable correctness evidence with less context overhead.
 
 ## What You Get
 
@@ -153,8 +150,10 @@ For more complex tasks, it provides a full development flow:
 
 ```text
 x-spec -> x-req -> x-dev -> x-verify -> x-qa-gate -> x-fix
-                 ^
-              x-qdev
+
+x-qdev -> targeted validation -> DoD evidence closure
+                                      ├─ Q2 combined reviewer
+                                      └─ Q3 promotion to the full pipeline above
 ```
 
 Independent audits run on demand outside the main flow:
@@ -186,21 +185,21 @@ Recommended shape:
 
 - Keep it light for small things
 - Keep it solid for big things
-- Always close with review and fix
+- Close every task with evidence; use review and fix for high-risk work
 
 ## What Each Command Does
 
 ### `/x-qdev`
 
-Lightweight quick development entry point. Best for small features, localized optimizations, and module tweaks. The recommended way to start.
+Lightweight quick development entry point. It preserves the original request, routes work across Q0-Q3 risk levels, runs targeted validation, and builds a DoD evidence matrix. Q0/Q1 closes in the main agent, Q2 uses one combined reviewer, and Q3 promotes to the full pipeline.
 
 ### `/x-verify`
 
-Gate ① fact verification. Reads the validation command list in `dev-pipeline/tasks/<task>/dev-report.md`, re-runs each command, compares actual vs declared exit codes and key output fragments. On any mismatch, generates `reports/verify/verify-report-*.md` and triggers x-fix.
+Gate ① fact verification. Reads the validation command list in `dev-pipeline/tasks/<task>/dev-report.md` plus the Smoke/E2E acceptance cases in the task README, re-runs each command, compares actual vs declared exit codes and key output fragments (manual cases go to a pending-manual-acceptance list). On any mismatch, generates `reports/verify/verify-report-*.md` and triggers a batch x-fix.
 
 ### `/x-qa-gate`
 
-Gate ② pipeline quality gate. Serially dispatches 3 subagent reviewers: R1 spec correctness/conformance → R2 boundary correctness/coverage → R3 test integrity. The aggregated report is written to `reports/qa-gate/qa-gate-report-*.md`.
+Gate ② pipeline quality gate. Risk-routed: the default lane dispatches one unified reviewer (RC) that exhaustively lists all spec / boundary / test-integrity findings in a single round; the high-risk lane serially dispatches R1 spec correctness → R2 boundary coverage → R3 test integrity. The aggregated report is written to `reports/qa-gate/qa-gate-report-*.md`, and a graded findings receipt is posted in the conversation.
 
 ### `/x-cr`
 
@@ -208,7 +207,7 @@ Bayesian software correctness investigation. It handles known user-reported issu
 
 ### `/x-fix`
 
-Fix by verify / qa-gate / CR reports. Under the pipeline gate, 4 routing rules decide which node a fix returns to; the fix-attempts counter is shared with verify/qa-gate at a 6-attempt cap.
+Fix by verify / qa-gate / CR reports. Under the pipeline gate, x-fix batch-fixes the full findings list in one round (every P0 fix must leave a re-runnable counter-example), then hands back for an incremental re-review; the fix-attempts counter counts batch rounds, shared with verify/qa-gate at a 3-round cap.
 
 ### `/x-audit-perf` (independent audit)
 
@@ -244,7 +243,7 @@ Two-subagent protocol, data-structure, and process alignment. Use it for contrac
 
 ## Installation
 
-This repo ships v0.3.5 plugin metadata for both hosts:
+This repo ships v0.3.6 plugin metadata for both hosts:
 
 ```text
 .claude-plugin/plugin.json          # Claude Code plugin manifest

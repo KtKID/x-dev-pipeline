@@ -4,7 +4,7 @@
 
 # x-dev-pipeline
 
-**当前版本：** v0.3.5
+**当前版本：** v0.3.6
 
 > 给 AI 辅助开发一套可记录、可审计、可回顾的工作流框架。
 
@@ -48,7 +48,8 @@
 2. 创建任务目录
 3. 生成任务说明和开发清单
 4. 逐项实现并记录关键修改
-5. 为后续 review 和 fix 留下可继续使用的产物
+5. 用定向验证和 DoD 证据矩阵完成收尾
+6. 中风险任务增加一个综合 reviewer，高风险任务升级完整流程
 
 典型产物会像这样：
 
@@ -56,16 +57,10 @@
 dev-pipeline/tasks/<task-name>/
 ├── README.md
 ├── changelog.md
-├── dev-report.md
-└── reports/
-    ├── cr/cr-report-*.md
-    ├── verify/verify-report-*.md
-    ├── qa-gate/qa-gate-report-*.md
-    ├── fix/fix-verify-*.md
-    ├── fix/fix-r1-spec-*.md
-    ├── fix/fix-r2-boundary-*.md
-    └── fix/fix-r3-test-*.md
+└── dev-report.md
 ```
+
+`dev-report.md` 记录风险等级、实际 diff、真实验证结果和每条 DoD 的证据。只有用户指定完整门禁或任务升级时才生成 verify / qa-gate / fix 报告。
 
 这也是 `x-dev-pipeline` 最适合第一次体验的地方：
 
@@ -85,31 +80,33 @@ dev-pipeline/tasks/<task-name>/
 
 **怎么让 AI 按一个更稳定、更可追踪、更像工程的节奏做事。**
 
-## 默认推荐闭环：先做，再审，再修
+## 日常推荐闭环：先做，再用证据收尾
 
 日常开发里，我最推荐这条路径：
 
 ```text
-/x-qdev -> /x-verify -> /x-qa-gate -> /x-fix
+/x-qdev -> 定向验证 -> DoD 证据闭环 -> 完成
+                         ├─ Q2: 一个综合 reviewer
+                         └─ Q3: 升级完整流程
 ```
 
 ### `/x-qdev`
 
-适合先把一个小功能、小改动、小模块快速落地。
+适合把小功能、小改动、小模块快速落地。Q0/Q1 由主 agent 根据原始请求、实际 diff 和真实验证结果直接闭环。
 
 ### `/x-verify`
 
-Gate ① 事实验证。读 `dev-report.md` 中的命令清单，复跑后比对 exit code 与关键输出，**只做事实验证**。
+Gate ① 事实验证。用于 x-dev 完整流程，或用户明确要求 qdev 进入完整门禁时复跑命令清单。
 
 ### `/x-qa-gate`
 
-Gate ② 流水线质量门禁。串行 dispatch 3 个子 agent reviewer：R1 spec 正确性/符合性 → R2 边界正确性/完整性 → R3 测试真实性。
+Gate ② 流水线质量门禁。用于 Q3 和完整开发流程，串行运行 R1 spec、R2 边界、R3 测试真实性审查。
 
 ### `/x-fix`
 
 根据 verify / qa-gate / CR 报告继续修复，让调查和评审形成闭环；按回流规则决定回到哪个节点或报告重审。
 
-这条路径特别适合：
+qdev 默认路径特别适合：
 
 - 小功能迭代
 - 页面交互补充
@@ -117,7 +114,7 @@ Gate ② 流水线质量门禁。串行 dispatch 3 个子 agent reviewer：R1 sp
 - 局部优化
 - 小范围重构
 
-它的重点是让小任务也能拥有工程感。
+它的重点是让小任务以更少上下文获得直接、可追踪的正确性证据。
 
 ## 你会得到什么
 
@@ -151,8 +148,10 @@ Gate ② 流水线质量门禁。串行 dispatch 3 个子 agent reviewer：R1 sp
 
 ```text
 x-spec -> x-req -> x-dev -> x-verify -> x-qa-gate -> x-fix
-                 ^
-              x-qdev
+
+x-qdev -> 定向验证 -> DoD 证据闭环
+                      ├─ Q2 综合 reviewer
+                      └─ Q3 升级上方完整流程
 ```
 
 独立巡检按需触发，位于主流程之外：
@@ -184,21 +183,21 @@ x-spec -> x-req -> x-dev -> x-verify -> x-qa-gate -> x-fix
 
 - 小事先轻
 - 大事再稳
-- 收尾一定 review 和 fix
+- 收尾保持证据闭环，高风险任务进入 review 和 fix
 
 ## 各命令分别做什么
 
 ### `/x-qdev`
 
-轻量级快速开发入口。适合小功能、局部优化、模块微调，是最推荐的第一次使用方式。
+轻量级快速开发入口。保存用户原始请求，按 Q0-Q3 风险分流，运行定向验证并建立 DoD 证据矩阵。Q0/Q1 由主 agent 完成，Q2 使用一个综合 reviewer，Q3 升级完整流程。
 
 ### `/x-verify`
 
-Gate ① 事实验证。读 `dev-pipeline/tasks/<task>/dev-report.md` 中声明的验证命令清单，逐条复跑，对比实际 exit code 与关键输出片段。任一不一致即生成 `reports/verify/verify-report-*.md` 并触发 x-fix。
+Gate ① 事实验证。读 `dev-pipeline/tasks/<task>/dev-report.md` 声明的验证命令清单和 task README 的 Smoke/E2E 验收用例，逐条复跑，对比实际 exit code 与关键输出片段（manual 用例列入待人工验收）。任一不一致即生成 `reports/verify/verify-report-*.md` 并触发 x-fix 批量修。
 
 ### `/x-qa-gate`
 
-Gate ② 流水线质量门禁。串行 dispatch 3 个子 agent reviewer：R1 spec 正确性/符合性 → R2 边界正确性/完整性 → R3 测试真实性。聚合报告写到 `reports/qa-gate/qa-gate-report-*.md`。
+Gate ② 流水线质量门禁。按风险路由：默认线 dispatch 一个综合 reviewer（RC）一轮列全 spec / 边界 / 测试真实性全部问题；高危改动（鉴权/不可逆写入/公开 API/并发等）串行 dispatch R1 spec 正确性 → R2 边界正确性 → R3 测试真实性。聚合报告写到 `reports/qa-gate/qa-gate-report-*.md`，并在对话中输出分级发现回执。
 
 ### `/x-cr`
 
@@ -206,7 +205,7 @@ Gate ② 流水线质量门禁。串行 dispatch 3 个子 agent reviewer：R1 sp
 
 ### `/x-fix`
 
-按 verify / qa-gate / CR 报告修复。在流水线门禁里，按 4 条回流规则决定 fix 完后回到哪个节点重审；fix-attempts 与 verify/qa-gate 共享 6 次上限。
+按 verify / qa-gate / CR 报告修复。在流水线门禁里，按发现清单一次批量修完本轮全部问题（每修一个 P0 固化一条可复跑反例），交回触发 reviewer 增量复审；fix-attempts 按轮计，与 verify/qa-gate 共享 3 轮上限。
 
 ### `/x-audit-perf`（独立巡检）
 
@@ -242,7 +241,7 @@ Gate ② 流水线质量门禁。串行 dispatch 3 个子 agent reviewer：R1 sp
 
 ## 安装
 
-这个仓库随 v0.3.5 提供两套 host 的插件元数据：
+这个仓库随 v0.3.6 提供两套 host 的插件元数据：
 
 ```text
 .claude-plugin/plugin.json          # Claude Code 插件 manifest

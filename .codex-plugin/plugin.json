@@ -1,6 +1,6 @@
 {
   "name": "x-dev-pipeline",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "description": "Structured dev workflow with spec, requirements, execution, verify, qa-gate, fix loops, and audits.",
   "author": {
     "name": "ktkid",
@@ -34,7 +34,7 @@
       "x-qdev add dark mode toggle to settings page",
       "x-req turn this feature request into a task package",
       "x-verify run dev-report command list against the latest task",
-      "x-qa-gate review the current task with R1/R2/R3 reviewers",
+      "x-qa-gate review the current task with risk-routed reviewers",
       "x-fix fix issues from the latest verify or qa-gate report"
     ],
     "composerIcon": "./assets/logo.png",
