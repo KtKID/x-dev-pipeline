@@ -218,31 +218,59 @@ spec 状态反映整个需求包的进度；模块状态反映单个模块的进
 
 模块状态取值见「状态定义」。
 
-### 6. 生成文档（子 agent 编写 + 主 agent 审核 + 子 agent 修复）
+### 6. 生成文档（主 agent 写基准 + 子 agent 写结构化文档 + 分层审核）
 
-**强约束**：x-spec 文档包必须由子 agent 编写。主 agent 的职责是持有确认过的需求要点、调度子 agent、审核产出、给出修正反馈、确认最终状态。
+**强约束**：文档分两类，分别由谁写——判断型文件主 agent 亲自写（这些文件就是后续审核的基准，不能让基准漂移），结构化表达型文件派子 agent 写（主 agent 给定基准后扩写）。
 
 职责边界：
-- **子 agent**：根据自包含 prompt 创建或更新 `docs/spec/<spec-name>/` 需求包。
-- **主 agent**：亲自审核文档包，输出 mini-report，把 P0 修正反馈交回同一个子 agent。
-- **子 agent prompt**：必须包含确认过的需求要点全文、理解总结全文、步骤 1-5 全部结论、模板路径和输出目录。
+- **主 agent 亲自写**：`01-goals-and-boundaries.md`（需求要点 / DoD / 追溯矩阵 / **用户要求与证据表**）、`<spec>/README.md`、`docs/spec/README.md` 索引——这些是判断型内容，基准必须握在主 agent 手里。
+- **子 agent 写**：`02`、`04`、`05`、`90`、`diagrams.md`——主 agent 写好 01 后，把它们作为结构化扩写派给子 agent。
+- **子 agent prompt**：必须包含**主 agent 已写好的 01 全文**（作为基准）、步骤 1-5 全部结论、模板路径和输出目录。不再用"理解总结"当基准，01 全文就是基准。
 - **模板落点**：DoD 追溯写入 `01-goals-and-boundaries.md`；风险标注写入 `02-module-breakdown.md`；PoC 和排序依据写入 `90-task-map.md`；具体写法以 `templates/TEMPLATE_GUIDE.md` 为准。
 
-#### 6.1 子 agent（创建者）：产出文档包
+#### 6A 主 agent（基准作者）：写 01 + spec README + 索引 README
+
+主 agent 亲自产出三个判断型文件，这三者就是后续 6B 子 agent 的基准：
+
+1. **`01-goals-and-boundaries.md`**（模板 `templates/01-goals-and-boundaries.md`）：
+   - 第一性原理推导 / 目标充分性判断（步骤 1-2 结论）
+   - 需求要点（步骤 1-2 对话提炼）
+   - **用户要求与证据表**：逐条记录用户在追问中提出的原始要求，每条标注它在文档包里的落实位置（文件 + 段落/锚点）。审核时逐条核对，证据缺失 = P0
+   - 系统目标 / 成功证据 / DoD / 范围边界 / 关键约束 / 系统不变量
+   - DoD ↔ 模块追溯矩阵（TEMPLATE_GUIDE 的 DoD 追溯规则）
+2. **`<spec>/README.md`**（模板 `templates/README.md`）：最小可用路径、模块导航、当前建议
+3. **`docs/spec/README.md`** 索引：新增/更新 spec 导航条目
+
+**主 agent 自审结构项**（有客观标准，盲区小）：
+- 追溯矩阵双向闭合：每条 DoD 有模块支撑、每个模块有 DoD 对应
+- 用户要求与证据表每条都指得到位置
+- DoD 条目可验证、不空话
+- 文件间引用一致、路径符合"路径引用规则"
+
+**用户确认判断项**（基准是用户意图，只有用户持有）：
+- 需求要点是否忠于用户原意
+- 范围边界 / "不包含"是否对
+- MVP 链路（最小可用路径）选得对不对
+- 用户有异议 → 主 agent 改 01，重跑自审 + 用户确认
+
+#### 6B 子 agent（扩写者）：产出 02 / 04 / 05 / 90 / diagrams
+
+主 agent 写好 01 后，派子 agent 写结构化表达型文件。**01 全文是基准**。
 
 ```
 Agent({
-  description: "x-spec 文档创建",
+  description: "x-spec 结构化文档扩写",
   subagent_type: "general-purpose",
-  prompt: <自包含：确认过的需求要点全文 + 理解总结全文 + 步骤 1-5 全部结论
-          （上下文充分性判断 / 头脑风暴结论 / 调研可复用清单 / 模块拆分）+
-          TEMPLATE_GUIDE 中的 DoD 追溯、风险标注、PoC 排序规则 +
+  prompt: <自包含：主 agent 已写好的【01 全文】作基准 +
+          步骤 1-5 全部结论（上下文充分性判断 / 头脑风暴结论 / 调研可复用清单 / 模块拆分）+
+          spec README 中的模块导航表 +
+          TEMPLATE_GUIDE 中的风险标注、PoC 排序规则 +
           模板路径 skills/x-spec/templates/ + 输出目录 `docs/spec/<spec-name>/` +
           路径引用规则全文：包内 Markdown 链接只能使用 `./...`；不得使用 `../`、`../../`、`docs/spec/<spec-name>/...`、绝对路径、`file://`、Windows 盘符路径；代码/脚本/配置路径只能写成不可点击的 `repo:<path>` 文本>
 })
 ```
 
-agent1 完成时必须按以下模板回报：
+子 agent 完成时必须按以下模板回报：
 
 ```markdown
 ## Subagent Completion
@@ -258,30 +286,45 @@ agent1 完成时必须按以下模板回报：
 ```
 
 产出文件：
-- **spec 索引 README**（`docs/spec/README.md`）：模板见 `templates/module-README.md`。如果索引已存在，更新导航表即可
-- **spec 7 文件**（`docs/spec/<spec-name>/` 下）：模板见 `templates/` 下对应文件，将步骤 1-5 的结论和 TEMPLATE_GUIDE 的模板落点全部灌入
-- **路径约束检查**：所有 Markdown 链接必须遵守“路径引用规则”，只允许 `./...`；代码/脚本/配置路径必须写成 `repo:<path>` 文本
+- **`02-module-breakdown.md`**（组件设计 + 接口 + 数据结构 + 风险标注）
+- **`04-data-and-state.md`**（核心数据模型 + 状态流转）
+- **`05-validation-and-evolution.md`**（验证策略 + 测试 + 演进）
+- **`90-task-map.md`**（组件→task 映射，依据 01 追溯矩阵 + PoC 排序）
+- **`diagrams.md`**（全量图集，纯 mermaid，按模块分节；节点/分节内容必须与 02/04 对得上）
+- **路径约束检查**：所有 Markdown 链接遵守"路径引用规则"，只允许 `./...`；代码/脚本/配置路径写成 `repo:<path>` 文本
 
 #### 6.2 主 agent（审核者）：出 mini-report
 
-agent1 产出后，**主 agent 亲自读产出文件**，对照确认过的需求要点逐条审核（按 P0/P1 分级；主 agent 输出审核报告，修正文档交回 agent1）：
+6B 子 agent 产出后，**主 agent 亲自读产出文件**，以 6A 写好的 01 为基准逐条审核（按 P0/P1 分级；主 agent 输出审核报告，修正文档按文件作者分流交回，见 6.3）。
 
-1. **第一性原理产物完整**：事实 / 约束 / 不变量 / DoD 已形成必要能力集合——缺任一项 = P0
-2. **必要能力可追溯**：每个必要能力可回指 DoD、约束或不变量——缺追溯 = P0
-3. **模块来自能力聚合**：每个模块由一个或多个必要能力聚合而来——直接按技术名词、目录习惯或用户口头模块名生成 = P0
-4. **task 来源闭合**：每个 task 来自模块和 DoD，状态不足时记录在 `90-task-map.md`——缺来源 = P0
-5. **要点覆盖**：确认过的需求要点每条都落进了 `01-goals-and-boundaries.md` / spec README——漏一条 = P0
+**子 agent 产出的审核项**（02 / 04 / 05 / 90 / diagrams）：
+
+1. **忠于 01**：子 agent 的模块清单 / 组件 / 数据结构不偏离 01 的需求要点与模块拆分——偏离 = P0
+2. **第一性原理产物完整**：事实 / 约束 / 不变量 / DoD 已形成必要能力集合——缺任一项 = P0
+3. **必要能力可追溯**：每个必要能力可回指 DoD、约束或不变量——缺追溯 = P0
+4. **模块来自能力聚合**：每个模块由一个或多个必要能力聚合而来——直接按技术名词、目录习惯或用户口头模块名生成 = P0
+5. **task 来源闭合**：每个 task 来自模块和 DoD，状态不足时记录在 `90-task-map.md`——缺来源 = P0
 6. **判断依据完整**：推荐方案、模块边界、数据归属、验证策略必须写明为什么重要、判断依据、缺失后果——缺任一项 = P0
 7. **文档间一致**：`02-module-breakdown.md` 组件清单 / `diagrams.md` 节点 / `90-task-map.md` 映射三者对得上——不一致 = P0
-8. **追溯矩阵双向闭合**：每条 DoD 有模块支撑、每个模块有 DoD 对应——缺任一方向 = P0
-9. **边界设计落实**：每个模块定义了边界类——缺 = P0；数据结构字段缺中文注释 = P1
-10. **规范符合**：spec 7 文件齐全——缺文件 = P0；模板结构 / 状态值 / mermaid 是否全部集中在 diagrams.md（其他 .md 内嵌 = 散落）/ subgraph 是否按模块划分 = P1
-11. **路径可移动**：Markdown 链接只能是 `./...`；不得出现 `../`、`../../`、`docs/spec/<spec-name>/...`、绝对路径、`file://`、Windows 盘符路径；代码/脚本/配置路径只能是 `repo:<path>` 文本——不符 = P0
+8. **边界设计落实**：每个模块定义了边界类——缺 = P0；数据结构字段缺中文注释 = P1
+9. **规范符合**：5 个文件齐全——缺文件 = P0；模板结构 / 状态值 / mermaid 是否全部集中在 diagrams.md（其他 .md 内嵌 = 散落）/ subgraph 是否按模块划分 = P1
+10. **路径可移动**：Markdown 链接只能是 `./...`；不得出现 `../`、`../../`、`docs/spec/<spec-name>/...`、绝对路径、`file://`、Windows 盘符路径；代码/脚本/配置路径只能是 `repo:<path>` 文本——不符 = P0
+
+**01 的审核项**（主 agent 自审已在 6A 完成，**不交子 agent 复核**）：
+
+11. **追溯矩阵双向闭合** + **用户要求与证据表逐条指得到** + **要点覆盖**（需求要点每条落入 01）：已在 6A 自审 + 用户确认，此处只复核一次（主 agent 自检，不让子 agent 插手）——若 6B 产出导致 01 的证据指针失准，回 6A 修 01
+
+> 禁止让子 agent 审 01——子 agent 不持有对话基准，必出假阴性/假阳性/形式化漂移。
 
 #### 6.3 修复（只修一轮，不复审）
 
-- 审核发现 P0 → 把反馈交回 agent1 修复（优先用 SendMessage 续接 agent1，保留它的创建上下文；环境不支持续接则重新派发，prompt 附审核反馈全文）。**修完不复审**，直接进步骤 7
-- 无 P0 → 直接进步骤 7（P1 在收尾时列给用户参考，不阻塞）
+修复按文件作者分流，谁写的谁修，不混用：
+
+- **子 agent 写的文件**（02 / 04 / 05 / 90 / diagrams）有 P0 → 主 agent 审出来后，**重新派发子 agent 修**。子 agent 是一次性的，不续接、不保留上下文，每次都从头派发；新 prompt 必须附【01 全文】（基准不能丢）+ 原产出 + 审核反馈全文
+- **主 agent 写的文件**（01 / spec README / 索引）有 P0 → **主 agent 自己修**，不交给子 agent——判断型内容只有写它的人改得准
+- 修完不复审，直接进步骤 7
+- P1 顺手修掉（遵循同一分流：子写的交子 agent、主写的主自己改），避免永久遗留
+- 无 P0 → 直接进步骤 7（剩余 P1 列给用户参考，不阻塞）
 
 spec README 必须包含：
 - spec 目标
@@ -313,7 +356,7 @@ spec 索引 README 必须包含：
 | `templates/TEMPLATE_GUIDE.md` | 模板说明：字段、路径、图表、审核规则 | skill 内部参考 |
 | `templates/module-README.md` | spec 索引导航 | `docs/spec/README.md` |
 | `templates/README.md` | spec 导航 | `docs/spec/<spec-name>/README.md` |
-| `templates/01-goals-and-boundaries.md` | 目标 + 完成标准 + 范围 | spec 目录 |
+| `templates/01-goals-and-boundaries.md` | 目标 + 完成标准 + 范围 + 用户要求与证据 | spec 目录 |
 | `templates/02-module-breakdown.md` | 组件设计 + 接口 + 数据结构 | spec 目录 |
 | `templates/04-data-and-state.md` | 核心数据模型 + 状态流转 | spec 目录 |
 | `templates/05-validation-and-evolution.md` | 验证策略 + 测试 + 演进 | spec 目录 |
@@ -330,7 +373,7 @@ spec 索引 README 必须包含：
 3. 哪些 spec 适合先进入 x-req
 4. 哪些 spec 仍应停留在方案层
 5. 文档保存路径：`docs/spec/<spec-name>/`
-6. 审核结论：主 agent 审核发现的 P0（已由 agent1 修复的列"已修复"）+ 遗留 P1（参考项，不阻塞）
+6. 审核结论：主 agent 6.2 审核发现的 P0（已修复的列"已修复"，注明修者——主 agent 自修或子 agent 重派修复）+ 遗留 P1（参考项，不阻塞）
 
 如果用户仍然很模糊，优先产出最小 3 文件，其余文档标为后续扩展。
 
@@ -363,7 +406,7 @@ docs/spec/
 ├── README.md                              # spec 索引（汇总所有 spec 状态）
 ├── <spec-name>/
 │   ├── README.md                          # spec 导航 + 目标
-│   ├── 01-goals-and-boundaries.md         # 目标 + 完成标准 + 范围
+│   ├── 01-goals-and-boundaries.md         # 目标 + 完成标准 + 范围 + 用户要求与证据
 │   ├── 02-module-breakdown.md             # 组件设计 + 接口 + 数据结构
 │   ├── 04-data-and-state.md               # 核心数据模型 + 状态流转
 │   ├── 05-validation-and-evolution.md     # 验证策略 + 测试 + 演进
