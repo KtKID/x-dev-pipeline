@@ -22,10 +22,10 @@
 | `README.md` | spec 导航、Framing Summary、推荐方案、模块导航、当前建议 |
 | `01-goals-and-boundaries.md` | 需求本质、目标充分性判断、DoD、范围、约束、不变量、追溯矩阵 |
 | `02-module-breakdown.md` | 模块划分、边界类、职责、依赖、接口、复用/新建、风险 |
+| `03-core-workflows.md` | 核心流程文字 + 时序图（含错误路径）；E2E 验收链路可选——跨模块协作唯一载体 |
 | `04-data-and-state.md` | 核心实体、数据归属、状态流转、持久化、共享结构 |
 | `05-validation-and-evolution.md` | 验证目标、smoke/e2e、单元/契约/边界测试、演进路线 |
 | `90-task-map.md` | 模块到 x-req task 的映射、排序依据、风险和前置条件 |
-| `diagrams.md` | 全量 mermaid 图集，包含总览、E2E 验证链路、模块局部图 |
 
 ## Framing Summary 落点
 
@@ -90,25 +90,26 @@ Task Map 排序规则：
 
 ## 路径引用规则
 
+> 本节是路径规则的**唯一条文正源**；机器检查由 `tools/xdev.py validate`（规则 V2）执行。其余文档只引用本节，不复读条文。
+
 spec 需求包必须能整体移动，包内链接使用当前位置可解析的相对路径。
 
-- 文档间 Markdown 链接只使用当前需求包内的相对路径：`./README.md`、`./diagrams.md`、`./02-module-breakdown.md#模块-a`
+- 文档间 Markdown 链接只使用当前需求包内的相对路径：`./README.md`、`./03-core-workflows.md`、`./02-module-breakdown.md#模块-a`
 - 包内文档由 `docs/spec/README.md` 索引进入；包内文档之间保持同层相对链接
 - 代码文件、脚本、配置路径写成不可点击的 repo 逻辑路径：`repo:src/foo/bar.ts`、`repo:package.json`
 - 生成文档中排除会随移动失效的链接形态：`../../`、`docs/spec/<spec-name>/...`、绝对路径、`file://`、Windows 盘符路径
 
 ## 图表规范
 
-所有图统一写入 `diagrams.md`，其他文档在对应位置引用 `diagrams.md` 的小节。
+图内嵌于其文字真源文件，不单设图集文件——改一个流程/模块只动一处。**默认只画 `03-core-workflows.md` 的核心时序**，其余按需：一张图的价值 = 它承载了多少别处没有的判断，总览/状态/数据关系大多是 02/04 文字的重绘视图，跨模块时序是唯一把"别处没写的协作判断"显性化的图。
 
-| 节 | 放什么图 | mermaid 类型 |
-|----|---------|-------------|
-| 总览 | 模块级依赖图：每个模块一个节点，只画模块间关系；节点写中文模块作用和关键类/函数名 | `flowchart TD` |
-| E2E 测试链路 | 从测试数据准备、用户动作、系统处理到断言的验证路径 | `flowchart LR` |
-| 模块节 | 局部组件依赖图，模块内组件包在 subgraph 内，邻居模块压成单节点 | `flowchart TD` |
-| 模块节 | 核心流程图或时序图 | `flowchart LR/TD` / `sequenceDiagram` |
-| 模块节 | 状态流转图 | `stateDiagram-v2` |
-| 模块节 | 数据关系图 | `flowchart LR` |
+| 档位 | 图 | 落点 | mermaid 类型 | 何时画 |
+|------|----|------|-------------|--------|
+| 默认 | 核心时序：最小可用路径（含错误路径）；最高风险链路可选第 2 张 | `03-core-workflows.md` | `sequenceDiagram` | 每个 spec 必画，随 01 交用户确认 |
+| 按需 | E2E 验收链路：测试数据准备 → 用户动作 → 系统处理 → 断言 | `03-core-workflows.md` | `flowchart LR` | 验收链路复杂到文字说不清时 |
+| 按需 | 模块依赖总览：每模块一节点，节点写中文作用和关键类/函数名 | `02-module-breakdown.md` 模块总览节 | `flowchart TD` | 模块 ≥4 或依赖交叉成网、表格看不清时 |
+| 按需 | 模块局部组件依赖（模块内组件包在 subgraph 内，邻居压成单节点） | `02-module-breakdown.md` 对应模块节 | `flowchart TD` | 该模块进入 x-req 且内部结构复杂时 |
+| 按需 | 状态流转 / 数据关系 | `04-data-and-state.md` 对应节 | `stateDiagram-v2` / `flowchart LR` | 文字/简记说不清时 |
 
 图表写法：
 
@@ -117,7 +118,7 @@ spec 需求包必须能整体移动，包内链接使用当前位置可解析的
 3. 单图节点上限约 12 个；超限时压缩同质节点，继续超限时拆到模块局部图
 4. `subgraph` 按模块划分；一个模块一个 subgraph，框线即模块边界，边界类节点放在框内第一位
 5. 同质重复节点压成 `×N`
-6. 图与 `02-module-breakdown.md`、`04-data-and-state.md`、`05-validation-and-evolution.md` 保持一致
+6. 图与其所在文件的文字完全一致；03 时序图中的模块/边界类名与 `02-module-breakdown.md` 一致
 7. 数据关系图只在节点内保留主键、外键、状态/类型字段；完整字段清单写入 `04-data-and-state.md`
 
 Flowchart / 局部组件图使用以下节点类：
@@ -151,7 +152,7 @@ classDef supporting fill:#191F29,stroke:#AAB4C0,color:#F5F7FA,stroke-width:1.2px
 
 ## 模板审核标准
 
-主 agent 审核时按 P0/P1 分级：
+裁判审核时按 P0/P1 分级（规则编号 R1-R8 与流程见 SKILL.md 6.2）：
 
 | 等级 | 判定 |
 |------|------|

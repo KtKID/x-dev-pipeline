@@ -48,10 +48,9 @@
 
 ## 文档导航
 
-- [图集：总览 + 各模块局部图](./diagrams.md)
 - [目标与完成标准](./01-goals-and-boundaries.md)
 - [模块设计 + 接口 + 数据结构](./02-module-breakdown.md)
-- [核心流程](./03-core-workflows.md)（如有）
+- [核心流程与时序图](./03-core-workflows.md)
 - [数据模型与状态](./04-data-and-state.md)
 - [验证策略与演进](./05-validation-and-evolution.md)
 - [Task 映射](./90-task-map.md)

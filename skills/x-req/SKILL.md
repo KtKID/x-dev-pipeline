@@ -229,6 +229,6 @@ agent1 产出后，**主 agent 亲自读产出文件**，对照确认过的需�
 - **不重复 spec 内容**：已有 spec 文档的内容 reference 它，不复制
 - **dev-checklist 直接产出**：确认步骤里已预览过，不需要用户单独再确认一次清单
 - **diagram.md 必须与 README 一致**——后续模块变化时同步更新
-- **spec 图同步**：创建 task 时如果归属 spec 的 `90-task-map.md` 标为 Phase 2/3 但现在要开发 → 先更新 task-map 状态为"开发中" + 更新 `diagrams.md` 颜色为蓝，告知用户"已同步更新 spec 图"；`diagrams.html` / `architecture.html` 仅作为 legacy spec 包迁移时的只读兼容输入
+- **spec 状态同步**：创建 task 时如果归属 spec 的 `90-task-map.md` 标为 Phase 2/3 但现在要开发 → 先更新 task-map 状态为"开发中"，告知用户"已同步更新 spec 状态"；`diagrams.html` / `architecture.html` 仅作为 legacy spec 包迁移时的只读兼容输入
 - **不要跳过确认步骤直接保存**
 - **不要进入开发执行**

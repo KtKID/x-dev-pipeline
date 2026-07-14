@@ -96,7 +96,7 @@ dev-pipeline/tasks/<task>/
 
 1. 解析输入，定位功能目录
 2. 读取 `README.md`，理解核心目标、技术设计、DoD
-3. **如果 README.md "涉及模块" 段引用了 docs/ 模块文档 → 跟读该模块文档**，获取接口/数据结构/架构上下文。同时检查：该模块在 `diagrams.md`（旧 spec 为 `diagrams.html` / `architecture.html`）的颜色是否为当前阶段（蓝）？如果不一致（还是橙/灰）→ 先更新为蓝再开发
+3. **如果 README.md "涉及模块" 段引用了 docs/ 模块文档 → 跟读该模块文档**，获取接口/数据结构/架构上下文。同时检查：归属 spec 的 `90-task-map.md` 里该模块状态是否已是"开发中"？不是 → 先更新再开发
 4. 如果存在 `plan.md`（历史 task）→ 读取了解开发策略（新 task 无此文件则跳过）
 5. 读取 `dev-checklist.md`，识别任务编号、任务标题、状态、备注
 6. 读取 `changelog.md`，了解已有决策、历史修改和已知问题
