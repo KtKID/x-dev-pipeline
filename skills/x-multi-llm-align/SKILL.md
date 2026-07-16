@@ -199,7 +199,7 @@ description: |
 <没在本次解决但记录在案的事项，比如 v0.X 之后再做的细节>
 
 ### 后续动作
-<开发流程下一步：进 x-req / x-spec / x-dev / x-qdev>
+<开发流程下一步：进 x-req / x-spec / x-dev>
 ```
 
 ---

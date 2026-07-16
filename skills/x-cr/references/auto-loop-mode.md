@@ -9,9 +9,9 @@
 | 用户说某功能不太对，需要查根因 | x-cr |
 | 用户要求 review 模块、文件、diff、PR 的正确性 | x-cr |
 | x-dev 完成后复跑验证命令 | x-verify |
-| x-qdev 低风险/标准任务收尾 | qdev 主 agent 证据闭环 |
-| x-qdev 中风险任务收尾 | 一个综合 reviewer |
-| x-qdev 高风险或用户显式完整门禁 | x-req / x-dev → x-verify → x-qa-gate |
+| README risk Q0/Q1 任务收尾 | x-dev → verify → 交付 |
+| README risk Q2 任务收尾 | x-dev → verify → RC |
+| README risk Q3 任务收尾 | x-dev → verify → R1 → R2 → R3 |
 | x-verify 通过后的流水线质量门禁 | x-qa-gate |
 | verify / qa-gate / CR 报告里的问题修复 | x-fix |
 
@@ -21,12 +21,13 @@
 x-dev -> x-verify -> x-qa-gate -> x-fix
 ```
 
-x-qdev 默认链路：
+统一开发链路：
 
 ```text
-x-qdev -> 定向验证 -> DoD 证据闭环 -> 完成
-                     ├─ Q2 -> 综合 reviewer
-                     └─ Q3 -> x-req / x-dev 完整门禁
+x-req -> risk 定级 -> x-dev -> verify
+                              ├─ Q0/Q1 -> 完成
+                              ├─ Q2 -> RC
+                              └─ Q3 -> R1 -> R2 -> R3
 ```
 
 当前手动正确性调查链路：

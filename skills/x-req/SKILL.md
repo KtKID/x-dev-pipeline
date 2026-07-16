@@ -1,56 +1,41 @@
 ---
 name: x-req
 description: |
-  需求与开发准备 skill。把确认后的需求直接写成可执行的 task 包，使用 xdev 的 scaffold、instructions 和 validate 完成机械闭环。
-  触发场景：“帮我处理需求”、“梳理需求”、“开个 task”、“新建任务”、“这个功能怎么做”、“帮我拆一下”、`x-req`、`x-plan`（重定向），以及用户提供需求文档路径或描述预计超过 2 小时的功能。
-  适用中大型功能、跨模块改动、协议或状态设计；小型局部改动转 x-qdev，架构归属未闭合时先转 x-spec。
+  需求与开发准备 skill。把确认后的需求直接写成可执行 task 包，并以 Q0-Q3 risk 驱动统一开发流程。
+  触发场景：“帮我处理需求”、“梳理需求”、“开个 task”、“新建任务”、“这个功能怎么做”、“帮我拆一下”、`x-req`，以及用户提供需求文档路径或描述预计超过 2 小时的功能。
 ---
 
-# x-req — 精简规划
+# x-req — 风险路由规划
 
-## 产物与职责
+## 产物
 
-新 task 必需 `README.md` 与 `dev-checklist.md`。涉及至少三个模块或用户明确要求图时加入 `diagram.md`。README 记录需求与更新摘要，dev-checklist 跟踪执行状态，dev-report 保存实现证据，git history 保存仓库变更。
+新 task 需要 `README.md` 与 `dev-checklist.md`；涉及至少三个模块或用户要求图时加入 `diagram.md`。README 的 `risk: Q0|Q1|Q2|Q3` 是风险唯一真源，`验收` Requirement/Scenario 是 DoD 真源，dev-report 保存 verify 证据。
 
-## 路由与现状调查
+## 定级
 
-1. 定位目标 task：新建使用 `dev-pipeline/tasks/<name>/`；更新读取同目录已有活跃产物。
-2. 阅读用户请求、关联 spec、相关模块文档和代码入口，明确需求、边界类、公开契约、数据流、失败路径和验证方式。
-3. 小型单模块任务转 `/x-qdev`；模块归属、状态模型或跨模块边界未闭合时转 `/x-spec`。
-4. 更新模式先提炼需求与架构 delta；保留已有无关内容，并在 README 顶部附近写 `updated: YYYY-MM-DD <summary>`。
-5. Q3 升级读取源 task 的 README 与 dev-report 作为只读证据。用户未指定名称时新建 `<source-name>-full`，在新 README 写入 `source-qdev: dev-pipeline/tasks/<source-name>`。
+| 等级 | 判据 | 流程 |
+|---|---|---|
+| Q0 | 单文件且没有行为分支变化 | lite task → x-dev → verify → 交付 |
+| Q1 | 局部功能或修复，没有跨模块契约变化 | lite task → x-dev → verify → 交付 |
+| Q2 | 新功能、多文件、契约或状态变化 | 一次确认 → x-dev → verify → RC |
+| Q3 | 鉴权、权限、加密、不可逆写入或迁移、公开 API/协议/schema、并发、状态机、缓存一致性 | 一次确认 → x-dev → verify → R1→R2→R3 |
 
-## 一次确认
+用户显式定级优先。Q0/Q1 直接编写 task 并在完成汇报中说明定级依据；用户可随时指定“按 Q2 走”。架构归属、状态模型或跨模块边界未闭合时转 x-spec。
 
-写入前按 `templates/confirmation.md` 展示并等待一次确认。确认内容覆盖：
+## 流程
 
-- 需求要点和归属 spec；
-- 核心目标、涉及模块和架构归属；
-- 架构拆分策略、依赖、风险与事实源；
-- 技术设计、可客观判定的 DoD、Smoke/E2E 路径与自动化测试责任；
-- checklist 预览。
-
-用户提出修改时更新确认内容并再次确认；用户取消时结束且不写入文件。
-
-## 已确认后的编写流程
-
-主 agent 直接写 task 产物：
-
-1. 运行 `python3 tools/xdev.py scaffold <task-dir>`；满足图条件时增加 `--with-diagram`。
-2. 按 `readme → dev-checklist → diagram（存在时）` 顺序运行 `instructions <artifact-id> --task <task-dir>`，每次先阅读已存在的依赖产物。
-3. 依据模板和 instruction 填写内容；删除 HTML 注释，避免把填写规则复制进产物。
-4. 运行 `python3 tools/xdev.py validate <task-dir>`；修复 V2、V8–V11 finding，直到退出码为 0。
-5. 完成四项判断自审：每条需求已经覆盖；DoD 可由命令、产物、可观察输出或明确人工结果证明；技术设计保持已确认的架构归属；checklist 每行能追溯到架构拆分、契约或依赖。
-6. 自审带来内容调整时同步下游产物并重跑 validate。
+1. 定位 task：新建使用 `dev-pipeline/tasks/<name>/`；更新先读现有 README、checklist 与 dev-report，保留无关内容并写 `updated: YYYY-MM-DD <summary>`。
+2. 调查用户请求、关联 spec、模块文档和代码入口，确定需求、边界类、公开契约、数据流、失败路径、验收场景和 risk。
+3. Q2/Q3 依据 `templates/confirmation.md` 一次展示确认；用户修改后更新并再次确认；取消则结束。
+4. 确认或 Q0/Q1 直通后，运行 `python3 tools/xdev.py scaffold <task-dir>`；涉及图时加 `--with-diagram`。
+5. 依次运行 `instructions readme`、`instructions dev-checklist`、按需 `instructions diagram`；填写模板，删除 HTML 注释。
+6. README 写入 risk；每个验收 Scenario 有 WHEN、THEN、`验证: auto|manual`；自动场景由后续 dev-report verify 块回指。
+7. 运行 `python3 tools/xdev.py validate <task-dir>`，修复 finding 直到零 finding；检查需求覆盖、验收可判定性、架构归属和 checklist 追溯。
+8. 输出 task 路径、产物、risk 依据、validate 结论和下一步 `x-dev <task-name>`。
 
 ## 内容规则
 
-- README 是文字事实源：模块、边界与依赖先在 README 表达，diagram 仅作投影。
-- DoD 采用可检查的结果；Smoke/E2E 提供围栏命令或 `manual` 标记。
-- dev-checklist 使用 `# | 任务 | 涉及文件 | 依赖 | 状态 | fix` 表头与 token+emoji 状态；依赖必须引用表中 task ID。
-- `diagram.md` 的 Mermaid 节点标签与 README「涉及模块」保持双向一致。
-- 历史 task 已有文件保持原状；活跃规划只更新上述产物。
-
-## 完成汇报
-
-汇报 task 路径、真实产物清单、`validate` 零 finding、四项判断自审结论，以及下一条命令：`x-dev <task-name>`。
+- Q0/Q1 保留核心目标与验收；Q2/Q3 还写需求要点、涉及模块、架构拆分策略和技术设计。
+- checklist 使用 `# | 任务 | 涉及文件 | 依赖 | 状态 | fix` 表头与 token+emoji 状态。
+- diagram 是 README 模块与边界的投影，节点名称保持双向一致。
+- 历史 task 保持原状；活跃 task 使用本契约。

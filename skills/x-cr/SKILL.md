@@ -92,7 +92,7 @@ x-cr 是通用的软件正确性调查入口。它合并两种常见场景：
 按优先级查找原始 spec：
 
 1. 用户当前消息中的期望行为和约束。
-2. task `README.md`、`dev-checklist.md`、`plan.md`、`changelog.md`。
+2. task `README.md`、`dev-checklist.md`、`plan.md`、`dev-report.md`。
 3. PR 描述、issue、产品文档、模块 README。
 4. 测试用例中的契约断言。
 5. 既有调用方行为和公开 API 文档。
