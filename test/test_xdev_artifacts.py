@@ -44,6 +44,10 @@ def valid_readme(modules: tuple[str, ...] = ()) -> str:
 
 - 边界明确
 
+## 技术设计
+
+- 架构归属明确
+
 ## DoD（验收清单）
 
 - [ ] 命令通过
@@ -262,6 +266,15 @@ Extra[\"Extra Module\"]
             encoding="utf-8",
         )
         self.assertFalse(any(item["rule"] == "V11" for item in self.validate(task)))
+
+    def test_v11_reports_missing_technical_design(self):
+        task = self.root / "missing-technical-design"
+        write_valid_task(task)
+        readme = valid_readme().replace("## 技术设计\n\n- 架构归属明确\n\n", "")
+        (task / "README.md").write_text(readme, encoding="utf-8")
+
+        messages = "\n".join(item["msg"] for item in self.validate(task) if item["rule"] == "V11")
+        self.assertIn("技术设计", messages)
 
     def test_spec_regression_uses_existing_v1_to_v7_path(self):
         change = ROOT / "openspec" / "changes" / "xreq-instructions-engine"

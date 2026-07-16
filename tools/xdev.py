@@ -599,7 +599,7 @@ def check_task_diagram(pkg: Path, ptype: str):
         yield finding("diagram.md", 0, "V10", f"Mermaid 节点「{rendered[name]}」未在 README 涉及模块声明")
 
 
-README_H2_REQUIREMENTS = ("核心目标", "需求要点", "涉及模块", "架构拆分策略", "DoD", "Smoke / E2E 验收用例")
+README_H2_REQUIREMENTS = ("核心目标", "需求要点", "涉及模块", "架构拆分策略", "技术设计", "DoD", "Smoke / E2E 验收用例")
 
 
 def check_task_readme(pkg: Path, ptype: str):

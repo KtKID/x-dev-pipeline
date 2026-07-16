@@ -4,3 +4,5 @@ Thumbs.db
 .serena/project.yml
 .serena/.gitignore
 .claude/settings.local.json
+test/__pycache__
+tools/__pycache__
