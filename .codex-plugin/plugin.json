@@ -31,7 +31,7 @@
     "websiteURL": "https://github.com/KtKID/x-dev-pipeline",
     "brandColor": "#3B82F6",
     "defaultPrompt": [
-      "x-qdev add dark mode toggle to settings page",
+      "x-req add dark mode toggle to settings page",
       "x-req turn this feature request into a task package",
       "x-verify run dev-report command list against the latest task",
       "x-qa-gate review the current task with risk-routed reviewers",

@@ -4,472 +4,148 @@
 
 # x-dev-pipeline
 
+[English](./README.md)
+
 **当前版本：** v0.3.6
 
-> 给 AI 辅助开发一套可记录、可审计、可回顾的工作流框架。
+> 给 AI coding agent 一套可审计的开发工作流：需求契约、实现证据、确定性验证、按风险评审。
 
-很多时候，AI coding agent 能写出代码，但执行中容易跑偏，做完以后也容易缺少足够清晰的过程信息：
+`x-dev-pipeline` 让 README 承载需求和验收场景，dev-report 承载可执行证据，git history 承载仓库改动。每个 task 走同一条风险路由。
 
-- 为什么这样改
-- 改了哪些地方
-- 中间做过哪些决策
-- 哪些问题已经处理过
-- 哪些风险还没有解决
+## 第一次使用：`/x-req`
 
-下一次继续接手时，往往只能重新问、重新看、重新梳理。
+所有任务从 `/x-req` 进入。它定级 Q0–Q3、创建精简 task 包，并续接 x-dev。
 
-`x-dev-pipeline` 想解决的，就是这个问题。
-
-它把一次性的对话式开发，变成一套更像工程的过程：先把事情做出来，再把过程留下来，最后还能继续 review、继续修、继续复盘。
-
-> 当前已在 Claude Code 上深度验证，并随仓库提供 Claude Code 与 Codex 插件 manifest。
-
-## 第一次使用，建议先从 `/x-qdev` 开始
-
-如果你是第一次体验这个仓库，建议先走轻量入口。
-
-先试一次 `/x-qdev`：
-
-```bash
-/x-qdev 给设置页增加深色模式切换
+```text
+/x-req 给设置页增加深色模式切换
 ```
 
-它最适合这些场景：
-
-- 给页面补一个小功能
-- 做一次局部优化
-- 修改一个小模块
-- 补一个交互细节
-- 做一个轻量级需求验证
-
-这时候你得到一套更接近真实开发的过程：
-
-1. AI 理解任务范围
-2. 创建任务目录
-3. 生成任务说明和开发清单
-4. 逐项实现并记录关键修改
-5. 用定向验证和 DoD 证据矩阵完成收尾
-6. 中风险任务增加一个综合 reviewer，高风险任务升级完整流程
-
-典型产物会像这样：
+首次体验通常是 Q1：x-req 记录低风险依据并生成 task，x-dev 实现，`xdev.py verify` 复跑声明的验证证据。
 
 ```text
 dev-pipeline/tasks/<task-name>/
-├── README.md
-└── dev-report.md
+├── README.md            # risk、架构、验收 Scenario
+├── dev-checklist.md     # 带依赖的执行状态
+├── diagram.md           # 可选
+└── dev-report.md        # x-dev 创建，含 fenced verify 块
 ```
 
-`dev-report.md` 记录风险等级、实际 diff、真实验证结果和每条 DoD 的证据。只有用户指定完整门禁或任务升级时才生成 verify / qa-gate / fix 报告。
-
-这也是 `x-dev-pipeline` 最适合第一次体验的地方：
-
-**先把一个小功能顺利做完，同时把开发过程留痕。**
-
-## 重点是开发稳定性
-
-很多人直接用 AI coding agent 开发时，容易遇到这些问题：
-
-- 需求不大，但过程很乱
-- 改动做完了，没有留下清晰记录
-- review 靠临场发挥，质量不稳定
-- 改完就结束，没有形成修复闭环
-- 后续接手时，很难快速知道前面发生过什么
-
-`x-dev-pipeline` 给 AI coding 工作一套更稳定、更可追踪、更像工程的节奏：
-
-**怎么让 AI 按一个更稳定、更可追踪、更像工程的节奏做事。**
-
-## 日常推荐闭环：先做，再用证据收尾
-
-日常开发里，我最推荐这条路径：
+## 一条风险路由
 
 ```text
-/x-qdev -> 定向验证 -> DoD 证据闭环 -> 完成
-                         ├─ Q2: 一个综合 reviewer
-                         └─ Q3: 升级完整流程
+用户请求 → x-req → x-dev → xdev.py verify
+                              ├─ Q0 / Q1 → 交付回执
+                              ├─ Q2 → x-qa-gate RC
+                              └─ Q3 → x-qa-gate R1 → R2 → R3
+                                           │
+                                   发现问题 → x-fix → 增量复审
 ```
 
-### `/x-qdev`
+| risk | 典型范围 | verify 通过后的路径 |
+|------|----------|---------------------|
+| Q0 | 单文件且没有行为分支变化 | 交付回执 |
+| Q1 | 局部功能或修复，没有跨模块契约变化 | 交付回执 |
+| Q2 | 新功能、多文件、契约或状态变化 | RC 综合评审 |
+| Q3 | 安全、不可逆写入、公开 API/schema、并发或状态机变化 | R1 → R2 → R3 |
 
-适合把小功能、小改动、小模块快速落地。Q0/Q1 由主 agent 根据原始请求、实际 diff 和真实验证结果直接闭环。
+用户可显式指定 risk。Q0/Q1 直接准备并执行；Q2/Q3 在写 task 文件前展示一次确认。
 
-### `/x-verify`
+## 验收与证据
 
-Gate ① 事实验证。用于 x-dev 完整流程，或用户明确要求 qdev 进入完整门禁时复跑命令清单。
+README 的验收使用 Requirement/Scenario：
 
-### `/x-qa-gate`
+```markdown
+### Requirement: 主题设置
 
-Gate ② 流水线质量门禁。用于 Q3 和完整开发流程，串行运行 R1 spec、R2 边界、R3 测试真实性审查。
+#### Scenario: 切换后重载仍保留
+- **WHEN** 用户启用深色模式并刷新页面
+- **THEN** 页面保持深色模式
+- 验证: auto
+```
 
-### `/x-fix`
+每个 `验证: auto` Scenario 在 `dev-report.md` 有一个回指它的 verify 块：
 
-根据 verify / qa-gate / CR 报告继续修复，让调查和评审形成闭环；按回流规则决定回到哪个节点或报告重审。
+````markdown
+```verify
+id: S1
+scenario: 切换后重载仍保留
+cmd: npm test -- theme-setting
+expect_exit: 0
+expect_contains: passed
+```
+````
 
-qdev 默认路径特别适合：
+`python3 tools/xdev.py verify <task-dir> --json` 会复跑 auto 块、比较 exit 和输出片段、列出 manual 步骤，并报告缺少证据回指的自动场景。退出码 0 表示自动事实通过；1 表示命令或覆盖失败；2 表示输入、路径或格式错误。
 
-- 小功能迭代
-- 页面交互补充
-- 模块微调
-- 局部优化
-- 小范围重构
+## 命令
 
-它的重点是让小任务以更少上下文获得直接、可追踪的正确性证据。
+| 命令 | 职责 |
+|------|------|
+| `/x-req` | 定级 Q0–Q3，创建或更新 task 包 |
+| `/x-dev` | 实现 checklist，并写 verify 证据 |
+| `/x-verify` | 执行确定性 Gate ①，诊断失败事实 |
+| `/x-qa-gate` | 执行 Gate ②：Q2 用 RC，Q3 用 R1/R2/R3 |
+| `/x-fix` | 批量修复 verify、gate 或 CR 发现 |
+| `/x-cr` | 调查已知正确性问题、模块、diff 或 PR |
+| `/x-spec` | 产出系统级架构与 task 映射 |
+| `/x-multi-llm-align` | 对齐协议、数据结构或流程 |
+| `/x-audit-perf` | 独立性能巡检 |
+| `/x-audit-style` | 独立规范巡检 |
+| `/x-audit-arch` | 独立架构巡检 |
 
-## 你会得到什么
+## 确定性引擎
 
-使用 `x-dev-pipeline`，你得到一组可以继续使用、继续追踪、继续回顾的产物。
-
-典型情况下，你会得到这些内容：
-
-- 任务目录
-- 任务说明
-- 开发清单
-- 开发报告
-- 代码审查报告
-- 修复报告或轻量修补单
-
-这些产物的意义在于：
-
-- 有记录：知道改了什么
-- 可审计：知道为什么这样改
-- 可回顾：下次还能接着做
-- 可复盘：能回头看决策和问题
-
-这也是这个仓库最核心的价值之一：
-
-**把事情做完，也把开发过程沉淀成真正可追踪的工程资产。**
-
-## 当任务更复杂时，再进入完整链路
-
-`x-dev-pipeline` 同时包含 `/x-qdev` 和完整 spec-to-gate 链路。
-
-对于更复杂的任务，它提供完整开发流程：
+`tools/xdev.py` 承担机械规则：
 
 ```text
-x-spec -> x-req -> x-dev -> x-verify -> x-qa-gate -> x-fix
-
-x-qdev -> 定向验证 -> DoD 证据闭环
-                      ├─ Q2 综合 reviewer
-                      └─ Q3 升级上方完整流程
+validate [pkg...]                 校验 spec、change、task 契约
+status <task-dir> [--json]        解析 checklist 进度
+graph <task-dir> [--json]         计算 ready task 与并行批次
+instructions <artifact> --task    返回 task 产物填写规则
+scaffold <task-dir>               只创建缺失 task 产物
+verify <task-dir> [--json]        执行证据并对账 Scenario
 ```
 
-独立巡检按需触发，位于主流程之外：
+task 校验覆盖 V8–V12：必需文件、checklist 契约、可选图一致性、README risk 与必需章节、Requirement/Scenario 结构。
 
-- `/x-cr` 贝叶斯软件正确性调查（已知问题 / 模块 / diff / PR）
-- `/x-audit-perf` 性能巡检（手动 / 大里程碑）
-- `/x-audit-style` 规范巡检（手动 / 周期）
-- `/x-audit-arch` 架构巡检：架构一致性 + 单一事实源（手动 / 大里程碑 / 重构后）
+## 报告与回流
 
-独立对齐工具也按需触发：
-
-- `/x-multi-llm-align` 两个子 agent 之间的协议、数据结构和流程对齐
-
-你可以这样理解：
-
-### 小任务
-
-直接从 `/x-qdev` 开始，适合快速完成、快速落地。
-
-### 中等任务
-
-从 `/x-req -> /x-dev` 开始，适合需要明确需求和执行计划的开发任务。
-
-### 大任务
-
-走完整链路，适合系统设计、复杂模块、架构级调整。
-
-推荐形态：
-
-- 小事先轻
-- 大事再稳
-- 收尾保持证据闭环，高风险任务进入 review 和 fix
-
-## 各命令分别做什么
-
-### `/x-qdev`
-
-轻量级快速开发入口。保存用户原始请求，按 Q0-Q3 风险分流，运行定向验证并建立 DoD 证据矩阵。Q0/Q1 由主 agent 完成，Q2 使用一个综合 reviewer，Q3 升级完整流程。
-
-### `/x-verify`
-
-Gate ① 事实验证。读 `dev-pipeline/tasks/<task>/dev-report.md` 声明的验证命令清单和 task README 的 Smoke/E2E 验收用例，逐条复跑，对比实际 exit code 与关键输出片段（manual 用例列入待人工验收）。任一不一致即生成 `reports/verify/verify-report-*.md` 并触发 x-fix 批量修。
-
-### `/x-qa-gate`
-
-Gate ② 流水线质量门禁。按风险路由：默认线 dispatch 一个综合 reviewer（RC）一轮列全 spec / 边界 / 测试真实性全部问题；高危改动（鉴权/不可逆写入/公开 API/并发等）串行 dispatch R1 spec 正确性 → R2 边界正确性 → R3 测试真实性。聚合报告写到 `reports/qa-gate/qa-gate-report-*.md`，并在对话中输出分级发现回执。
-
-### `/x-cr`
-
-贝叶斯软件正确性调查。覆盖用户已知问题和模块正确性 review，按“候选原因-证据-置信度更新”定位根因，再判断根因属于原始 spec 不一致、实现过程偏移、spec 缺口、环境/数据问题或证据不足。报告写到 `reports/cr/cr-report-*.md`。
-
-### `/x-fix`
-
-按 verify / qa-gate / CR 报告修复。在流水线门禁里，按发现清单一次批量修完本轮全部问题（每修一个 P0 固化一条可复跑反例），交回触发 reviewer 增量复审；fix-attempts 按轮计，与 verify/qa-gate 共享 3 轮上限。
-
-### `/x-audit-perf`（独立巡检）
-
-性能巡检 skill，位于主流程之外。手动或大里程碑触发，输出 `reports/audit/audit-perf-*.md`。
-
-### `/x-audit-style`（独立巡检）
-
-代码规范巡检 skill，位于主流程之外。手动或周期触发，输出 `reports/audit/audit-style-*.md`。
-
-### `/x-audit-arch`（独立巡检）
-
-架构巡检 skill，位于主流程之外。聚焦架构一致性（模块归属、分层、边界类复用、命名语义、依赖健康）与单一事实源（schema/枚举/默认值/规则多处重复并已漂移）。手动、大里程碑或重构后触发，输出 `reports/audit/audit-arch-*.md`。
-
-### `/x-req`
-
-需求与 task 准备。一次确认后由主 agent 直接写入精简 task 包：`README.md`、`dev-checklist.md`，涉及三个以上模块或用户明确要求图时加入 `diagram.md`。`xdev.py scaffold`、`instructions` 与 `validate` 负责机械结构；README 记录需求，`dev-report.md` 记录实现证据，git history 记录仓库变更。
-
-```text
-dev-pipeline/tasks/<task-name>/
-├── README.md
-├── dev-checklist.md
-├── diagram.md      # 可选
-└── dev-report.md   # 开发阶段创建
-```
-
-### `/x-plan`（兼容入口）
-
-已废弃别名，调用会重定向到 `/x-req`。计划产物位于 task README 与 `dev-checklist.md`；多模块任务或明确要求图时生成 `diagram.md`。
-
-### `/x-dev`
-
-按计划执行开发。开发清单记录状态，`dev-report.md` 记录实现与验证证据，git history 记录仓库变更。
-
-### 确定性引擎（`tools/xdev.py`）
-
-确定性工具层把机械约束从 skill 散文移入命令：
-
-- **`xdev.py validate [pkg...]`**：校验 spec/change 包的 V1–V7，以及显式 task 包的 V2、V8–V11（精简文件集、checklist 契约、可选 diagram 一致性、README 验收证据）。
-- **`xdev.py status <task-dir> [--json]`**：解析 `dev-checklist.md`，输出任务状态与进度。
-- **`xdev.py graph <task-dir> [--json]`**：按依赖给出可执行任务、拓扑序与并行批次。
-- **`xdev.py instructions <artifact-id> --task <task-dir> [--json]`**：返回单个 task 产物的模板、填写规则、输出路径与依赖事实。
-- **`xdev.py scaffold <task-dir> [--with-diagram] [--json]`**：只创建缺失产物，逐字节保留已有文件。
-
-`/x-req` 在确认后执行 `scaffold → instructions → validate`；`/x-dev` 在派发前读取 `status` 与 `graph`。退出码：0 成功；1 finding 或依赖环；2 用法或 IO 错误。
-
-### `/x-spec`
-
-系统方案规划。适合更大的项目、复杂模块、架构设计或长期演进任务。
-
-### `/x-multi-llm-align`
-
-两个子 agent 之间的协议、数据结构和流程对齐。适合 contract review、实现方反馈收敛，以及两个子 agent 分别代表实现方立场的多轮协议确认。
+- Gate ① 全过只输出回执；失败生成 `reports/verify/verify-report-*.md`，交 x-fix。
+- Gate ② 聚合 reviewer 发现到 `reports/qa-gate/qa-gate-report-*.md`。
+- x-fix 一次处理完整发现清单；verify 与 Gate ② 共享既有三轮 fix-counter。
+- manual 验收步骤持续显示在 verify 回执，直到用户确认。
 
 ## 安装
 
-这个仓库随 v0.3.6 提供两套 host 的插件元数据：
+仓库同时提供 Claude Code 与 Codex 的 manifest：
 
 ```text
-.claude-plugin/plugin.json          # Claude Code 插件 manifest
-.claude-plugin/marketplace.json     # Claude Code 本地 marketplace
-.codex-plugin/plugin.json           # Codex 插件 manifest
-.agents/plugins/marketplace.json    # Codex repo 级 marketplace
+.claude-plugin/plugin.json
+.claude-plugin/marketplace.json
+.codex-plugin/plugin.json
+.agents/plugins/marketplace.json
 ```
 
-### 一键安装（推荐）
-
-从 GitHub `main` 分支安装 Claude Code 插件：
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/KtKID/x-dev-pipeline/main/install.sh | bash
-```
-
-### Claude Code（手动）
+Claude Code：
 
 ```bash
 git clone https://github.com/KtKID/x-dev-pipeline.git ~/.claude/plugins/x-dev-pipeline
-```
-
-注册本地 marketplace：
-
-```bash
-cd ~/.claude/plugins/x-dev-pipeline
-claude plugin marketplace add ./.claude-plugin/marketplace.json
-```
-
-安装插件：
-
-```bash
+claude plugin marketplace add ~/.claude/plugins/x-dev-pipeline/.claude-plugin/marketplace.json
 claude plugin install x-dev-pipeline@x-dev-pipeline --scope user
 ```
 
-### Codex
+Codex：把 `.agents/plugins/marketplace.json` 中的仓库条目加入 marketplace，重启 Codex 后从本地插件目录安装 `x-dev-pipeline`。
 
-这个仓库现在自带 repo 级 Codex marketplace：`.agents/plugins/marketplace.json`，同时提供 Codex 插件 manifest：`.codex-plugin/plugin.json`。
+## 状态标记
 
-直接在 Codex 里打开这个仓库，Local 就可以从工作区发现 `x-dev-pipeline`。
-
-克隆到本地插件目录：
-
-```bash
-mkdir -p ~/.codex/plugins
-git clone https://github.com/KtKID/x-dev-pipeline.git ~/.codex/plugins/x-dev-pipeline
-```
-
-Windows 环境可以直接运行下面的脚本，把当前 checkout 同步到 Codex，并刷新用户级 marketplace 文件：
-
-```powershell
-./install-codex.ps1
-```
-
-脚本会更新：
-
-- `~/.agents/plugins/marketplace.json`
-- `~/.codex/marketplace.json`
-- `~/.codex/plugins/marketplace.json`
-
-目录关系如下：
-
-```text
-~/
-├── .agents/
-│   └── plugins/
-│       └── marketplace.json
-└── .codex/
-    ├── marketplace.json
-    └── plugins/
-        ├── marketplace.json
-        └── x-dev-pipeline/
-```
-
-Codex 本地插件安装方式是：用户级 marketplace 文件包含本地 marketplace 条目后，再通过交互式插件目录安装：
-
-```bash
-codex
-/plugins
-```
-
-手动 marketplace 条目：
-
-```json
-{
-  "name": "local-plugins",
-  "interface": {
-    "displayName": "Local Plugins"
-  },
-  "plugins": [
-    {
-      "name": "x-dev-pipeline",
-      "source": {
-        "source": "local",
-        "path": "./.codex/plugins/x-dev-pipeline"
-      },
-      "policy": {
-        "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
-      },
-      "category": "Productivity"
-    }
-  ]
-}
-```
-
-参考示例：
-
-```text
-examples/codex-marketplace.json
-```
-
-这个仓库里的 repo 级 marketplace 使用 `../..`，这样 Codex 可以从 `.agents/plugins/marketplace.json` 解析回插件根目录。
-
-路径规则：
-
-- `source.path` 是相对 `~/.agents/plugins/marketplace.json` 所在根目录解析的
-- 对个人 marketplace，官方文档里的常见写法就是 `./.codex/plugins/<plugin-name>`
-
-如果你已经有 `~/.agents/plugins/marketplace.json`，把上面的 `plugins` 条目追加进去并保留已有插件。保存后重启 Codex，然后运行：
-
-```bash
-codex
-/plugins
-```
-
-在插件目录里找到 `x-dev-pipeline` 并安装即可。(可能需要切换本地)
-
-安装完成后，第一次体验建议直接试：
-
-```bash
-/x-qdev 给设置页增加深色模式切换
-```
-
-## 适合谁
-
-这个仓库特别适合：
-
-- 用 AI coding agent 做日常开发，希望过程更规范的人
-- 希望 AI 开发更像工程化协作的人
-- 想让每次改动都留下清晰记录的人
-- 希望 review 和 fix 形成闭环的人
-- 想逐步建立稳定开发节奏的人
-
-## 当前适配边界
-
-这个仓库当前适合接受轻量工作流层的团队和个人。下面这些需求更适合使用其他工具：
-
-- 完全零配置、开箱即用的通用代码助手
-- 非常重的企业流程管理平台
-
-## 适配其他开发工具
-
-`x-dev-pipeline` 的工作流设计可以跨 AI coding 工具使用。Claude Code 是当前验证最深的 host，核心理念适用于所有 AI coding agent：
-
-- 小任务应该快速落地
-- 每次改动都应该有记录
-- 每一步决策都应该能追溯
-- review 应该留下书面报告
-- 修复应该形成闭环
-
-如果你使用的是其他工具（Cursor、Codex、Windsurf、Cline 等），可以直接告诉 AI：
-
-> "在保持 x-dev-pipeline 工作流不变的情况下，帮我适配到 Cursor（或你使用的工具）。"
-
-AI 会根据目标工具的目录结构和交互方式，自动调整任务目录位置和触发方式，同时保留完整的工作流链路。
-
-> **提示**：当前 skill 中的任务产出目录默认是 `dev-pipeline/tasks/`。适配时 AI 可能会询问你是否要更改为其他路径（如 `.codex/tasks/`），根据你的实际情况确认即可。
-
-## 统一状态标记
-
-所有 skill 共享一套任务状态体系：
-
-| 符号 | 状态 | 说明 |
-|------|------|------|
-| ⏳ | 未开始 | 等待处理 |
-| ▶️ | 进行中 | 正在执行 |
-| 🟡 | 待测试 | 开发完成，等待验证 |
-| 🔴 | 测试失败 | 需要修复 |
-| 🟢 | 测试通过 | 验证通过，等待 review 确认 |
-| ✅ | 已完成 | review 确认后标记 |
-
-### 优先级
-
-| 优先级 | 说明 |
-|--------|------|
-| P0 | 阻塞性问题，必须立即处理 |
-| P1 | 重要功能，必须完成 |
-| P2 | 优化或增强，可后续处理 |
-
-## 这个仓库的核心理念
-
-目标是让开发：
-
-**复杂工作有结构，简单任务保持轻。**
-
-你可以把它当成一套按任务复杂度自由选择的工作流工具链。
-
-## 路线图
-
-接下来会继续强化这些方向：
-
-- 更丝滑的 `/x-qdev` 首次体验
-- 更清晰的任务产物结构
-- 更强的 review / fix 闭环
-- 更贴近真实项目的使用示例
-- 更好的多语言、多技术栈支持
-- 更完善的 Claude Code 和 Codex 适配体验
-- 更多开发工具的官方适配（Cursor、Windsurf 等）
+| 标记 | 含义 |
+|------|------|
+| `[ ] ⏳` | 未开始 |
+| `[ ] ▶️` | 进行中 |
+| `[ ] 🟡` | 等待声明验证 |
+| `[!] 🔴` | 验证失败 |
+| `[x] 🟢` | 验证通过 |
+| `[x] ✅` | risk 路径完成 |
 
 ## License
 
