@@ -2,6 +2,7 @@
 name: x-req
 description: |
   需求与开发准备 skill。把确认后的需求直接写成可执行的 task 包，使用 xdev 的 scaffold、instructions 和 validate 完成机械闭环。
+  触发场景：“帮我处理需求”、“梳理需求”、“开个 task”、“新建任务”、“这个功能怎么做”、“帮我拆一下”、`x-req`、`x-plan`（重定向），以及用户提供需求文档路径或描述预计超过 2 小时的功能。
   适用中大型功能、跨模块改动、协议或状态设计；小型局部改动转 x-qdev，架构归属未闭合时先转 x-spec。
 ---
 
