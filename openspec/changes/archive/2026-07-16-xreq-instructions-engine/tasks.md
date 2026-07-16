@@ -39,4 +39,4 @@
 - [x] 4.2 提供完整的 `python3 -m unittest discover -s test` 输出和真实的 `instructions dev-checklist --task <fixture> --json` 样例。（48 tests OK；fixture 为 `/tmp/xreq-open-spec-evidence-20260717`）
 - [x] 4.3 提供端到端测试夹具目录树、零 finding 的 validate 输出、scaffold 幂等证据，以及 V8/V9/V10/V11 错误测试夹具结果摘要。（fixture 含 README.md、dev-checklist.md；validate 零 finding；二次 scaffold 全部 skipped；新增“技术设计”反例后 8 个 V8–V11 fixture tests、总计 49 tests OK）
 - [x] 4.4 提供 x-req 新旧行数、目标 workflow 引用搜索结果，以及每项实现偏离的明确理由。（234 → 56 行；x-req/x-dev/x-qdev 范围零命中；Gate 与 cr 系列依 design.md 范围边界保留到方案 A 第②步；V11 已按 README 模板补入“技术设计”并增加独立坏 fixture）
-- [ ] 4.5 OpenSpec 变更在评审期间保持活跃；实现、验证和用户验收完成后执行归档。
+- [x] 4.5 OpenSpec 变更已完成评审、实现与验证；归档后将 capability delta 写入主 spec。（2026-07-17：用户已授权进入方案 A 第②步，归档作为该单的显式前置门禁。）

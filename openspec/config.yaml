@@ -1,0 +1,22 @@
+schema: spec-driven
+
+context: |
+  项目：x-dev-pipeline，一个由 skill 驱动的开发工作流插件。
+  确定性工作流机制位于 tools/xdev.py；skills 保留判断类工作。
+  Python 工具仅使用标准库，测试采用 unittest 和临时目录 fixture。
+  当前尚待提交的 xdev-orchestration-engine 工作是本变更的前置条件。
+  解析器可见的 checklist 契约保持稳定，仅允许本变更明确声明的替换。
+
+rules:
+  proposal:
+    - 破坏性的 skill 与产物契约变更必须标记为 BREAKING。
+    - 明确列出整体方案后续阶段的范围。
+  specs:
+    - 每条 Requirement 必须包含至少一个具体 Scenario。
+    - 明确定义 CLI 输出、退出码、幂等性和兼容行为。
+  design:
+    - 分开记录当前仓库事实与拟议行为。
+    - 记录备选方案及每项边界决策的选择依据。
+  tasks:
+    - "保持指定的三段提交：代码与测试、skills、仓库文档。"
+    - 在实现任务前设置前置门禁。
