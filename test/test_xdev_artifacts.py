@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""xdev task 产物引擎与 V8-V11 校验的标准库测试。"""
+"""xdev task 产物引擎与 V8-V12 校验的标准库测试。"""
 
 from __future__ import annotations
 
@@ -30,6 +30,8 @@ def valid_readme(modules: tuple[str, ...] = ()) -> str:
     module_lines = "\n".join(f"- {module}" for module in modules)
     return f"""# task
 
+risk: Q2
+
 ## 核心目标：可验证的目标
 
 ## 需求要点
@@ -48,19 +50,46 @@ def valid_readme(modules: tuple[str, ...] = ()) -> str:
 
 - 架构归属明确
 
-## DoD（验收清单）
+## 验收
 
-- [ ] 命令通过
+### Requirement: task 可验证
 
-## Smoke / E2E 验收用例
+task SHALL 有可复跑证据。
 
-```bash
-python3 -m unittest
-```
+#### Scenario: 单元测试通过
+
+- **WHEN** 开发者执行单元测试
+- **THEN** 测试退出码为 0
+- 验证: auto
 
 ### 自动化测试责任
 
-- x-dev 在 dev-report.md 记录验证命令。
+- x-dev 在 dev-report.md verify 块记录验证命令。
+"""
+
+
+def valid_q0_readme() -> str:
+    return """# task
+
+risk: Q0
+
+## 核心目标
+
+- 最小目标
+
+## 验收
+
+### Requirement: 最小行为
+
+#### Scenario: 人工检查
+
+- **WHEN** 用户执行操作
+- **THEN** 看到预期结果
+- 验证: manual
+
+### 自动化测试责任
+
+- 不需要自动化测试。
 """
 
 
@@ -257,12 +286,12 @@ Extra[\"Extra Module\"]
     def test_v11_reports_missing_structure_and_accepts_manual(self):
         task = self.root / "readme"
         write_valid_task(task)
-        (task / "README.md").write_text("# task\n\n## 核心目标\n", encoding="utf-8")
+        (task / "README.md").write_text("# task\n\nrisk: Q2\n\n## 核心目标\n", encoding="utf-8")
         findings = self.validate(task)
         self.assertTrue(any(item["rule"] == "V11" for item in findings))
 
         (task / "README.md").write_text(
-            valid_readme().replace("```bash\npython3 -m unittest\n```", "manual: 点击并检查结果"),
+            valid_q0_readme(),
             encoding="utf-8",
         )
         self.assertFalse(any(item["rule"] == "V11" for item in self.validate(task)))
@@ -276,10 +305,42 @@ Extra[\"Extra Module\"]
         messages = "\n".join(item["msg"] for item in self.validate(task) if item["rule"] == "V11")
         self.assertIn("技术设计", messages)
 
+    def test_v11_accepts_q0_lite_and_rejects_missing_or_invalid_risk(self):
+        task = self.root / "risk"
+        write_valid_task(task)
+        (task / "README.md").write_text(valid_q0_readme(), encoding="utf-8")
+        self.assertEqual(self.validate(task), [])
+
+        (task / "README.md").write_text(valid_q0_readme().replace("risk: Q0\n\n", ""), encoding="utf-8")
+        messages = "\n".join(item["msg"] for item in self.validate(task) if item["rule"] == "V11")
+        self.assertIn("risk", messages)
+
+        (task / "README.md").write_text(valid_q0_readme().replace("risk: Q0", "risk: trivial"), encoding="utf-8")
+        messages = "\n".join(item["msg"] for item in self.validate(task) if item["rule"] == "V11")
+        self.assertIn("risk", messages)
+
+    def test_v12_reports_incomplete_requirement_and_scenario(self):
+        task = self.root / "acceptance"
+        write_valid_task(task)
+        broken = valid_readme().replace("- **WHEN** 开发者执行单元测试\n", "")
+        broken = broken.replace("- 验证: auto", "- 验证: maybe")
+        (task / "README.md").write_text(broken, encoding="utf-8")
+        messages = "\n".join(item["msg"] for item in self.validate(task) if item["rule"] == "V12")
+        self.assertIn("WHEN", messages)
+        self.assertIn("验证", messages)
+
+        no_scenario = valid_readme().replace(
+            "#### Scenario: 单元测试通过\n\n- **WHEN** 开发者执行单元测试\n- **THEN** 测试退出码为 0\n- 验证: auto\n",
+            "",
+        )
+        (task / "README.md").write_text(no_scenario, encoding="utf-8")
+        messages = "\n".join(item["msg"] for item in self.validate(task) if item["rule"] == "V12")
+        self.assertIn("Requirement", messages)
+
     def test_spec_regression_uses_existing_v1_to_v7_path(self):
-        change = ROOT / "openspec" / "changes" / "xreq-instructions-engine"
-        result = xdev.validate_pkg(change, include_legacy=False)
-        self.assertEqual(result["type"], "change")
+        spec = ROOT / "openspec" / "specs" / "xdev-task-artifact-engine"
+        result = xdev.validate_pkg(spec, include_legacy=False)
+        self.assertEqual(result["type"], "capability")
         self.assertEqual(result["findings"], [])
 
 
@@ -295,3 +356,20 @@ class TestScaffoldEndToEnd(unittest.TestCase):
             self.assertEqual(code, 0, stderr)
             payload = json.loads(stdout)
             self.assertEqual(payload["total_findings"], 0)
+            (task / "dev-report.md").write_text(
+                """# report
+
+```verify
+id: S1
+scenario: 单元测试通过
+cmd: python3 -c "print('OK')"
+expect_contains: OK
+```
+""",
+                encoding="utf-8",
+            )
+            code, stdout, stderr = capture_main(["verify", str(task), "--json"])
+            self.assertEqual(code, 0, stderr)
+            verify = json.loads(stdout)
+            self.assertEqual([item["id"] for item in verify["pass"]], ["S1"])
+            self.assertEqual(verify["manual"], [])

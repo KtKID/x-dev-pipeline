@@ -1,26 +1,35 @@
 # Dev Report — <task-name> — YYYYMMDD-HHmmss
 
-## 风险等级（Gate ② 路由依据）
-
-> 高危判据（命中任一即 high）：鉴权/权限/加密；不可逆数据写入/迁移；公开 API/协议/schema 变更；并发/状态机/缓存一致性。
-
-risk: default / high（写明命中的判据）
-
 ## 改动文件清单
-- <绝对路径或仓库相对路径>
-- ...
 
-## 验证命令清单
-> ⚠️ **本节是 x-verify 的输入。x-verify 会复跑下表全部命令并对比 exit code 与关键输出。**
-> ⚠️ 至少必须包含一条"测试"类命令；项目无测试框架时必须显式写 `no-test-framework: true` 行 + 理由。
-> ⚠️ 本清单必须包含本次改动对应的单元/契约/边界测试命令；README 写有 smoke/e2e 验收用例时，必须列出对应命令或人工验收步骤。
+- <仓库相对路径>
 
-| 命令 | 工作目录 | 预期 exit | 关键输出片段（用于 grep 校验） |
-|------|---------|----------|------------------------------|
-| `npm run build` | 项目根 | 0 | `Compiled successfully` |
-| `npm test` | 项目根 | 0 | `Tests: 42 passed` |
-| `npm run lint` | 项目根 | 0 | `0 errors` |
+## 验证证据
+
+> 本节是 `python3 tools/xdev.py verify <task-dir>` 的唯一自动输入。
+> 至少保留一条测试类 auto 块；没有测试框架时写 `no-test-framework: true` 与理由，并用 manual 块记录可复现人工步骤。
+> README 中每个 `验证: auto` 的 Scenario 都必须有一个 auto 块用 `scenario:` 精确回指。
+
+```verify
+id: S1
+scenario: <README 验收 Scenario 名>
+cmd: python3 -m unittest discover -s test
+cwd: .
+expect_exit: 0
+expect_contains: OK
+mode: auto
+```
+
+```verify
+id: M1
+scenario: <README 人工验收 Scenario 名>
+mode: manual
+steps: <可复现的人工验收步骤>
+```
+
+字段说明：`id` 在本报告内唯一；`cwd` 相对仓库根且可省略；`expect_exit` 缺省为 0；`expect_contains` 可重复；`timeout` 仅在显式填写时生效；manual 块不执行命令。
 
 ## 自检结论
-本人（x-dev；或用户指定完整门禁的 x-qdev）已在本机完整运行上述命令，确认全部通过。
+
+本人（x-dev）已在本机运行全部 auto verify 命令，并确认结果与本报告一致。
 本报告由 <skill 名> 于 <UTC 时间戳> 生成。

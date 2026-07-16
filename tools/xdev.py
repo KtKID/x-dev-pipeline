@@ -18,7 +18,8 @@
   V8 task 包包含 README.md 与 dev-checklist.md（diagram.md 可选）
   V9 task checklist 使用固定表头、合法状态和存在的依赖 ID
   V10 可选 diagram 的 Mermaid 节点与 README「涉及模块」双向一致
-  V11 task README 的必需章节、自动化测试责任和 Smoke/E2E 证据
+  V11 task README 的 risk 与按等级要求的章节
+  V12 task README 验收 Requirement/Scenario 结构与验证标记
 
 用法：
   python3 tools/xdev.py validate [包目录 ...] [--include-legacy] [--json]
@@ -47,6 +48,9 @@
   python3 tools/xdev.py scaffold <task-dir> [--with-diagram] [--json]
   增量创建 README.md、dev-checklist.md 与可选 diagram.md；已有文件逐字节保留。
 
+  python3 tools/xdev.py verify <task-dir> [--json] [--only <id>]
+  解析 dev-report 的 fenced verify 块，复跑自动命令并对账 README 自动验收场景。
+
 退出码：0 正常；1 存在 finding 或依赖环；2 用法或 IO 错误。
 """
 
@@ -55,6 +59,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -79,6 +84,10 @@ H4_RE = re.compile(r"^####\s+")
 H2_RE = re.compile(r"^##\s+")
 DELTA_HEAD_RE = re.compile(r"^##\s+(ADDED|MODIFIED|REMOVED)\s+Requirements\s*$")
 TABLE_SEP_RE = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
+RISK_RE = re.compile(r"^risk:\s*(\S+)\s*$", re.IGNORECASE)
+VERIFY_FENCE_RE = re.compile(r"^\s*```verify\s*$", re.IGNORECASE)
+FENCE_END_RE = re.compile(r"^\s*```\s*$")
+VALIDATION_RE = re.compile(r"^\s*[-*+]?\s*验证:\s*(auto|manual)\s*$", re.IGNORECASE)
 
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 TASK_CHECKLIST_HEADER = ["#", "任务", "涉及文件", "依赖", "状态", "fix"]
@@ -91,7 +100,7 @@ TASK_STATUS_EMOJIS = tuple(emoji for emojis in TASK_STATUS_PAIRS.values() for em
 
 INSTRUCTION_SUFFIX = "以上规则与模板内 HTML 注释用于填写约束；完成产物时删除模板注释，不要复制规则文字。"
 
-README_INSTRUCTION = """先将已确认的需求逐条写入 README。核心目标、需求要点、涉及模块、架构拆分策略、技术设计、可客观验证的 DoD 与 Smoke/E2E 验收路径必须相互可追溯；自动化测试责任应明确交给 x-dev，并由 dev-report 记录真实命令和结果。Smoke/E2E 优先提供可执行命令，交互验收写明 manual。\n\n""" + INSTRUCTION_SUFFIX
+README_INSTRUCTION = """先写 README 头部 risk: Q0|Q1|Q2|Q3。Q0/Q1 至少含核心目标与验收；Q2/Q3 还含需求要点、涉及模块、架构拆分策略和技术设计。验收由 Requirement/Scenario 组成：每个 Scenario 必须有 WHEN、THEN 与验证: auto|manual；自动场景必须由 dev-report verify 块以 scenario 回指。自动化测试责任放在验收节内，x-dev 记录真实 verify 证据。\n\n""" + INSTRUCTION_SUFFIX
 CHECKLIST_INSTRUCTION = """开发清单从 README 的架构拆分策略推导。P0 覆盖契约、边界入口和核心状态，P1 覆盖适配集成与主要验证，P2 覆盖增强；每行关联涉及文件、依赖和状态。核心逻辑、持久化迁移、安全、跨模块集成和公共 API 变更标注 🔍；同优先级且无依赖、无写冲突的任务可以并行。\n\n""" + INSTRUCTION_SUFFIX
 DIAGRAM_INSTRUCTION = """README 是架构文字事实源，diagram 是只读投影。将 README 的涉及模块、边界类和依赖关系映射为 Mermaid 节点与连线；模块名保持一致，按模块划分 subgraph，并压缩同质重复节点。\n\n""" + INSTRUCTION_SUFFIX
 
@@ -599,7 +608,23 @@ def check_task_diagram(pkg: Path, ptype: str):
         yield finding("diagram.md", 0, "V10", f"Mermaid 节点「{rendered[name]}」未在 README 涉及模块声明")
 
 
-README_H2_REQUIREMENTS = ("核心目标", "需求要点", "涉及模块", "架构拆分策略", "技术设计", "DoD", "Smoke / E2E 验收用例")
+LITE_README_H2_REQUIREMENTS = ("核心目标", "验收")
+FULL_README_H2_REQUIREMENTS = (
+    "核心目标", "需求要点", "涉及模块", "架构拆分策略", "技术设计", "验收",
+)
+RISK_VALUES = {"Q0", "Q1", "Q2", "Q3"}
+
+
+def h2_section(lines: list[str], prefix: str) -> tuple[int | None, int]:
+    """返回指定 H2 的起始与结束索引；缺失时起始为 None。"""
+    start = next(
+        (index for index, line in enumerate(lines) if H2_RE.match(line) and line[3:].strip().startswith(prefix)),
+        None,
+    )
+    if start is None:
+        return None, len(lines)
+    end = next((index for index in range(start + 1, len(lines)) if H2_RE.match(lines[index])), len(lines))
+    return start, end
 
 
 def check_task_readme(pkg: Path, ptype: str):
@@ -607,24 +632,93 @@ def check_task_readme(pkg: Path, ptype: str):
     if not readme.exists():
         return
     lines = read_text(readme).splitlines()
+    risk_entries = [(line_number, match.group(1).upper()) for line_number, line in enumerate(lines, 1)
+                    if (match := RISK_RE.match(line.strip()))]
+    risk = None
+    if not risk_entries:
+        yield finding("README.md", 0, "V11", "README 缺少 risk: Q0|Q1|Q2|Q3 字段")
+    elif len(risk_entries) > 1:
+        yield finding("README.md", risk_entries[1][0], "V11", "README 的 risk 字段必须唯一")
+    else:
+        risk = risk_entries[0][1]
+        if risk not in RISK_VALUES:
+            yield finding("README.md", risk_entries[0][0], "V11", f"非法 risk：{risk}（应为 Q0/Q1/Q2/Q3）")
+
     h2s = [(line_number, line[3:].strip()) for line_number, line in enumerate(lines, 1) if H2_RE.match(line)]
-    for heading in README_H2_REQUIREMENTS:
+    required = LITE_README_H2_REQUIREMENTS if risk in {"Q0", "Q1"} else FULL_README_H2_REQUIREMENTS
+    for heading in required:
         if not any(actual.startswith(heading) for _line, actual in h2s):
             yield finding("README.md", 0, "V11", f"缺少以「{heading}」开头的二级标题")
 
-    smoke_index = next((line_number - 1 for line_number, actual in h2s if actual.startswith("Smoke / E2E 验收用例")), None)
-    if smoke_index is None:
+    acceptance_start, acceptance_end = h2_section(lines, "验收")
+    if acceptance_start is None:
         return
-    end_index = next((
-        index for index in range(smoke_index + 1, len(lines)) if H2_RE.match(lines[index])
-    ), len(lines))
-    smoke_lines = lines[smoke_index:end_index]
-    if not any(H3_RE.match(line) and line[4:].strip().startswith("自动化测试责任") for line in smoke_lines):
-        yield finding("README.md", smoke_index + 1, "V11", "Smoke / E2E 区域缺少三级标题「自动化测试责任」")
-    has_fenced_command = any(line.lstrip().startswith("```") for line in smoke_lines)
-    has_manual = any("manual" in line.lower() for line in smoke_lines)
-    if not has_fenced_command and not has_manual:
-        yield finding("README.md", smoke_index + 1, "V11", "Smoke / E2E 区域缺少围栏命令代码块或 manual 标记")
+    acceptance_lines = lines[acceptance_start:acceptance_end]
+    if not any(H3_RE.match(line) and line[4:].strip().startswith("自动化测试责任") for line in acceptance_lines):
+        yield finding("README.md", acceptance_start + 1, "V11", "验收区域缺少三级标题「自动化测试责任」")
+
+
+def check_task_acceptance(pkg: Path, ptype: str):
+    """V12：校验验收 Requirement/Scenario、WHEN/THEN 与验证标记。"""
+    readme = pkg / "README.md"
+    if not readme.exists():
+        return
+    lines = read_text(readme).splitlines()
+    start, end = h2_section(lines, "验收")
+    if start is None:
+        return
+
+    current_requirement: tuple[int, str] | None = None
+    scenario_count = 0
+    current_scenario: tuple[int, str, list[str]] | None = None
+
+    def close_scenario():
+        nonlocal current_scenario
+        if current_scenario is None:
+            return
+        line_number, name, body = current_scenario
+        text = "\n".join(body)
+        if not re.search(r"\bWHEN\b", text):
+            yield finding("README.md", line_number, "V12", f"Scenario「{name}」缺少 WHEN")
+        if not re.search(r"\bTHEN\b", text):
+            yield finding("README.md", line_number, "V12", f"Scenario「{name}」缺少 THEN")
+        if not any(VALIDATION_RE.match(line) for line in body):
+            yield finding("README.md", line_number, "V12", f"Scenario「{name}」缺少 验证: auto|manual 标记")
+        current_scenario = None
+
+    def close_requirement():
+        nonlocal current_requirement, scenario_count
+        if current_requirement is not None and scenario_count == 0:
+            line_number, name = current_requirement
+            yield finding("README.md", line_number, "V12", f"Requirement「{name}」没有任何 Scenario")
+        current_requirement, scenario_count = None, 0
+
+    for index in range(start + 1, end):
+        line = lines[index]
+        h3 = H3_RE.match(line)
+        h4 = H4_RE.match(line)
+        if h3:
+            yield from close_scenario()
+            yield from close_requirement()
+            name = line[4:].strip()
+            if name.startswith("Requirement:"):
+                current_requirement = (index + 1, name[len("Requirement:"):].strip())
+            continue
+        if h4:
+            yield from close_scenario()
+            name = line[5:].strip()
+            if name.startswith("Scenario:"):
+                if current_requirement is None:
+                    yield finding("README.md", index + 1, "V12", "Scenario 没有上级 Requirement")
+                else:
+                    scenario_count += 1
+                current_scenario = (index + 1, name[len("Scenario:"):].strip(), [])
+            continue
+        if current_scenario is not None:
+            current_scenario[2].append(line)
+
+    yield from close_scenario()
+    yield from close_requirement()
 
 
 CHECKS = [
@@ -643,6 +737,7 @@ TASK_CHECKS = [
     check_task_checklist,   # V9
     check_task_diagram,     # V10
     check_task_readme,      # V11
+    check_task_acceptance,  # V12
 ]
 
 
@@ -1001,6 +1096,231 @@ def graph_command(task_dir: Path, as_json: bool) -> int:
     return 0
 
 
+# ---------- verify：dev-report 证据执行与场景对账 ----------
+
+VERIFY_KEYS = {
+    "id", "scenario", "cmd", "cwd", "expect_exit", "expect_contains", "timeout", "mode", "steps",
+}
+
+
+def latest_dev_report(task_dir: Path) -> Path:
+    reports = [path for path in task_dir.glob("dev-report*.md") if path.is_file()]
+    if not reports:
+        raise FileNotFoundError(f"缺少 dev-report*.md：{task_dir}")
+    return max(reports, key=lambda path: (path.stat().st_mtime_ns, path.name))
+
+
+def parse_verify_blocks(report: Path) -> list[dict]:
+    """解析 fenced verify 块；格式错误统一提升为 ValueError。"""
+    blocks: list[dict] = []
+    ids: set[str] = set()
+    lines = read_text(report).splitlines()
+    index = 0
+    while index < len(lines):
+        if not VERIFY_FENCE_RE.match(lines[index]):
+            index += 1
+            continue
+        start_line = index + 1
+        index += 1
+        raw_lines: list[tuple[int, str]] = []
+        while index < len(lines) and not FENCE_END_RE.match(lines[index]):
+            raw_lines.append((index + 1, lines[index]))
+            index += 1
+        if index == len(lines):
+            raise ValueError(f"verify 块第 {start_line} 行未闭合")
+        index += 1
+
+        values: dict[str, object] = {"expect_contains": []}
+        seen: set[str] = set()
+        for line_number, raw in raw_lines:
+            line = raw.strip()
+            if not line:
+                continue
+            if ":" not in line:
+                raise ValueError(f"verify 块第 {start_line} 行第 {line_number} 行格式应为 key: value")
+            key, value = (part.strip() for part in line.split(":", 1))
+            if key not in VERIFY_KEYS:
+                raise ValueError(f"verify 块第 {start_line} 行存在未知 key：{key}")
+            if not value:
+                raise ValueError(f"verify 块第 {start_line} 行的 {key} 不能为空")
+            if key == "expect_contains":
+                values["expect_contains"].append(value)
+                continue
+            if key in seen:
+                raise ValueError(f"verify 块第 {start_line} 行的 {key} 重复")
+            seen.add(key)
+            values[key] = value
+
+        ident = str(values.get("id", "")).strip()
+        if not ident:
+            raise ValueError(f"verify 块第 {start_line} 行缺少 id")
+        if ident in ids:
+            raise ValueError(f"verify 块 id 重复：{ident}")
+        ids.add(ident)
+        mode = str(values.get("mode", "auto")).lower()
+        if mode not in {"auto", "manual"}:
+            raise ValueError(f"verify 块 {ident} 的 mode 必须为 auto 或 manual")
+        if mode == "auto" and not str(values.get("cmd", "")).strip():
+            raise ValueError(f"verify 块 {ident} 的 auto 模式缺少 cmd")
+        if mode == "manual" and not str(values.get("steps", "")).strip():
+            raise ValueError(f"verify 块 {ident} 的 manual 模式缺少 steps")
+        try:
+            expect_exit = int(str(values.get("expect_exit", "0")))
+        except ValueError as exc:
+            raise ValueError(f"verify 块 {ident} 的 expect_exit 必须是整数") from exc
+        timeout = None
+        if "timeout" in values:
+            try:
+                timeout = int(str(values["timeout"]))
+            except ValueError as exc:
+                raise ValueError(f"verify 块 {ident} 的 timeout 必须是正整数") from exc
+            if timeout <= 0:
+                raise ValueError(f"verify 块 {ident} 的 timeout 必须是正整数")
+        blocks.append({
+            "id": ident,
+            "scenario": str(values.get("scenario", "")).strip(),
+            "cmd": str(values.get("cmd", "")).strip(),
+            "cwd": str(values.get("cwd", ".")).strip(),
+            "expect_exit": expect_exit,
+            "expect_contains": list(values["expect_contains"]),
+            "timeout": timeout,
+            "mode": mode,
+            "steps": str(values.get("steps", "")).strip(),
+            "line": start_line,
+        })
+
+    return blocks
+
+
+def acceptance_scenarios(readme: Path) -> list[dict]:
+    """读取验收节 Scenario 名和验证标记，供覆盖对账使用。"""
+    if not readme.exists():
+        raise FileNotFoundError(f"缺少 README.md：{readme.parent}")
+    lines = read_text(readme).splitlines()
+    start, end = h2_section(lines, "验收")
+    if start is None:
+        return []
+    scenarios: list[dict] = []
+    current: tuple[str, list[str]] | None = None
+
+    def close_current():
+        nonlocal current
+        if current is None:
+            return
+        name, body = current
+        marker = next((match.group(1).lower() for line in body if (match := VALIDATION_RE.match(line))), None)
+        scenarios.append({"name": name, "mode": marker})
+        current = None
+
+    for index in range(start + 1, end):
+        line = lines[index]
+        if SCEN_RE.match(line):
+            close_current()
+            current = (SCEN_RE.match(line).group(1).strip(), [])
+            continue
+        if H3_RE.match(line) or H4_RE.match(line):
+            close_current()
+            continue
+        if current is not None:
+            current[1].append(line)
+    close_current()
+    return scenarios
+
+
+def verify_cwd(raw_cwd: str, block_id: str) -> Path:
+    candidate = (PLUGIN_ROOT / raw_cwd).resolve()
+    try:
+        candidate.relative_to(PLUGIN_ROOT.resolve())
+    except ValueError as exc:
+        raise ValueError(f"verify 块 {block_id} 的 cwd 必须是仓库内相对路径：{raw_cwd}") from exc
+    if not candidate.is_dir():
+        raise ValueError(f"verify 块 {block_id} 的 cwd 不存在或不是目录：{raw_cwd}")
+    return candidate
+
+
+def execute_verify_block(block: dict) -> dict:
+    cwd = verify_cwd(block["cwd"], block["id"])
+    timed_out = False
+    try:
+        result = subprocess.run(
+            block["cmd"], shell=True, cwd=cwd, text=True, capture_output=True,
+            timeout=block["timeout"], check=False,
+        )
+        exit_code = result.returncode
+        output = (result.stdout or "") + (result.stderr or "")
+    except subprocess.TimeoutExpired as exc:
+        timed_out = True
+        exit_code = None
+        stdout = exc.stdout.decode(errors="replace") if isinstance(exc.stdout, bytes) else (exc.stdout or "")
+        stderr = exc.stderr.decode(errors="replace") if isinstance(exc.stderr, bytes) else (exc.stderr or "")
+        output = stdout + stderr
+    missing_contains = [text for text in block["expect_contains"] if text not in output]
+    failed = timed_out or exit_code != block["expect_exit"] or bool(missing_contains)
+    return {
+        "id": block["id"],
+        "scenario": block["scenario"],
+        "cmd": block["cmd"],
+        "exit_code": exit_code,
+        "expected_exit": block["expect_exit"],
+        "missing_contains": missing_contains,
+        "timed_out": timed_out,
+        # 未定义截断阈值时保留完整合并输出，避免把新数值常量引入协议。
+        "output_tail": output,
+        "pass": not failed,
+    }
+
+
+def verify_command(task_dir: Path, as_json: bool, only: str | None) -> int:
+    try:
+        if not task_dir.is_dir():
+            raise FileNotFoundError(f"不是目录：{task_dir}")
+        report = latest_dev_report(task_dir)
+        blocks = parse_verify_blocks(report)
+        all_auto = [block for block in blocks if block["mode"] == "auto"]
+        if only is not None:
+            selected = [block for block in all_auto if block["id"] == only]
+            if not selected:
+                raise ValueError(f"未找到 auto verify 块：{only}")
+        else:
+            selected = all_auto
+        manual = [
+            {"id": block["id"], "scenario": block["scenario"], "steps": block["steps"]}
+            for block in blocks if block["mode"] == "manual"
+        ]
+        results = [execute_verify_block(block) for block in selected]
+        pass_items = [{key: value for key, value in result.items() if key != "output_tail"}
+                      for result in results if result["pass"]]
+        fail_items = [{key: value for key, value in result.items() if key != "pass"}
+                      for result in results if not result["pass"]]
+        declared_auto = {block["scenario"].strip() for block in all_auto if block["scenario"].strip()}
+        uncovered = [
+            item["name"] for item in acceptance_scenarios(task_dir / "README.md")
+            if item["mode"] == "auto" and item["name"].strip() not in declared_auto
+        ]
+        payload = {
+            "task": task_dir.name,
+            "dev_report": str(report),
+            "pass": pass_items,
+            "fail": fail_items,
+            "manual": manual,
+            "uncovered": uncovered,
+        }
+    except (FileNotFoundError, OSError, ValueError) as exc:
+        print(f"错误：{exc}", file=sys.stderr)
+        return 2
+
+    if as_json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+    else:
+        print(f"== {task_dir.name} verify")
+        print(f"  pass: {len(payload['pass'])} · fail: {len(payload['fail'])} · manual: {len(manual)}")
+        for item in payload["fail"]:
+            print(f"  ! {item['id']} exit={item['exit_code']} expected={item['expected_exit']}")
+        for name in uncovered:
+            print(f"  ! uncovered scenario: {name}")
+    return 0 if not payload["fail"] and not uncovered else 1
+
+
 # ---------- 编排 ----------
 
 def discover(root: Path) -> list[Path]:
@@ -1062,6 +1382,11 @@ def main(argv=None) -> int:
     c.add_argument("--with-diagram", action="store_true", help="同时创建可选 diagram.md")
     c.add_argument("--json", action="store_true", dest="as_json", help="机器可读输出")
 
+    verify = sub.add_parser("verify", help="复跑 dev-report verify 块并对账 README 自动场景")
+    verify.add_argument("task_dir", help="task 目录（含 README.md 与 dev-report*.md）")
+    verify.add_argument("--json", action="store_true", dest="as_json", help="机器可读输出")
+    verify.add_argument("--only", help="只执行指定的 auto verify 块")
+
     args = parser.parse_args(argv)
 
     if args.cmd == "instructions":
@@ -1069,6 +1394,9 @@ def main(argv=None) -> int:
 
     if args.cmd == "scaffold":
         return scaffold_command(Path(args.task_dir), args.with_diagram, args.as_json)
+
+    if args.cmd == "verify":
+        return verify_command(Path(args.task_dir), args.as_json, args.only)
 
     if args.cmd in ("status", "graph"):
         task_dir = Path(args.task_dir)
