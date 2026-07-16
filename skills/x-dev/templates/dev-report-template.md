@@ -7,7 +7,7 @@
 ## 验证证据
 
 > 本节是 `python3 tools/xdev.py verify <task-dir>` 的唯一自动输入。
-> 至少保留一条测试类 auto 块；没有测试框架时写 `no-test-framework: true` 与理由，并用 manual 块记录可复现人工步骤。
+> 至少保留一条测试类 auto 块；无法自动验证的场景在 README 标为 `验证: manual`，并用 manual 块记录可复现人工步骤与理由。
 > README 中每个 `验证: auto` 的 Scenario 都必须有一个 auto 块用 `scenario:` 精确回指。
 
 ```verify

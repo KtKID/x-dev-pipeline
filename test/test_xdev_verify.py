@@ -193,6 +193,12 @@ expect_contains: fast
         self.assertEqual(code, 1, stderr)
         self.assertTrue(payload["fail"][0]["timed_out"])
 
+    def test_dev_report_template_uses_supported_manual_path(self):
+        template = (ROOT / "skills/x-dev/templates/dev-report-template.md").read_text(encoding="utf-8")
+        self.assertNotIn("no-test-framework", template)
+        self.assertIn("验证: manual", template)
+        self.assertIn("steps:", template)
+
 
 if __name__ == "__main__":
     unittest.main()
