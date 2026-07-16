@@ -2,8 +2,8 @@
 name: x-dev
 description: |
   开发任务执行 skill。基于现有功能计划目录执行开发任务，
-  读取 dev-pipeline/tasks/<功能名称>/README.md、dev-checklist.md、changelog.md，
-  按开发清单中的未完成任务进行实现、修复、测试，并回写任务状态与变更记录。
+  读取 dev-pipeline/tasks/<功能名称>/README.md、dev-checklist.md，
+  按开发清单中的未完成任务进行实现、修复、测试，并回写任务状态与验证证据。
   当开发清单中存在多个无依赖关系的待处理任务时，自动创建子 agent 并行开发以提升效率。
   触发方式：用户输入 "x-dev <功能名称>" 或提供现有功能目录路径。
 ---
@@ -16,10 +16,10 @@ x-dev 是执行型 skill，只负责基于现有计划目录执行开发任务�
 
 x-dev 负责：
 1. 读取现有功能目录
-2. 读取 README.md（需求 + 技术设计 + DoD）、dev-checklist.md、changelog.md
+2. 读取 README.md（需求 + 技术设计 + DoD）与 dev-checklist.md
 3. 根据开发清单执行开发、修复和测试
 4. 更新开发清单中的任务状态
-5. 更新changelog.md
+5. 在 dev-report.md 记录实现与验证证据
 6. 在必要时向用户汇报进度、风险和阻塞项
 
 x-dev 不负责：
@@ -56,7 +56,6 @@ dev-pipeline/tasks/<task>/
 ├── README.md              # 需求 + 技术设计 + DoD（x-req 负责）
 ├── dev-checklist.md       # 开发清单（x-req 负责）
 ├── diagram.md             # 模块/组件图（x-req 负责，旧 task 为 diagram.html）
-├── changelog.md           # 关键变更（x-dev 负责）
 ├── dev-report.md          # 完成报告（x-dev 负责，gate 输入）
 ├── plan.md                # [可选/历史] 旧 task 可能有
 └── reports/               # gate 产出目录（全部在 task 目录下）
@@ -85,7 +84,6 @@ dev-pipeline/tasks/<task>/
 
    * `README.md`（含需求 + 技术设计 + DoD）
    * `dev-checklist.md`
-   * `changelog.md`（不存在则创建空文件）
 4. `plan.md` 不再必需——新 task 不产出；旧 task 如有则仍可读取
 5. `reports/` 目录在首次 gate 执行时自动创建，不需要预创建
 6. 如果目录或关键文件缺失，停止执行，提示用户先通过 x-req 补齐
@@ -99,13 +97,11 @@ dev-pipeline/tasks/<task>/
 3. **如果 README.md "涉及模块" 段引用了 docs/ 模块文档 → 跟读该模块文档**，获取接口/数据结构/架构上下文。同时检查：归属 spec 的 `90-task-map.md` 里该模块状态是否已是"开发中"？不是 → 先更新再开发
 4. 如果存在 `plan.md`（历史 task）→ 读取了解开发策略（新 task 无此文件则跳过）
 5. 读取 `dev-checklist.md`，识别任务编号、任务标题、状态、备注
-6. 读取 `changelog.md`，了解已有决策、历史修改和已知问题
-7. 选择状态不是”已完成”的任务作为执行对象，按 P0→P1→P2 顺序执行
-8. **并行判断**：同一优先级内，将无依赖的任务分组为可并行批次（见”并行开发”章节）
-9. 可并行任务通过子 agent 同时开发；有依赖的任务串行执行
-10. 根据执行结果更新开发清单状态
-11. 在 `changelog.md` 中记录关键修改、失败原因、修复动作和完成情况
-12. 向用户汇报当前完成情况、未完成项和阻塞项
+6. 选择状态不是”已完成”的任务作为执行对象，按 P0→P1→P2 顺序执行
+7. **并行判断**：同一优先级内，将无依赖的任务分组为可并行批次（见”并行开发”章节）
+8. 可并行任务通过子 agent 同时开发；有依赖的任务串行执行
+9. 根据执行结果更新开发清单状态与 dev-report 验证证据
+10. 向用户汇报当前完成情况、未完成项和阻塞项
 
 ---
 
@@ -153,7 +149,7 @@ Agent({
 **硬规则**：
 - **必须同一条消息发出所有 Agent 调用**（真正并行，不是伪并行）
 - 每个子 agent prompt **必须自包含**：包含 README 技术设计段 + DoD 相关条目 + 涉及模块的接口定义
-- 子 agent **只改自己任务的代码，不更新 dev-checklist.md 和 changelog.md**（主流程统一更新，避免写冲突）
+- 子 agent **只改自己任务的代码，不更新 dev-checklist.md 或 dev-report.md**（主流程统一更新，避免写冲突）
 - 某个子 agent 失败不阻塞其他任务，失败任务回到待处理队列
 
 **子 agent 完成回报模板**：
@@ -172,7 +168,7 @@ Agent({
 - ...
 ```
 
-**结果收集**：所有子 agent 返回后，主流程统一更新状态和 changelog，再逐个进入 x-verify → x-qa-gate 流程。
+**结果收集**：所有子 agent 返回后，主流程统一更新状态与 dev-report，再逐个进入 x-verify → x-qa-gate 流程。
 
 **质检标记 🔍**：dev-checklist 质检列标记 🔍 的任务，子 agent 完成后必须立即创建质检 agent 审查，审查通过才继续。未标记的任务走常规流程。
 
@@ -189,7 +185,7 @@ Agent({
 
 核心要点：
 - 状态流转：`⏳ → ▶️ → 🟡 → 🟢`（x-dev 最多到 🟢，✅ 由 review 确认）
-- 每完成一个阶段**立即**更新 dev-checklist.md + changelog.md
+- 每完成一个阶段**立即**更新 dev-checklist.md；实现与验证结论写入 dev-report.md
 - 严格按优先级执行（P0 > P1 > P2）
 
 ---

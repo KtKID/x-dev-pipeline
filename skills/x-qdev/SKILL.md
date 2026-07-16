@@ -42,7 +42,7 @@ x-qdev 用最短可靠路径完成小改动。正确性依据来自用户原始�
 
 预计超过 2 小时或存在 5 条以上独立 DoD 时，在开发前按 Q3 升级，完整保留全部需求。
 
-开发中出现范围扩张或 Q3 信号时，保留当前任务记录，写明升级原因，然后切换完整流程。
+开发中出现范围扩张或 Q3 信号时，在 README 和 dev-report 写明升级原因，然后切换完整流程。
 
 ## 第二步：创建任务记录
 
@@ -51,7 +51,6 @@ x-qdev 用最短可靠路径完成小改动。正确性依据来自用户原始�
 | 模板文件 | 对应产出 |
 |---------|---------|
 | `templates/README.md` | 原始请求、假设、风险等级、DoD、证据矩阵、开发清单 |
-| `templates/changelog.md` | 有价值的过程变化 |
 | `templates/dev-report.md` | 实际 diff、验证命令、DoD 证据和最终审查结论 |
 
 状态和更新规则见 `references/execution-rules.md`。
@@ -66,7 +65,7 @@ x-qdev 用最短可靠路径完成小改动。正确性依据来自用户原始�
 4. 实现结束：`▶️ → 🟡`。
 5. 运行与当前改动直接相关的验证。
 6. 验证通过：`🟡 → 🟢`；失败：`🟡 → 🔴 → 修复 → 🟡`。
-7. 更新 README 证据矩阵和 changelog 中的关键结论。
+7. 更新 README 证据矩阵；将实现、验证、风险或范围结论写入 dev-report。
 
 ### 子 agent 使用条件
 
@@ -139,19 +138,13 @@ reviewer 输出 `pass/fail`、带文件位置的证据和 P0/P1 问题。判定�
 1. 保留原 qdev task 目录和全部证据。
 2. 新建 `<qdev-task-name>-full` task；用户指定名称时使用用户名称。
 3. 在新 task README 写入 `source-qdev: dev-pipeline/tasks/<qdev-task-name>`。
-4. x-req 读取原 qdev README、changelog、dev-report，重新确认需求并生成完整 README、dev-checklist、diagram、changelog。
-5. 原 qdev changelog 记录升级目标路径，dev-report 结论写 `promoted-to-full-pipeline`。
+4. x-req 读取原 qdev README 与 dev-report，重新确认需求并生成完整 README、dev-checklist 与按需 diagram。
+5. 原 qdev README 记录升级目标路径，dev-report 结论写 `promoted-to-full-pipeline`。
 6. 原 qdev 开发清单标记 `↗️ 已升级`，整体完成状态由新 full task 决定。
 
 ## 第六步：记录与汇报
 
-changelog 只记录：
-
-- 任务开始和完成；
-- 风险等级或范围变化；
-- 验证失败及修复结论；
-- 综合 reviewer 结论；
-- 升级完整流程的原因。
+README 记录需求、范围与升级路径；dev-report 记录实现、验证、修复和综合 reviewer 结论。
 
 最终向用户汇报：完成内容、修改文件、风险等级、关键验证证据和审查路线。
 

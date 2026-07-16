@@ -145,6 +145,5 @@ interface NewType {
 
 ## 文件导航
 
-- [模块/组件图](./diagram.md)
 - [开发清单](./dev-checklist.md)
-- [变更记录](./changelog.md)
+- 模块/组件图：`diagram.md`（可选产物，存在时查看）
