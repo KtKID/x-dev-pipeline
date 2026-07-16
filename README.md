@@ -233,6 +233,16 @@ Compatibility entry that redirects to `/x-req`. The former planning output now l
 
 Execute the plan. Development with a checklist, status tracking, and a changelog.
 
+### Orchestration engine (`tools/xdev.py`)
+
+A deterministic tool layer (the "legislative layer") that backs the skills with machine-checkable mechanics instead of prose. Three subcommands:
+
+- **`xdev.py validate [pkg...]`** — structural validation of spec/change packages (rules V0–V7: file completeness, link safety, Requirement/Scenario structure, delta markers, task backrefs, module consistency, status vocab).
+- **`xdev.py status <task-dir> [--json]`** — parse a task's `dev-checklist.md`, resolve each task to an engine state (`done`/`todo`/`blocked`) from a token+emoji dual-track status column, and emit a progress JSON. Pure-emoji legacy checklists degrade automatically.
+- **`xdev.py graph <task-dir> [--json]`** — Kahn topological sort over the dependency column, emitting `ready` / `blocked` / `order` / `parallel_batches`. Detects dependency cycles (exit 1, lists cycle nodes).
+
+`/x-dev` reads `status` + `graph` before dispatching sub-agents, so "what to run next" and "what can run in parallel" are computed rather than inferred from prose. Exit codes: 0 ok · 1 findings or cycle · 2 usage/IO.
+
 ### `/x-spec`
 
 System architecture planning. For larger projects, complex modules, architecture design, or long-term evolution tasks.

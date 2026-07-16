@@ -115,10 +115,30 @@ dev-pipeline/tasks/<task>/
 
 同一优先级内有 2+ 个无依赖的待处理任务时，**必须**用 Agent 工具派子 agent 并行开发。不允许"为了简单"而串行执行可并行任务。
 
+### 用编排引擎算调度（推荐先于人工判断）
+
+派子 agent 前，先跑 `tools/xdev.py` 拿到机器算出的状态和可并行批次，避免靠读 checklist 散文推理：
+
+```bash
+# 拿当前进度（哪些 done/todo/blocked）
+python3 tools/xdev.py status <task-dir> --json
+# 拿可执行任务和并行批次（拓扑排序）
+python3 tools/xdev.py graph <task-dir> --json
+```
+
+- **graph 的 `ready`** = 依赖全 done 且自身未 done 的任务——这些是当前能派的。
+- **graph 的 `parallel_batches[0]`** = 本轮可同时并行的任务批次。
+- **graph 的 `blocked`** = 还有未满足依赖的任务（附 missing 列表）——不能派，等前置完成。
+- 若 graph 报依赖环（退出码 1）→ checklist 的依赖列有笔误，停下让用户修。
+
+拿到 JSON 后按 `parallel_batches[0]`（或 `ready`）派子 agent；blocked 的任务本轮跳过。**人工判断仅作补充**：引擎覆盖依赖关系，但"改同一文件同一区域"的写冲突风险引擎看不到，需人工额外排除。
+
+### 人工依赖判断（补充，引擎之外的风险）
+
 **依赖判断**（满足任一 → 串行；全不满足 → 并行）：
-- 备注列标注"依赖 #N"
+- 备注列标注"依赖 #N"（引擎已覆盖，此处冗余确认）
 - README.md "涉及模块"声明模块间有依赖
-- 两任务改同一文件同一区域（写冲突风险）
+- 两任务改同一文件同一区域（写冲突风险——引擎看不到，必须人工判断）
 
 **子 agent dispatch 模板**：
 

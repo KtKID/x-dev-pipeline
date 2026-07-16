@@ -23,7 +23,21 @@ Phase 1 只有 validate：对 spec 包 / change 包做结构校验（机械项�
   （纳入时不查 V1 档位齐全，只查其余规则）。
 
 退出码：0 全部通过；1 存在 finding；2 用法或 IO 错误。
-Phase 2 计划：archive（delta 合并回 specs/ + 移档）、status（进度矩阵 + run-log 退场判据检查）。
+用法：
+  python3 tools/xdev.py validate [包目录 ...] [--include-legacy] [--json]
+  不给目录时，从当前工作目录发现 docs/spec/*/、docs/changes/*/、docs/specs/*/。
+  legacy 包（含 diagrams.md / *.html 图集的旧结构）默认跳过，--include-legacy 纳入
+  （纳入时不查 V1 档位齐全，只查其余规则）。
+
+  python3 tools/xdev.py status <task-dir> [--json]
+  解析 dev-pipeline/tasks/<task>/dev-checklist.md，按 token+emoji 双轨判定任务状态，
+  输出进度 JSON。纯 emoji 旧 checklist 自动兼容降级（见 STATUS_EMOJI_MAP）。
+
+  python3 tools/xdev.py graph <task-dir> [--json]
+  基于 status 解析结果做依赖拓扑排序（Kahn），输出 ready / blocked / order /
+  parallel_batches；检测依赖环时报错并列出环节点（退出码 1）。
+
+退出码：0 正常；1 存在 finding 或依赖环；2 用法或 IO 错误。
 """
 
 from __future__ import annotations
@@ -316,6 +330,361 @@ CHECKS = [
 ]
 
 
+# ---------- 编排：status / graph（dev-pipeline/tasks 消费 dev-checklist） ----------
+#
+# 与 validate 段的区别：validate 作用于 docs/{spec,changes} 包，status/graph 作用于
+# dev-pipeline/tasks/<task>/dev-checklist.md。两套目录体系，解析函数复用 first_table/cells。
+
+# 引擎三态（编排只关心"能不能往下走"，把 6 个 emoji 中间态压缩）
+DONE = "done"
+TODO = "todo"
+BLOCKED = "blocked"
+
+# 状态列格式：token + emoji 双轨，如 "[x] 🟢" / "[ ] ⏳" / "[!] 🔴"。
+# token 正则：匹配复选框 token；[x]→done、[!]→blocked、[ ](或无 token)→进入 emoji 降级。
+TOKEN_RE = re.compile(r"\[(?P<box>[ x!])\]")
+
+# 旧 emoji 兼容降级（无 token 时按 emoji 判）：🟢✅→done、🔴→blocked、其余→todo。
+STATUS_EMOJI_MAP = {
+    "🟢": DONE,
+    "✅": DONE,
+    "🔴": BLOCKED,
+}
+
+# task id 正则：T1 / T2 / #1 / #12 等。用于解析依赖列里的 id 引用（要求前缀，
+# 避免把依赖文本里的裸数字误当 id）。
+TASK_ID_RE = re.compile(r"(?:T|#)(\d+)", re.IGNORECASE)
+
+# id 列归一化正则：T1 / #1 / 纯数字 1 都接受（id 列单独成格，裸数字无歧义）。
+# 与 TASK_ID_RE 的区别：后者用于依赖列（混在文本里，必须前缀）；前者用于 id 列（独立格）。
+ID_COL_RE = re.compile(r"(?:T|#)?(\d+)", re.IGNORECASE)
+
+# 产物锚点：备注/涉及文件列里的 product:path 标记（相对 task 目录）。
+PRODUCT_RE = re.compile(r"product:\s*([^\s,;]+)")
+
+
+def parse_checklist(task_dir: Path) -> list[dict]:
+    """解析 dev-checklist.md 的任务表，返回 task 列表（未判定引擎状态）。
+
+    复用 first_table/cells 解析表格。表头必须含 "#"（或"编号"）列和"状态"列；
+    "依赖"列可选（缺失当无依赖）；"涉及文件"列可选（用于提取 product 锚点）。
+
+    返回的每个 task dict 含：id, title, deps(list[str]), raw_status(str),
+    product(str|None)。引擎状态由 task_engine_status 单独判定，便于复用。
+    """
+    checklist = task_dir / "dev-checklist.md"
+    if not checklist.exists():
+        raise FileNotFoundError(f"缺少 dev-checklist.md：{task_dir}")
+    header, rows = first_table(read_text(checklist))
+    if not header:
+        raise ValueError(f"dev-checklist.md 无可解析表格：{checklist}")
+
+    def col_idx(*keywords: str) -> int | None:
+        for kw in keywords:
+            for i, c in enumerate(header):
+                if kw in c:
+                    return i
+        return None
+
+    id_idx = col_idx("#", "编号")
+    title_idx = col_idx("任务", "标题")
+    dep_idx = col_idx("依赖", "deps")
+    status_idx = col_idx("状态")
+    file_idx = col_idx("涉及文件", "文件")
+    if id_idx is None or status_idx is None:
+        missing = []
+        if id_idx is None:
+            missing.append("#/编号 列")
+        if status_idx is None:
+            missing.append("状态 列")
+        raise ValueError(f"dev-checklist.md 表头缺关键列：{', '.join(missing)}")
+
+    tasks: list[dict] = []
+    for _ln, cs in rows:
+        if len(cs) <= max(i for i in (id_idx, status_idx) if i is not None):
+            continue
+        raw_id = cs[id_idx].strip()
+        if not raw_id or raw_id.lower() in ("—", "-", "n/a"):
+            continue
+        # 归一化 id：T1 / #1 / 纯数字 1 → "T1"（大写 T 前缀，与依赖列引用一致）
+        # id 列用 ID_COL_RE（接受纯数字），依赖列用 TASK_ID_RE（要求前缀，见 parse_deps）
+        m = ID_COL_RE.search(raw_id)
+        if not m:
+            continue
+        norm_id = f"T{m.group(1)}"
+        title = cs[title_idx].strip() if title_idx is not None and title_idx < len(cs) else ""
+        raw_deps = cs[dep_idx].strip() if dep_idx is not None and dep_idx < len(cs) else ""
+        raw_status = cs[status_idx].strip()
+        raw_files = cs[file_idx].strip() if file_idx is not None and file_idx < len(cs) else ""
+        product = None
+        if raw_files:
+            pm = PRODUCT_RE.search(raw_files)
+            if pm:
+                product = pm.group(1)
+        tasks.append({
+            "id": norm_id,
+            "title": title,
+            "deps": parse_deps(raw_deps),
+            "raw_status": raw_status,
+            "product": product,
+        })
+    return tasks
+
+
+def parse_deps(raw: str) -> list[str]:
+    """解析依赖列：支持 'T1' / 'T2,T3' / 'T2/T3' / '#1 #2' / '—' / '' → 归一化 id 列表。
+
+    多分隔符（, / 空格）混合也能处理；无依赖符号（—、-、空）返回空列表。
+    """
+    if not raw or raw.strip() in ("—", "-", ""):
+        return []
+    ids = TASK_ID_RE.findall(raw)
+    return [f"T{n}" for n in ids]
+
+
+def task_engine_status(raw_status: str) -> str:
+    """从状态列文本判定引擎状态（done/todo/blocked）。
+
+    双轨判定：先尝试 token（[x]/[!]），无 token 则按 emoji 降级。
+    这让纯 emoji 旧 checklist（如 qa-gate-pipeline）无需迁移即可被解析。
+    """
+    m = TOKEN_RE.search(raw_status)
+    if m:
+        box = m.group("box")
+        if box == "x":
+            return DONE
+        if box == "!":
+            return BLOCKED
+        # box 是空格 → token 显式标记未完成，不进 emoji 降级
+        return TODO
+    # 无 token：按 emoji 降级
+    for emoji, status in STATUS_EMOJI_MAP.items():
+        if emoji in raw_status:
+            return status
+    return TODO
+
+
+def resolve_task_list(task_dir: Path) -> tuple[list[dict], list[dict]]:
+    """解析 checklist 并判定引擎状态 + 产物锚点交叉验证。
+
+    返回 (tasks, product_findings)。每个 task 追加 'status' 和 'product_check' 字段。
+    product_check：done 但文件缺失→"missing"；todo 但文件已存在→"stale"；无锚点→None。
+    这是可选交叉验证，不改变 status 本身（主判依据是 token）。
+    """
+    raw_tasks = parse_checklist(task_dir)
+    tasks: list[dict] = []
+    product_findings: list[dict] = []
+    for t in raw_tasks:
+        status = task_engine_status(t["raw_status"])
+        entry = {
+            "id": t["id"],
+            "title": t["title"],
+            "status": status,
+            "deps": t["deps"],
+            "product": t["product"],
+        }
+        if t["product"]:
+            target = task_dir / t["product"]
+            exists = target.exists()
+            if status == DONE and not exists:
+                entry["product_check"] = "missing"
+                product_findings.append({
+                    "id": t["id"], "rule": "product",
+                    "msg": f"标记 done 但产物缺失：{t['product']}",
+                })
+            elif status == TODO and exists:
+                entry["product_check"] = "stale"
+                product_findings.append({
+                    "id": t["id"], "rule": "product",
+                    "msg": f"标记 todo 但产物已存在：{t['product']}",
+                })
+        tasks.append(entry)
+    return tasks, product_findings
+
+
+def compute_progress(tasks: list[dict]) -> dict:
+    """统计进度：total/done/todo/blocked。"""
+    total = len(tasks)
+    done = sum(1 for t in tasks if t["status"] == DONE)
+    blocked = sum(1 for t in tasks if t["status"] == BLOCKED)
+    todo = total - done - blocked
+    return {"total": total, "done": done, "todo": todo, "blocked": blocked}
+
+
+def status_command(task_dir: Path, as_json: bool) -> int:
+    """status 子命令：解析 task 的 dev-checklist，输出任务状态 + 进度。"""
+    try:
+        tasks, product_findings = resolve_task_list(task_dir)
+    except (FileNotFoundError, ValueError) as e:
+        print(f"错误：{e}", file=sys.stderr)
+        return 2
+    progress = compute_progress(tasks)
+    payload = {"task": task_dir.name, "tasks": tasks, "progress": progress}
+    if product_findings:
+        payload["product_findings"] = product_findings
+    if as_json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+    else:
+        print(f"== {task_dir.name}  status")
+        for t in tasks:
+            mark = {"done": "✓", "todo": "·", "blocked": "!"}[t["status"]]
+            deps = f" ← {','.join(t['deps'])}" if t["deps"] else ""
+            print(f"  {mark} {t['id']}  {t['title']}{deps}")
+        p = progress
+        print(f"  进度：{p['done']}/{p['total']} done · {p['todo']} todo · {p['blocked']} blocked")
+    return 0
+
+
+# ---------- graph：依赖拓扑排序 ----------
+
+
+def topo_sort(task_ids: list[str], deps_map: dict[str, list[str]]) -> tuple[list[str], list[str]]:
+    """Kahn 拓扑排序 + 环检测。
+
+    返回 (order, cycle_nodes)。order 覆盖所有无环节点；cycle_nodes 是环内节点
+    （order 长度 < 节点总数时存在）。排序后入队保证确定性（对标 OpenSpec getBuildOrder）。
+    """
+    # 只保留指向已知 task 的依赖（悬空 id 由 graph 的 blocked 暴露，不污染拓扑）
+    valid = set(task_ids)
+    adj: dict[str, list[str]] = {tid: [] for tid in task_ids}
+    indeg: dict[str, int] = {tid: 0 for tid in task_ids}
+    for tid in task_ids:
+        for dep in deps_map.get(tid, []):
+            if dep in valid:
+                adj[dep].append(tid)
+                indeg[tid] += 1
+    # Kahn：入度 0 的排序后入队，逐层弹出
+    queue = sorted([tid for tid in task_ids if indeg[tid] == 0])
+    order: list[str] = []
+    while queue:
+        node = queue.pop(0)
+        order.append(node)
+        nexts = []
+        for nxt in adj[node]:
+            indeg[nxt] -= 1
+            if indeg[nxt] == 0:
+                nexts.append(nxt)
+        queue.extend(sorted(nexts))
+    cycle = [tid for tid in task_ids if tid not in set(order)]
+    return order, cycle
+
+
+def compute_graph(tasks: list[dict]) -> dict:
+    """算 ready / blocked / order / parallel_batches。
+
+    ready：依赖全 done 且自身未 done（对标 OpenSpec getNextArtifacts）。
+    blocked：有未满足依赖（含悬空 id），附 missing 列表（对标 getBlocked）。
+    order：合法拓扑序（无环时覆盖全部节点）。
+    parallel_batches：按拓扑层分层，同层可并行派子 agent。
+    """
+    by_id = {t["id"]: t for t in tasks}
+    ids = [t["id"] for t in tasks]
+    deps_map = {t["id"]: t["deps"] for t in tasks}
+    order, cycle = topo_sort(ids, deps_map)
+
+    ready: list[str] = []
+    blocked: list[dict] = []
+    for t in tasks:
+        if t["status"] == DONE:
+            continue
+        deps = deps_map[t["id"]]
+        missing = []
+        for dep in deps:
+            if dep not in by_id:
+                missing.append(dep)            # 悬空依赖
+            elif by_id[dep]["status"] != DONE:
+                missing.append(dep)            # 依赖未完成
+        if missing:
+            blocked.append({"id": t["id"], "missing": missing})
+        else:
+            ready.append(t["id"])
+
+    # parallel_batches：按拓扑层分组的"待执行批次"。
+    # 只含未 done 的任务；done 的任务视为前置已满足（直接计入 placed 起步集），
+    # 让分层从"下一批该做什么"开始，而非把已完成的也排进批次。
+    # blocked（悬空依赖或依赖未完成）的任务：悬空的不进批次（无法满足），
+    # 依赖未完成的正常进批次（等前置层完成即可）。
+    done_ids = {t["id"] for t in tasks if t["status"] == DONE}
+    batches: list[list[str]] = []
+    placed: set[str] = set(done_ids)  # done 的任务视作已置位，从第 0 层起算
+    for _ in range(len(order)):
+        layer = []
+        for tid in order:
+            if tid in placed:
+                continue
+            if by_id[tid]["status"] == DONE:
+                placed.add(tid)
+                continue
+            deps = deps_map[tid]
+            # 该任务可入本层：所有已知依赖都已 placed（含 done 起步集）
+            # 悬空依赖（不在 by_id）→ 无法满足，跳过不进批次
+            if all(d in placed for d in deps if d in by_id) and all(
+                d in by_id for d in deps
+            ):
+                layer.append(tid)
+        if not layer:
+            break
+        for tid in layer:
+            placed.add(tid)
+        batches.append(layer)
+
+    return {
+        "ready": ready,
+        "blocked": blocked,
+        "order": order,
+        "parallel_batches": batches,
+        "cycle": cycle,
+    }
+
+
+def graph_command(task_dir: Path, as_json: bool) -> int:
+    """graph 子命令：拓扑排序 + ready/blocked + 环检测。"""
+    try:
+        tasks, _ = resolve_task_list(task_dir)
+    except (FileNotFoundError, ValueError) as e:
+        print(f"错误：{e}", file=sys.stderr)
+        return 2
+    result = compute_graph(tasks)
+    cycle = result["cycle"]
+    if cycle and as_json:
+        # 环是错误状态：输出 JSON 但退出码 1（agent 契约：JSON 模式留一个完整文档）
+        payload = {
+            "task": task_dir.name,
+            "error": "dependency_cycle",
+            "cycle_nodes": cycle,
+            "ready": result["ready"],
+            "blocked": result["blocked"],
+            "order": result["order"],
+            "parallel_batches": result["parallel_batches"],
+        }
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 1
+    if cycle:
+        print(f"错误：检测到依赖环：{', '.join(cycle)}", file=sys.stderr)
+        print(f"  环内节点：{', '.join(cycle)}", file=sys.stderr)
+        return 1
+    if as_json:
+        payload = {
+            "task": task_dir.name,
+            "ready": result["ready"],
+            "blocked": result["blocked"],
+            "order": result["order"],
+            "parallel_batches": result["parallel_batches"],
+        }
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+    else:
+        print(f"== {task_dir.name}  graph")
+        print(f"  拓扑序：{' → '.join(result['order'])}")
+        if result["ready"]:
+            print(f"  可执行 (ready)：{', '.join(result['ready'])}")
+        if result["blocked"]:
+            for b in result["blocked"]:
+                print(f"  阻塞 {b['id']}：缺 {', '.join(b['missing'])}")
+        for i, batch in enumerate(result["parallel_batches"], 1):
+            print(f"  并行批次 {i}：{', '.join(batch)}")
+    return 0
+
+
 # ---------- 编排 ----------
 
 def discover(root: Path) -> list[Path]:
@@ -357,7 +726,25 @@ def main(argv=None) -> int:
     v.add_argument("targets", nargs="*", help="包目录；缺省时自动发现 docs/{spec,changes,specs}/*/")
     v.add_argument("--include-legacy", action="store_true", help="把 legacy 图集结构的旧包也纳入检查")
     v.add_argument("--json", action="store_true", dest="as_json", help="机器可读输出")
+
+    s = sub.add_parser("status", help="解析 task 的 dev-checklist，输出任务状态 + 进度")
+    s.add_argument("task_dir", help="task 目录（dev-pipeline/tasks/<name>/，内含 dev-checklist.md）")
+    s.add_argument("--json", action="store_true", dest="as_json", help="机器可读输出")
+
+    g = sub.add_parser("graph", help="基于 status 做依赖拓扑排序，输出 ready/blocked/并行批次")
+    g.add_argument("task_dir", help="task 目录")
+    g.add_argument("--json", action="store_true", dest="as_json", help="机器可读输出")
+
     args = parser.parse_args(argv)
+
+    if args.cmd in ("status", "graph"):
+        task_dir = Path(args.task_dir)
+        if not task_dir.is_dir():
+            print(f"错误：不是目录：{task_dir}", file=sys.stderr)
+            return 2
+        if args.cmd == "status":
+            return status_command(task_dir, args.as_json)
+        return graph_command(task_dir, args.as_json)
 
     if args.targets:
         pkgs = [Path(t) for t in args.targets]
