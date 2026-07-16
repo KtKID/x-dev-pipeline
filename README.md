@@ -58,7 +58,6 @@ Typical output looks like this:
 ```text
 dev-pipeline/tasks/<task-name>/
 ├── README.md
-├── changelog.md
 └── dev-report.md
 ```
 
@@ -127,7 +126,7 @@ Typically, you'll get:
 - Task directory
 - Task description
 - Dev checklist
-- Changelog
+- Development report
 - Code review report
 - Fix report or fix note
 
@@ -223,25 +222,35 @@ Architecture audit skill outside the main flow. Focuses on architecture consiste
 
 ### `/x-req`
 
-Requirements analysis. Turns a development task into a clear, structured requirements spec.
+Requirements and task preparation. After one confirmation, the main agent directly writes a lean task bundle: `README.md`, `dev-checklist.md`, and `diagram.md` when three or more modules are involved or a diagram is requested. `xdev.py scaffold`, `instructions`, and `validate` own the mechanical structure; README carries requirements, `dev-report.md` carries implementation evidence, and git history carries repository change history.
+
+```text
+dev-pipeline/tasks/<task-name>/
+├── README.md
+├── dev-checklist.md
+├── diagram.md      # optional
+└── dev-report.md   # created during implementation
+```
 
 ### `/x-plan` (deprecated alias)
 
-Compatibility entry that redirects to `/x-req`. The former planning output now lives in the x-req task README, `dev-checklist.md`, and `diagram.md`.
+Compatibility entry that redirects to `/x-req`. The planning output lives in the task README and `dev-checklist.md`; `diagram.md` is created for multi-module work or an explicit diagram request.
 
 ### `/x-dev`
 
-Execute the plan. Development with a checklist, status tracking, and a changelog.
+Execute the plan. Development uses the checklist for status, `dev-report.md` for implementation and validation evidence, and git history for repository changes.
 
 ### Orchestration engine (`tools/xdev.py`)
 
-A deterministic tool layer (the "legislative layer") that backs the skills with machine-checkable mechanics instead of prose. Three subcommands:
+A deterministic tool layer (the "legislative layer") that backs the skills with machine-checkable mechanics instead of prose. Five subcommands:
 
-- **`xdev.py validate [pkg...]`** — structural validation of spec/change packages (rules V0–V7: file completeness, link safety, Requirement/Scenario structure, delta markers, task backrefs, module consistency, status vocab).
+- **`xdev.py validate [pkg...]`** — structural validation of spec/change packages (V1–V7) and explicit task packages (V2, V8–V11: lean file set, checklist contract, optional diagram consistency, README acceptance evidence).
 - **`xdev.py status <task-dir> [--json]`** — parse a task's `dev-checklist.md`, resolve each task to an engine state (`done`/`todo`/`blocked`) from a token+emoji dual-track status column, and emit a progress JSON. Pure-emoji legacy checklists degrade automatically.
 - **`xdev.py graph <task-dir> [--json]`** — Kahn topological sort over the dependency column, emitting `ready` / `blocked` / `order` / `parallel_batches`. Detects dependency cycles (exit 1, lists cycle nodes).
+- **`xdev.py instructions <artifact-id> --task <task-dir> [--json]`** — return one task artifact's template, writing rules, output path, and dependency facts.
+- **`xdev.py scaffold <task-dir> [--with-diagram] [--json]`** — create only missing task artifacts and preserve every existing file byte-for-byte.
 
-`/x-dev` reads `status` + `graph` before dispatching sub-agents, so "what to run next" and "what can run in parallel" are computed rather than inferred from prose. Exit codes: 0 ok · 1 findings or cycle · 2 usage/IO.
+`/x-req` uses `scaffold → instructions → validate` after confirmation; `/x-dev` reads `status` + `graph` before dispatching sub-agents. Exit codes: 0 ok · 1 findings or cycle · 2 usage/IO.
 
 ### `/x-spec`
 

@@ -56,7 +56,6 @@
 ```text
 dev-pipeline/tasks/<task-name>/
 ├── README.md
-├── changelog.md
 └── dev-report.md
 ```
 
@@ -125,7 +124,7 @@ qdev 默认路径特别适合：
 - 任务目录
 - 任务说明
 - 开发清单
-- 变更记录
+- 开发报告
 - 代码审查报告
 - 修复报告或轻量修补单
 
@@ -221,15 +220,35 @@ Gate ② 流水线质量门禁。按风险路由：默认线 dispatch 一个综�
 
 ### `/x-req`
 
-需求分析。把一个开发任务整理成更清晰的需求说明。
+需求与 task 准备。一次确认后由主 agent 直接写入精简 task 包：`README.md`、`dev-checklist.md`，涉及三个以上模块或用户明确要求图时加入 `diagram.md`。`xdev.py scaffold`、`instructions` 与 `validate` 负责机械结构；README 记录需求，`dev-report.md` 记录实现证据，git history 记录仓库变更。
+
+```text
+dev-pipeline/tasks/<task-name>/
+├── README.md
+├── dev-checklist.md
+├── diagram.md      # 可选
+└── dev-report.md   # 开发阶段创建
+```
 
 ### `/x-plan`（兼容入口）
 
-已废弃别名，调用会重定向到 `/x-req`。原计划产物现在位于 x-req task README、`dev-checklist.md` 和 `diagram.md`。
+已废弃别名，调用会重定向到 `/x-req`。计划产物位于 task README 与 `dev-checklist.md`；多模块任务或明确要求图时生成 `diagram.md`。
 
 ### `/x-dev`
 
-按计划执行开发。让开发过程有清单、有状态、有记录。
+按计划执行开发。开发清单记录状态，`dev-report.md` 记录实现与验证证据，git history 记录仓库变更。
+
+### 确定性引擎（`tools/xdev.py`）
+
+确定性工具层把机械约束从 skill 散文移入命令：
+
+- **`xdev.py validate [pkg...]`**：校验 spec/change 包的 V1–V7，以及显式 task 包的 V2、V8–V11（精简文件集、checklist 契约、可选 diagram 一致性、README 验收证据）。
+- **`xdev.py status <task-dir> [--json]`**：解析 `dev-checklist.md`，输出任务状态与进度。
+- **`xdev.py graph <task-dir> [--json]`**：按依赖给出可执行任务、拓扑序与并行批次。
+- **`xdev.py instructions <artifact-id> --task <task-dir> [--json]`**：返回单个 task 产物的模板、填写规则、输出路径与依赖事实。
+- **`xdev.py scaffold <task-dir> [--with-diagram] [--json]`**：只创建缺失产物，逐字节保留已有文件。
+
+`/x-req` 在确认后执行 `scaffold → instructions → validate`；`/x-dev` 在派发前读取 `status` 与 `graph`。退出码：0 成功；1 finding 或依赖环；2 用法或 IO 错误。
 
 ### `/x-spec`
 
