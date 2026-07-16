@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """xdev — x-dev-pipeline 的确定性工具层（立法层）。
 
-Phase 1 只有 validate：对 spec 包 / change 包做结构校验（机械项），
-把散落在 SKILL.md 散文里的格式法律搬进代码。skills 管判断，本工具管机械。
+确定性工具层把散落在 SKILL.md 散文里的格式法律搬进代码。skills 管判断，
+本工具管机械。
 
 规则编号（run-log 聚合用；文字正源见 skills/x-spec/templates/TEMPLATE_GUIDE.md）：
   V0 包类型无法识别 / 文件不可读
@@ -15,6 +15,10 @@ Phase 1 只有 validate：对 spec 包 / change 包做结构校验（机械项�
   V5 90-task-map 每行任务回指 DoD
   V6 02 模块总览 与 90 task-map 的模块清单一致（词法比对）
   V7 状态取值 ∈ 受控词汇（正源：x-spec SKILL.md「状态定义」）
+  V8 task 包包含 README.md 与 dev-checklist.md（diagram.md 可选）
+  V9 task checklist 使用固定表头、合法状态和存在的依赖 ID
+  V10 可选 diagram 的 Mermaid 节点与 README「涉及模块」双向一致
+  V11 task README 的必需章节、自动化测试责任和 Smoke/E2E 证据
 
 用法：
   python3 tools/xdev.py validate [包目录 ...] [--include-legacy] [--json]
@@ -36,6 +40,12 @@ Phase 1 只有 validate：对 spec 包 / change 包做结构校验（机械项�
   python3 tools/xdev.py graph <task-dir> [--json]
   基于 status 解析结果做依赖拓扑排序（Kahn），输出 ready / blocked / order /
   parallel_batches；检测依赖环时报错并列出环节点（退出码 1）。
+
+  python3 tools/xdev.py instructions <artifact-id> --task <task-dir> [--json]
+  返回 task 产物的模板、填写规则、目标路径和依赖存在状态。
+
+  python3 tools/xdev.py scaffold <task-dir> [--with-diagram] [--json]
+  增量创建 README.md、dev-checklist.md 与可选 diagram.md；已有文件逐字节保留。
 
 退出码：0 正常；1 存在 finding 或依赖环；2 用法或 IO 错误。
 """
@@ -69,6 +79,42 @@ H4_RE = re.compile(r"^####\s+")
 H2_RE = re.compile(r"^##\s+")
 DELTA_HEAD_RE = re.compile(r"^##\s+(ADDED|MODIFIED|REMOVED)\s+Requirements\s*$")
 TABLE_SEP_RE = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
+
+PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+TASK_CHECKLIST_HEADER = ["#", "任务", "涉及文件", "依赖", "状态", "fix"]
+TASK_STATUS_PAIRS = {
+    " ": ("⏳", "▶️", "🟡"),
+    "x": ("🟢", "✅"),
+    "!": ("🔴",),
+}
+TASK_STATUS_EMOJIS = tuple(emoji for emojis in TASK_STATUS_PAIRS.values() for emoji in emojis)
+
+INSTRUCTION_SUFFIX = "以上规则与模板内 HTML 注释用于填写约束；完成产物时删除模板注释，不要复制规则文字。"
+
+README_INSTRUCTION = """先将已确认的需求逐条写入 README。核心目标、需求要点、涉及模块、架构拆分策略、技术设计、可客观验证的 DoD 与 Smoke/E2E 验收路径必须相互可追溯；自动化测试责任应明确交给 x-dev，并由 dev-report 记录真实命令和结果。Smoke/E2E 优先提供可执行命令，交互验收写明 manual。\n\n""" + INSTRUCTION_SUFFIX
+CHECKLIST_INSTRUCTION = """开发清单从 README 的架构拆分策略推导。P0 覆盖契约、边界入口和核心状态，P1 覆盖适配集成与主要验证，P2 覆盖增强；每行关联涉及文件、依赖和状态。核心逻辑、持久化迁移、安全、跨模块集成和公共 API 变更标注 🔍；同优先级且无依赖、无写冲突的任务可以并行。\n\n""" + INSTRUCTION_SUFFIX
+DIAGRAM_INSTRUCTION = """README 是架构文字事实源，diagram 是只读投影。将 README 的涉及模块、边界类和依赖关系映射为 Mermaid 节点与连线；模块名保持一致，按模块划分 subgraph，并压缩同质重复节点。\n\n""" + INSTRUCTION_SUFFIX
+
+ARTIFACTS = {
+    "readme": {
+        "generates": "README.md",
+        "template": "skills/x-req/templates/README.md",
+        "requires": [],
+        "instruction": README_INSTRUCTION,
+    },
+    "dev-checklist": {
+        "generates": "dev-checklist.md",
+        "template": "skills/x-req/templates/dev-checklist.md",
+        "requires": ["readme"],
+        "instruction": CHECKLIST_INSTRUCTION,
+    },
+    "diagram": {
+        "generates": "diagram.md",
+        "template": "skills/x-req/templates/diagram.md",
+        "requires": ["readme"],
+        "instruction": DIAGRAM_INSTRUCTION,
+    },
+}
 
 
 def finding(file: str, line: int, rule: str, msg: str) -> dict:
@@ -134,9 +180,107 @@ def col_values(text: str, col_keyword: str) -> list[str]:
     return vals
 
 
+def artifact_template(artifact_id: str) -> str:
+    """从工具位置推导插件根目录，读取唯一注册表声明的模板。"""
+    entry = ARTIFACTS[artifact_id]
+    return read_text(PLUGIN_ROOT / entry["template"])
+
+
+def artifact_payload(artifact_id: str, task_dir: Path) -> dict:
+    """构造 instructions 命令的稳定事实输出。"""
+    entry = ARTIFACTS[artifact_id]
+    output_path = task_dir / entry["generates"]
+    dependencies = []
+    for dependency_id in entry["requires"]:
+        dependency_path = task_dir / ARTIFACTS[dependency_id]["generates"]
+        dependencies.append({
+            "id": dependency_id,
+            "path": str(dependency_path),
+            "exists": dependency_path.exists(),
+        })
+    return {
+        "artifact": artifact_id,
+        "output_path": str(output_path),
+        "exists": output_path.exists(),
+        "template": artifact_template(artifact_id),
+        "instruction": entry["instruction"],
+        "requires": entry["requires"],
+        "dependencies": dependencies,
+    }
+
+
+def instructions_command(artifact_id: str, task_dir: Path, as_json: bool) -> int:
+    """instructions 子命令：报告产物事实，不把依赖缺失升级为错误。"""
+    if artifact_id not in ARTIFACTS:
+        choices = ", ".join(ARTIFACTS)
+        print(f"错误：未知 artifact ID「{artifact_id}」，可用：{choices}", file=sys.stderr)
+        return 2
+    try:
+        payload = artifact_payload(artifact_id, task_dir)
+    except OSError as exc:
+        print(f"错误：读取 artifact 模板失败：{exc}", file=sys.stderr)
+        return 2
+    if as_json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+        return 0
+
+    print(f"== {payload['artifact']} instructions")
+    print(f"  输出：{payload['output_path']}")
+    print(f"  已存在：{'是' if payload['exists'] else '否'}")
+    print(f"  依赖：{', '.join(payload['requires']) or '无'}")
+    for dependency in payload["dependencies"]:
+        state = "存在" if dependency["exists"] else "缺失"
+        print(f"  依赖产物 {dependency['id']}：{dependency['path']}（{state}）")
+    print("\n== template\n")
+    print(payload["template"])
+    print("\n== instruction\n")
+    print(payload["instruction"])
+    return 0
+
+
+def scaffold_command(task_dir: Path, with_diagram: bool, as_json: bool) -> int:
+    """scaffold 子命令：仅创建缺失产物，已有文件保持原字节内容。"""
+    artifact_ids = ["readme", "dev-checklist"]
+    if with_diagram:
+        artifact_ids.append("diagram")
+    created: list[str] = []
+    skipped: list[str] = []
+    try:
+        task_dir.mkdir(parents=True, exist_ok=True)
+        for artifact_id in artifact_ids:
+            path = task_dir / ARTIFACTS[artifact_id]["generates"]
+            if path.exists():
+                skipped.append(str(path))
+                continue
+            content = artifact_template(artifact_id)
+            if artifact_id == "readme":
+                content = content.replace("# <task-name>", f"# {task_dir.name}", 1)
+            path.write_text(content, encoding="utf-8")
+            created.append(str(path))
+    except OSError as exc:
+        print(f"错误：scaffold 无法写入 {task_dir}：{exc}", file=sys.stderr)
+        return 2
+
+    payload = {"task": str(task_dir), "created": created, "skipped": skipped}
+    if as_json:
+        print(json.dumps(payload, ensure_ascii=False, indent=2))
+    else:
+        print(f"== scaffold {task_dir}")
+        for path in created:
+            print(f"  created: {path}")
+        for path in skipped:
+            print(f"  skipped: {path}")
+    return 0
+
+
 # ---------- 包类型识别 ----------
 
 def detect_type(pkg: Path) -> str:
+    parts = pkg.resolve().parts
+    if (pkg / "dev-checklist.md").exists() or any(
+        parts[i : i + 2] == ("dev-pipeline", "tasks") for i in range(len(parts) - 1)
+    ):
+        return "task"
     if (
         (pkg / "diagrams.md").exists()
         or (pkg / "diagrams.html").exists()
@@ -319,6 +463,170 @@ def check_status_vocab(pkg: Path, ptype: str):
                 yield finding(name, ln, "V7", f"状态取值不在受控词汇内：{cs[idx]}")
 
 
+def check_task_files_complete(pkg: Path, ptype: str):
+    for name in ("README.md", "dev-checklist.md"):
+        if not (pkg / name).exists():
+            yield finding("(package)", 0, "V8", f"task 包缺少必需文件：{name}")
+
+
+def is_supported_task_status(value: str) -> bool:
+    """V9 的双轨与历史 emoji 状态契约。"""
+    token = TOKEN_RE.search(value)
+    if token:
+        return any(emoji in value for emoji in TASK_STATUS_PAIRS[token.group("box")])
+    return any(emoji in value for emoji in TASK_STATUS_EMOJIS)
+
+
+def check_task_checklist(pkg: Path, ptype: str):
+    checklist = pkg / "dev-checklist.md"
+    if not checklist.exists():
+        return
+    text = read_text(checklist)
+    header, rows = first_table(text)
+    if header != TASK_CHECKLIST_HEADER:
+        actual = " | ".join(header or []) or "(无表格)"
+        expected = " | ".join(TASK_CHECKLIST_HEADER)
+        yield finding("dev-checklist.md", 0, "V9", f"checklist 表头必须为「{expected}」，实际为「{actual}」")
+        return
+    try:
+        parse_checklist(pkg)
+    except (FileNotFoundError, ValueError) as exc:
+        yield finding("dev-checklist.md", 0, "V9", f"checklist 无法解析：{exc}")
+        return
+
+    known_ids: set[str] = set()
+    parsed_rows: list[tuple[int, list[str], str]] = []
+    for line, row in rows:
+        raw_id = row[0].strip() if row else ""
+        match = ID_COL_RE.fullmatch(raw_id)
+        if not match:
+            yield finding("dev-checklist.md", line, "V9", f"非法 task ID：{raw_id or '(空)'}")
+            continue
+        task_id = f"T{match.group(1)}"
+        known_ids.add(task_id)
+        parsed_rows.append((line, row, task_id))
+
+    for line, row, _task_id in parsed_rows:
+        status = row[4].strip() if len(row) > 4 else ""
+        if not is_supported_task_status(status):
+            yield finding("dev-checklist.md", line, "V9", f"非法状态：{status or '(空)'}")
+        dependencies = parse_deps(row[3] if len(row) > 3 else "")
+        for dependency in dependencies:
+            if dependency not in known_ids:
+                yield finding("dev-checklist.md", line, "V9", f"依赖「{dependency}」不在 task 表中")
+
+
+def normalize_module_name(value: str) -> str:
+    """归一化 Markdown/Mermaid 的节点标签，供 V10 做词法双向比对。"""
+    value = re.sub(r"<br\s*/?>.*$", "", value, flags=re.IGNORECASE)
+    value = value.split("·", 1)[0]
+    value = re.split(r"[：:]", value, maxsplit=1)[0]
+    value = re.sub(r"[`*_]", "", value)
+    return re.sub(r"[^0-9A-Za-z\u4e00-\u9fff]+", "", value).lower()
+
+
+def readme_modules(text: str) -> dict[str, str]:
+    """提取 README「涉及模块」段落的项目符号或表格模块名。"""
+    section: list[str] = []
+    active = False
+    for line in text.splitlines():
+        if H2_RE.match(line):
+            if line[3:].strip().startswith("涉及模块"):
+                active = True
+                continue
+            if active:
+                break
+        if active:
+            section.append(line)
+    names: dict[str, str] = {}
+    for line in section:
+        match = re.match(r"^\s*[-*+]\s+(.+)$", line)
+        if match:
+            original = match.group(1).strip()
+            normalized = normalize_module_name(original)
+            if normalized:
+                names[normalized] = original
+    header, rows = first_table("\n".join(section))
+    if header:
+        index = next((i for i, cell in enumerate(header) if "模块" in cell), None)
+        if index is not None:
+            for _line, row in rows:
+                if index < len(row):
+                    original = row[index].strip()
+                    normalized = normalize_module_name(original)
+                    if normalized:
+                        names[normalized] = original
+    return names
+
+
+MERMAID_LABEL_RE = re.compile(
+    r"\b[A-Za-z_][A-Za-z0-9_]*\s*(?:\[\s*\"([^\"]+)\"\s*\]|\[\s*([^\]]+)\s*\]|\(\s*\"([^\"]+)\"\s*\)|\(\s*([^\)]+)\s*\))"
+)
+
+
+def mermaid_modules(text: str) -> dict[str, str]:
+    """提取所有 mermaid fenced block 中的节点标签。"""
+    names: dict[str, str] = {}
+    in_mermaid = False
+    for line in text.splitlines():
+        if line.lstrip().startswith("```"):
+            marker = line.lstrip()[3:].strip().lower()
+            if in_mermaid:
+                in_mermaid = False
+            elif marker == "mermaid":
+                in_mermaid = True
+            continue
+        if not in_mermaid:
+            continue
+        for match in MERMAID_LABEL_RE.finditer(line):
+            original = next(group for group in match.groups() if group is not None).strip()
+            normalized = normalize_module_name(original)
+            if normalized:
+                names[normalized] = original
+    return names
+
+
+def check_task_diagram(pkg: Path, ptype: str):
+    readme = pkg / "README.md"
+    diagram = pkg / "diagram.md"
+    if not (readme.exists() and diagram.exists()):
+        return
+    declared = readme_modules(read_text(readme))
+    rendered = mermaid_modules(read_text(diagram))
+    for name in sorted(declared.keys() - rendered.keys()):
+        yield finding("diagram.md", 0, "V10", f"README 模块「{declared[name]}」缺少 Mermaid 节点")
+    for name in sorted(rendered.keys() - declared.keys()):
+        yield finding("diagram.md", 0, "V10", f"Mermaid 节点「{rendered[name]}」未在 README 涉及模块声明")
+
+
+README_H2_REQUIREMENTS = ("核心目标", "需求要点", "涉及模块", "架构拆分策略", "DoD", "Smoke / E2E 验收用例")
+
+
+def check_task_readme(pkg: Path, ptype: str):
+    readme = pkg / "README.md"
+    if not readme.exists():
+        return
+    lines = read_text(readme).splitlines()
+    h2s = [(line_number, line[3:].strip()) for line_number, line in enumerate(lines, 1) if H2_RE.match(line)]
+    for heading in README_H2_REQUIREMENTS:
+        if not any(actual.startswith(heading) for _line, actual in h2s):
+            yield finding("README.md", 0, "V11", f"缺少以「{heading}」开头的二级标题")
+
+    smoke_index = next((line_number - 1 for line_number, actual in h2s if actual.startswith("Smoke / E2E 验收用例")), None)
+    if smoke_index is None:
+        return
+    end_index = next((
+        index for index in range(smoke_index + 1, len(lines)) if H2_RE.match(lines[index])
+    ), len(lines))
+    smoke_lines = lines[smoke_index:end_index]
+    if not any(H3_RE.match(line) and line[4:].strip().startswith("自动化测试责任") for line in smoke_lines):
+        yield finding("README.md", smoke_index + 1, "V11", "Smoke / E2E 区域缺少三级标题「自动化测试责任」")
+    has_fenced_command = any(line.lstrip().startswith("```") for line in smoke_lines)
+    has_manual = any("manual" in line.lower() for line in smoke_lines)
+    if not has_fenced_command and not has_manual:
+        yield finding("README.md", smoke_index + 1, "V11", "Smoke / E2E 区域缺少围栏命令代码块或 manual 标记")
+
+
 CHECKS = [
     check_files_complete,   # V1
     check_link_rules,       # V2
@@ -327,6 +635,14 @@ CHECKS = [
     check_task_backrefs,    # V5
     check_module_consistency,  # V6
     check_status_vocab,     # V7
+]
+
+TASK_CHECKS = [
+    check_link_rules,       # V2
+    check_task_files_complete,  # V8
+    check_task_checklist,   # V9
+    check_task_diagram,     # V10
+    check_task_readme,      # V11
 ]
 
 
@@ -709,7 +1025,8 @@ def validate_pkg(pkg: Path, include_legacy: bool) -> dict:
             finding("(package)", 0, "V0", "无法识别包类型（既无 proposal.md / 01-goals / spec.md，也非 legacy）")
         )
         return result
-    for check in CHECKS:
+    checks = TASK_CHECKS if ptype == "task" else CHECKS
+    for check in checks:
         if ptype == "legacy" and check is check_files_complete:
             continue  # legacy 不按新档位查齐全
         try:
@@ -735,7 +1052,23 @@ def main(argv=None) -> int:
     g.add_argument("task_dir", help="task 目录")
     g.add_argument("--json", action="store_true", dest="as_json", help="机器可读输出")
 
+    i = sub.add_parser("instructions", help="返回 task 产物模板、填写规则与依赖事实")
+    i.add_argument("artifact_id", help=f"artifact ID：{', '.join(ARTIFACTS)}")
+    i.add_argument("--task", required=True, dest="task_dir", help="目标 task 目录")
+    i.add_argument("--json", action="store_true", dest="as_json", help="机器可读输出")
+
+    c = sub.add_parser("scaffold", help="增量创建 task 包骨架，已有文件保持原状")
+    c.add_argument("task_dir", help="目标 task 目录")
+    c.add_argument("--with-diagram", action="store_true", help="同时创建可选 diagram.md")
+    c.add_argument("--json", action="store_true", dest="as_json", help="机器可读输出")
+
     args = parser.parse_args(argv)
+
+    if args.cmd == "instructions":
+        return instructions_command(args.artifact_id, Path(args.task_dir), args.as_json)
+
+    if args.cmd == "scaffold":
+        return scaffold_command(Path(args.task_dir), args.with_diagram, args.as_json)
 
     if args.cmd in ("status", "graph"):
         task_dir = Path(args.task_dir)
