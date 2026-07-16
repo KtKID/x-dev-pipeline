@@ -1,0 +1,3 @@
+schema: spec-driven
+created: 2026-07-16
+goal: 让机械格式与骨架生成进入 tools/xdev.py，x-req 只保留需求和架构判断
