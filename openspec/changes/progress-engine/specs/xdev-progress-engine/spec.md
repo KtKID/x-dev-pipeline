@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: flag 参数校验与校验原子性
-工具层 SHALL 提供 `python3 tools/xdev.py flag <task-dir> --task <T#列表> --severity <P0|P1|P2> --loc <file:line> --msg <问题描述> [--new-round] [--json]`。没有 pending 事务时，flag SHALL 在写入业务文件与事务标记前验证全部参数：task 项 trim 后必须匹配 `T[1-9][0-9]*`，不得为空或重复，且目标在 checklist 中必须存在且唯一；severity 必须属于 P0/P1/P2；loc 必须是单行 `路径:正整数行号` 且不得包含 `|`、CR、LF；msg trim 后必须非空，CRLF/CR/LF SHALL 归一为空格，剩余字符必须可打印。任一参数或校验错误 SHALL 以 2 退出，checklist、ledger 和事务标记保持原样。语法完整的调用发现 pending 事务时 SHALL 优先恢复旧事务并忽略本次参数。
+工具层 SHALL 提供 `python3 tools/xdev.py flag <task-dir> --task <T#列表> --severity <P0|P1|P2> --loc <file:line> --msg <问题描述> [--new-round] [--json]`。没有 pending 事务时，flag SHALL 在写入业务文件与事务标记前验证全部参数：task 项 trim 后必须匹配 `T[1-9][0-9]*`，不得为空或重复，且目标在 checklist 中必须存在且唯一；severity 必须属于 P0/P1/P2；loc 必须是单行 `路径:正整数行号` 且不得包含 `|`、CR、LF；msg trim 后必须非空，CRLF/CR/LF SHALL 归一为空格，剩余字符必须可打印。任一参数或校验错误 SHALL 以 2 退出，checklist、ledger 和事务标记保持原样。恢复优先于参数值校验：只要命令行参数齐全（argparse 解析通过），发现 pending 事务的调用 SHALL 先恢复旧事务、以 `recovered: true` 返回 0，本次参数不进入校验与登记。
 
 #### Scenario: 合法参数进入登记
 - **WHEN** 运行 `flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "空输入未处理"`
@@ -19,8 +19,13 @@
 - **WHEN** msg 含 CRLF、CR 或 LF，且归一化后仍为非空可打印文本
 - **THEN** 各换行被替换为空格，竖线与其他可打印字符原样保留
 
+#### Scenario: 参数值非法但存在 pending 事务
+- **GIVEN** 目录中存在 pending transaction marker
+- **WHEN** 以参数齐全但值非法（如 `--task T0`）的命令运行 flag
+- **THEN** 命令先完成恢复、以 0 退出并返回旧 issue（`recovered: true`），本次参数未被校验或登记
+
 ### Requirement: 轮次文件与 issue 编号
-ledger 文件 SHALL 使用 `qa-gate-report-<YYYYMMDD-HHmmss>.md`；同秒冲突 SHALL 依次使用 `qa-gate-report-<YYYYMMDD-HHmmss>-01.md`、`-02.md`。缺省调用 SHALL 选择 `(时间戳, 数值后缀)` 最大的 ledger；`--new-round` SHALL 以独占创建选择当前秒首个空闲名称；无 ledger 时 SHALL 自动创建首轮。新文件 SHALL 由 `render_issue_report` 生成固定标题、代码所有权说明和 `## Issues`。`next_issue_id` SHALL 只匹配代码生成的行首 `^- issue-([0-9]+) \|`，首条为 `issue-1`，后续取本轮最大值加一；系统 MUST NOT 从 ledger 反向解析 severity、T#、loc 或 msg。
+ledger 文件 SHALL 使用 `qa-gate-report-<YYYYMMDD-HHmmss>.md`；同秒冲突 SHALL 依次使用 `qa-gate-report-<YYYYMMDD-HHmmss>-01.md`、`-02.md`。缺省调用 SHALL 选择 `(时间戳, 数值后缀)` 最大的 ledger；`--new-round` SHALL 以存在性探测选择当前秒首个空闲名称，并发同名的唯一性由事务 marker 的独占发布与提交前哈希校验仲裁；无 ledger 时 SHALL 自动创建首轮。新文件 SHALL 由 `render_issue_report` 生成固定标题、代码所有权说明和 `## Issues`。`next_issue_id` SHALL 只匹配代码生成的行首 `^- issue-([0-9]+) \|`，首条为 `issue-1`，后续取本轮最大值加一；系统 MUST NOT 从 ledger 反向解析 severity、T#、loc 或 msg。
 
 #### Scenario: 首轮自动创建 issue-1
 - **GIVEN** task 没有 ledger
@@ -52,7 +57,7 @@ ledger 文件 SHALL 使用 `qa-gate-report-<YYYYMMDD-HHmmss>.md`；同秒冲突 
 ### Requirement: 双文件事务前滚恢复
 flag SHALL 使用 `<task-dir>/reports/qa-gate/.flag-transaction.json` 协调 ledger 与 checklist。校验通过后，系统 SHALL 在内存生成完整目标内容和结果，将两份内容写入目标同目录唯一临时文件并 flush/fsync。系统 SHALL 把完整 marker JSON 写入 qa-gate 目录的唯一临时文件并 fsync，再以 `os.link` 独占发布 marker；发布成功、删除 marker 临时文件并 fsync 目录后，才可通过 `os.replace` 提交目标。marker SHALL 包含 schema version、目标与临时相对路径、读取时旧 SHA-256、目标新 SHA-256、原 JSON 结果。首次替换前，两个目标 SHALL 分别匹配其旧哈希或本事务新哈希；第三种内容 SHALL 使当前事务清理 marker 与自身临时文件、以 2 退出并保持第三方内容。每次替换后 SHALL fsync 目标目录；确认两个目标新哈希后 SHALL 删除 marker 并再次 fsync marker 目录。系统只在 marker 清理完成后报告新 issue 登记成功。
 
-任何语法完整的 flag 调用发现 pending marker 时 SHALL 先恢复旧事务：已匹配目标哈希的文件跳过；未匹配且临时文件存在时继续 replace；未匹配且临时文件缺失时以 2 退出并保留 marker。恢复成功 SHALL 返回 marker 保存的旧 issue 结果、设置 `recovered: true`，并 MUST NOT 处理本次新 issue 参数。并发调用发布 marker 遇到已存在时 SHALL 清理自己尚未发布的临时文件，转入既有事务恢复，且 MUST NOT 登记自己的 issue。
+任何参数齐全的 flag 调用发现 pending marker 时 SHALL 先恢复旧事务，按目标现状分四支处理：已匹配本事务新哈希的文件跳过；匹配读取时旧哈希且临时文件存在时继续 replace；匹配旧哈希但临时文件缺失时以 2 退出并保留 marker；与新旧哈希均不匹配（第三方改写）时以 2 退出、保留 marker 并报告当前与期望哈希。恢复成功 SHALL 返回 marker 保存的旧 issue 结果、设置 `recovered: true`，并 MUST NOT 处理本次新 issue 参数。并发调用发布 marker 遇到已存在时 SHALL 清理自己尚未发布的临时文件，转入既有事务恢复，且 MUST NOT 登记自己的 issue。
 
 #### Scenario: 校验错误不创建事务
 - **WHEN** 参数或 checklist 校验失败

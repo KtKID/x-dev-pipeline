@@ -11,7 +11,7 @@
 - [x] 2.3 T6：实现 `downgrade_task_rows`，只更新 P0/P1 目标状态单元格；P2、其他单元格与升钩保持现有边界。
 - [x] 2.4 T7：实现 `.flag-transaction.json`、同目录唯一临时文件、读取时/目标 SHA-256、`os.link` 完整独占发布、陈旧写前置校验、目录 fsync、双目标 replace 与 `recover_flag_transaction`；恢复返回旧 issue 且不处理新参数。
 - [x] 2.5 T8：实现 JSON 四键输出与 0/2 退出码，补充人类可读成功、恢复和错误输出。
-- [x] 2.6 T9：新增 `test/test_xdev_flag.py`，覆盖参数矩阵、issue 编号、受限扫描、同秒轮次、ledger 骨架、降级、P2、marker 发布竞争、陈旧写保护、事务中断恢复、缺失恢复材料和 emoji 回归。
+- [x] 2.6 T9：新增 `test/test_xdev_flag.py`，覆盖参数矩阵、issue 编号、受限扫描、同秒轮次、ledger 骨架、降级、P2、marker 发布竞争、陈旧写保护、事务中断恢复、恢复优先于值校验、缺失恢复材料和 emoji 回归。
 - [x] 2.7 T10：运行完整 unittest 与 flag 正反样例，仅提交 `tools/xdev.py` 和 `test/` 为 Commit A。（74 tests OK；Commit A `1a90a36`）
 
 ## 3. Commit B：skills 与 gate-fix 协议
@@ -43,7 +43,7 @@
 | T4 | `tools/xdev.py` | DoD 5、9 |
 | T5 | `tools/xdev.py` | DoD 4、7 |
 | T6 | `tools/xdev.py` | DoD 2、3、8、10 |
-| T7 | `tools/xdev.py` | DoD 6、6a |
+| T7 | `tools/xdev.py` | DoD 6、6a、6b |
 | T8 | `tools/xdev.py` | DoD 6 |
 | T9 | `test/test_xdev_flag.py`、orchestration fixture | DoD 2-10 |
 | T10 | `tools/xdev.py`、`test/` | DoD 1、12 |

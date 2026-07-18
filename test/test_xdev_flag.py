@@ -261,6 +261,22 @@ class TestFlagTransactionRecovery(FlagTestCase):
         self.assertIn("空输入未处理", ledger)
         self.assertNotIn("| new", ledger)
 
+    def test_recovery_precedes_value_validation(self):
+        task = self.make_task()
+        self.assertEqual(self.interrupt_after_first_replace(task)[0], 2)
+        marker = task / "reports" / "qa-gate" / xdev.FLAG_MARKER_NAME
+        self.assertTrue(marker.exists())
+
+        bad_args = ["--task", "T0", "--severity", "P1", "--loc", "x.py:1", "--msg", "bad", "--json"]
+        code, stdout, stderr = capture_flag(task, *bad_args)
+        self.assertEqual(code, 0, stderr)
+        payload = json.loads(stdout)
+        self.assertEqual(payload["issue"], "issue-1")
+        self.assertTrue(payload["recovered"])
+        self.assertFalse(marker.exists())
+        ledger = (task / "reports" / "qa-gate" / payload["report"]).read_text(encoding="utf-8")
+        self.assertNotIn("bad", ledger)
+
     def test_missing_recovery_temp_keeps_marker_and_returns_two(self):
         task = self.make_task()
         self.assertEqual(self.interrupt_after_first_replace(task)[0], 2)

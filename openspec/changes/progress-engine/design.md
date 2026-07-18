@@ -48,7 +48,7 @@ reviewer 返回 T#、severity、loc、msg，主 agent 逐条调用 flag。`appen
 
 ### Decision 4: 轮次文件支持同秒数值后缀
 
-基础文件名使用秒级时间戳；冲突时追加 `-01`、`-02`。文件选择解析时间戳和可选整数后缀，以 `(timestamp, suffix_int)` 排序。新轮通过独占创建选定首个空闲后缀，issue 编号从 1 开始。
+基础文件名使用秒级时间戳；冲突时追加 `-01`、`-02`。文件选择解析时间戳和可选整数后缀，以 `(timestamp, suffix_int)` 排序。新轮以存在性探测选定首个空闲后缀（并发同名由 Decision 5 的 marker 独占发布与提交前哈希校验仲裁），issue 编号从 1 开始。
 
 该规则保留现有文件名前缀，并覆盖自动化测试中同秒创建多轮的路径。
 
@@ -56,7 +56,7 @@ reviewer 返回 T#、severity、loc、msg，主 agent 逐条调用 flag。`appen
 
 单次 `os.replace` 只覆盖一个目标。flag 在校验后先生成两份完整新内容，把两份同目录唯一临时文件写入并 fsync。完整 marker JSON 先写入 qa-gate 目录的唯一临时文件并 fsync，再通过 `os.link` 独占发布为 `.flag-transaction.json`；发布完成并 fsync 目录后才允许第一次目标替换。标记记录目标/临时相对路径、读取时旧 SHA-256、目标新 SHA-256 和原 JSON 结果。提交前同时检查两个目标仍等于读取时旧哈希或本事务新哈希；第三种内容表示调用已陈旧，当前事务清理 marker 与临时文件并以 2 退出。前置校验通过后依次替换 checklist 与 ledger，每次替换后 fsync 目标目录；验证两个目标新哈希后删除标记并再次 fsync marker 目录。
 
-任何语法完整的 flag 调用看到 pending 标记时先恢复旧事务。目标已匹配时跳过；目标未匹配且临时文件存在时继续替换；目标未匹配且临时文件缺失时保留标记并 exit 2。恢复成功返回标记保存的旧 issue 结果与 `recovered: true`，本次新参数不进入登记。并发调用发布 marker 遇到已存在时，清理自己尚未发布的临时文件并进入相同恢复路径。
+任何参数齐全（argparse 解析通过）的 flag 调用看到 pending 标记时先恢复旧事务——恢复优先于参数值校验，值非法的调用同样先完成恢复并返回 0。目标现状分四支：已匹配本事务新哈希时跳过；匹配读取时旧哈希且临时文件存在时继续替换；匹配旧哈希但临时文件缺失时保留标记并 exit 2；与新旧哈希均不匹配（第三方改写）时保留标记、exit 2 并报告哈希差异。恢复成功返回标记保存的旧 issue 结果与 `recovered: true`，本次新参数不进入登记。并发调用发布 marker 遇到已存在时，清理自己尚未发布的临时文件并进入相同恢复路径。
 
 事务语义是“全部成功或可恢复”。IO/进程中断可能留下短暂单目标新状态；标记让该状态显式可检测并在下一调用前收敛。
 
@@ -76,7 +76,7 @@ Commit B 覆盖 x-qa-gate SKILL、reviewer references、report template、x-dev 
 
 - [Risk] 中断可能留下 pending 事务或一个已替换目标。→ Mitigation：每次 flag 先恢复，目标哈希用于幂等前滚。
 - [Risk] 事务标记或临时文件被人工删除会阻断恢复。→ Mitigation：保留 marker、exit 2，并报告缺失路径与目标哈希。
-- [Risk] 同秒轮次出现多个文件。→ Mitigation：数值后缀与独占创建提供确定排序。
+- [Risk] 同秒轮次出现多个文件。→ Mitigation：数值后缀提供确定排序；并发同名由 marker 独占发布仲裁。
 - [Risk] 较慢调用在另一事务完成后取得 marker，可能携带旧 ledger 快照。→ Mitigation：marker 保存读取时旧哈希，首次 replace 前对两个目标做乐观前置校验。
 - [Risk] 主 agent 重复完成两次正常 flag 会登记两个 issue。→ Mitigation：重复记录保持可见；事务恢复调用只返回旧结果，不处理新参数。
 - [Risk] 旧 emoji checklist 的目标行变为双轨状态。→ Mitigation：只改目标单元格，status/graph 兼容行为保持稳定。

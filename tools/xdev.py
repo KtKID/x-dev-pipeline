@@ -1902,7 +1902,7 @@ def main(argv=None) -> int:
     flag = sub.add_parser("flag", help="登记 QA Gate issue，并对 P0/P1 task 执行只降级更新")
     flag.add_argument("task_dir", help="task 目录（内含 dev-checklist.md）")
     flag.add_argument("--task", required=True, dest="task_ids", help="逗号分隔的 T# 列表，如 T2,T3")
-    flag.add_argument("--severity", required=True, help="P0、P1 或 P2")
+    flag.add_argument("--severity", required=True, choices=["P0", "P1", "P2"], help="P0、P1 或 P2")
     flag.add_argument("--loc", required=True, help="问题位置：path:正整数行号")
     flag.add_argument("--msg", required=True, help="问题描述")
     flag.add_argument("--new-round", action="store_true", help="创建新的 QA Gate ledger 轮次")
