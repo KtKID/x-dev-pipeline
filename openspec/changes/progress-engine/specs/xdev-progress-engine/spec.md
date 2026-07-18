@@ -50,7 +50,7 @@ ledger 文件 SHALL 使用 `qa-gate-report-<YYYYMMDD-HHmmss>.md`；同秒冲突 
 - **THEN** 代码生成单行 ledger 记录并完整保留竖线
 
 ### Requirement: 双文件事务前滚恢复
-flag SHALL 使用 `<task-dir>/reports/qa-gate/.flag-transaction.json` 协调 ledger 与 checklist。校验通过后，系统 SHALL 在内存生成完整目标内容和结果，将两份内容写入目标同目录唯一临时文件并 flush/fsync。系统 SHALL 把完整 marker JSON 写入 qa-gate 目录的唯一临时文件并 fsync，再以 `os.link` 独占发布 marker；发布成功、删除 marker 临时文件并 fsync 目录后，才可通过 `os.replace` 提交目标。marker SHALL 包含 schema version、目标与临时相对路径、目标 SHA-256、原 JSON 结果。每次替换后 SHALL fsync 目标目录；确认两个目标哈希后 SHALL 删除 marker 并再次 fsync marker 目录。系统只在 marker 清理完成后报告新 issue 登记成功。
+flag SHALL 使用 `<task-dir>/reports/qa-gate/.flag-transaction.json` 协调 ledger 与 checklist。校验通过后，系统 SHALL 在内存生成完整目标内容和结果，将两份内容写入目标同目录唯一临时文件并 flush/fsync。系统 SHALL 把完整 marker JSON 写入 qa-gate 目录的唯一临时文件并 fsync，再以 `os.link` 独占发布 marker；发布成功、删除 marker 临时文件并 fsync 目录后，才可通过 `os.replace` 提交目标。marker SHALL 包含 schema version、目标与临时相对路径、读取时旧 SHA-256、目标新 SHA-256、原 JSON 结果。首次替换前，两个目标 SHALL 分别匹配其旧哈希或本事务新哈希；第三种内容 SHALL 使当前事务清理 marker 与自身临时文件、以 2 退出并保持第三方内容。每次替换后 SHALL fsync 目标目录；确认两个目标新哈希后 SHALL 删除 marker 并再次 fsync marker 目录。系统只在 marker 清理完成后报告新 issue 登记成功。
 
 任何语法完整的 flag 调用发现 pending marker 时 SHALL 先恢复旧事务：已匹配目标哈希的文件跳过；未匹配且临时文件存在时继续 replace；未匹配且临时文件缺失时以 2 退出并保留 marker。恢复成功 SHALL 返回 marker 保存的旧 issue 结果、设置 `recovered: true`，并 MUST NOT 处理本次新 issue 参数。并发调用发布 marker 遇到已存在时 SHALL 清理自己尚未发布的临时文件，转入既有事务恢复，且 MUST NOT 登记自己的 issue。
 
@@ -67,6 +67,11 @@ flag SHALL 使用 `<task-dir>/reports/qa-gate/.flag-transaction.json` 协调 led
 - **GIVEN** 两个调用均已写好各自临时内容
 - **WHEN** 一个调用先发布 marker，另一个调用遇到 marker 已存在
 - **THEN** 后者清理自己的临时文件、恢复前者事务并返回前者 issue，且不登记自己的 issue
+
+#### Scenario: 陈旧调用停止覆盖已完成轮次
+- **GIVEN** 较慢调用读取了尚不存在的新轮目标，另一调用随后完成该轮 ledger
+- **WHEN** 较慢调用取得 marker 并执行首次替换前校验
+- **THEN** 新轮目标与读取时旧哈希不匹配，较慢调用以 2 退出并保持已完成 ledger 原样
 
 #### Scenario: 恢复材料缺失
 - **GIVEN** marker 指向的目标哈希未匹配，且对应临时文件缺失

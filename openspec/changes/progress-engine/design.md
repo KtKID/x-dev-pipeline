@@ -54,7 +54,7 @@ reviewer 返回 T#、severity、loc、msg，主 agent 逐条调用 flag。`appen
 
 ### Decision 5: 事务标记提供跨文件前滚恢复
 
-单次 `os.replace` 只覆盖一个目标。flag 在校验后先生成两份完整新内容，把两份同目录唯一临时文件写入并 fsync。完整 marker JSON 先写入 qa-gate 目录的唯一临时文件并 fsync，再通过 `os.link` 独占发布为 `.flag-transaction.json`；发布完成并 fsync 目录后才允许第一次目标替换。标记记录目标/临时相对路径、目标 SHA-256 和原 JSON 结果。随后依次替换 checklist 与 ledger，每次替换后 fsync 目标目录；验证两个目标哈希后删除标记并再次 fsync marker 目录。
+单次 `os.replace` 只覆盖一个目标。flag 在校验后先生成两份完整新内容，把两份同目录唯一临时文件写入并 fsync。完整 marker JSON 先写入 qa-gate 目录的唯一临时文件并 fsync，再通过 `os.link` 独占发布为 `.flag-transaction.json`；发布完成并 fsync 目录后才允许第一次目标替换。标记记录目标/临时相对路径、读取时旧 SHA-256、目标新 SHA-256 和原 JSON 结果。提交前同时检查两个目标仍等于读取时旧哈希或本事务新哈希；第三种内容表示调用已陈旧，当前事务清理 marker 与临时文件并以 2 退出。前置校验通过后依次替换 checklist 与 ledger，每次替换后 fsync 目标目录；验证两个目标新哈希后删除标记并再次 fsync marker 目录。
 
 任何语法完整的 flag 调用看到 pending 标记时先恢复旧事务。目标已匹配时跳过；目标未匹配且临时文件存在时继续替换；目标未匹配且临时文件缺失时保留标记并 exit 2。恢复成功返回标记保存的旧 issue 结果与 `recovered: true`，本次新参数不进入登记。并发调用发布 marker 遇到已存在时，清理自己尚未发布的临时文件并进入相同恢复路径。
 
@@ -77,6 +77,7 @@ Commit B 覆盖 x-qa-gate SKILL、reviewer references、report template、x-dev 
 - [Risk] 中断可能留下 pending 事务或一个已替换目标。→ Mitigation：每次 flag 先恢复，目标哈希用于幂等前滚。
 - [Risk] 事务标记或临时文件被人工删除会阻断恢复。→ Mitigation：保留 marker、exit 2，并报告缺失路径与目标哈希。
 - [Risk] 同秒轮次出现多个文件。→ Mitigation：数值后缀与独占创建提供确定排序。
+- [Risk] 较慢调用在另一事务完成后取得 marker，可能携带旧 ledger 快照。→ Mitigation：marker 保存读取时旧哈希，首次 replace 前对两个目标做乐观前置校验。
 - [Risk] 主 agent 重复完成两次正常 flag 会登记两个 issue。→ Mitigation：重复记录保持可见；事务恢复调用只返回旧结果，不处理新参数。
 - [Risk] 旧 emoji checklist 的目标行变为双轨状态。→ Mitigation：只改目标单元格，status/graph 兼容行为保持稳定。
 

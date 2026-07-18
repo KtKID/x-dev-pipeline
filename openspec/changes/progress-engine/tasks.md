@@ -6,31 +6,31 @@
 
 ## 2. Commit A：flag 命令、事务恢复与测试
 
-- [ ] 2.1 T4：在 `tools/xdev.py` 注册 flag，完成 severity、严格 T# 列表、loc、msg 与 checklist 唯一性校验；校验失败零写入。
-- [ ] 2.2 T5：实现数值后缀轮次选择、`render_issue_report`、受限 `next_issue_id` 与 `append_issue_line`。
-- [ ] 2.3 T6：实现 `downgrade_task_rows`，只更新 P0/P1 目标状态单元格；P2、其他单元格与升钩保持现有边界。
-- [ ] 2.4 T7：实现 `.flag-transaction.json`、同目录唯一临时文件、SHA-256、`os.link` 完整独占发布、目录 fsync、双目标 replace 与 `recover_flag_transaction`；恢复返回旧 issue 且不处理新参数。
-- [ ] 2.5 T8：实现 JSON 四键输出与 0/2 退出码，补充人类可读成功、恢复和错误输出。
-- [ ] 2.6 T9：新增 `test/test_xdev_flag.py`，覆盖参数矩阵、issue 编号、受限扫描、同秒轮次、ledger 骨架、降级、P2、marker 发布竞争、事务中断恢复、缺失恢复材料和 emoji 回归。
-- [ ] 2.7 T10：运行完整 unittest 与 flag 正反样例，仅提交 `tools/xdev.py` 和 `test/` 为 Commit A。
+- [x] 2.1 T4：在 `tools/xdev.py` 注册 flag，完成 severity、严格 T# 列表、loc、msg 与 checklist 唯一性校验；校验失败零写入。
+- [x] 2.2 T5：实现数值后缀轮次选择、`render_issue_report`、受限 `next_issue_id` 与 `append_issue_line`。
+- [x] 2.3 T6：实现 `downgrade_task_rows`，只更新 P0/P1 目标状态单元格；P2、其他单元格与升钩保持现有边界。
+- [x] 2.4 T7：实现 `.flag-transaction.json`、同目录唯一临时文件、读取时/目标 SHA-256、`os.link` 完整独占发布、陈旧写前置校验、目录 fsync、双目标 replace 与 `recover_flag_transaction`；恢复返回旧 issue 且不处理新参数。
+- [x] 2.5 T8：实现 JSON 四键输出与 0/2 退出码，补充人类可读成功、恢复和错误输出。
+- [x] 2.6 T9：新增 `test/test_xdev_flag.py`，覆盖参数矩阵、issue 编号、受限扫描、同秒轮次、ledger 骨架、降级、P2、marker 发布竞争、陈旧写保护、事务中断恢复、缺失恢复材料和 emoji 回归。
+- [x] 2.7 T10：运行完整 unittest 与 flag 正反样例，仅提交 `tools/xdev.py` 和 `test/` 为 Commit A。（74 tests OK；Commit A `1a90a36`）
 
 ## 3. Commit B：skills 与 gate-fix 协议
 
-- [ ] 3.1 T11：更新 x-qa-gate SKILL、四份 reviewer references 和 report template：reviewer 返回 T#/severity/loc/msg；主 agent 每轮首条以 `--new-round` 调 flag；ledger 示例使用 `issue-1`。
-- [ ] 3.2 T12：更新 x-dev execution rules、x-fix SKILL 与 `qa-gate-fix-mode.md`：状态/ledger 分权、issue ID 处置表和增量复审引用一致。
-- [ ] 3.3 T13：搜索 active skills，确认 F1/F#/F1..Fn 与手写 issue ledger 指引清零；仅提交 `skills/` 为 Commit B。
+- [x] 3.1 T11：更新 x-qa-gate SKILL、四份 reviewer references 和 report template：reviewer 返回 T#/severity/loc/msg；主 agent 每轮首条以 `--new-round` 调 flag；ledger 骨架声明首条由代码分配为 `issue-1`。
+- [x] 3.2 T12：更新 x-dev execution rules、x-fix SKILL 与 `qa-gate-fix-mode.md`：状态/ledger 分权、issue ID 处置表和增量复审引用一致。
+- [x] 3.3 T13：搜索 active skills，确认旧 F 编号与手写 issue ledger 指引清零；仅提交 `skills/` 为 Commit B。（plugin strict passed；Commit B `118649a`）
 
 ## 4. Commit C：仓库文档同步
 
-- [ ] 4.1 T14：更新 `CLAUDE.md` reviewer 协议，移除 reviewer 自编号，改为 flag 分配 `issue-<n>`。
-- [ ] 4.2 T15：更新 `README.md` 与 `README_zh.md` 的 Gate ② 报告说明、flag 命令和 issue ledger 语义。
-- [ ] 4.3 T16：搜索 active CLAUDE/README 契约并提交仓库文档为 Commit C；历史 task 与 archived change 保持原文。
+- [x] 4.1 T14：更新 `CLAUDE.md` reviewer 协议，移除 reviewer 自编号，改为 flag 分配 `issue-<n>`。
+- [x] 4.2 T15：更新 `README.md` 与 `README_zh.md` 的 Gate ② 报告说明、flag 命令和 issue ledger 语义。
+- [x] 4.3 T16：搜索 active CLAUDE/README 契约并提交仓库文档为 Commit C；历史 task 与 archived change 保持原文。（Commit C `f93bf80`）
 
 ## 5. 交付验证与用户验收
 
-- [ ] 5.1 T17：复跑完整 unittest、flag fixture、change/all strict validation 与 `git diff --check`。
-- [ ] 5.2 T18：执行手工样例：P0 issue 登记、T9/重复 T#/非法 loc 原子拒绝、同秒新轮、msg 竖线、pending 事务恢复和主 agent 升钩。
-- [ ] 5.3 T19：汇总 active change、commit stats、测试输出与偏离说明，交用户验收并保持 active。
+- [x] 5.1 T17：复跑完整 unittest、flag fixture、change/all strict validation 与 `git diff --check`。（74 tests OK；change 1/1；all 5/5；plugin strict passed）
+- [x] 5.2 T18：执行手工样例：P0 issue 登记、T9/重复 T#/非法 loc 原子拒绝、同秒新轮、msg 竖线、pending 事务恢复和主 agent 升钩。（全部通过）
+- [x] 5.3 T19：汇总 active change、commit stats、测试输出与偏离说明，交用户验收并保持 active。
 - [ ] 5.4 T20：用户验收通过后归档 change，复验主 specs，并提交归档材料。
 
 ## 6. T# → 文件 → DoD 映射
@@ -43,7 +43,7 @@
 | T4 | `tools/xdev.py` | DoD 5、9 |
 | T5 | `tools/xdev.py` | DoD 4、7 |
 | T6 | `tools/xdev.py` | DoD 2、3、8、10 |
-| T7 | `tools/xdev.py` | DoD 6 |
+| T7 | `tools/xdev.py` | DoD 6、6a |
 | T8 | `tools/xdev.py` | DoD 6 |
 | T9 | `test/test_xdev_flag.py`、orchestration fixture | DoD 2-10 |
 | T10 | `tools/xdev.py`、`test/` | DoD 1、12 |

@@ -7,7 +7,7 @@ x-qa-gate reviewer 已能指出 task 级问题，但 issue 编号、台账落盘
 - 新增 `python3 tools/xdev.py flag <task-dir> --task <T#列表> --severity <P0|P1|P2> --loc <file:line> --msg <问题描述> [--new-round] [--json]`。
 - 代码为每轮问题分配 `issue-1`、`issue-2`；只扫描代码生成的 issue 行首分配下一个编号，不解析台账内容字段。
 - 参数校验覆盖 severity、严格 T# 列表、单行 `file:line` 和可打印 msg；校验失败返回 2 且零写入。
-- 使用 `.flag-transaction.json`、同目录临时文件、SHA-256、`os.link` 独占发布与 `os.replace` 协调 issue 台账和 checklist；后续调用优先恢复 pending 事务。
+- 使用 `.flag-transaction.json`、同目录临时文件、读取时/目标 SHA-256、`os.link` 独占发布与 `os.replace` 协调 issue 台账和 checklist；后续调用优先恢复 pending 事务，陈旧调用通过旧哈希前置校验停止覆盖。
 - `--new-round` 同秒冲突采用 `-01`、`-02` 数值后缀，新轮 issue 编号重新从 1 开始。
 - flag 对 P0/P1 只执行 `[!] 🔴` 降级，P2 只登记；主 agent 在复审确认后手动升回 `[x]`。
 - **BREAKING**：Gate ② 活跃编号从 F1..Fn 迁移为代码分配的 `issue-<n>`；QA Gate 报告内容收敛为 flag 生成的 issue ledger 骨架。
