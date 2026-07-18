@@ -38,7 +38,9 @@ user request → x-req → x-dev → xdev.py verify
                                   ├─ Q2 → x-qa-gate RC
                                   └─ Q3 → x-qa-gate R1 → R2 → R3
                                                │
-                                       findings → x-fix → incremental review
+                              issue candidates → xdev.py flag → x-fix → incremental review
+                                                   │
+                                      issue ledger + `[!] 🔴`
 ```
 
 | Risk | Typical scope | Route after verify |
@@ -104,6 +106,7 @@ graph <task-dir> [--json]         calculate ready work and parallel batches
 instructions <artifact> --task    return task artifact instructions
 scaffold <task-dir>               create only missing task artifacts
 verify <task-dir> [--json]        execute evidence and reconcile Scenarios
+flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-round] [--json]
 ```
 
 Task validation covers V8–V12: required files, checklist contract, optional diagram consistency, README risk and required sections, and Requirement/Scenario structure.
@@ -111,8 +114,9 @@ Task validation covers V8–V12: required files, checklist contract, optional di
 ## Reports and recovery
 
 - Gate ① returns a short pass receipt. Failures create `reports/verify/verify-report-*.md` with facts for x-fix.
-- Gate ② aggregates reviewer findings in `reports/qa-gate/qa-gate-report-*.md`.
-- x-fix handles the full finding list in one batch. Verify and Gate ② share the existing three-round fix counter.
+- Gate ② reviewers return unnumbered task/severity/location/message candidates. The main agent calls `xdev.py flag` for each candidate; code assigns `issue-<n>` and writes `reports/qa-gate/qa-gate-report-*.md`.
+- `flag` uses a durable transaction marker to update the issue ledger and checklist. P0/P1 targets become `[!] 🔴`; P2 keeps every task state unchanged. A recovered pending transaction returns `recovered:true`, and the caller repeats the intended new issue.
+- x-fix handles the full issue list in one batch while preserving the ledger and checklist state cells. The main agent upgrades resolved tasks after incremental review. Verify and Gate ② share the existing three-round fix counter.
 - Manual acceptance steps stay visible in the verify receipt until a user confirms them.
 
 ## Installation

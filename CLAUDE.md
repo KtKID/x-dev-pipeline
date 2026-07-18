@@ -52,12 +52,13 @@ x-qdev ─→ 定向验证 ─→ DoD 证据闭环 ─→ ✅
 | spec 需求包目录 | x-spec 产出 `docs/spec/<spec-name>/`，`docs/spec/README.md` 汇总 spec 导航，spec 目录含 7 文件。x-req 的 README `spec:` 字段指向 `docs/spec/<spec-name>`，一个 task 只归属一个 spec |
 | `dev-report.md` schema | x-dev 使用 `skills/x-dev/templates/dev-report-template.md`（含 `risk: default/high` 字段，Gate ② 路由依据）；x-verify 的必跑清单 = dev-report 命令表 + task README Smoke/E2E 用例（manual 用例列入待人工验收）；x-qdev 默认使用 `skills/x-qdev/templates/dev-report.md`，用户指定完整门禁时改用 x-dev schema |
 | 测试分层契约 | x-spec 写验证策略；x-req README 显式列 smoke/e2e 验收用例；单元/契约/边界测试由 x-dev 按实际改动补齐，并写入 `dev-report.md` 验证命令清单 |
-| `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。语义 = **批量修轮数**（一轮 = 一份发现清单的整体修复）。x-verify 首次创建，x-fix 按轮递增，x-qa-gate 在 Gate ② 最终 pass 后重置。**3 轮上限**，三方共享 |
-| reviewer 子 agent | x-qa-gate 按 `risk:` 风险路由：默认线 dispatch 一个综合 reviewer RC（`references/rc-unified.md`），高危线串行 dispatch R1/R2/R3；初始 prompt 预算为 10,000 estimated tokens，使用 manifest + 路径 + diff 命令 + completeness gate；mini-report 填写 `Completed by model` |
-| 一轮列全 | 所有 reviewer 必须穷尽列出全部发现（F1..Fn 编号）后才判定，禁止发现一个就交卷；mini-report 必含覆盖声明 + 发现清单 + 穷尽声明；严重度 P0/P1/P2 唯一定义在 `skills/x-qa-gate/SKILL.md` |
-| reviewer 不写代码 | RC/R1/R2/R3 只输出 mini-report，禁用 Edit/Write；修改一律走 x-fix |
-| x-fix 批量修 + 增量复审 | x-fix 一次修完一轮发现清单（P0 全修且各固化一条可复跑反例、P1 修或豁免、P2 登记），产出逐条处置表；复审尽量由同一个 reviewer 承接、只看 F# 处置 + fix 增量 diff，熔断条件见 `skills/x-qa-gate/SKILL.md`。旧"回 R1"4 条规则已废除 |
-| 门禁回执 | x-verify / x-qa-gate / x-fix 每个节点结束必须在对话中输出统一回执（P0/P1/P2 计数 + 拦截来源维度 + 处置），零发现也要报；报告文件只做存档。格式见 `skills/x-qa-gate/SKILL.md`「门禁回执」 |
+| `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。语义 = **批量修轮数**（一轮 = 一份 issue 清单的整体修复）。x-verify 首次创建，x-fix 按轮递增，x-qa-gate 在 Gate ② 最终 pass 后重置。**3 轮上限**，三方共享 |
+| reviewer 子 agent | x-qa-gate 按 `risk:` 风险路由：默认线 dispatch 一个综合 reviewer RC（`references/rc-unified.md`），高危线串行 dispatch R1/R2/R3；初始 prompt 预算为 10,000 estimated tokens，使用 manifest + 路径 + diff 命令 + completeness gate |
+| 一轮列全 | 所有 reviewer 穷尽列出全部问题候选后判定；每条返回 task、severity、loc、msg 和证据，并省略编号；回执包含覆盖声明、完整问题候选和穷尽声明；严重度 P0/P1/P2 唯一定义在 `skills/x-qa-gate/SKILL.md` |
+| reviewer 只读 | RC/R1/R2/R3 只输出 review 回执；修改统一走 x-fix |
+| issue 登记与状态写权 | 主 agent 逐条调用 `python3 tools/xdev.py flag ... --json`；本轮首条带 `--new-round`。代码分配 `issue-<n>`、写 ledger、把 P0/P1 task 降为 `[!] 🔴`；`recovered:true` 时主 agent 用原参数再次调用。reviewer、子 agent、x-fix 保持 ledger 与状态列原样 |
+| x-fix 批量修 + 增量复审 | x-fix 一次修完一轮 issue 清单（P0 全修且各固化一条可复跑反例、P1 修或豁免、P2 登记），产出带 issue ID 的逐条处置表；复审尽量由同一个 reviewer 承接，只看 issue 处置 + fix 增量 diff，熔断条件见 `skills/x-qa-gate/SKILL.md` |
+| 门禁回执 | x-verify / x-qa-gate / x-fix 每个节点结束在对话中输出统一回执（P0/P1/P2 计数 + 拦截来源维度 + 处置），零问题也输出；QA Gate issue ledger 由 flag 生成。格式见 `skills/x-qa-gate/SKILL.md`「回执与状态」 |
 | x-cr 手动调查 | `skills/x-cr/SKILL.md` 是手动软件正确性调查入口，独立于自动门禁；流水线 gate 逻辑写到 x-qa-gate |
 | 状态码 | ⏳ 未开始 / ▶️ 进行中 / 🟡 待验证 / 🔴 验证失败 / 🟢 证据通过 / ✅ 已完成 / ↗️ 已升级。x-dev 最多到 🟢，✅ 由完整 review 升级；x-qdev 按 Q0/Q1 主 agent 或 Q2 综合 reviewer 路线关闭，Q3 使用 ↗️ 并由 full task 负责最终完成 |
 
@@ -78,7 +79,7 @@ Agent({
 })
 ```
 
-prompt 预算 10,000 estimated tokens。保留 reviewer 检查清单（默认线 `rc-unified.md` / 高危线 `r{N}-*.md`）、task root、必读文件路径、diff 命令、evidence 输出路径、`Context Completeness` 要求和一轮列全约束；完整 diff、源码、测试文件通过只读工具按需读取。复审轮追加：上轮 mini-report、x-fix 处置表、fix 增量 diff 命令，尽量由同一个 reviewer 承接（机制由执行时 LLM 按环境自行处理）。
+prompt 预算 10,000 estimated tokens。保留 reviewer 检查清单（默认线 `rc-unified.md` / 高危线 `r{N}-*.md`）、task root、必读文件路径、diff 命令、evidence 输出路径、`Context Completeness` 要求和一轮列全约束；完整 diff、源码、测试文件通过只读工具按需读取。复审轮追加：上轮带 issue ID 的 review 回执、x-fix 处置表、fix 增量 diff 命令，尽量由同一个 reviewer 承接（机制由执行时 LLM 按环境自行处理）。
 
 x-qdev 的 Q2 只派一个综合 reviewer，输入锚定已脱敏的用户原始请求、明示假设、DoD 证据矩阵、diff 命令和相关实现/测试路径。Q0/Q1 由主 agent 完成，Q3 升级完整流程。
 

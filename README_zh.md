@@ -38,7 +38,9 @@ dev-pipeline/tasks/<task-name>/
                               ├─ Q2 → x-qa-gate RC
                               └─ Q3 → x-qa-gate R1 → R2 → R3
                                            │
-                                   发现问题 → x-fix → 增量复审
+                              问题候选 → xdev.py flag → x-fix → 增量复审
+                                             │
+                                  issue ledger + `[!] 🔴`
 ```
 
 | risk | 典型范围 | verify 通过后的路径 |
@@ -104,6 +106,7 @@ graph <task-dir> [--json]         计算 ready task 与并行批次
 instructions <artifact> --task    返回 task 产物填写规则
 scaffold <task-dir>               只创建缺失 task 产物
 verify <task-dir> [--json]        执行证据并对账 Scenario
+flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-round] [--json]
 ```
 
 task 校验覆盖 V8–V12：必需文件、checklist 契约、可选图一致性、README risk 与必需章节、Requirement/Scenario 结构。
@@ -111,8 +114,9 @@ task 校验覆盖 V8–V12：必需文件、checklist 契约、可选图一致�
 ## 报告与回流
 
 - Gate ① 全过只输出回执；失败生成 `reports/verify/verify-report-*.md`，交 x-fix。
-- Gate ② 聚合 reviewer 发现到 `reports/qa-gate/qa-gate-report-*.md`。
-- x-fix 一次处理完整发现清单；verify 与 Gate ② 共享既有三轮 fix-counter。
+- Gate ② reviewer 返回未编号的 task/severity/loc/msg 问题候选。主 agent 逐条调用 `xdev.py flag`，由代码分配 `issue-<n>` 并写入 `reports/qa-gate/qa-gate-report-*.md`。
+- `flag` 通过持久事务标记协调 issue ledger 与 checklist。P0/P1 目标降为 `[!] 🔴`，P2 保持全部 task 状态；pending 事务恢复返回 `recovered:true`，调用方随后重试本条新 issue。
+- x-fix 一次处理完整 issue 清单，并保持 ledger 与 checklist 状态单元格原样；增量复审通过后由主 agent 升钩。verify 与 Gate ② 共享既有三轮 fix-counter。
 - manual 验收步骤持续显示在 verify 回执，直到用户确认。
 
 ## 安装
