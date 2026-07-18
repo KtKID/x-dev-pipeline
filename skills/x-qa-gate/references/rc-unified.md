@@ -15,19 +15,19 @@
 ## 输出
 
 ```markdown
-# RC Mini-Report（第 N 轮）
+# RC Review（第 N 轮）
 **Status:** pass / fail
 
 ## 覆盖声明
 - changed files reviewed: N/M
 - requirement / boundary / test: ✅ / ✅ / ✅
 
-## 发现清单
-| # | 严重度 | 位置 | 复现路径 | 修复建议 |
-|---|--------|------|----------|----------|
-| F1 | P1 | file:line | ... | ... |
+## 问题候选
+| task | severity | loc | msg | 复现路径 | 修复建议 |
+|------|----------|-----|-----|----------|----------|
+| T2 | P1 | file:line | 空输入未处理 | ... | ... |
 
-除上表外，已检查范围内无其他 P0/P1。
+已检查范围内无其他 P0/P1。
 ```
 
-P0 需要位置与可复现依据；证据不完整时降级。
+reviewer 只提供问题内容；主 agent 通过 `xdev.py flag` 分配 `issue-<n>` 并写入 ledger。P0 需要位置与可复现依据；证据不完整时降低 severity。

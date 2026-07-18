@@ -9,4 +9,4 @@
 3. diff 是否扩大了用户或 README 未声明的 scope。
 4. dev-checklist 标为完成的项是否有 diff 与 verify 证据。
 
-输出 F#、严重度、`file:line`、复现路径、修复建议和穷尽声明。P0 需要可复现契约违背；证据不足降级。
+一次返回全部问题候选。每条提供 `task`、`severity`、`loc`、`msg`、复现路径和修复建议；issue ID 由主 agent 调用 `xdev.py flag` 后取得。P0 需要可复现契约违背；证据不足时降低 severity。末尾输出穷尽声明。

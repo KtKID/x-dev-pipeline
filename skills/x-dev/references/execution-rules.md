@@ -13,6 +13,13 @@
 
 `status` 与 `graph` 以 token 判定；纯 emoji 历史 checklist 按引擎兼容规则读取。每次变更状态立即回写 checklist；实现与验证事实回写 dev-report。
 
+### QA Gate 写权
+
+- 子 agent 实现或修复代码时保持 checklist 状态单元格与 `reports/qa-gate/qa-gate-report-*.md` 原样。
+- `python3 tools/xdev.py flag ...` 是 issue ledger 和 P0/P1 `[!] 🔴` 降级的唯一写入口。
+- Gate ② 修复与增量复审通过后，主 agent 亲自确认并把对应 `[!]` 升为 `[x]`。
+- P2 flag 只登记 issue，所有 task 状态保持原样。
+
 ## Verify 块
 
 ```verify
