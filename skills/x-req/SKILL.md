@@ -30,7 +30,7 @@ description: |
 4. 确认或 Q0/Q1 直通后，运行 `python3 tools/xdev.py scaffold <task-dir>`；涉及图时加 `--with-diagram`。
 5. 依次运行 `instructions readme`、`instructions dev-checklist`、按需 `instructions diagram`；填写模板，删除 HTML 注释。
 6. README 写入 risk；每个验收 Scenario 有 WHEN、THEN、`验证: auto|manual`；自动场景由后续 dev-report verify 块回指。
-7. 运行 `python3 tools/xdev.py validate <task-dir>`，修复 finding 直到零 finding；检查需求覆盖、验收可判定性、架构归属和 checklist 追溯。
+7. 运行 `python3 tools/xdev.py validate <task-dir>`，修复 issue 直到零 issue；检查需求覆盖、验收可判定性、架构归属和 checklist 追溯。
 8. 输出 task 路径、产物、risk 依据、validate 结论和下一步 `x-dev <task-name>`。
 
 ## 内容规则

@@ -4,7 +4,7 @@
 确定性工具层把散落在 SKILL.md 散文里的格式法律搬进代码。skills 管判断，
 本工具管机械。
 
-规则编号（run-log 聚合用；文字正源见 skills/x-spec/templates/TEMPLATE_GUIDE.md）：
+规则编号用于 run-log 聚合；V1-V7 保持旧版契约，V13-V18 对应 skills/x-spec2/：
   V0 包类型无法识别 / 文件不可读
   V1 档位所需文件齐全（spec7 七件 / change 包 proposal+delta+tasks）
   V2 路径引用规则：包内链接只用 ./ 且目标存在；代码路径只写 repo: 纯文本；
@@ -20,6 +20,12 @@
   V10 可选 diagram 的 Mermaid 节点与 README「涉及模块」双向一致
   V11 task README 的 risk 与按等级要求的章节
   V12 task README 验收 Requirement/Scenario 结构与验证标记
+  V13 spec2 包结构、版本标记与 task 产物隔离
+  V14 spec2 建模六元组覆盖与落点
+  V15 spec2 用户要求到 Requirement 追溯
+  V16 spec2 Requirement 与模块双向覆盖、模块状态
+  V17 spec2 design.md 按需生成
+  V18 spec2 U/J/D 理由层结构、引用与消费闭合
 
 用法：
   python3 tools/xdev.py validate [包目录 ...] [--include-legacy] [--json]
@@ -27,7 +33,7 @@
   legacy 包（含 diagrams.md / *.html 图集的旧结构）默认跳过，--include-legacy 纳入
   （纳入时不查 V1 档位齐全，只查其余规则）。
 
-退出码：0 全部通过；1 存在 finding；2 用法或 IO 错误。
+退出码：0 全部通过；1 存在 issue；2 用法或 IO 错误。
 用法：
   python3 tools/xdev.py validate [包目录 ...] [--include-legacy] [--json]
   不给目录时，从当前工作目录发现 docs/spec/*/、docs/changes/*/、docs/specs/*/。
@@ -55,7 +61,7 @@
       --loc src/a.py:10 --msg "空输入未处理" [--new-round] [--json]
   由代码分配 issue 编号、写 QA Gate ledger，并对 P0/P1 task 执行只降级更新。
 
-退出码：0 正常；1 存在 finding 或依赖环；2 用法或 IO 错误。
+退出码：0 正常；1 存在 issue 或依赖环；2 用法或 IO 错误。
 """
 
 from __future__ import annotations
@@ -82,11 +88,16 @@ SPEC7_REQUIRED = [
     "05-validation-and-evolution.md",
     "90-task-map.md",
 ]
+SPEC2_REQUIRED = ["spec.md", "modules.md"]
 CHANGE_REQUIRED = ["proposal.md", "tasks.md"]
+SPEC2_FORBIDDEN_TASK_FILES = ("task.md", "tasks.md", "90-task-map.md", "dev-checklist.md")
+MODEL_TUPLE = ("数据流", "状态", "时序", "资源", "不变量", "故障")
 
 LINK_RE = re.compile(r"\[[^\]]*\]\(([^)\s]+)\)")
+SPEC2_LINK_RE = re.compile(r"\[[^\]]*\]\((<[^>]+>|[^)]+)\)")
 REQ_RE = re.compile(r"^###\s+Requirement:\s*(.*)$")
 SCEN_RE = re.compile(r"^####\s+Scenario:\s*(.*)$")
+SPEC2_MARKER_RE = re.compile(r"^>\s*spec_version:\s*2\s*$", re.IGNORECASE)
 H3_RE = re.compile(r"^###\s+")
 H4_RE = re.compile(r"^####\s+")
 H2_RE = re.compile(r"^##\s+")
@@ -96,6 +107,7 @@ RISK_RE = re.compile(r"^risk:\s*(\S+)\s*$", re.IGNORECASE)
 VERIFY_FENCE_RE = re.compile(r"^\s*```verify\s*$", re.IGNORECASE)
 FENCE_END_RE = re.compile(r"^\s*```\s*$")
 VALIDATION_RE = re.compile(r"^\s*[-*+]?\s*验证:\s*(auto|manual)\s*$", re.IGNORECASE)
+SPEC2_ID_RE = re.compile(r"(?<![A-Za-z0-9_-])([UJD]\d+)(?![A-Za-z0-9_-])")
 
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 TASK_CHECKLIST_HEADER = ["#", "任务", "涉及文件", "依赖", "状态", "fix"]
@@ -134,7 +146,7 @@ ARTIFACTS = {
 }
 
 
-def finding(file: str, line: int, rule: str, msg: str) -> dict:
+def issue(file: str, line: int, rule: str, msg: str) -> dict:
     return {"file": file, "line": line, "rule": rule, "msg": msg}
 
 
@@ -195,6 +207,220 @@ def col_values(text: str, col_keyword: str) -> list[str]:
             if v:
                 vals.append(v)
     return vals
+
+
+def section_bounds(lines: list[str], prefix: str) -> tuple[int | None, int]:
+    """返回指定 H2 的起始与结束索引；缺失时起始为 None。"""
+    start = next(
+        (index for index, line in enumerate(lines) if H2_RE.match(line) and line[3:].strip().startswith(prefix)),
+        None,
+    )
+    if start is None:
+        return None, len(lines)
+    end = next((index for index in range(start + 1, len(lines)) if H2_RE.match(lines[index])), len(lines))
+    return start, end
+
+
+def table_in_h2(text: str, prefix: str):
+    """读取指定 H2 内第一个表，并把行号换算回原文件。"""
+    lines = text.splitlines()
+    start, end = section_bounds(lines, prefix)
+    if start is None:
+        return None, []
+    header, rows = first_table("\n".join(lines[start + 1:end]))
+    return header, [(start + 1 + line, row) for line, row in rows]
+
+
+def requirement_entries(text: str) -> list[tuple[int, str]]:
+    return [
+        (line, match.group(1).strip())
+        for line, value in lines_outside_fences(text)
+        if (match := REQ_RE.match(value))
+    ]
+
+
+def split_refs(value: str) -> list[str]:
+    value = re.sub(r"[`*]", "", value).replace("<br>", "、").replace("<br/>", "、")
+    return [part.strip() for part in re.split(r"[、,，;；]", value) if part.strip()]
+
+
+def clean_cell(value: str) -> str:
+    return re.sub(r"[`*]", "", value).strip()
+
+
+def spec2_id_refs(value: str, prefixes: str = "UJD") -> list[str]:
+    return [token for token in SPEC2_ID_RE.findall(value) if token[0] in prefixes]
+
+
+def spec2_module_names(pkg: Path) -> dict[str, list[int]]:
+    modules = pkg / "modules.md"
+    if not modules.exists():
+        return {}
+    header, rows = table_in_h2(read_text(modules), "模块总览")
+    if not header:
+        return {}
+    module_index = next((index for index, name in enumerate(header) if "模块" in name), None)
+    if module_index is None:
+        return {}
+    result: dict[str, list[int]] = {}
+    for line, row in rows:
+        name = clean_cell(row[module_index]) if module_index < len(row) else ""
+        if name:
+            result.setdefault(name, []).append(line)
+    return result
+
+
+def spec2_user_definitions(pkg: Path) -> dict[str, list[tuple[int, str]]]:
+    spec = pkg / "spec.md"
+    if not spec.exists():
+        return {}
+    header, rows = table_in_h2(read_text(spec), "用户要求追溯")
+    if not header:
+        return {}
+    id_index = next((index for index, name in enumerate(header) if "U-ID" in name), None)
+    target_index = next((index for index, name in enumerate(header) if "对应" in name), None)
+    if id_index is None or target_index is None:
+        return {}
+    result: dict[str, list[tuple[int, str]]] = {}
+    for line, row in rows:
+        user_id = clean_cell(row[id_index]) if id_index < len(row) else ""
+        target = clean_cell(row[target_index]) if target_index < len(row) else ""
+        if user_id:
+            result.setdefault(user_id, []).append((line, target))
+    return result
+
+
+def spec2_decision_definitions(pkg: Path) -> dict[str, list[int]]:
+    modules = pkg / "modules.md"
+    if not modules.exists():
+        return {}
+    header, rows = table_in_h2(read_text(modules), "关键决策")
+    if not header:
+        return {}
+    id_index = next((index for index, name in enumerate(header) if "D-ID" in name), None)
+    if id_index is None:
+        return {}
+    result: dict[str, list[int]] = {}
+    for line, row in rows:
+        decision_id = clean_cell(row[id_index]) if id_index < len(row) else ""
+        if decision_id:
+            result.setdefault(decision_id, []).append(line)
+    return result
+
+
+def markdown_anchor(title: str) -> str:
+    title = re.sub(r"[`*_~]", "", title.strip().lower())
+    title = re.sub(r"[^\w\-\s\u4e00-\u9fff]", "", title)
+    return re.sub(r"[-\s]+", "-", title).strip("-")
+
+
+def heading_anchors(text: str) -> set[str]:
+    anchors: set[str] = set()
+    counts: dict[str, int] = {}
+    for _line, value in lines_outside_fences(text):
+        match = re.match(r"^#{1,6}\s+(.+?)\s*$", value)
+        if not match:
+            continue
+        base = markdown_anchor(match.group(1))
+        if not base:
+            continue
+        count = counts.get(base, 0)
+        anchors.add(base if count == 0 else f"{base}-{count}")
+        counts[base] = count + 1
+    return anchors
+
+
+def parse_package_location(value: str) -> tuple[str, str] | None:
+    cleaned = re.sub(r"[`*]", "", value).strip()
+    if "#" not in cleaned:
+        return None
+    path, anchor = cleaned.split("#", 1)
+    if not path.strip() or not anchor.strip():
+        return None
+    return path.strip(), anchor.strip().lower()
+
+
+def package_location_issue(pkg: Path, value: str) -> str | None:
+    parsed = parse_package_location(value)
+    if parsed is None:
+        return "落点必须使用 文件#段落锚点"
+    raw_path, anchor = parsed
+    if raw_path.startswith(("/", "file://")) or re.match(r"^[A-Za-z]:[\\/]", raw_path):
+        return "落点必须位于当前 spec 包内"
+    target = (pkg / raw_path.removeprefix("./")).resolve()
+    try:
+        target.relative_to(pkg.resolve())
+    except ValueError:
+        return "落点必须位于当前 spec 包内"
+    if not target.is_file():
+        return f"落点文件不存在：{raw_path}"
+    if anchor not in heading_anchors(read_text(target)):
+        return f"落点段落不存在：{raw_path}#{anchor}"
+    return None
+
+
+SCENARIO_PROFILES = {
+    "legacy": {"given": True, "validation": False, "rule": "V3", "orphan": False},
+    "spec2": {"given": False, "validation": True, "rule": "V3", "orphan": True},
+    "task": {"given": False, "validation": True, "rule": "V12", "orphan": True},
+}
+
+
+def scenario_contract_issues(lines: list[tuple[int, str]], rel: str, profile: str):
+    """按包 profile 校验 Requirement/Scenario，供 spec 与 task 共用。"""
+    contract = SCENARIO_PROFILES[profile]
+    req_line = None
+    req_name = ""
+    scen_count = 0
+    scen_line = None
+    scen_name = ""
+    scen_buf: list[str] = []
+
+    def close_scenario():
+        nonlocal scen_line, scen_name, scen_buf
+        if scen_line is not None:
+            body = "\n".join(scen_buf)
+            required = ["WHEN", "THEN"]
+            if contract["given"]:
+                required.insert(0, "GIVEN")
+            missing = [key for key in required if not re.search(rf"\b{key}\b", body)]
+            if missing:
+                yield issue(rel, scen_line, contract["rule"], f"Scenario「{scen_name}」缺少 {'/'.join(missing)}")
+            if contract["validation"] and not any(VALIDATION_RE.match(line) for line in scen_buf):
+                yield issue(rel, scen_line, contract["rule"], f"Scenario「{scen_name}」缺少 验证: auto|manual 标记")
+        scen_line, scen_name, scen_buf = None, "", []
+
+    def close_requirement():
+        nonlocal req_line, req_name, scen_count
+        if req_line is not None and scen_count == 0:
+            yield issue(rel, req_line, contract["rule"], f"Requirement「{req_name}」没有任何 Scenario")
+        req_line, req_name, scen_count = None, "", 0
+
+    for line_number, value in lines:
+        if match := REQ_RE.match(value):
+            yield from close_scenario()
+            yield from close_requirement()
+            req_line, req_name = line_number, match.group(1).strip()
+            continue
+        if match := SCEN_RE.match(value):
+            yield from close_scenario()
+            scen_name = match.group(1).strip()
+            if req_line is None:
+                if contract["orphan"]:
+                    yield issue(rel, line_number, contract["rule"], "Scenario 没有上级 Requirement")
+            else:
+                scen_count += 1
+            scen_line, scen_buf = line_number, []
+            continue
+        if H4_RE.match(value) or H3_RE.match(value) or H2_RE.match(value):
+            yield from close_scenario()
+            if H3_RE.match(value) or H2_RE.match(value):
+                yield from close_requirement()
+            continue
+        if scen_line is not None:
+            scen_buf.append(value)
+    yield from close_scenario()
+    yield from close_requirement()
 
 
 def artifact_template(artifact_id: str) -> str:
@@ -292,8 +518,17 @@ def scaffold_command(task_dir: Path, with_diagram: bool, as_json: bool) -> int:
 
 # ---------- 包类型识别 ----------
 
+def has_spec2_marker(pkg: Path) -> bool:
+    spec = pkg / "spec.md"
+    if not spec.is_file():
+        return False
+    return any(SPEC2_MARKER_RE.match(line) for _number, line in lines_outside_fences(read_text(spec)))
+
+
 def detect_type(pkg: Path) -> str:
     parts = pkg.resolve().parts
+    if (pkg / "modules.md").exists() or has_spec2_marker(pkg):
+        return "spec2"
     if (pkg / "dev-checklist.md").exists() or any(
         parts[i : i + 2] == ("dev-pipeline", "tasks") for i in range(len(parts) - 1)
     ):
@@ -316,32 +551,61 @@ def detect_type(pkg: Path) -> str:
 # ---------- 检查规则（一条规则一个函数；加规则 = 加函数 + 注册） ----------
 
 def check_files_complete(pkg: Path, ptype: str):
-    if ptype == "spec7":
+    if ptype == "spec2":
+        for name in SPEC2_REQUIRED:
+            if not (pkg / name).exists():
+                yield issue("(package)", 0, "V13", f"spec2 包缺少必需文件：{name}")
+        if not has_spec2_marker(pkg):
+            yield issue("spec.md", 0, "V13", "spec2 包缺少 > spec_version: 2 标记")
+        for name in SPEC2_FORBIDDEN_TASK_FILES:
+            if (pkg / name).exists():
+                yield issue(name, 0, "V13", f"spec2 包不得包含 task 产物：{name}")
+    elif ptype == "spec7":
         for name in SPEC7_REQUIRED:
             if not (pkg / name).exists():
-                yield finding("(package)", 0, "V1", f"spec 包缺少必需文件：{name}")
+                yield issue("(package)", 0, "V1", f"spec 包缺少必需文件：{name}")
     elif ptype == "change":
         for name in CHANGE_REQUIRED:
             if not (pkg / name).exists():
-                yield finding("(package)", 0, "V1", f"change 包缺少必需文件：{name}")
+                yield issue("(package)", 0, "V1", f"change 包缺少必需文件：{name}")
         delta_files = list((pkg / "delta").glob("*.md")) if (pkg / "delta").exists() else []
         delta_files += list((pkg / "specs").rglob("*.md")) if (pkg / "specs").exists() else []
         if not delta_files:
-            yield finding("(package)", 0, "V1", "change 包缺少 delta（delta/*.md 或 specs/**.md 至少一个）")
+            yield issue("(package)", 0, "V1", "change 包缺少 delta（delta/*.md 或 specs/**.md 至少一个）")
 
 
 def check_link_rules(pkg: Path, ptype: str):
     for f in md_files(pkg):
         rel = str(f.relative_to(pkg))
         for ln, line in lines_outside_fences(read_text(f)):
-            for m in LINK_RE.finditer(line):
-                target = m.group(1)
+            link_re = SPEC2_LINK_RE if ptype == "spec2" else LINK_RE
+            for m in link_re.finditer(line):
+                target = m.group(1).strip()
+                if target.startswith("<") and target.endswith(">"):
+                    target = target[1:-1].strip()
                 if target.startswith(("http://", "https://", "mailto:", "#")):
+                    continue
+                if ptype == "spec2":
+                    if target.startswith("file://"):
+                        yield issue(rel, ln, "V2", f"禁止 file:// 链接：({target})")
+                        continue
+                    if target.startswith("/") or re.match(r"^[A-Za-z]:[\\/]", target):
+                        yield issue(rel, ln, "V2", f"禁止机器绑定绝对路径：({target})")
+                        continue
+                    raw_path = target.split("#", 1)[0]
+                    if not raw_path:
+                        continue
+                    if raw_path.startswith(("./", "../")):
+                        dest = (f.parent / raw_path).resolve()
+                    else:
+                        dest = (PLUGIN_ROOT / raw_path).resolve()
+                    if not dest.exists():
+                        yield issue(rel, ln, "V2", f"链接目标不存在：({target})")
                     continue
                 if target.startswith("./"):
                     dest = f.parent / target.split("#", 1)[0]
                     if not dest.exists():
-                        yield finding(rel, ln, "V2", f"链接目标不存在：({target})")
+                        yield issue(rel, ln, "V2", f"链接目标不存在：({target})")
                     continue
                 if target.startswith("../"):
                     msg = "禁止 ../ 上跳链接（包必须可整体移动）"
@@ -357,54 +621,17 @@ def check_link_rules(pkg: Path, ptype: str):
                     msg = "禁止仓库相对路径（随移动失效）"
                 else:
                     msg = "包内链接必须以 ./ 开头"
-                yield finding(rel, ln, "V2", f"{msg}：({target})")
+                yield issue(rel, ln, "V2", f"{msg}：({target})")
 
 
 def check_req_scenario(pkg: Path, ptype: str):
-    for f in md_files(pkg):
+    files = [pkg / "spec.md"] if ptype == "spec2" else md_files(pkg)
+    profile = "spec2" if ptype == "spec2" else "legacy"
+    for f in files:
+        if not f.exists():
+            continue
         rel = str(f.relative_to(pkg))
-        req_line = None
-        req_name = ""
-        scen_count = 0
-        scen_line = None
-        scen_buf: list[str] = []
-
-        def close_scenario():
-            nonlocal scen_line, scen_buf
-            if scen_line is not None:
-                body = "\n".join(scen_buf)
-                missing = [k for k in ("GIVEN", "WHEN", "THEN") if k not in body]
-                if missing:
-                    yield finding(rel, scen_line, "V3", f"Scenario 缺少 {'/'.join(missing)}")
-            scen_line, scen_buf = None, []
-
-        def close_requirement():
-            nonlocal req_line, scen_count
-            if req_line is not None and scen_count == 0:
-                yield finding(rel, req_line, "V3", f"Requirement「{req_name}」没有任何 Scenario")
-            req_line, scen_count = None, 0
-
-        for ln, line in lines_outside_fences(read_text(f)):
-            if REQ_RE.match(line):
-                yield from close_scenario()
-                yield from close_requirement()
-                req_line, req_name = ln, REQ_RE.match(line).group(1).strip()
-                continue
-            if SCEN_RE.match(line):
-                yield from close_scenario()
-                if req_line is not None:
-                    scen_count += 1
-                    scen_line, scen_buf = ln, []
-                continue
-            if H4_RE.match(line) or H3_RE.match(line) or H2_RE.match(line):
-                yield from close_scenario()
-                if H3_RE.match(line) or H2_RE.match(line):
-                    yield from close_requirement()
-                continue
-            if scen_line is not None:
-                scen_buf.append(line)
-        yield from close_scenario()
-        yield from close_requirement()
+        yield from scenario_contract_issues(list(lines_outside_fences(read_text(f))), rel, profile)
 
 
 def check_delta_markers(pkg: Path, ptype: str):
@@ -420,9 +647,9 @@ def check_delta_markers(pkg: Path, ptype: str):
                 if DELTA_HEAD_RE.match(line):
                     legal_sections += 1
                 else:
-                    yield finding(rel, ln, "V4", f"delta 文件只允许 ADDED/MODIFIED/REMOVED Requirements 节：{line.strip()}")
+                    yield issue(rel, ln, "V4", f"delta 文件只允许 ADDED/MODIFIED/REMOVED Requirements 节：{line.strip()}")
         if legal_sections == 0:
-            yield finding(rel, 0, "V4", "delta 文件没有任何 ADDED/MODIFIED/REMOVED Requirements 节")
+            yield issue(rel, 0, "V4", "delta 文件没有任何 ADDED/MODIFIED/REMOVED Requirements 节")
 
 
 def check_task_backrefs(pkg: Path, ptype: str):
@@ -434,14 +661,14 @@ def check_task_backrefs(pkg: Path, ptype: str):
         return
     idx = next((i for i, c in enumerate(header) if "DoD" in c), None)
     if idx is None:
-        yield finding("90-task-map.md", 0, "V5", "任务表缺少「对应 DoD」列")
+        yield issue("90-task-map.md", 0, "V5", "任务表缺少「对应 DoD」列")
         return
     # 合法引用形态（判例：x-infra 用 #3、#6；pilot 用 DoD#5；旧模板用 条目 N）
     ref_re = re.compile(r"(DoD|#\d+|条目\s*\d+)")
     for ln, cs in rows:
         val = cs[idx] if idx < len(cs) else ""
         if not ref_re.search(val):
-            yield finding("90-task-map.md", ln, "V5", f"任务行「对应 DoD」列未回指任何条目：{val or '(空)'}")
+            yield issue("90-task-map.md", ln, "V5", f"任务行「对应 DoD」列未回指任何条目：{val or '(空)'}")
 
 
 def check_module_consistency(pkg: Path, ptype: str):
@@ -453,9 +680,9 @@ def check_module_consistency(pkg: Path, ptype: str):
     if not m02 or not m90:
         return
     for name in sorted(m02 - m90):
-        yield finding("90-task-map.md", 0, "V6", f"模块「{name}」在 02 总览有、90 缺")
+        yield issue("90-task-map.md", 0, "V6", f"模块「{name}」在 02 总览有、90 缺")
     for name in sorted(m90 - m02):
-        yield finding("02-module-breakdown.md", 0, "V6", f"模块「{name}」在 90 有、02 总览缺")
+        yield issue("02-module-breakdown.md", 0, "V6", f"模块「{name}」在 90 有、02 总览缺")
 
 
 def check_status_vocab(pkg: Path, ptype: str):
@@ -464,7 +691,7 @@ def check_status_vocab(pkg: Path, ptype: str):
         for ln, line in enumerate(read_text(readme).splitlines(), 1):
             m = re.match(r"^>\s*状态：\s*(.+)$", line.strip())
             if m and not any(v in m.group(1) for v in STATUS_VOCAB):
-                yield finding("README.md", ln, "V7", f"状态取值不在受控词汇内：{m.group(1)}")
+                yield issue("README.md", ln, "V7", f"状态取值不在受控词汇内：{m.group(1)}")
     for name in ("02-module-breakdown.md", "90-task-map.md"):
         f = pkg / name
         if not f.exists():
@@ -477,13 +704,300 @@ def check_status_vocab(pkg: Path, ptype: str):
             continue
         for ln, cs in rows:
             if idx < len(cs) and cs[idx] and not any(v in cs[idx] for v in STATUS_VOCAB):
-                yield finding(name, ln, "V7", f"状态取值不在受控词汇内：{cs[idx]}")
+                yield issue(name, ln, "V7", f"状态取值不在受控词汇内：{cs[idx]}")
+
+
+def spec2_model_rows(pkg: Path):
+    spec = pkg / "spec.md"
+    if not spec.exists():
+        return None, []
+    return table_in_h2(read_text(spec), "建模覆盖声明")
+
+
+def check_spec2_modeling(pkg: Path, ptype: str):
+    if ptype != "spec2":
+        return
+    header, rows = spec2_model_rows(pkg)
+    if not header:
+        yield issue("spec.md", 0, "V14", "spec.md 缺少「建模覆盖声明」表")
+        return
+    tuple_index = next((index for index, name in enumerate(header) if "元组" in name), None)
+    value_index = next(
+        (index for index, name in enumerate(header) if "落点" in name or "不适用" in name or "结论" in name),
+        None,
+    )
+    if tuple_index is None or value_index is None:
+        yield issue("spec.md", 0, "V14", "建模覆盖声明表必须含「元组」与「落点或不适用理由」列")
+        return
+
+    seen: dict[str, int] = {}
+    for line, row in rows:
+        tuple_name = row[tuple_index].strip() if tuple_index < len(row) else ""
+        value = row[value_index].strip() if value_index < len(row) else ""
+        if tuple_name not in MODEL_TUPLE:
+            yield issue("spec.md", line, "V14", f"未知建模元组：{tuple_name or '(空)'}")
+            continue
+        if tuple_name in seen:
+            yield issue("spec.md", line, "V14", f"建模元组重复：{tuple_name}")
+        seen[tuple_name] = line
+        if not value:
+            yield issue("spec.md", line, "V14", f"建模元组「{tuple_name}」缺少落点或不适用理由")
+            continue
+        if value.startswith("不适用"):
+            if not re.match(r"^不适用\s*[：:]\s*\S.+$", value):
+                yield issue("spec.md", line, "V14", f"建模元组「{tuple_name}」的不适用理由为空")
+            continue
+        if message := package_location_issue(pkg, value):
+            yield issue("spec.md", line, "V14", f"建模元组「{tuple_name}」{message}")
+
+    for tuple_name in MODEL_TUPLE:
+        if tuple_name not in seen:
+            yield issue("spec.md", 0, "V14", f"建模覆盖声明缺少元组：{tuple_name}")
+
+
+def check_spec2_requirement_names(pkg: Path, ptype: str):
+    if ptype != "spec2" or not (pkg / "spec.md").exists():
+        return
+    entries = requirement_entries(read_text(pkg / "spec.md"))
+    counts: dict[str, list[int]] = {}
+    for line, name in entries:
+        if not name:
+            yield issue("spec.md", line, "V15", "Requirement 名不能为空")
+            continue
+        counts.setdefault(name, []).append(line)
+    for name, lines in counts.items():
+        if len(lines) > 1:
+            yield issue("spec.md", lines[1], "V15", f"Requirement 名重名：{name}")
+
+
+def check_spec2_user_trace(pkg: Path, ptype: str):
+    if ptype != "spec2" or not (pkg / "spec.md").exists():
+        return
+    text = read_text(pkg / "spec.md")
+    header, rows = table_in_h2(text, "用户要求追溯")
+    if not header:
+        yield issue("spec.md", 0, "V15", "spec.md 缺少「用户要求追溯」表")
+        return
+    id_index = next((index for index, name in enumerate(header) if "U-ID" in name), None)
+    raw_index = next((index for index, name in enumerate(header) if "用户原话" in name), None)
+    target_index = next((index for index, name in enumerate(header) if "对应" in name), None)
+    location_index = next((index for index, name in enumerate(header) if "落实位置" in name), None)
+    if None in (id_index, raw_index, target_index, location_index):
+        yield issue("spec.md", 0, "V15", "用户要求追溯表必须含「U-ID」「用户原话要求」「对应目标」「落实位置」列")
+        return
+    if not rows:
+        yield issue("spec.md", 0, "V15", "用户要求追溯表至少需要一行")
+        return
+
+    names = [name for _line, name in requirement_entries(text)]
+    requirement_counts = {name: names.count(name) for name in set(names)}
+    module_counts = spec2_module_names(pkg)
+    user_ids: dict[str, int] = {}
+    for line, row in rows:
+        user_id = clean_cell(row[id_index]) if id_index < len(row) else ""
+        raw = row[raw_index].strip() if raw_index < len(row) else ""
+        target = clean_cell(row[target_index]) if target_index < len(row) else ""
+        location = row[location_index].strip() if location_index < len(row) else ""
+        if not re.fullmatch(r"U\d+", user_id):
+            yield issue("spec.md", line, "V15", f"用户要求 U-ID 非法：{user_id or '(空)'}")
+        elif user_id in user_ids:
+            yield issue("spec.md", line, "V15", f"用户要求 U-ID 重名：{user_id}")
+        else:
+            user_ids[user_id] = line
+        if not raw:
+            yield issue("spec.md", line, "V15", "用户原话要求不能为空")
+        if not target:
+            yield issue("spec.md", line, "V15", "用户要求缺少对应目标")
+        elif requirement_counts.get(target, 0) + len(module_counts.get(target, [])) != 1:
+            yield issue("spec.md", line, "V15", f"用户要求回指目标不存在或不唯一：{target}")
+        if not location:
+            yield issue("spec.md", line, "V15", "用户要求缺少落实位置")
+        elif message := package_location_issue(pkg, location):
+            yield issue("spec.md", line, "V15", f"用户要求落实位置无效：{message}")
+
+
+def check_spec2_modules(pkg: Path, ptype: str):
+    if ptype != "spec2" or not (pkg / "modules.md").exists() or not (pkg / "spec.md").exists():
+        return
+    spec_text = read_text(pkg / "spec.md")
+    modules_text = read_text(pkg / "modules.md")
+    requirements = [name for _line, name in requirement_entries(spec_text) if name]
+    requirement_counts = {name: requirements.count(name) for name in set(requirements)}
+    header, rows = table_in_h2(modules_text, "模块总览")
+    if not header:
+        yield issue("modules.md", 0, "V16", "modules.md 缺少「模块总览」表")
+        return
+    module_index = next((index for index, name in enumerate(header) if "模块" in name), None)
+    status_index = next((index for index, name in enumerate(header) if "状态" in name), None)
+    decision_index = next((index for index, name in enumerate(header) if "决策回指" in name), None)
+    req_index = next((index for index, name in enumerate(header) if "Requirement" in name), None)
+    if None in (module_index, status_index, decision_index, req_index):
+        yield issue("modules.md", 0, "V16", "模块总览表必须含「模块」「决策回指」「状态」「回指 Requirement」列")
+        return
+    if not rows:
+        yield issue("modules.md", 0, "V16", "模块总览表至少需要一个模块")
+        return
+
+    covered: set[str] = set()
+    module_names: set[str] = set()
+    user_definitions = spec2_user_definitions(pkg)
+    decision_definitions = spec2_decision_definitions(pkg)
+    for line, row in rows:
+        module = row[module_index].strip() if module_index < len(row) else ""
+        status = re.sub(r"[`*]", "", row[status_index]).strip() if status_index < len(row) else ""
+        decision_refs = spec2_id_refs(row[decision_index], "UD") if decision_index < len(row) else []
+        refs = split_refs(row[req_index]) if req_index < len(row) else []
+        if not module:
+            yield issue("modules.md", line, "V16", "模块名不能为空")
+        elif module in module_names:
+            yield issue("modules.md", line, "V16", f"模块名重复：{module}")
+        module_names.add(module)
+        if status not in STATUS_VOCAB:
+            yield issue("modules.md", line, "V16", f"模块「{module or '(空)'}」状态取值非法：{status or '(空)'}")
+        if not decision_refs:
+            yield issue("modules.md", line, "V16", f"模块「{module or '(空)'}」缺少决策回指 U-ID/D-ID")
+        for ref in decision_refs:
+            if ref.startswith("U"):
+                definitions = user_definitions.get(ref, [])
+                if len(definitions) != 1:
+                    yield issue("modules.md", line, "V16", f"模块「{module or '(空)'}」决策回指悬空或重名：{ref}")
+                elif definitions[0][1] != clean_cell(module):
+                    yield issue("modules.md", line, "V16", f"模块「{module or '(空)'}」引用的结构型 {ref} 未回指本模块")
+            elif len(decision_definitions.get(ref, [])) != 1:
+                yield issue("modules.md", line, "V16", f"模块「{module or '(空)'}」决策回指悬空或重名：{ref}")
+        if not refs:
+            yield issue("modules.md", line, "V16", f"模块「{module or '(空)'}」未回指 Requirement")
+        for ref in refs:
+            if requirement_counts.get(ref, 0) != 1:
+                yield issue("modules.md", line, "V16", f"模块「{module or '(空)'}」回指的 Requirement 不存在或不唯一：{ref}")
+            else:
+                covered.add(ref)
+    for name in sorted(set(requirements) - covered):
+        yield issue("modules.md", 0, "V16", f"Requirement 未被任何模块承接：{name}")
+
+
+def check_spec2_reasoning(pkg: Path, ptype: str):
+    if ptype != "spec2" or not (pkg / "spec.md").exists() or not (pkg / "modules.md").exists():
+        return
+
+    spec_text = read_text(pkg / "spec.md")
+    modules_text = read_text(pkg / "modules.md")
+    design = pkg / "design.md"
+    if design.exists():
+        for line, value in lines_outside_fences(read_text(design)):
+            if value.lstrip().startswith("|") and any("D-ID" in cell for cell in cells(value)):
+                yield issue("design.md", line, "V18", "design.md 不得定义 D-ID；唯一真源是 modules.md「关键决策」")
+    judgment_header, judgment_rows = table_in_h2(spec_text, "判断依据")
+    judgment_definitions: dict[str, list[int]] = {}
+    if not judgment_header:
+        yield issue("spec.md", 0, "V18", "spec.md 缺少「判断依据」表")
+    else:
+        judgment_columns = {
+            "id": next((i for i, name in enumerate(judgment_header) if "J-ID" in name), None),
+            "judgment": next((i for i, name in enumerate(judgment_header) if "判断" in name and "J-ID" not in name), None),
+            "source": next((i for i, name in enumerate(judgment_header) if "来源" in name), None),
+            "evidence": next((i for i, name in enumerate(judgment_header) if "证据" in name or "推断说明" in name), None),
+            "status": next((i for i, name in enumerate(judgment_header) if "确认状态" in name), None),
+        }
+        if any(index is None for index in judgment_columns.values()):
+            yield issue("spec.md", 0, "V18", "判断依据表必须含「J-ID」「判断」「来源类型」「证据或推断说明」「确认状态」列")
+        else:
+            for line, row in judgment_rows:
+                values = {
+                    name: clean_cell(row[index]) if index < len(row) else ""
+                    for name, index in judgment_columns.items()
+                }
+                judgment_id = values["id"]
+                if not re.fullmatch(r"J\d+", judgment_id):
+                    yield issue("spec.md", line, "V18", f"J-ID 非法：{judgment_id or '(空)'}")
+                else:
+                    judgment_definitions.setdefault(judgment_id, []).append(line)
+                missing = [name for name in ("judgment", "source", "evidence", "status") if not values[name]]
+                if missing:
+                    yield issue("spec.md", line, "V18", f"判断依据 {judgment_id or '(空)'} 缺少必需字段：{', '.join(missing)}")
+
+    decision_header, decision_rows = table_in_h2(modules_text, "关键决策")
+    decision_definitions: dict[str, list[int]] = {}
+    if decision_header:
+        decision_columns = {
+            "id": next((i for i, name in enumerate(decision_header) if "D-ID" in name), None),
+            "decision": next((i for i, name in enumerate(decision_header) if "决策" in name and "D-ID" not in name), None),
+            "basis": next((i for i, name in enumerate(decision_header) if "依据" in name), None),
+            "rationale": next((i for i, name in enumerate(decision_header) if "选择理由" in name), None),
+            "alternative": next((i for i, name in enumerate(decision_header) if "备选" in name and "否决" in name), None),
+            "revisit": next((i for i, name in enumerate(decision_header) if "重评" in name), None),
+        }
+        if any(index is None for index in decision_columns.values()):
+            yield issue("modules.md", 0, "V18", "关键决策表必须含「D-ID」「决策」「依据 U/J」「选择理由」「备选与否决原因」「重评条件」列")
+        else:
+            for line, row in decision_rows:
+                values = {
+                    name: clean_cell(row[index]) if index < len(row) else ""
+                    for name, index in decision_columns.items()
+                }
+                decision_id = values["id"]
+                if not re.fullmatch(r"D\d+", decision_id):
+                    yield issue("modules.md", line, "V18", f"D-ID 非法：{decision_id or '(空)'}")
+                else:
+                    decision_definitions.setdefault(decision_id, []).append(line)
+                missing = [name for name in ("decision", "basis", "rationale", "alternative", "revisit") if not values[name]]
+                if missing:
+                    yield issue("modules.md", line, "V18", f"关键决策 {decision_id or '(空)'} 缺少必需字段：{', '.join(missing)}")
+                if not spec2_id_refs(values["basis"], "UJ"):
+                    yield issue("modules.md", line, "V18", f"D 依据缺少 U/J 引用：{decision_id or '(空)'}")
+
+    for judgment_id, lines in judgment_definitions.items():
+        if len(lines) > 1:
+            yield issue("spec.md", lines[1], "V18", f"J-ID 重名：{judgment_id}")
+    for decision_id, lines in decision_definitions.items():
+        if len(lines) > 1:
+            yield issue("modules.md", lines[1], "V18", f"D-ID 重名：{decision_id}")
+
+    user_definitions = spec2_user_definitions(pkg)
+    defined = {
+        "U": set(user_definitions),
+        "J": set(judgment_definitions),
+        "D": set(decision_definitions),
+    }
+    reference_counts: dict[str, int] = {}
+    for path in (pkg / "spec.md", pkg / "modules.md", pkg / "design.md"):
+        if not path.exists():
+            continue
+        for _line, value in lines_outside_fences(read_text(path)):
+            for token in spec2_id_refs(value):
+                reference_counts[token] = reference_counts.get(token, 0) + 1
+    for token, count in sorted(reference_counts.items()):
+        if token not in defined[token[0]]:
+            yield issue("(package)", 0, "V18", f"U/J/D 引用悬空：{token}")
+    for judgment_id, lines in sorted(judgment_definitions.items()):
+        if len(lines) == 1 and reference_counts.get(judgment_id, 0) <= 1:
+            yield issue("spec.md", lines[0], "V18", f"孤儿 J：{judgment_id}")
+    for decision_id, lines in sorted(decision_definitions.items()):
+        if len(lines) == 1 and reference_counts.get(decision_id, 0) <= 1:
+            yield issue("modules.md", lines[0], "V18", f"孤儿 D：{decision_id}")
+
+
+def check_spec2_design(pkg: Path, ptype: str):
+    if ptype != "spec2":
+        return
+    design = pkg / "design.md"
+    _header, rows = spec2_model_rows(pkg)
+    design_referenced = False
+    for _line, row in rows:
+        for value in row:
+            parsed = parse_package_location(value)
+            if parsed and parsed[0].removeprefix("./") == "design.md":
+                design_referenced = True
+    if design_referenced and not design.exists():
+        yield issue("design.md", 0, "V17", "建模覆盖声明引用 design.md，但文件不存在")
+    if design.exists() and (not read_text(design).strip() or not design_referenced):
+        yield issue("design.md", 0, "V17", "design.md 仅在动态模型有建模覆盖落点时生成")
 
 
 def check_task_files_complete(pkg: Path, ptype: str):
     for name in ("README.md", "dev-checklist.md"):
         if not (pkg / name).exists():
-            yield finding("(package)", 0, "V8", f"task 包缺少必需文件：{name}")
+            yield issue("(package)", 0, "V8", f"task 包缺少必需文件：{name}")
 
 
 def is_supported_task_status(value: str) -> bool:
@@ -503,12 +1017,12 @@ def check_task_checklist(pkg: Path, ptype: str):
     if header != TASK_CHECKLIST_HEADER:
         actual = " | ".join(header or []) or "(无表格)"
         expected = " | ".join(TASK_CHECKLIST_HEADER)
-        yield finding("dev-checklist.md", 0, "V9", f"checklist 表头必须为「{expected}」，实际为「{actual}」")
+        yield issue("dev-checklist.md", 0, "V9", f"checklist 表头必须为「{expected}」，实际为「{actual}」")
         return
     try:
         parse_checklist(pkg)
     except (FileNotFoundError, ValueError) as exc:
-        yield finding("dev-checklist.md", 0, "V9", f"checklist 无法解析：{exc}")
+        yield issue("dev-checklist.md", 0, "V9", f"checklist 无法解析：{exc}")
         return
 
     known_ids: set[str] = set()
@@ -517,7 +1031,7 @@ def check_task_checklist(pkg: Path, ptype: str):
         raw_id = row[0].strip() if row else ""
         match = ID_COL_RE.fullmatch(raw_id)
         if not match:
-            yield finding("dev-checklist.md", line, "V9", f"非法 task ID：{raw_id or '(空)'}")
+            yield issue("dev-checklist.md", line, "V9", f"非法 task ID：{raw_id or '(空)'}")
             continue
         task_id = f"T{match.group(1)}"
         known_ids.add(task_id)
@@ -526,11 +1040,11 @@ def check_task_checklist(pkg: Path, ptype: str):
     for line, row, _task_id in parsed_rows:
         status = row[4].strip() if len(row) > 4 else ""
         if not is_supported_task_status(status):
-            yield finding("dev-checklist.md", line, "V9", f"非法状态：{status or '(空)'}")
+            yield issue("dev-checklist.md", line, "V9", f"非法状态：{status or '(空)'}")
         dependencies = parse_deps(row[3] if len(row) > 3 else "")
         for dependency in dependencies:
             if dependency not in known_ids:
-                yield finding("dev-checklist.md", line, "V9", f"依赖「{dependency}」不在 task 表中")
+                yield issue("dev-checklist.md", line, "V9", f"依赖「{dependency}」不在 task 表中")
 
 
 def normalize_module_name(value: str) -> str:
@@ -611,9 +1125,9 @@ def check_task_diagram(pkg: Path, ptype: str):
     declared = readme_modules(read_text(readme))
     rendered = mermaid_modules(read_text(diagram))
     for name in sorted(declared.keys() - rendered.keys()):
-        yield finding("diagram.md", 0, "V10", f"README 模块「{declared[name]}」缺少 Mermaid 节点")
+        yield issue("diagram.md", 0, "V10", f"README 模块「{declared[name]}」缺少 Mermaid 节点")
     for name in sorted(rendered.keys() - declared.keys()):
-        yield finding("diagram.md", 0, "V10", f"Mermaid 节点「{rendered[name]}」未在 README 涉及模块声明")
+        yield issue("diagram.md", 0, "V10", f"Mermaid 节点「{rendered[name]}」未在 README 涉及模块声明")
 
 
 LITE_README_H2_REQUIREMENTS = ("核心目标", "验收")
@@ -624,15 +1138,7 @@ RISK_VALUES = {"Q0", "Q1", "Q2", "Q3"}
 
 
 def h2_section(lines: list[str], prefix: str) -> tuple[int | None, int]:
-    """返回指定 H2 的起始与结束索引；缺失时起始为 None。"""
-    start = next(
-        (index for index, line in enumerate(lines) if H2_RE.match(line) and line[3:].strip().startswith(prefix)),
-        None,
-    )
-    if start is None:
-        return None, len(lines)
-    end = next((index for index in range(start + 1, len(lines)) if H2_RE.match(lines[index])), len(lines))
-    return start, end
+    return section_bounds(lines, prefix)
 
 
 def check_task_readme(pkg: Path, ptype: str):
@@ -644,26 +1150,26 @@ def check_task_readme(pkg: Path, ptype: str):
                     if (match := RISK_RE.match(line.strip()))]
     risk = None
     if not risk_entries:
-        yield finding("README.md", 0, "V11", "README 缺少 risk: Q0|Q1|Q2|Q3 字段")
+        yield issue("README.md", 0, "V11", "README 缺少 risk: Q0|Q1|Q2|Q3 字段")
     elif len(risk_entries) > 1:
-        yield finding("README.md", risk_entries[1][0], "V11", "README 的 risk 字段必须唯一")
+        yield issue("README.md", risk_entries[1][0], "V11", "README 的 risk 字段必须唯一")
     else:
         risk = risk_entries[0][1]
         if risk not in RISK_VALUES:
-            yield finding("README.md", risk_entries[0][0], "V11", f"非法 risk：{risk}（应为 Q0/Q1/Q2/Q3）")
+            yield issue("README.md", risk_entries[0][0], "V11", f"非法 risk：{risk}（应为 Q0/Q1/Q2/Q3）")
 
     h2s = [(line_number, line[3:].strip()) for line_number, line in enumerate(lines, 1) if H2_RE.match(line)]
     required = LITE_README_H2_REQUIREMENTS if risk in {"Q0", "Q1"} else FULL_README_H2_REQUIREMENTS
     for heading in required:
         if not any(actual.startswith(heading) for _line, actual in h2s):
-            yield finding("README.md", 0, "V11", f"缺少以「{heading}」开头的二级标题")
+            yield issue("README.md", 0, "V11", f"缺少以「{heading}」开头的二级标题")
 
     acceptance_start, acceptance_end = h2_section(lines, "验收")
     if acceptance_start is None:
         return
     acceptance_lines = lines[acceptance_start:acceptance_end]
     if not any(H3_RE.match(line) and line[4:].strip().startswith("自动化测试责任") for line in acceptance_lines):
-        yield finding("README.md", acceptance_start + 1, "V11", "验收区域缺少三级标题「自动化测试责任」")
+        yield issue("README.md", acceptance_start + 1, "V11", "验收区域缺少三级标题「自动化测试责任」")
 
 
 def check_task_acceptance(pkg: Path, ptype: str):
@@ -675,58 +1181,8 @@ def check_task_acceptance(pkg: Path, ptype: str):
     start, end = h2_section(lines, "验收")
     if start is None:
         return
-
-    current_requirement: tuple[int, str] | None = None
-    scenario_count = 0
-    current_scenario: tuple[int, str, list[str]] | None = None
-
-    def close_scenario():
-        nonlocal current_scenario
-        if current_scenario is None:
-            return
-        line_number, name, body = current_scenario
-        text = "\n".join(body)
-        if not re.search(r"\bWHEN\b", text):
-            yield finding("README.md", line_number, "V12", f"Scenario「{name}」缺少 WHEN")
-        if not re.search(r"\bTHEN\b", text):
-            yield finding("README.md", line_number, "V12", f"Scenario「{name}」缺少 THEN")
-        if not any(VALIDATION_RE.match(line) for line in body):
-            yield finding("README.md", line_number, "V12", f"Scenario「{name}」缺少 验证: auto|manual 标记")
-        current_scenario = None
-
-    def close_requirement():
-        nonlocal current_requirement, scenario_count
-        if current_requirement is not None and scenario_count == 0:
-            line_number, name = current_requirement
-            yield finding("README.md", line_number, "V12", f"Requirement「{name}」没有任何 Scenario")
-        current_requirement, scenario_count = None, 0
-
-    for index in range(start + 1, end):
-        line = lines[index]
-        h3 = H3_RE.match(line)
-        h4 = H4_RE.match(line)
-        if h3:
-            yield from close_scenario()
-            yield from close_requirement()
-            name = line[4:].strip()
-            if name.startswith("Requirement:"):
-                current_requirement = (index + 1, name[len("Requirement:"):].strip())
-            continue
-        if h4:
-            yield from close_scenario()
-            name = line[5:].strip()
-            if name.startswith("Scenario:"):
-                if current_requirement is None:
-                    yield finding("README.md", index + 1, "V12", "Scenario 没有上级 Requirement")
-                else:
-                    scenario_count += 1
-                current_scenario = (index + 1, name[len("Scenario:"):].strip(), [])
-            continue
-        if current_scenario is not None:
-            current_scenario[2].append(line)
-
-    yield from close_scenario()
-    yield from close_requirement()
+    section = [(index + 1, lines[index]) for index in range(start + 1, end)]
+    yield from scenario_contract_issues(section, "README.md", "task")
 
 
 CHECKS = [
@@ -737,6 +1193,12 @@ CHECKS = [
     check_task_backrefs,    # V5
     check_module_consistency,  # V6
     check_status_vocab,     # V7
+    check_spec2_modeling,   # V14
+    check_spec2_requirement_names,  # V15
+    check_spec2_user_trace,  # V15
+    check_spec2_modules,    # V16
+    check_spec2_design,     # V17
+    check_spec2_reasoning,  # V18
 ]
 
 TASK_CHECKS = [
@@ -1390,13 +1852,13 @@ def task_engine_status(raw_status: str) -> str:
 def resolve_task_list(task_dir: Path) -> tuple[list[dict], list[dict]]:
     """解析 checklist 并判定引擎状态 + 产物锚点交叉验证。
 
-    返回 (tasks, product_findings)。每个 task 追加 'status' 和 'product_check' 字段。
+    返回 (tasks, product_issues)。每个 task 追加 'status' 和 'product_check' 字段。
     product_check：done 但文件缺失→"missing"；todo 但文件已存在→"stale"；无锚点→None。
     这是可选交叉验证，不改变 status 本身（主判依据是 token）。
     """
     raw_tasks = parse_checklist(task_dir)
     tasks: list[dict] = []
-    product_findings: list[dict] = []
+    product_issues: list[dict] = []
     for t in raw_tasks:
         status = task_engine_status(t["raw_status"])
         entry = {
@@ -1411,18 +1873,18 @@ def resolve_task_list(task_dir: Path) -> tuple[list[dict], list[dict]]:
             exists = target.exists()
             if status == DONE and not exists:
                 entry["product_check"] = "missing"
-                product_findings.append({
+                product_issues.append({
                     "id": t["id"], "rule": "product",
                     "msg": f"标记 done 但产物缺失：{t['product']}",
                 })
             elif status == TODO and exists:
                 entry["product_check"] = "stale"
-                product_findings.append({
+                product_issues.append({
                     "id": t["id"], "rule": "product",
                     "msg": f"标记 todo 但产物已存在：{t['product']}",
                 })
         tasks.append(entry)
-    return tasks, product_findings
+    return tasks, product_issues
 
 
 def compute_progress(tasks: list[dict]) -> dict:
@@ -1437,14 +1899,14 @@ def compute_progress(tasks: list[dict]) -> dict:
 def status_command(task_dir: Path, as_json: bool) -> int:
     """status 子命令：解析 task 的 dev-checklist，输出任务状态 + 进度。"""
     try:
-        tasks, product_findings = resolve_task_list(task_dir)
+        tasks, product_issues = resolve_task_list(task_dir)
     except (FileNotFoundError, ValueError) as e:
         print(f"错误：{e}", file=sys.stderr)
         return 2
     progress = compute_progress(tasks)
     payload = {"task": task_dir.name, "tasks": tasks, "progress": progress}
-    if product_findings:
-        payload["product_findings"] = product_findings
+    if product_issues:
+        payload["product_issues"] = product_issues
     if as_json:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
@@ -1848,13 +2310,13 @@ def discover(root: Path) -> list[Path]:
 
 def validate_pkg(pkg: Path, include_legacy: bool) -> dict:
     ptype = detect_type(pkg)
-    result = {"path": str(pkg), "type": ptype, "skipped": False, "findings": []}
+    result = {"path": str(pkg), "type": ptype, "skipped": False, "issues": []}
     if ptype == "legacy" and not include_legacy:
         result["skipped"] = True
         return result
     if ptype == "unknown":
-        result["findings"].append(
-            finding("(package)", 0, "V0", "无法识别包类型（既无 proposal.md / 01-goals / spec.md，也非 legacy）")
+        result["issues"].append(
+            issue("(package)", 0, "V0", "无法识别包类型（既无 proposal.md / 01-goals / spec.md，也非 legacy）")
         )
         return result
     checks = TASK_CHECKS if ptype == "task" else CHECKS
@@ -1862,9 +2324,9 @@ def validate_pkg(pkg: Path, include_legacy: bool) -> dict:
         if ptype == "legacy" and check is check_files_complete:
             continue  # legacy 不按新档位查齐全
         try:
-            result["findings"].extend(check(pkg, ptype))
+            result["issues"].extend(check(pkg, ptype))
         except Exception as e:  # 单条规则崩溃不拖垮整体
-            result["findings"].append(finding("(package)", 0, "V0", f"{check.__name__} 执行失败：{e}"))
+            result["issues"].append(issue("(package)", 0, "V0", f"{check.__name__} 执行失败：{e}"))
     return result
 
 
@@ -1952,11 +2414,11 @@ def main(argv=None) -> int:
             return 2
 
     results = [validate_pkg(p, args.include_legacy) for p in pkgs]
-    total = sum(len(r["findings"]) for r in results)
+    total = sum(len(r["issues"]) for r in results)
     skipped = sum(1 for r in results if r["skipped"])
 
     if args.as_json:
-        print(json.dumps({"packages": results, "total_findings": total, "skipped_legacy": skipped}, ensure_ascii=False, indent=2))
+        print(json.dumps({"packages": results, "total_issues": total, "skipped_legacy": skipped}, ensure_ascii=False, indent=2))
     else:
         for r in results:
             tag = f"[{r['type']}]"
@@ -1964,13 +2426,13 @@ def main(argv=None) -> int:
                 print(f"== {r['path']}  {tag}  跳过（legacy；--include-legacy 可纳入）")
                 continue
             print(f"== {r['path']}  {tag}")
-            if not r["findings"]:
+            if not r["issues"]:
                 print("   ok")
-            for fd in r["findings"]:
+            for fd in r["issues"]:
                 loc = f"{fd['file']}:{fd['line']}" if fd["line"] else fd["file"]
                 print(f"   {loc}  {fd['rule']}  {fd['msg']}")
         mark = "✓" if total == 0 else "✗"
-        print(f"{mark} validate：{len(results)} 包，{total} finding(s)，{skipped} legacy 跳过")
+        print(f"{mark} validate：{len(results)} 包，{total} issue(s)，{skipped} legacy 跳过")
 
     return 0 if total == 0 else 1
 

@@ -260,7 +260,7 @@ spec 状态反映整个需求包的进度；模块状态反映单个模块的进
 
 #### 6.2 裁判审核（子 agent，一次性、只读）
 
-7 文件全部落盘后，**主 agent 先跑 `python3 tools/xdev.py validate <spec目录>`**——机械项（文件齐全 / 路径规则 / Requirement-Scenario 结构 / 02↔90 清单一致 / 状态取值）由工具零成本把关，validate 零 finding 后才派裁判，机械项不占裁判窗口；validate 的 finding 编号（V1-V7）可写进 run 记录聚合。
+7 文件全部落盘后，**主 agent 先跑 `python3 tools/xdev.py validate <spec目录>`**——机械项（文件齐全 / 路径规则 / Requirement-Scenario 结构 / 02↔90 清单一致 / 状态取值）由工具零成本把关，validate 零 issue 后才派裁判，机械项不占裁判窗口；validate 的 issue 编号（V1-V7）可写进 run 记录聚合。
 
 然后派裁判。裁判没有对话上下文——这不是缺陷是特性：写作者自审只能看到"想写的"，fresh eyes 才看得到"实际写的"。基准已外化且经用户确认（01），裁判拿 01 当公理审下游。
 
@@ -273,13 +273,13 @@ Agent({
   prompt: <短任务书，不塞文档全文（基准与产物都在盘上，裁判自己 Read）：
     - 审核目录 docs/spec/<spec-name>/，以其中 01-goals-and-boundaries.md 为公理基准
     - 只读禁改：不允许修改任何文件
-    - 按规则 R1-R8 逐条审核（规则全文贴入），每条 finding 必须带 文件+行号/锚点 证据
-    - 显式允许负结果：某规则查无问题就写"未发现"，禁止硬凑 finding
+    - 按规则 R1-R8 逐条审核（规则全文贴入），每条 issue 必须带 文件+行号/锚点 证据
+    - 显式允许负结果：某规则查无问题就写"未发现"，禁止硬凑 issue
     - 输出只准是按回报模板的判定清单，禁止复述或总结文档内容>
 })
 ```
 
-审核规则（finding 按编号回报，编号进 run 记录聚合）：
+审核规则（issue 按编号回报，编号进 run 记录聚合）：
 
 | # | 规则 | 等级 |
 |---|------|------|
@@ -289,7 +289,7 @@ Agent({
 | R4 | task 来源闭合：每个 task 回指模块 + DoD；不稳模块记录在 90 且标"需求未确认，不能进入开发" | P0 |
 | R5 | 判断依据完整：推荐方案、模块边界、数据归属、验证策略写明为什么重要、判断依据、缺失后果 | P0 |
 | R6 | 文档间一致：02 模块清单 / 03 时序图中的模块与边界类名 / 90 映射对得上；每个模块定义了边界类 | P0 |
-| R7 | 机械项已由 `tools/xdev.py validate`（V1-V7）前置把关，裁判不重查；仅当 validate 输出未附或有未修 finding 时记 P0。图内嵌于文字真源、无孤立图集仍由裁判目检 | P0 |
+| R7 | 机械项已由 `tools/xdev.py validate`（V1-V7）前置把关，裁判不重查；仅当 validate 输出未附或有未修 issue 时记 P0。图内嵌于文字真源、无孤立图集仍由裁判目检 | P0 |
 | R8 | 数据结构字段中文注释、图表格式、task 排序依据强度 | P1 |
 
 裁判回报模板：
@@ -306,7 +306,7 @@ Agent({
 
 #### 6.3 修复（主 agent 直接改）
 
-- 主 agent 对裁判清单**先抽查核实至少一条**——finding 也不是地面真值，指针指到的原文才是；核实不成立的驳回，计入 run 记录 `judge_fp`
+- 主 agent 对裁判清单**先抽查核实至少一条**——issue 也不是地面真值，指针指到的原文才是；核实不成立的驳回，计入 run 记录 `judge_fp`
 - 成立的 P0 主 agent 直接 Edit 修复（基准与文件都在主窗口，成本最低，无重派分支）；P1 顺手修掉，避免永久遗留
 - 修复后重跑 `python3 tools/xdev.py validate`（机械项复查，零成本），不重派裁判
 - 无 P0 → 直接进步骤 7（剩余 P1 列给用户参考，不阻塞）
@@ -367,19 +367,19 @@ spec 索引 README 必须包含：
 
 ## run 记录与退场判据（埋秤）
 
-每次 x-spec 运行结束（步骤 7 完成后），向 `docs/spec/run-log.jsonl` **追加**一行（append-only；仅 `late_findings` 事后发现时允许回补对应行）：
+每次 x-spec 运行结束（步骤 7 完成后），向 `docs/spec/run-log.jsonl` **追加**一行（append-only；仅 `late_issues` 事后发现时允许回补对应行）：
 
 ```json
-{"ts":"YYYY-MM-DD","spec":"<spec-name>","mode":"new|update","duration_min":38,"confirm_rounds":2,"user_edits":3,"judge_p0":["R2@02:45 追溯缺口"],"judge_p1":[],"judge_fp":1,"late_findings":0,"repairs":[{"item":"R2","by":"main"}],"notes":"一句话"}
+{"ts":"YYYY-MM-DD","spec":"<spec-name>","mode":"new|update","duration_min":38,"confirm_rounds":2,"user_edits":3,"judge_p0":["R2@02:45 追溯缺口"],"judge_p1":[],"judge_fp":1,"late_issues":0,"repairs":[{"item":"R2","by":"main"}],"notes":"一句话"}
 ```
 
 字段只收观察得到的，不收测不准的（如 token 数）：
 
 - `confirm_rounds`：用户确认往返数（6.1 第 3 步）
 - `user_edits`：用户确认环节要求的改动数——主 agent 一版质量信号
-- `judge_p0` / `judge_p1`：裁判 finding，按规则编号——模板进化数据
+- `judge_p0` / `judge_p1`：裁判 issue，按规则编号——模板进化数据
 - `judge_fp`：主 agent 核实后驳回数——裁判质量信号
-- `late_findings`：裁判放行后用户或下游又发现的问题数——裁判漏报信号
+- `late_issues`：裁判放行后用户或下游又发现的问题数——裁判漏报信号
 
 预注册退场判据——看到什么就做什么，防止度量退化成仪式：
 
@@ -388,8 +388,8 @@ spec 索引 README 必须包含：
 | `user_edits` 持续 ≥3 | 病在 01 之前的收敛环节 → 改步骤 1-2（充分性判断/头脑风暴），不是加审核 |
 | 某规则 10 次运行 0 触发 | 从裁判 rubric 删掉这条规则——没人犯的规则也在付装配税 |
 | 某规则高频触发 | 改上游（模板 / 主 agent 写作指令），不是让裁判反复兜 |
-| 裁判连续 5 次 findings 全空或全误报 | 裁判退场：删 6.2，机械项（R7）并回主 agent 自查 |
-| `late_findings` 持续 > 裁判抓到数 | 裁判 rubric 失焦 → 重写 rubric |
+| 裁判连续 5 次 issues 全空或全误报 | 裁判退场：删 6.2，机械项（R7）并回主 agent 自查 |
+| `late_issues` 持续 > 裁判抓到数 | 裁判 rubric 失焦 → 重写 rubric |
 
 ---
 

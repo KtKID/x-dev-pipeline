@@ -126,7 +126,7 @@ class TestParseChecklist(unittest.TestCase):
 | T1 | 基础 | a.py | — | [x] 🟢 | — |
 | T2 | 上层 | b.py | T1 | [ ] ⏳ | — |
 """)
-        tasks, findings = xdev.resolve_task_list(self.dir)
+        tasks, issues = xdev.resolve_task_list(self.dir)
         self.assertEqual(len(tasks), 2)
         self.assertEqual(tasks[0]["id"], "T1")
         self.assertEqual(tasks[0]["status"], "done")
@@ -163,9 +163,9 @@ class TestParseChecklist(unittest.TestCase):
 |---|------|---------|------|-----|
 | T1 | 基础 | a.py, product:reports/T1.md | [x] 🟢 | — |
 """)
-        tasks, findings = xdev.resolve_task_list(self.dir)
+        tasks, issues = xdev.resolve_task_list(self.dir)
         self.assertEqual(tasks[0]["product_check"], "missing")
-        self.assertEqual(len(findings), 1)
+        self.assertEqual(len(issues), 1)
 
     def test_product_anchor_stale(self):
         # todo 但产物文件已存在 → product_check: stale
@@ -177,7 +177,7 @@ class TestParseChecklist(unittest.TestCase):
 |---|------|---------|------|-----|
 | T1 | 基础 | a.py, product:reports/T1.md | [ ] ⏳ | — |
 """)
-        tasks, findings = xdev.resolve_task_list(self.dir)
+        tasks, issues = xdev.resolve_task_list(self.dir)
         self.assertEqual(tasks[0]["product_check"], "stale")
 
     def test_missing_checklist(self):

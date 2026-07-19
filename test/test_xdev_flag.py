@@ -223,7 +223,7 @@ summary issue-400
         args = ["--task", "T2", "--severity", "P0", "--loc", "a.py:1", "--msg", "broken"]
         code, _stdout, stderr = capture_flag(task, *args)
         self.assertEqual(code, 0, stderr)
-        tasks, _findings = xdev.resolve_task_list(task)
+        tasks, _issues = xdev.resolve_task_list(task)
         self.assertEqual(tasks[0]["status"], xdev.BLOCKED)
 
 

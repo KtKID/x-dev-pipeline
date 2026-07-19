@@ -223,7 +223,7 @@ class TestTaskValidation(unittest.TestCase):
     def validate(self, task: Path) -> list[dict]:
         result = xdev.validate_pkg(task, include_legacy=False)
         self.assertEqual(result["type"], "task")
-        return result["findings"]
+        return result["issues"]
 
     def test_accepts_valid_task_and_historical_changelog(self):
         task = self.root / "valid"
@@ -235,9 +235,9 @@ class TestTaskValidation(unittest.TestCase):
         task = self.root / "dev-pipeline" / "tasks" / "missing-checklist"
         task.mkdir(parents=True)
         (task / "README.md").write_text(valid_readme(), encoding="utf-8")
-        findings = self.validate(task)
-        self.assertIn("V8", {item["rule"] for item in findings})
-        self.assertIn("dev-checklist.md", " ".join(item["msg"] for item in findings))
+        issues = self.validate(task)
+        self.assertIn("V8", {item["rule"] for item in issues})
+        self.assertIn("dev-checklist.md", " ".join(item["msg"] for item in issues))
 
     def test_v9_reports_header_status_and_missing_dependency(self):
         task = self.root / "broken-checklist"
@@ -249,14 +249,14 @@ class TestTaskValidation(unittest.TestCase):
 """,
             encoding="utf-8",
         )
-        findings = self.validate(task)
-        self.assertTrue(any(item["rule"] == "V9" and "表头" in item["msg"] for item in findings))
+        issues = self.validate(task)
+        self.assertTrue(any(item["rule"] == "V9" and "表头" in item["msg"] for item in issues))
 
         (task / "dev-checklist.md").write_text(
             valid_checklist(status="waiting", dependency="T9"), encoding="utf-8"
         )
-        findings = self.validate(task)
-        messages = "\n".join(item["msg"] for item in findings if item["rule"] == "V9")
+        issues = self.validate(task)
+        messages = "\n".join(item["msg"] for item in issues if item["rule"] == "V9")
         self.assertIn("非法状态", messages)
         self.assertIn("T9", messages)
 
@@ -287,8 +287,8 @@ Extra[\"Extra Module\"]
         task = self.root / "readme"
         write_valid_task(task)
         (task / "README.md").write_text("# task\n\nrisk: Q2\n\n## 核心目标\n", encoding="utf-8")
-        findings = self.validate(task)
-        self.assertTrue(any(item["rule"] == "V11" for item in findings))
+        issues = self.validate(task)
+        self.assertTrue(any(item["rule"] == "V11" for item in issues))
 
         (task / "README.md").write_text(
             valid_q0_readme(),
@@ -341,11 +341,11 @@ Extra[\"Extra Module\"]
         spec = ROOT / "openspec" / "specs" / "xdev-task-artifact-engine"
         result = xdev.validate_pkg(spec, include_legacy=False)
         self.assertEqual(result["type"], "capability")
-        self.assertEqual(result["findings"], [])
+        self.assertEqual(result["issues"], [])
 
 
 class TestScaffoldEndToEnd(unittest.TestCase):
-    def test_scaffold_then_fill_minimum_task_validates_without_findings(self):
+    def test_scaffold_then_fill_minimum_task_validates_without_issues(self):
         with tempfile.TemporaryDirectory() as raw:
             task = Path(raw) / "task"
             code, _stdout, stderr = capture_main(["scaffold", str(task)])
@@ -355,7 +355,7 @@ class TestScaffoldEndToEnd(unittest.TestCase):
             code, stdout, stderr = capture_main(["validate", str(task), "--json"])
             self.assertEqual(code, 0, stderr)
             payload = json.loads(stdout)
-            self.assertEqual(payload["total_findings"], 0)
+            self.assertEqual(payload["total_issues"], 0)
             (task / "dev-report.md").write_text(
                 """# report
 
