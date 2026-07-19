@@ -2,7 +2,7 @@
 
 - [x] 1.1 归档 `xreq-instructions-engine`，将 `xdev-task-artifact-engine` 与 `xreq-lean-planning` 写入主 specs。（`2c25a67`）
 - [x] 1.2 创建本 change，完成 proposal、design、两个新 capability spec 与两个主 spec delta。
-- [x] 1.3 运行本 change 的严格 OpenSpec 校验，修复全部结构 finding 后进入实现。（`openspec validate unified-flow-verify-engine --strict` 通过）
+- [x] 1.3 运行本 change 的严格 OpenSpec 校验，修复全部结构 issue 后进入实现。（`openspec validate unified-flow-verify-engine --strict` 通过）
 
 ## 2. Commit A：确定性 verify 引擎与 task 契约
 

@@ -1,7 +1,7 @@
 ## 0. 前置门禁
 
 - [x] 0.1 确认当前 `xdev-orchestration-engine` 的代码、skill、测试、报告和文档已经作为独立变更提交；该前置提交完成后开始本变更实现。（`2fbad30 feat(xdev): add task orchestration engine`）
-- [x] 0.2 记录前置 commit ID，并重跑 `python3 -m unittest discover -s test`、`python3 tools/xdev.py --help` 和一个现有 V1-V7 测试夹具，建立干净的行为基线。（33 tests OK；`validate openspec/changes/xreq-instructions-engine --json` 为零 finding）
+- [x] 0.2 记录前置 commit ID，并重跑 `python3 -m unittest discover -s test`、`python3 tools/xdev.py --help` 和一个现有 V1-V7 测试夹具，建立干净的行为基线。（33 tests OK；`validate openspec/changes/xreq-instructions-engine --json` 为零 issue）
 
 ## 1. Commit A——确定性引擎与测试
 
@@ -15,7 +15,7 @@
 - [x] 1.8 实现 V11：支持前缀匹配的 H2、H3 `自动化测试责任`，以及围栏命令代码块或 `manual` 验收证据。
 - [x] 1.9 在 `test/test_xdev_artifacts.py` 覆盖合法/非法 instructions、依赖缺失事实、默认/带图 scaffold、幂等性、标题替换和 created/skipped 输出。
 - [x] 1.10 增加 V8-V11 错误测试夹具、合法 task 测试夹具、标准路径下 checklist 缺失、历史 changelog 容纳和 V1-V7 回归覆盖。
-- [x] 1.11 增加端到端测试夹具：执行 scaffold、程序化填入最小合法 task 包，并证明 validate 退出码为 0 且 finding 为空。
+- [x] 1.11 增加端到端测试夹具：执行 scaffold、程序化填入最小合法 task 包，并证明 validate 退出码为 0 且 issue 为空。
 - [x] 1.12 运行 `python3 -m unittest discover -s test`，以及 scaffold、instructions、task 校验、spec 回归冒烟命令；记录真实输出；仅提交 `tools/xdev.py` 与测试文件作为 commit A。（48 tests OK；CLI 冒烟与 spec 回归均通过）
 
 ## 2. Commit B——skill 行为与模板
@@ -37,6 +37,6 @@
 
 - [x] 4.1 提供前置提交、commit A、commit B、commit C 的 `git log --oneline` 与 `git show --stat`。（`2fbad30`、`98932d0`、`3e542e1`、`eb67e89`）
 - [x] 4.2 提供完整的 `python3 -m unittest discover -s test` 输出和真实的 `instructions dev-checklist --task <fixture> --json` 样例。（48 tests OK；fixture 为 `/tmp/xreq-open-spec-evidence-20260717`）
-- [x] 4.3 提供端到端测试夹具目录树、零 finding 的 validate 输出、scaffold 幂等证据，以及 V8/V9/V10/V11 错误测试夹具结果摘要。（fixture 含 README.md、dev-checklist.md；validate 零 finding；二次 scaffold 全部 skipped；新增“技术设计”反例后 8 个 V8–V11 fixture tests、总计 49 tests OK）
+- [x] 4.3 提供端到端测试夹具目录树、零 issue 的 validate 输出、scaffold 幂等证据，以及 V8/V9/V10/V11 错误测试夹具结果摘要。（fixture 含 README.md、dev-checklist.md；validate 零 issue；二次 scaffold 全部 skipped；新增“技术设计”反例后 8 个 V8–V11 fixture tests、总计 49 tests OK）
 - [x] 4.4 提供 x-req 新旧行数、目标 workflow 引用搜索结果，以及每项实现偏离的明确理由。（234 → 56 行；x-req/x-dev/x-qdev 范围零命中；Gate 与 cr 系列依 design.md 范围边界保留到方案 A 第②步；V11 已按 README 模板补入“技术设计”并增加独立坏 fixture）
 - [x] 4.5 OpenSpec 变更已完成评审、实现与验证；归档后将 capability delta 写入主 spec。（2026-07-17：用户已授权进入方案 A 第②步，归档作为该单的显式前置门禁。）

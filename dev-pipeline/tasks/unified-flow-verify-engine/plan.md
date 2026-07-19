@@ -168,7 +168,7 @@ DoD 概念不消失，收敛为一句定义（写进模板注释与 x-req instru
 ### T4 校验器同步（V11 调整 + V12 新增）
 
 - **V11 必需章节集**（Q2/Q3）：`核心目标`、`需求要点`、`涉及模块`、`架构拆分策略`、`技术设计`、`验收`（替换原 `DoD` 与 `Smoke / E2E 验收用例` 两项）；`自动化测试责任` H3 改为在 `验收` 区内查找。原"fenced 命令块或 manual 标记"检查移交 V12。
-- **V11 risk 感知**：读 README 头部 `risk:`——缺失或值不在 {Q0,Q1,Q2,Q3} → finding；Q0/Q1 的必需章节集收缩为 `核心目标`、`验收`（其余章节可省，存在则不报错）。
+- **V11 risk 感知**：读 README 头部 `risk:`——缺失或值不在 {Q0,Q1,Q2,Q3} → issue；Q0/Q1 的必需章节集收缩为 `核心目标`、`验收`（其余章节可省，存在则不报错）。
 - **V12 验收结构**（task 包新规则，复用 V3 的 Requirement/Scenario 解析逻辑）：`验收` 区内每条 `### Requirement:` ≥1 个 `#### Scenario:`；每个 Scenario 含 WHEN 与 THEN（GIVEN 可省）；每个 Scenario 末行必须有 `验证: auto` 或 `验证: manual` 标记。
 - xdev.py 顶部 docstring 规则编号表同步 V11 新文字与 V12。
 - 上一单的 e2e/坏 fixture 按新契约更新。
@@ -232,8 +232,8 @@ DoD 概念不消失，收敛为一句定义（写进模板注释与 x-req instru
 1. verify 块解析：合法块、多 expect_contains、manual 块省 cmd、未知 key/重复 id/auto 缺 cmd → 解析错误（exit 2）
 2. 执行与比对：exit 不符 → fail；expect_contains 缺失 → fail（列出 missing）；全过 → exit 0；timeout 字段生效（用 `sleep` 类命令 + timeout: 1 验证，fixture 内显式写 1 并注释这是测试专用值）
 3. 场景对账：README auto 场景无回指块 → uncovered + exit 1；manual 场景不要求块；场景名匹配按 strip 后全等
-4. V11 新章节集 + risk 感知（Q0 lite 通过 / Q2 缺技术设计 finding / risk 缺失或非法 finding）；V12 好坏 fixture（缺 WHEN/THEN、缺 验证: 标记、Requirement 无场景）
-5. e2e：scaffold → 填 Q2 最小合法包（新验收结构）→ validate 0 finding → 写含 1 pass + 1 manual 的 dev-report → verify exit 0
+4. V11 新章节集 + risk 感知（Q0 lite 通过 / Q2 缺技术设计 issue / risk 缺失或非法 issue）；V12 好坏 fixture（缺 WHEN/THEN、缺 验证: 标记、Requirement 无场景）
+5. e2e：scaffold → 填 Q2 最小合法包（新验收结构）→ validate 0 issue → 写含 1 pass + 1 manual 的 dev-report → verify exit 0
 6. 既有 48+ 测试全数调整通过（V11 契约变更处按新契约改 fixture）
 
 ### T11 发行面文案
@@ -262,7 +262,7 @@ DoD 概念不消失，收敛为一句定义（写进模板注释与 x-req instru
 | 2 | verify 好样本 | 对 T10-5 的 e2e fixture 跑 `verify --json` | exit 0，fail/uncovered 为空，manual 列出 |
 | 3 | verify 坏样本 | fixture 含 exit 不符 + 片段缺失 + uncovered | exit 1，三类各至少 1 条且字段完整 |
 | 4 | verify 解析错误 | fixture 含重复 id / auto 缺 cmd | exit 2，指明块与原因 |
-| 5 | V11/V12 | Q0 lite 通过；Q2 全集缺项、risk 缺失、场景缺 WHEN/THEN、缺 `验证:` 标记各出 finding | 单测覆盖 |
+| 5 | V11/V12 | Q0 lite 通过；Q2 全集缺项、risk 缺失、场景缺 WHEN/THEN、缺 `验证:` 标记各出 issue | 单测覆盖 |
 | 6 | x-verify 瘦身 | `awk 'END{print NR}' skills/x-verify/SKILL.md` | ≤ 60 |
 | 7 | x-qa-gate 瘦身 | 同上 qa-gate | ≤ 170 |
 | 8 | changelog 债清偿 | `grep -rn "changelog" skills/` | 0 命中 |

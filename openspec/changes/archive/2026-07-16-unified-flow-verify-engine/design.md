@@ -20,7 +20,7 @@
 
 - 让命令复跑、退出码比较、关键输出检查和自动场景覆盖对账在确定性工具层完成。
 - 让 Q0-Q3 成为 task 数据，替代按 skill 入口分叉的流程。
-- 让 x-verify 和 x-qa-gate 只消费必要证据，且所有高严重度 finding 有可复现的定位。
+- 让 x-verify 和 x-qa-gate 只消费必要证据，且所有高严重度 issue 有可复现的定位。
 - 删除 qdev/x-plan 与所有活跃引用，令新 task 只有一条风险路由主线。
 
 **Non-Goals:**
@@ -51,7 +51,7 @@ x-req 在创建或更新 task 时判断 Q0-Q3 并写入 README。Q0/Q1 跳过确
 
 ### Decision 4: skills 只诊断失败并读取最小输入
 
-x-verify 运行 verify 引擎：全过只给对话回执，有失败或 uncovered 才写 verify 报告并交 x-fix。qa-gate 按 README risk 选择 reviewer，并向每个 reviewer 传入精确的 README 节、diff、dev-report verify 块或测试文件。P0 finding 必须能给出 `file:line` 和复现依据；无法确认的 finding 降一级。
+x-verify 运行 verify 引擎：全过只给对话回执，有失败或 uncovered 才写 verify 报告并交 x-fix。qa-gate 按 README risk 选择 reviewer，并向每个 reviewer 传入精确的 README 节、diff、dev-report verify 块或测试文件。P0 issue 必须能给出 `file:line` 和复现依据；无法确认的 issue 降一级。
 
 备选方案是以全量 task 文档、changelog 和 qdev 分支继续喂给 reviewer。该方案扩大上下文且会读取新流程不再生成的 changelog；本 change 只传与 reviewer 目标对应的证据。
 

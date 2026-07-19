@@ -106,17 +106,17 @@ python3 tools/xdev.py fingerprint <task-dir> [--json]
    缓存**——CLI 每次调用都是新进程，缓存无处驻留；对外语义 = 全量重算
 
 **校验规则**：progress 每次运行重算当前指纹；证据指纹 ≠ 当前指纹 → 该格清空 +
-finding"证据过期"。指纹格式必须匹配 `^sha256:[0-9a-f]{64}$` 或 `^no-git$`，否则按 schema 违例 exit 2。
+issue"证据过期"。指纹格式必须匹配 `^sha256:[0-9a-f]{64}$` 或 `^no-git$`，否则按 schema 违例 exit 2。
 
 ### 2.3 每格的打钩依据（所有符号每次从证据全量重算）
 
 | 步骤格 | 依据（均由 progress 推导） |
 |--------|--------------------------|
 | `dev` | **降级后的虚拟任务表**全部 `[x]` → `x`；任一 `[!]` → `!`；其余（存在 `[ ]` 且无 `[!]`）→ 空；空表 → exit 2 |
-| `verify` | 回执 schema 合法、指纹相符：`ok: true` → `x`，`ok: false` → `!`；指纹不符 → 空 + stale finding；无回执 → 空（初始态，不产 finding） |
-| `rc`/`r1`/`r2`/`r3` | 该 lens 当前结论块（3.3 选取）、指纹相符：pass → `x`，fail → `!`；指纹不符 → 空 + stale finding；无块 → 空（不产 finding） |
+| `verify` | 回执 schema 合法、指纹相符：`ok: true` → `x`，`ok: false` → `!`；指纹不符 → 空 + stale issue；无回执 → 空（初始态，不产 issue） |
+| `rc`/`r1`/`r2`/`r3` | 该 lens 当前结论块（3.3 选取）、指纹相符：pass → `x`，fail → `!`；指纹不符 → 空 + stale issue；无块 → 空（不产 issue） |
 
-行级降级：只消费**当前有效**（指纹相符）fail 结论中的 P0/P1 finding；P2 登记不动行。
+行级降级：只消费**当前有效**（指纹相符）fail 结论中的 P0/P1 issue；P2 登记不动行。
 lens 合法但不在当前 risk 步骤集（如 Q0/Q1 显式调 gate 按 Q2 处理产出的 rc 块）：无格可打，
 登记 warning，但其有效 fail 的 P0/P1 **仍参与行降级**——证据不因格缺席而作废（进 DoD-39）。
 
@@ -132,7 +132,7 @@ lens 合法但不在当前 risk 步骤集（如 Q0/Q1 显式调 gate 按 Q2 处�
 全部符号每次从证据重算（不存在"保留旧钩"）。
 
 注意：改 README 的 `risk:` 行本身就改变指纹 → 既有证据全部过期，迁移后 verify/review
-格必然清空并报 stale finding（dev 格由行状态重算，行不绑指纹），需重跑 verify 与 gate
+格必然清空并报 stale issue（dev 格由行状态重算，行不绑指纹），需重跑 verify 与 gate
 （进 DoD-11 预期）。
 
 ### 2.5 数据流
@@ -207,22 +207,22 @@ lens: r1
 round: 2
 fingerprint: sha256:9f2c…
 verdict: fail
-finding: F1 | P0 | T2 | src/b.py:120 | 空输入未处理
-finding: F2 | P2 | T3 | src/c.py:45 | 命名与惯例不一致
+issue: F1 | P0 | T2 | src/b.py:120 | 空输入未处理
+issue: F2 | P2 | T3 | src/c.py:45 | 命名与惯例不一致
 ```
 ````
 
 **解析契约（违反 → exit 2 并指明文件与块位置）**：
 
-- 必需 key：`lens`、`round`、`fingerprint`、`verdict`；可选 key：`finding`（可多行）；其余非法
-- 同一块内除 `finding` 外 key 重复 → 非法；同块 finding 编号重复 → 非法
+- 必需 key：`lens`、`round`、`fingerprint`、`verdict`；可选 key：`issue`（可多行）；其余非法
+- 同一块内除 `issue` 外 key 重复 → 非法；同块 issue 编号重复 → 非法
 - `lens` ∈ {rc,r1,r2,r3}；`round` 正整数；`verdict` ∈ {pass,fail}；fingerprint 格式同 3.2
 - **同一文件内同 lens 同 round 出现多块 → 非法**（同 lens 不同 round 取 round 最大）
 - 报告文件名必须含可解析时间戳（`qa-gate-report-<YYYYMMDD-HHmmss>.md`），不合规文件名 → exit 2
-- finding 五段 `编号|严重度|T#列表|file:line|摘要`：按**前 4 个 `|`**切分、各段去两侧
+- issue 五段 `编号|严重度|T#列表|file:line|摘要`：按**前 4 个 `|`**切分、各段去两侧
   空白，前四段不得含 `|`，摘要可含；T# 列表逗号分隔（如 `T2,T3`），逐个判定；
   严重度一致性：pass 不得含 P0/P1，fail 必须 ≥1 条 P0/P1；引用的 T# 不存在 →
-  该条不参与降级 + progress finding
+  该条不参与降级 + progress issue
 - **当前结论选取（按 lens 独立）**：对每个 lens 取"含该 lens 块的最新时间戳文件"，
   时间戳并列时取文件名字典序最大者；增量复审只补部分 lens 时其余 lens 沿用各自
   最新文件，天然正确
@@ -235,10 +235,10 @@ finding: F2 | P2 | T3 | src/c.py:45 | 命名与惯例不一致
 ### 4.1 进度行解析器
 
 1. 定位 `## 进度` 后第一个非空行；`re.finditer(r"([a-z0-9_]+)\[([ x!])\]", line)` 扫描
-2. 合法性：行首尾空白允许；相邻匹配间必须有 ≥1 空白（粘连 → V13 finding）；
-   全部匹配 + 间隔空白 + 首尾空白必须覆盖整行（杂字/0 匹配/非法符号 → finding）；
+2. 合法性：行首尾空白允许；相邻匹配间必须有 ≥1 空白（粘连 → V13 issue）；
+   全部匹配 + 间隔空白 + 首尾空白必须覆盖整行（杂字/0 匹配/非法符号 → issue）；
    不能先按空白 split（`[ ]` 内含空格）
-3. 步骤名重复 → V13 finding
+3. 步骤名重复 → V13 issue
 4. 包类型三态：README 无 `risk:` 行 → 旧包（progress exit 2 提示不适用；V13 不触发；
    validate 侧既有 V11 仍报缺 risk，本单不改 V11）；有行但值非法 → progress exit 2
    提示先修 README（该违例静态归属**既有 V11**，V13 不重复立规）；合法 → 全套规则生效
@@ -246,7 +246,7 @@ finding: F2 | P2 | T3 | src/c.py:45 | 命名与惯例不一致
 ### 4.2 gate-verdict 解析器
 
 按 3.3 契约实现；遍历 `reports/qa-gate/*.md` 抽块；产出
-`{lens: {round, verdict, fingerprint, findings, 来源文件}}`。
+`{lens: {round, verdict, fingerprint, issues, 来源文件}}`。
 
 ### 4.3 `progress` 子命令
 
@@ -264,14 +264,14 @@ python3 tools/xdev.py progress <task-dir> --reverify [--json]
    （2.2）算当前值
 2. 解析任务表；空表或 T# 重复 → exit 2
 3. 解析回执（3.2 schema）与报告（3.3），指纹校验 → 各证据的**有效**结论
-   （过期 → 对应格记空 + finding）
-4. **先算行降级**：有效 fail 结论的 P0/P1 finding 引用的 T# → 降级集合 → 应用到虚拟
+   （过期 → 对应格记空 + issue）
+4. **先算行降级**：有效 fail 结论的 P0/P1 issue 引用的 T# → 降级集合 → 应用到虚拟
    任务表（含越集 lens 的有效 fail，2.3）
 5. 从虚拟表推导 `dev` 格；verify/review 格按 2.3
 6. 按当前 risk 生成步骤集，全部符号来自本次推导，重建进度行
 7. 一次写回。**幂等成立的机制**：progress 的全部写入（进度行、行状态列）都在指纹的
    排除/投影域内——写回不改变指纹，连跑两次文件与判定均不变
-8. `--json`：`{"progress":…, "downgraded_rows":…, "p2_registered":…, "stale_evidence":…, "warnings":…, "findings":…}`；
+8. `--json`：`{"progress":…, "downgraded_rows":…, "p2_registered":…, "stale_evidence":…, "warnings":…, "issues":…}`；
    --check/--reverify 模式额外含 `consistent`、`complete`
 
 **手工试跑示例（规格的一部分，执行方照此写首个测试；须在真 git 仓库 fixture 中执行，
@@ -296,9 +296,9 @@ checklist 为已跟踪文件）**：
 | 解析/schema/用法/IO/原子写失败/空表/T# 重复/旧包/非法 risk/互斥参数 | 2 | 2 | 2（verify exit 2 → 直接 2，跳过对账） |
 | verify 失败（--reverify 重跑结果） | — | — | 1 |
 | 账实不一致 | 0（写成推导值） | 1 | 1 |
-| 一致（含格中有 `!`、stale/T# finding 但磁盘已同步的情况） | 0 | 0 | 0（且 verify 通过） |
+| 一致（含格中有 `!`、stale/T# issue 但磁盘已同步的情况） | 0 | 0 | 0（且 verify 通过） |
 
-优先级：错误类（2）> 失败/不一致（1）> 0。stale finding 在 JSON 里始终报告，不影响一致性判定。
+优先级：错误类（2）> 失败/不一致（1）> 0。stale issue 在 JSON 里始终报告，不影响一致性判定。
 
 ### 4.4 verify 子命令（回执生命周期）
 
@@ -316,7 +316,7 @@ checklist 为已跟踪文件）**：
 ### 4.6 validate（V9 扩展 + V13）
 
 - V9 扩展：任务表 ≥1 行；T# 唯一；**状态列按包型分叉**——新包（README 含合法 `risk:`）
-  仅接受裸 `[ ]`/`[x]`/`[!]`（emoji、双轨、大写 X → finding，进 DoD-36）；旧包沿用既有
+  仅接受裸 `[ ]`/`[x]`/`[!]`（emoji、双轨、大写 X → issue，进 DoD-36）；旧包沿用既有
   双轨/emoji 兼容契约不变
 - V13（仅新包）：进度节存在可解析（含首尾空白与间隔规则）；步骤集与 risk 精确一致
   （进 DoD-38）；进度行符号合法。risk 值本身的合法性归**既有 V11**，V13 不重复立规
@@ -356,23 +356,23 @@ checklist 为已跟踪文件）**：
 | 4 | 完整 verify 通过/失败 | 回执 schema 合法、指纹正确；checklist 未被 verify 触碰 |
 | 5 | `--only` 隔离（单块过、整体有败） | 无回执更新；progress 后 verify 格非 `x` |
 | 6 | review 打格（pass 块） | `rc[x]` |
-| 7 | verdict 违例（pass 带 P0 / fail 仅 P2 / 缺 fingerprint / 重复 key / 重复 finding 编号 / round 非法 / 同 lens 同 round 双块 / 文件名无时间戳） | 各 exit 2 |
+| 7 | verdict 违例（pass 带 P0 / fail 仅 P2 / 缺 fingerprint / 重复 key / 重复 issue 编号 / round 非法 / 同 lens 同 round 双块 / 文件名无时间戳） | 各 exit 2 |
 | 8 | P2 不降行 | P0(T2) 降、P2(T3) 不降且进 `p2_registered` |
-| 9 | 空表 | progress exit 2；V9 finding |
-| 10 | 重复 T# | V9 finding；progress 对重复 T# 表 exit 2（降级目标歧义） |
-| 11 | risk 迁移（Q2 有钩 → Q3） | 步骤集精确替换；README 改动致证据全过期：verify 格清空 + stale finding，dev 格由行状态重算（2.4 注意项） |
+| 9 | 空表 | progress exit 2；V9 issue |
+| 10 | 重复 T# | V9 issue；progress 对重复 T# 表 exit 2（降级目标歧义） |
+| 11 | risk 迁移（Q2 有钩 → Q3） | 步骤集精确替换；README 改动致证据全过期：verify 格清空 + stale issue，dev 格由行状态重算（2.4 注意项） |
 | 12 | `--check` 零副作用 | 目录快照前后无变化；伪造 `rc[x]` 无据 → exit 1 |
-| 13 | 退出码矩阵 | 按 4.3 表逐格测：写入含 finding 仍 0；--check 一致 0/不一致 1；--reverify verify 败 1、verify exit 2 → 2；互斥参数 → 2 |
+| 13 | 退出码矩阵 | 按 4.3 表逐格测：写入含 issue 仍 0；--check 一致 0/不一致 1；--reverify verify 败 1、verify exit 2 → 2；互斥参数 → 2 |
 | 14 | 幂等（git 集成 fixture，checklist 已跟踪） | progress 连跑两次文件与判定均不变 |
-| 15 | 粘连拒绝（`dev[ ]verify[ ]`） | V13 finding |
+| 15 | 粘连拒绝（`dev[ ]verify[ ]`） | V13 issue |
 | 16 | 旧包三态 | 旧包全套跳过；非法 risk V13+exit 2 |
 | 17 | 旧格式回归（emoji fixture 的 status/graph） | 行为不变 |
 | 18 | 旧状态组合清除 | 文件集 = `skills/**` + `README.md` + `README_zh.md`：grep 六种双轨组合（`[ ] ⏳`/`[ ] ▶️`/`[ ] 🟡`/`[x] 🟢`/`[x] ✅`/`[!] 🔴`）与字样"双轨" = 0 命中（对话回执单独 emoji 不在禁令内；tools/xdev.py 旧包兼容分支不在此列） |
 | 19 | `openspec validate <change> --strict` | 通过；验收前不归档 |
 | 20 | 提交结构 | commit 0/A/B/C/归档；tasks.md 含 T#→文件→规则→DoD 映射 |
-| 21 | 源码变更失效回执 | verify pass 后改已跟踪源文件 → verify 格清空 + stale finding |
+| 21 | 源码变更失效回执 | verify pass 后改已跟踪源文件 → verify 格清空 + stale issue |
 | 22 | exit 2 不留旧成功回执 | 弄坏 dev-report 跑完整 verify → 旧回执已不存在 |
-| 23 | QA pass 后 diff 变化 | rc pass → 改代码 → rc 格清空 + stale finding |
+| 23 | QA pass 后 diff 变化 | rc pass → 改代码 → rc 格清空 + stale issue |
 | 24 | Q3 三 lens 分布多文件 | 各自独立取最新，三格判定正确 |
 | 25 | 首跑降级即 dev[!] | 4.3 试跑示例场景一次到位 |
 | 26 | `--check` 检出行差异 | 应降级却仍 `[x]` → 列出差异 exit 1 |
@@ -385,10 +385,10 @@ checklist 为已跟踪文件）**：
 | 33 | **回执 schema 违例** | `ok:"false"`（字符串）/未知 key/ok 与 fail 不自洽/指纹格式错 → 各 exit 2 |
 | 34 | **原子写失败** | 模拟 reports/verify 不可写 → verify exit 2，无半成品回执 |
 | 35 | **删除态可算** | 删除已跟踪文件（未暂存）→ 指纹正常算出且值变化，不报错；恢复文件 → 回原值 |
-| 36 | **新包状态列拦截** | 新包任务行写 `[x] ✅` / `[X]` → V9 finding；旧包 emoji fixture 不受影响（与 DoD-17 互证） |
+| 36 | **新包状态列拦截** | 新包任务行写 `[x] ✅` / `[X]` → V9 issue；旧包 emoji fixture 不受影响（与 DoD-17 互证） |
 | 37 | **scaffold 缺参** | README 不存在且未传 `--risk` → exit 2 |
-| 38 | **步骤集一致性** | 新包 README Q2 而进度行手改为 Q3 步骤集 → V13 finding |
-| 39 | **finding 文法与越集 lens** | 摘要含竖线仍正确切分（按前 4 个分隔）；`T2,T3` 多 T# 全部降级；Q1 显式 gate 产 rc 块 → 不打格 + warning + 仍降级 |
+| 38 | **步骤集一致性** | 新包 README Q2 而进度行手改为 Q3 步骤集 → V13 issue |
+| 39 | **issue 文法与越集 lens** | 摘要含竖线仍正确切分（按前 4 个分隔）；`T2,T3` 多 T# 全部降级；Q1 显式 gate 产 rc 块 → 不打格 + warning + 仍降级 |
 | 40 | **模板不投影** | 改 `skills/x-req/templates/dev-checklist.md` 示例状态列 → 指纹变化（投影仅限 `dev-pipeline/tasks/*/dev-checklist.md`） |
 | 41 | **changelog 排除** | 通关后写 task `changelog.md` → 指纹不变，`--check` 仍一致 |
 

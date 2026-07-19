@@ -21,7 +21,7 @@
 #### Scenario: 容纳历史 changelog
 - **GIVEN** 合法 task 包同时包含 `changelog.md`
 - **WHEN** V8 运行
-- **THEN** 历史文件不产生 finding，并保持原状
+- **THEN** 历史文件不产生 issue，并保持原状
 
 ### Requirement: README 契约校验
 V11 SHALL 要求 README 头部含有且仅有合法值的 `risk: Q0|Q1|Q2|Q3`。Q0/Q1 README SHALL 要求 `核心目标` 与 `验收` 二级节；Q2/Q3 README SHALL 额外要求 `需求要点`、`涉及模块`、`架构拆分策略` 与 `技术设计` 二级节。V12 SHALL 要求 `验收` 中每个 `### Requirement:` 至少有一个 `#### Scenario:`，每个 Scenario 必须包含 WHEN、THEN 和 `验证: auto` 或 `验证: manual` 标记；`### 自动化测试责任` SHALL 位于验收节内。
@@ -29,7 +29,7 @@ V11 SHALL 要求 README 头部含有且仅有合法值的 `risk: Q0|Q1|Q2|Q3`。
 #### Scenario: 接受完整 README
 - **GIVEN** README 声明合法 Q2 或 Q3 risk，并含完整章节、自动化测试责任和结构完整的验收 Scenario
 - **WHEN** task 校验运行
-- **THEN** V11 与 V12 不产生 finding
+- **THEN** V11 与 V12 不产生 issue
 
 #### Scenario: 接受纯人工验收路径
 - **GIVEN** README 的验收 Scenario 使用 `验证: manual` 且含 WHEN、THEN 和自动化测试责任
@@ -44,7 +44,7 @@ V11 SHALL 要求 README 头部含有且仅有合法值的 `risk: Q0|Q1|Q2|Q3`。
 #### Scenario: 报告技术设计缺失
 - **GIVEN** README 声明 Q2 或 Q3 risk 且缺少以 `技术设计` 开头的二级标题
 - **WHEN** task 校验运行
-- **THEN** V11 报告技术设计缺失 finding
+- **THEN** V11 报告技术设计缺失 issue
 
 #### Scenario: 报告结构或验收证据缺失
 - **GIVEN** README 缺少 risk、必需标题、自动化测试责任，或验收结构不完整
@@ -54,12 +54,12 @@ V11 SHALL 要求 README 头部含有且仅有合法值的 `risk: Q0|Q1|Q2|Q3`。
 #### Scenario: 接受 Q0 lite README
 - **GIVEN** README 声明合法 Q0 risk，含核心目标、验收、自动化测试责任和结构完整的 Scenario
 - **WHEN** task 校验运行
-- **THEN** V11 与 V12 不产生 finding
+- **THEN** V11 与 V12 不产生 issue
 
 #### Scenario: 拒绝缺少风险或非法风险
 - **GIVEN** README 缺少 risk 字段或 risk 不是 Q0、Q1、Q2、Q3
 - **WHEN** task 校验运行
-- **THEN** V11 报告 risk finding
+- **THEN** V11 报告 risk issue
 
 #### Scenario: 拒绝 Q2 缺少技术设计
 - **GIVEN** README 声明 Q2 risk 但缺少技术设计节
@@ -69,4 +69,4 @@ V11 SHALL 要求 README 头部含有且仅有合法值的 `risk: Q0|Q1|Q2|Q3`。
 #### Scenario: 拒绝不完整验收 Scenario
 - **GIVEN** 验收 Requirement 没有 Scenario，或 Scenario 缺少 WHEN、THEN 或验证标记
 - **WHEN** task 校验运行
-- **THEN** V12 为每个缺失结构产生 finding
+- **THEN** V12 为每个缺失结构产生 issue

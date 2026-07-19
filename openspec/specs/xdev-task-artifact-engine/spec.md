@@ -88,7 +88,7 @@ TBD - created by archiving change xreq-instructions-engine. Update Purpose after
 #### Scenario: 容纳历史 changelog
 - **GIVEN** 合法 task 包同时包含 `changelog.md`
 - **WHEN** V8 运行
-- **THEN** 历史文件不产生 finding，并保持原状
+- **THEN** 历史文件不产生 issue，并保持原状
 
 ### Requirement: Checklist 契约校验
 V9 SHALL 复用 `status` 与 `graph` 使用的解析器。它 SHALL 要求表头为 `# | 任务 | 涉及文件 | 依赖 | 状态 | fix`，接受已定义的 token+emoji 状态和现有纯 emoji 兼容状态，并报告表中不存在的依赖 ID。
@@ -96,7 +96,7 @@ V9 SHALL 复用 `status` 与 `graph` 使用的解析器。它 SHALL 要求表头
 #### Scenario: 接受合法的当前 checklist
 - **GIVEN** checklist 使用精确契约表头、合法 task ID、合法依赖 ID 和合法双轨状态
 - **WHEN** V9 运行
-- **THEN** V9 不返回 finding
+- **THEN** V9 不返回 issue
 
 #### Scenario: 接受纯 emoji 历史状态
 - **GIVEN** 表格使用当前列，且 task 状态包含受支持的 emoji 而没有 token
@@ -124,7 +124,7 @@ V10 SHALL 只在 `diagram.md` 存在时运行，并 SHALL 双向比较归一化�
 #### Scenario: 缺少 diagram 时跳过 V10
 - **GIVEN** 合法 task 包没有 `diagram.md`
 - **WHEN** task 校验运行
-- **THEN** V10 不产生 finding
+- **THEN** V10 不产生 issue
 
 #### Scenario: 报告只存在于 README 的模块
 - **GIVEN** README 列出的模块不存在于任何归一化 Mermaid 节点标签中
@@ -142,7 +142,7 @@ V11 SHALL 要求 README 头部含有且仅有合法值的 `risk: Q0|Q1|Q2|Q3`。
 #### Scenario: 接受完整 README
 - **GIVEN** README 声明合法 Q2 或 Q3 risk，并含完整章节、自动化测试责任和结构完整的验收 Scenario
 - **WHEN** task 校验运行
-- **THEN** V11 与 V12 不产生 finding
+- **THEN** V11 与 V12 不产生 issue
 
 #### Scenario: 接受纯人工验收路径
 - **GIVEN** README 的验收 Scenario 使用 `验证: manual` 且含 WHEN、THEN 和自动化测试责任
@@ -157,7 +157,7 @@ V11 SHALL 要求 README 头部含有且仅有合法值的 `risk: Q0|Q1|Q2|Q3`。
 #### Scenario: 报告技术设计缺失
 - **GIVEN** README 声明 Q2 或 Q3 risk 且缺少以 `技术设计` 开头的二级标题
 - **WHEN** task 校验运行
-- **THEN** V11 报告技术设计缺失 finding
+- **THEN** V11 报告技术设计缺失 issue
 
 #### Scenario: 报告结构或验收证据缺失
 - **GIVEN** README 缺少 risk、必需标题、自动化测试责任，或验收结构不完整
@@ -167,12 +167,12 @@ V11 SHALL 要求 README 头部含有且仅有合法值的 `risk: Q0|Q1|Q2|Q3`。
 #### Scenario: 接受 Q0 lite README
 - **GIVEN** README 声明合法 Q0 risk，含核心目标、验收、自动化测试责任和结构完整的 Scenario
 - **WHEN** task 校验运行
-- **THEN** V11 与 V12 不产生 finding
+- **THEN** V11 与 V12 不产生 issue
 
 #### Scenario: 拒绝缺少风险或非法风险
 - **GIVEN** README 缺少 risk 字段或 risk 不是 Q0、Q1、Q2、Q3
 - **WHEN** task 校验运行
-- **THEN** V11 报告 risk finding
+- **THEN** V11 报告 risk issue
 
 #### Scenario: 拒绝 Q2 缺少技术设计
 - **GIVEN** README 声明 Q2 risk 但缺少技术设计节
@@ -182,7 +182,7 @@ V11 SHALL 要求 README 头部含有且仅有合法值的 `risk: Q0|Q1|Q2|Q3`。
 #### Scenario: 拒绝不完整验收 Scenario
 - **GIVEN** 验收 Requirement 没有 Scenario，或 Scenario 缺少 WHEN、THEN 或验证标记
 - **WHEN** task 校验运行
-- **THEN** V12 为每个缺失结构产生 finding
+- **THEN** V12 为每个缺失结构产生 issue
 
 ### Requirement: 现有 spec 校验回归安全
 加入 task 包校验后 SHALL 保持 spec 与 change 包的既有 V1-V7 行为，并 SHALL 保持 task 包不进入自动发现。

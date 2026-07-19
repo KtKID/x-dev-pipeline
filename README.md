@@ -87,7 +87,7 @@ expect_contains: passed
 | `/x-dev` | Implement checklist work and write verify evidence |
 | `/x-verify` | Run deterministic Gate ① and diagnose failures |
 | `/x-qa-gate` | Run Gate ②: RC for Q2, R1/R2/R3 for Q3 |
-| `/x-fix` | Batch-fix verify, gate, or CR findings |
+| `/x-fix` | Batch-fix verify, gate, or CR issues |
 | `/x-cr` | Investigate a reported correctness issue, module, diff, or PR |
 | `/x-spec` | Create a system-level architecture and task map |
 | `/x-multi-llm-align` | Align a protocol, data structure, or process across agents |

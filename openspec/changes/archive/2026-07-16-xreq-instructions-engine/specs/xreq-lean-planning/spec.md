@@ -55,9 +55,9 @@ x-req SHALL 保留基于 `templates/confirmation.md` 的一次用户确认。确
 - **THEN** 产物只保留 task 内容，移除模板注释和复制的 instruction 散文
 
 ### Requirement: 机械校验循环
-x-req SHALL 在编写后运行 `python3 tools/xdev.py validate <task-dir>`，并 SHALL 修复机械 finding，直到校验返回零 finding。
+x-req SHALL 在编写后运行 `python3 tools/xdev.py validate <task-dir>`，并 SHALL 修复机械 issue，直到校验返回零 issue。
 
-#### Scenario: 返回机械 finding
+#### Scenario: 返回机械 issue
 - **GIVEN** 已编写 task 包违反 V2 或 V8-V11
 - **WHEN** x-req 运行校验
 - **THEN** x-req 修正受影响产物并重跑校验，无需重新请求产品决策
@@ -65,7 +65,7 @@ x-req SHALL 在编写后运行 `python3 tools/xdev.py validate <task-dir>`，并
 #### Scenario: 机械校验通过
 - **GIVEN** task 包满足全部确定性规则
 - **WHEN** x-req 运行校验
-- **THEN** 校验以 0 退出且 finding 为零，x-req 继续执行判断自审
+- **THEN** 校验以 0 退出且 issue 为零，x-req 继续执行判断自审
 
 ### Requirement: 四项判断自审
 机械校验后，主 agent SHALL 检查需求覆盖、DoD 客观可判定性、已确认架构归属，以及 checklist 对架构边界、契约和依赖的可追溯性。任一检查失败时 SHALL 修复内容并重跑机械校验。
@@ -135,7 +135,7 @@ x-req SHALL 在编写后运行 `python3 tools/xdev.py validate <task-dir>`，并
 - **THEN** 搜索不返回活跃工作流引用；范围外 skills 与历史 task 档案保持原状
 
 ### Requirement: x-req 完成汇报
-x-req SHALL 汇报 task 路径、产物清单、零 finding 校验结果、四项判断自审结果和推荐的下一条命令 `x-dev <task-name>`。
+x-req SHALL 汇报 task 路径、产物清单、零 issue 校验结果、四项判断自审结果和推荐的下一条命令 `x-dev <task-name>`。
 
 #### Scenario: 规划成功完成
 - **GIVEN** 机械校验与判断自审均通过

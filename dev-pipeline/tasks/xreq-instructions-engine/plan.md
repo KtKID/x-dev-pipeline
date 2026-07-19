@@ -166,8 +166,8 @@ python3 tools/xdev.py scaffold <task-dir> [--with-diagram] [--json]
 
 - **V8 task 包文件齐全**：README.md 与 dev-checklist.md 必须存在。diagram.md 可选，不查存在性。changelog.md 若存在不报错（历史遗留，不迁移不清理）。
 - **V9 checklist 结构合法**：复用 status 子命令的既有解析器（不重复实现）——表头列必须等于契约 `# | 任务 | 涉及文件 | 依赖 | 状态 | fix`；状态列必须落在 token+emoji 双轨枚举内（纯 emoji 旧格式按既有兼容降级逻辑放行）；依赖列引用的任务编号必须在本表中存在。依赖环不在 V9 重复检测（graph 子命令已负责）。
-- **V10 diagram 与 README 一致**：仅当 diagram.md 存在时触发。mermaid 节点标签集合与 README「涉及模块」清单做词法比对（实现风格参照现有 V6 的模块清单比对），README 有而 diagram 无 → finding；diagram 有而 README 无 → finding。
-- **V11 README 必备章节**：按模板标题词法检查以下二级标题存在：`核心目标`、`需求要点`、`涉及模块`、`架构拆分策略`、`技术设计`、`DoD（验收清单）`、`Smoke / E2E 验收用例`；`自动化测试责任` 为三级标题，按三级查。另查：Smoke/E2E 段内至少存在 1 个 fenced code block（可复跑命令）或 1 处 `manual` 标记——两者都没有 → finding。
+- **V10 diagram 与 README 一致**：仅当 diagram.md 存在时触发。mermaid 节点标签集合与 README「涉及模块」清单做词法比对（实现风格参照现有 V6 的模块清单比对），README 有而 diagram 无 → issue；diagram 有而 README 无 → issue。
+- **V11 README 必备章节**：按模板标题词法检查以下二级标题存在：`核心目标`、`需求要点`、`涉及模块`、`架构拆分策略`、`技术设计`、`DoD（验收清单）`、`Smoke / E2E 验收用例`；`自动化测试责任` 为三级标题，按三级查。另查：Smoke/E2E 段内至少存在 1 个 fenced code block（可复跑命令）或 1 处 `manual` 标记——两者都没有 → issue。
 
 ### T4 模板层改动
 
@@ -206,14 +206,14 @@ python3 tools/xdev.py scaffold <task-dir> [--with-diagram] [--json]
       读 dependencies 里已存在的文件 → 按 template 结构填写 → instruction 与模板注释是
       约束不是内容，填完删除模板注释。
 4. 机械校验：python3 tools/xdev.py validate <task-dir>
-   有 finding → 修文件 → 重跑，直到 0 finding（工具拦截的是格式问题，直接修不用问用户）。
+   有 issue → 修文件 → 重跑，直到 0 issue（工具拦截的是格式问题，直接修不用问用户）。
 5. 判断自审（只审这 4 条，机械项已由 validate 拦截）：
    ① 确认过的需求要点每条都落进 README（漏 = 修）
    ② 每条 DoD 客观可判定
    ③ 确认过的架构归属体现在技术设计里
    ④ checklist 每个任务能从 README 架构拆分策略追溯到模块边界/契约/依赖
    发现问题直接修（主 agent 自己写的，自己修），修完重跑 validate。
-6. 收尾汇报：task 路径、产物清单、validate 结论（0 finding）、自审结论、
+6. 收尾汇报：task 路径、产物清单、validate 结论（0 issue）、自审结论、
    推荐下一步 x-dev <task-name>。
 
 ## 职责边界（压缩保留）
@@ -236,8 +236,8 @@ x-req 不负责：spec 需求包（x-spec）、代码执行（x-dev）、任务�
 
 1. instructions：合法 id 返回全部字段且 template 非空；非法 id 退出码 2；依赖缺失时 `exists:false`
 2. scaffold：首跑创建 README + dev-checklist（无 changelog）；`--with-diagram` 多产 diagram；重跑幂等（文件内容不变、退出码 0、报告 skipped）；README 首行占位替换为目录名
-3. validate task 包：V8-V11 每条规则至少一个坏 fixture 触发 finding + 好 fixture 通过；含 changelog.md 的旧 task 不因 V8 报错；spec 包路径回归（V1-V7 行为不变，跑一个既有 spec fixture 确认）
-4. e2e 闭环 fixture：scaffold → 程序化填入最小合法内容 → validate 退出码 0、finding 为空
+3. validate task 包：V8-V11 每条规则至少一个坏 fixture 触发 issue + 好 fixture 通过；含 changelog.md 的旧 task 不因 V8 报错；spec 包路径回归（V1-V7 行为不变，跑一个既有 spec fixture 确认）
+4. e2e 闭环 fixture：scaffold → 程序化填入最小合法内容 → validate 退出码 0、issue 为空
 
 ### T8 仓库文档同步（单独 commit）
 
@@ -265,7 +265,7 @@ x-req 不负责：spec 需求包（x-spec）、代码执行（x-dev）、任务�
 | 3 | scaffold 幂等 | 上一命令连跑两次 | 第二次退出码 0，文件内容不变，报告 skipped |
 | 4 | instructions 冒烟 | `python3 tools/xdev.py instructions readme --task /tmp/xreq-smoke --json` | JSON 含 artifact/output_path/exists/template/instruction/requires/dependencies，template 非空 |
 | 5 | validate 好样本 | 对 T7 的 e2e fixture 跑 `validate` | 退出码 0 |
-| 6 | validate 坏样本 | 单测覆盖 | V8/V9/V10/V11 各至少 1 个 finding 用例 |
+| 6 | validate 坏样本 | 单测覆盖 | V8/V9/V10/V11 各至少 1 个 issue 用例 |
 | 7 | spec 包回归 | 对既有 spec fixture 跑 `validate` | V1-V7 行为与改前一致 |
 | 8 | SKILL.md 瘦身 | `awk 'END{print NR}' skills/x-req/SKILL.md` | ≤ 100 |
 | 9 | agent1 清除 | `grep -rn "agent1\|subagent-completion" skills/x-req skills/x-dev skills/x-qdev` | 0 命中 |
