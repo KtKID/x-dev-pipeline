@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Deterministic x-spec2 evaluation metrics.
+"""x-spec2 的确定性评测指标计算工具。
 
-The extractor accepts one explicit execution source:
+extractor 只接受一个显式的执行来源：
 
-* a completed Codex rollout JSONL, or
-* a timing.json captured from a subagent completion notification.
+* 已完成的 Codex rollout JSONL，或
+* 从 subagent 完成通知中捕获的 timing.json。
 
-It never scans session directories and never copies prompts or transcript content
-into measurement.json.  Exit codes follow the repository convention: 0 success,
-1 readable but invalid sample/pair, 2 usage, IO, JSON, or schema error.
+它从不扫描 session 目录，也从不把 prompt 或 transcript 内容复制进
+measurement.json。退出码遵循仓库约定：0 表示成功，1 表示样本可读但样本/样本对
+无效，2 表示用法、IO、JSON 或 schema 错误。
 """
 
 from __future__ import annotations
@@ -26,35 +26,48 @@ from pathlib import Path
 from typing import Any
 
 
+# 成对比较的两种配置：启用 skill 与不启用 skill
 CONFIGURATIONS = ("with_skill", "without_skill")
+# measurement 中允许出现的 token 字段顺序，最后一个是合计项
 TOKEN_KEYS = ("input", "cached_input", "output", "reasoning_output", "total")
+CODEX_TOKEN_FIELDS = {
+    "input": "input_tokens",
+    "cached_input": "cached_input_tokens",
+    "output": "output_tokens",
+    "reasoning_output": "reasoning_output_tokens",
+    "total": "total_tokens",
+}
 
 
 class MetricsError(ValueError):
-    """Input cannot be parsed or does not satisfy the declared schema."""
+    """输入无法解析或不满足声明的 schema（对应退出码 2）。"""
 
 
 class InvalidSample(ValueError):
-    """Input is readable, but the measurement boundary or comparison is invalid."""
+    """输入可读，但测量边界或成对比较无效（对应退出码 1）。"""
 
 
 def _is_int(value: object) -> bool:
+    """判断值是否为真正的整数（排除 bool，因为 bool 是 int 的子类）。"""
     return isinstance(value, int) and not isinstance(value, bool)
 
 
 def _non_negative_int(value: object, field: str) -> int:
+    """校验 ``value`` 是非负整数，否则抛出 MetricsError。``field`` 仅用于错误提示。"""
     if not _is_int(value) or value < 0:
         raise MetricsError(f"{field} 必须是非负整数")
     return value
 
 
 def _non_empty_string(value: object, field: str) -> str:
+    """校验 ``value`` 是非空字符串并返回去首尾空白后的结果，否则抛出 MetricsError。"""
     if not isinstance(value, str) or not value.strip():
         raise MetricsError(f"{field} 必须是非空字符串")
     return value.strip()
 
 
 def read_json(path: Path) -> dict[str, Any]:
+    """读取 JSON 文件并解析为 dict；顶层必须是 object，否则抛出 MetricsError。"""
     try:
         value = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -65,6 +78,7 @@ def read_json(path: Path) -> dict[str, Any]:
 
 
 def parse_timestamp(value: object, field: str) -> datetime:
+    """把 ISO-8601 字符串解析为带时区的 datetime；格式非法或缺时区则抛出 MetricsError。"""
     raw = _non_empty_string(value, field)
     try:
         parsed = datetime.fromisoformat(raw.replace("Z", "+00:00"))
@@ -76,10 +90,15 @@ def parse_timestamp(value: object, field: str) -> datetime:
 
 
 def prompt_hash(prompt: str) -> str:
+    """计算 prompt 文本的 SHA-256 摘要，返回 ``sha256:<hex>``。只存哈希避免明文落盘。"""
     return "sha256:" + hashlib.sha256(prompt.encode("utf-8")).hexdigest()
 
 
 def validate_metadata(value: dict[str, Any]) -> dict[str, Any]:
+    """校验 run 元数据：必填字段、取值范围、配置取值、输入集合不重叠、rubric 未泄露。
+
+    返回标准化后的子集（剔除掉 rubric_exposed 等仅用于校验的字段）。
+    """
     required = (
         "eval_id",
         "eval_name",
@@ -130,6 +149,11 @@ def validate_metadata(value: dict[str, Any]) -> dict[str, Any]:
 
 
 def grading_quality(value: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """校验 ``grading.expectations`` 并统计通过率。
+
+    若 grading 内含 ``summary``，则将其与逐项统计交叉核对，不一致即报错。
+    返回 ``(quality_summary, normalized_expectations)``。
+    """
     expectations = value.get("expectations")
     if not isinstance(expectations, list) or not expectations:
         raise MetricsError("grading.expectations 必须是非空数组")
@@ -161,6 +185,11 @@ def grading_quality(value: dict[str, Any]) -> tuple[dict[str, Any], list[dict[st
 
 
 def parse_timing_source(path: Path) -> dict[str, Any]:
+    """从 subagent 完成通知保存的 timing.json 解析执行来源。
+
+    timing.json 只提供 agent_id、总 token 与耗时，model / repo_sha / 起止时间均未知，
+    故填 None，由后续一致性校验放行（不做 model/sha 比对）。
+    """
     value = read_json(path)
     agent_id = _non_empty_string(value.get("agent_id"), "timing.agent_id")
     total = _non_negative_int(value.get("total_tokens"), "timing.total_tokens")
@@ -182,16 +211,16 @@ def parse_timing_source(path: Path) -> dict[str, Any]:
     }
 
 
-def parse_rollout_source(path: Path, grader_only_inputs: list[str]) -> dict[str, Any]:
+def _read_codex_session_rows(
+    path: Path,
+) -> list[tuple[int, str, dict[str, Any], datetime]]:
+    """读取 Codex JSONL，并保留行号、原文、事件与带时区时间。"""
     try:
         raw_text = path.read_text(encoding="utf-8")
     except OSError as exc:
         raise MetricsError(f"无法读取 session {path}: {exc}") from exc
-    for grader_input in grader_only_inputs:
-        if grader_input and grader_input in raw_text:
-            raise InvalidSample(f"session 读取了 grader-only input: {grader_input}")
 
-    rows: list[tuple[int, dict[str, Any], datetime]] = []
+    rows: list[tuple[int, str, dict[str, Any], datetime]] = []
     for line_number, raw_line in enumerate(raw_text.splitlines(), start=1):
         if not raw_line.strip():
             continue
@@ -202,89 +231,230 @@ def parse_rollout_source(path: Path, grader_only_inputs: list[str]) -> dict[str,
         if not isinstance(row, dict):
             raise MetricsError(f"session 第 {line_number} 行必须是 object")
         timestamp = parse_timestamp(row.get("timestamp"), f"session[{line_number}].timestamp")
-        rows.append((line_number, row, timestamp))
+        rows.append((line_number, raw_line, row, timestamp))
     if not rows:
         raise MetricsError("session 为空")
+    return rows
 
-    session_ids: set[str] = set()
-    repo_shas: set[str] = set()
-    for _line, row, _timestamp in rows:
-        if row.get("type") != "session_meta" or not isinstance(row.get("payload"), dict):
+
+def _codex_session_identity(
+    rows: list[tuple[int, str, dict[str, Any], datetime]],
+) -> tuple[int, str, str, datetime, str]:
+    """从首个有效 Codex session_meta 取得活动 session 身份。"""
+    for index, (line_number, _raw_line, row, timestamp) in enumerate(rows):
+        if row.get("type") != "session_meta":
             continue
-        payload = row["payload"]
+        payload = row.get("payload")
+        if not isinstance(payload, dict):
+            raise MetricsError(f"session[{line_number}].session_meta.payload 必须是 object")
         canonical_id = payload.get("id")
-        if not isinstance(canonical_id, str) or not canonical_id:
+        if not isinstance(canonical_id, str) or not canonical_id.strip():
             canonical_id = payload.get("session_id")
-        if isinstance(canonical_id, str) and canonical_id:
-            session_ids.add(canonical_id)
         git = payload.get("git")
-        if isinstance(git, dict) and isinstance(git.get("commit_hash"), str) and git["commit_hash"]:
-            repo_shas.add(git["commit_hash"])
-    if len(session_ids) != 1:
-        raise InvalidSample(f"session ID 数量必须为 1，实际 {len(session_ids)}")
-    if len(repo_shas) != 1:
-        raise InvalidSample(f"repo SHA 数量必须为 1，实际 {len(repo_shas)}")
+        repo_sha = git.get("commit_hash") if isinstance(git, dict) else None
+        canonical_id = _non_empty_string(
+            canonical_id, f"session[{line_number}].session_meta.id"
+        )
+        repo_sha = _non_empty_string(
+            repo_sha, f"session[{line_number}].session_meta.git.commit_hash"
+        )
+        raw_timestamp = _non_empty_string(
+            row.get("timestamp"), f"session[{line_number}].timestamp"
+        )
+        return index, canonical_id, repo_sha, timestamp, raw_timestamp
+    raise MetricsError("session 缺少 session_meta")
 
-    turns = [item for item in rows if item[1].get("type") == "turn_context"]
-    if len(turns) != 1:
-        raise InvalidSample(f"turn_context 数量必须为 1，实际 {len(turns)}")
-    turn_payload = turns[0][1].get("payload")
-    if not isinstance(turn_payload, dict):
-        raise MetricsError("turn_context.payload 必须是 object")
-    model = _non_empty_string(turn_payload.get("model"), "turn_context.payload.model")
+
+def _codex_total_usage(row: dict[str, Any]) -> dict[str, Any] | None:
+    """返回 Codex token_count 的累计用量对象，其他事件返回 None。"""
+    payload = row.get("payload")
+    if row.get("type") != "event_msg" or not isinstance(payload, dict):
+        return None
+    if payload.get("type") != "token_count":
+        return None
+    info = payload.get("info")
+    if not isinstance(info, dict):
+        raise MetricsError("token_count.payload.info 必须是 object")
+    usage = info.get("total_token_usage")
+    if not isinstance(usage, dict):
+        raise MetricsError("token_count.payload.info.total_token_usage 必须是 object")
+    return usage
+
+
+def _validate_codex_token_snapshots(snapshots: list[dict[str, Any]]) -> None:
+    """校验 Codex 累计快照的所有分桶逐次单调。"""
+    previous: dict[str, int] | None = None
+    for snapshot_index, usage in enumerate(snapshots, start=1):
+        current = {
+            target: _non_negative_int(
+                usage.get(source), f"token.snapshot[{snapshot_index}].{source}"
+            )
+            for target, source in CODEX_TOKEN_FIELDS.items()
+        }
+        if previous is not None:
+            for target, source in CODEX_TOKEN_FIELDS.items():
+                if current[target] < previous[target]:
+                    raise InvalidSample(f"Codex Token 累计计数器回退: {source}")
+        previous = current
+
+
+def _codex_token_delta(
+    baseline: dict[str, Any] | None, final: dict[str, Any]
+) -> dict[str, int]:
+    """计算 Codex 累计 Token 快照在五个 provider 分桶上的增量。"""
+    tokens: dict[str, int] = {}
+    for target, source in CODEX_TOKEN_FIELDS.items():
+        final_value = _non_negative_int(final.get(source), f"token.final.{source}")
+        baseline_value = 0
+        if baseline is not None:
+            baseline_value = _non_negative_int(
+                baseline.get(source), f"token.baseline.{source}"
+            )
+        delta = final_value - baseline_value
+        if delta < 0:
+            raise InvalidSample(f"Codex Token 累计计数器回退: {source}")
+        tokens[target] = delta
+    return tokens
+
+
+def parse_codex_session_source(
+    path: Path, grader_only_inputs: list[str]
+) -> dict[str, Any]:
+    """把一个显式 Codex session JSONL 转换为 normalized source。
+
+    生命周期窗口用于耗时；活动执行窗口用于模型、Token 与 grader-only 扫描。
+    fork 继承前缀中的累计快照只作为 Token 基线。
+    """
+    rows = _read_codex_session_rows(path)
+    header_index, session_id, repo_sha, started_at, started_at_raw = (
+        _codex_session_identity(rows)
+    )
+
+    active_start_index: int | None = None
+    for index in range(header_index + 1, len(rows)):
+        _line, _raw_line, row, timestamp = rows[index]
+        if row.get("type") == "turn_context" and timestamp >= started_at:
+            active_start_index = index
+            break
+    if active_start_index is None:
+        raise InvalidSample("session 缺少活动 turn_context")
 
     completions = [
-        item for item in rows
-        if item[1].get("type") == "event_msg"
-        and isinstance(item[1].get("payload"), dict)
-        and item[1]["payload"].get("type") == "task_complete"
+        index
+        for index in range(active_start_index, len(rows))
+        if rows[index][2].get("type") == "event_msg"
+        and isinstance(rows[index][2].get("payload"), dict)
+        and rows[index][2]["payload"].get("type") == "task_complete"
     ]
-    if len(completions) != 1:
-        raise InvalidSample(f"task_complete 数量必须为 1，实际 {len(completions)}")
-    completed_at = completions[0][2]
+    if not completions:
+        raise InvalidSample("活动 session 缺少 task_complete")
+    active_end_index = completions[-1]
 
-    snapshots: list[tuple[datetime, dict[str, Any]]] = []
-    for _line, row, timestamp in rows:
+    turns = [
+        (index, rows[index])
+        for index in range(active_start_index, len(rows))
+        if rows[index][2].get("type") == "turn_context"
+    ]
+    if turns[-1][0] >= active_end_index:
+        raise InvalidSample("最后活动 turn_context 之后缺少 task_complete")
+
+    models: set[str] = set()
+    for _index, (line_number, _raw_line, row, _timestamp) in turns:
         payload = row.get("payload")
-        if row.get("type") != "event_msg" or not isinstance(payload, dict):
-            continue
-        if payload.get("type") != "token_count" or timestamp > completed_at:
-            continue
-        info = payload.get("info")
-        total_usage = info.get("total_token_usage") if isinstance(info, dict) else None
-        if isinstance(total_usage, dict):
-            snapshots.append((timestamp, total_usage))
-    if not snapshots:
-        raise InvalidSample("task_complete 之前缺少累计 token_count")
-    _snapshot_time, usage = max(snapshots, key=lambda item: item[0])
+        if not isinstance(payload, dict):
+            raise MetricsError(f"session[{line_number}].turn_context.payload 必须是 object")
+        models.add(
+            _non_empty_string(payload.get("model"), f"session[{line_number}].turn_context.model")
+        )
+    if len(models) != 1:
+        raise InvalidSample(f"活动 turn_context 模型数量必须为 1，实际 {len(models)}")
+    model = next(iter(models))
 
-    started_at = turns[0][2]
-    if completed_at < started_at:
-        raise MetricsError("task_complete 时间早于 turn_context")
-    duration_ms = round((completed_at - started_at).total_seconds() * 1000)
-    tokens = {
-        "input": _non_negative_int(usage.get("input_tokens"), "token.input_tokens"),
-        "cached_input": _non_negative_int(usage.get("cached_input_tokens"), "token.cached_input_tokens"),
-        "output": _non_negative_int(usage.get("output_tokens"), "token.output_tokens"),
-        "reasoning_output": _non_negative_int(
-            usage.get("reasoning_output_tokens"), "token.reasoning_output_tokens"
-        ),
-        "total": _non_negative_int(usage.get("total_tokens"), "token.total_tokens"),
-    }
+    for index in range(active_start_index, active_end_index + 1):
+        line_number, _raw_line, row, _timestamp = rows[index]
+        if row.get("type") != "session_meta":
+            continue
+        payload = row.get("payload")
+        if not isinstance(payload, dict):
+            raise MetricsError(f"session[{line_number}].session_meta.payload 必须是 object")
+        candidate_id = payload.get("id")
+        if not isinstance(candidate_id, str) or not candidate_id.strip():
+            candidate_id = payload.get("session_id")
+        if isinstance(candidate_id, str) and candidate_id.strip() != session_id:
+            raise InvalidSample("活动执行窗口出现不同 Codex session ID")
+        git = payload.get("git")
+        candidate_sha = git.get("commit_hash") if isinstance(git, dict) else None
+        if isinstance(candidate_sha, str) and candidate_sha.strip() != repo_sha:
+            raise InvalidSample("活动执行窗口出现不同 repo SHA")
+
+    assistant_replies = [
+        (index, rows[index])
+        for index in range(active_start_index, active_end_index)
+        if rows[index][2].get("type") == "response_item"
+        and isinstance(rows[index][2].get("payload"), dict)
+        and rows[index][2]["payload"].get("type") == "message"
+        and rows[index][2]["payload"].get("role") == "assistant"
+    ]
+    last_turn_index = turns[-1][0]
+    assistant_replies = [item for item in assistant_replies if item[0] > last_turn_index]
+    if not assistant_replies:
+        raise InvalidSample("最后活动 turn_context 之后缺少 assistant 回复")
+    reply_index, (_line, _raw_line, reply_row, ended_at) = assistant_replies[-1]
+    if ended_at < started_at:
+        raise MetricsError("最后 assistant 回复时间早于 session_meta")
+    ended_at_raw = _non_empty_string(reply_row.get("timestamp"), "assistant_reply.timestamp")
+
+    baseline_usage: dict[str, Any] | None = None
+    for index in range(header_index + 1, active_start_index):
+        usage = _codex_total_usage(rows[index][2])
+        if usage is not None:
+            baseline_usage = usage
+
+    active_usages: list[tuple[int, dict[str, Any]]] = []
+    for index in range(active_start_index, active_end_index):
+        usage = _codex_total_usage(rows[index][2])
+        if usage is not None:
+            active_usages.append((index, usage))
+    if not active_usages or active_usages[-1][0] <= reply_index:
+        raise InvalidSample("最后 assistant 回复之后缺少累计 token_count")
+    final_usage = active_usages[-1][1]
+    _validate_codex_token_snapshots(
+        ([baseline_usage] if baseline_usage is not None else [])
+        + [usage for _index, usage in active_usages]
+    )
+
+    active_raw_text = "\n".join(
+        rows[index][1] for index in range(active_start_index, active_end_index + 1)
+    )
+    for grader_input in grader_only_inputs:
+        if grader_input and grader_input in active_raw_text:
+            raise InvalidSample(f"session 读取了 grader-only input: {grader_input}")
+
+    duration_ms = round((ended_at - started_at).total_seconds() * 1000)
     return {
-        "source": {"kind": "codex_rollout", "id": next(iter(session_ids))},
+        "source": {"kind": "codex_rollout", "id": session_id},
         "model": model,
-        "repo_sha": next(iter(repo_shas)),
-        "started_at": turns[0][1]["timestamp"],
-        "ended_at": completions[0][1]["timestamp"],
+        "repo_sha": repo_sha,
+        "started_at": started_at_raw,
+        "ended_at": ended_at_raw,
         "duration_ms": duration_ms,
-        "tokens": tokens,
+        "tokens": _codex_token_delta(baseline_usage, final_usage),
     }
+
+
+def parse_rollout_source(path: Path, grader_only_inputs: list[str]) -> dict[str, Any]:
+    """兼容入口：委托给 Codex 专用 parser。"""
+    return parse_codex_session_source(path, grader_only_inputs)
 
 
 def build_measurement(
     metadata: dict[str, Any], grading: dict[str, Any], source: dict[str, Any]
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """组合 metadata / grading / source 生成确定性 measurement。
+
+    若 source 提供了 model 或 repo_sha（即来自 rollout），则与 metadata 交叉核对一致性。
+    返回 ``(measurement, expectations)``：prompt 只以 sha256 形式落盘，避免明文泄露。
+    """
     quality, expectations = grading_quality(grading)
     if source["model"] is not None and source["model"] != metadata["model"]:
         raise InvalidSample(
@@ -314,10 +484,15 @@ def build_measurement(
 
 
 def stable_json_bytes(value: object) -> bytes:
+    """把对象序列化为稳定、可复现的 JSON 字节（保留中文、缩进 2、以换行结尾）。"""
     return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
 
 
 def atomic_write(path: Path, data: bytes) -> None:
+    """原子写入文件：先写临时文件并 fsync，再 os.replace 覆盖目标，并对目录 fsync。
+
+    任何中断都只会留下临时残骸（在 finally 中清理），不会损坏已存在的目标文件。
+    """
     path.parent.mkdir(parents=True, exist_ok=True)
     temp_path: Path | None = None
     try:
@@ -342,10 +517,13 @@ def atomic_write(path: Path, data: bytes) -> None:
 
 
 def extract_command(args: argparse.Namespace) -> int:
+    """``extract`` 子命令实现：读 metadata + grading，按来源解析，写出 measurement.json。"""
     metadata = validate_metadata(read_json(Path(args.metadata)))
     grading = read_json(Path(args.grading))
-    if args.session:
-        source = parse_rollout_source(Path(args.session), metadata["grader_only_inputs"])
+    if args.codex_session:
+        source = parse_codex_session_source(
+            Path(args.codex_session), metadata["grader_only_inputs"]
+        )
     else:
         source = parse_timing_source(Path(args.timing))
     measurement, _expectations = build_measurement(metadata, grading, source)
@@ -359,6 +537,7 @@ def extract_command(args: argparse.Namespace) -> int:
 
 
 def validate_measurement(value: dict[str, Any], path: Path) -> dict[str, Any]:
+    """校验一份已生成的 measurement.json 是否满足 schema 约束（字段完整、计数自洽、pass_rate 一致）。"""
     required = (
         "schema_version", "eval_id", "eval_name", "configuration", "run_number",
         "source", "model", "repo_sha", "prompt_sha256", "started_at", "ended_at",
@@ -397,6 +576,7 @@ def validate_measurement(value: dict[str, Any], path: Path) -> dict[str, Any]:
 
 
 def _metric_summary(values: list[float]) -> dict[str, float]:
+    """计算一组数值的统计摘要：均值、总体标准差（样本数≤1 时为 0）、最小、最大。"""
     return {
         "mean": statistics.mean(values),
         "stddev": statistics.pstdev(values) if len(values) > 1 else 0.0,
@@ -406,11 +586,23 @@ def _metric_summary(values: list[float]) -> dict[str, float]:
 
 
 def _load_grading_for_measurement(path: Path) -> dict[str, Any]:
+    """读取与 measurement.json 同目录的 grading.json；不存在则返回空 dict。"""
     grading_path = path.parent / "grading.json"
     return read_json(grading_path) if grading_path.exists() else {}
 
 
 def aggregate_spec2(iteration_dir: Path) -> tuple[dict[str, Any], str]:
+    """聚合一个 iteration 目录下所有成对的 with/without skill measurement。
+
+    步骤：
+    1. 递归收集所有 ``measurement.json`` 并逐个校验；
+    2. 按 ``(eval_id, run_number)`` 分组，每组必须同时含两种配置（成对）；
+    3. 成对样本必须 prompt_sha256 / model / repo_sha 完全一致才可比较；
+    4. 重新读各自 grading.json 复核质量统计与评分断言文本一致；
+    5. 汇总 pass_rate / 耗时 / token 的均值与 delta，单样本标记为 pilot。
+
+    返回 ``(benchmark_dict, benchmark_markdown)``。
+    """
     paths = sorted(iteration_dir.rglob("measurement.json"))
     if not paths:
         raise InvalidSample(f"未找到 measurement.json: {iteration_dir}")
@@ -424,6 +616,7 @@ def aggregate_spec2(iteration_dir: Path) -> tuple[dict[str, Any], str]:
             raise InvalidSample(f"重复 measurement: eval={key[0]} run={key[1]} {configuration}")
         bucket[configuration] = (path, item)
 
+    # 校验每组都成对，且关键字段可比、评分断言一致
     pairs: list[tuple[tuple[int, int], dict[str, tuple[Path, dict[str, Any]]]]] = []
     for key in sorted(groups):
         bucket = groups[key]
@@ -462,6 +655,7 @@ def aggregate_spec2(iteration_dir: Path) -> tuple[dict[str, Any], str]:
             )
         pairs.append((key, bucket))
 
+    # 逐 run 构造结果，并按配置收集指标序列
     runs: list[dict[str, Any]] = []
     values: dict[str, dict[str, list[float]]] = {
         configuration: {"pass_rate": [], "time_seconds": [], "tokens": []}
@@ -499,6 +693,7 @@ def aggregate_spec2(iteration_dir: Path) -> tuple[dict[str, Any], str]:
             values[configuration]["time_seconds"].append(time_seconds)
             values[configuration]["tokens"].append(float(total_tokens))
 
+    # 汇总统计与 with/without 差值（delta），单样本记为 pilot
     summary = {
         configuration: {
             metric: _metric_summary(metric_values)
@@ -538,6 +733,7 @@ def aggregate_spec2(iteration_dir: Path) -> tuple[dict[str, Any], str]:
         "run_summary": summary,
         "notes": notes,
     }
+    # 生成 Markdown 摘要表格
     markdown_lines = [
         "# Skill Benchmark: x-spec2",
         "",
@@ -559,6 +755,7 @@ def aggregate_spec2(iteration_dir: Path) -> tuple[dict[str, Any], str]:
 
 
 def aggregate_command(args: argparse.Namespace) -> int:
+    """``aggregate-spec2`` 子命令实现：校验目录、聚合并写出 benchmark.json 与 benchmark.md。"""
     iteration_dir = Path(args.iteration_dir)
     if not iteration_dir.is_dir():
         raise MetricsError(f"iteration 目录不存在: {iteration_dir}")
@@ -574,12 +771,20 @@ def aggregate_command(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    """命令行入口：注册 ``extract`` 与 ``aggregate-spec2`` 子命令并统一错误码。
+
+    退出码：0 成功 / 1 ``InvalidSample``（样本可读但无效）/ 2 ``MetricsError`` 或 ``OSError``。
+    argparse 用法错误由 argparse 自身以退出码 2 处理。
+    """
     parser = argparse.ArgumentParser(prog="metrics")
     sub = parser.add_subparsers(dest="command", required=True)
 
     extract = sub.add_parser("extract", help="从完成的 Codex run 提取 x-spec2 measurement")
     source = extract.add_mutually_exclusive_group(required=True)
-    source.add_argument("--session", help="已完成的 Codex rollout JSONL")
+    source.add_argument(
+        "--codex-session", "--session", dest="codex_session",
+        help="已完成的 Codex rollout JSONL（--session 为兼容别名）",
+    )
     source.add_argument("--timing", help="子 agent 完成通知保存的 timing.json")
     extract.add_argument("--metadata", required=True, help="run eval_metadata.json")
     extract.add_argument("--grading", required=True, help="独立 grading.json")

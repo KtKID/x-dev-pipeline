@@ -3,7 +3,9 @@
 
 from __future__ import annotations
 
+import ast
 import io
+import inspect
 import json
 import sys
 import tempfile
@@ -58,7 +60,10 @@ def grading(passed: int = 2, total: int = 2) -> dict:
     }
 
 
-def rollout(*, extra_turn: bool = False, task_complete_count: int = 1) -> str:
+def rollout(
+    *, extra_turn: bool = False, task_complete_count: int = 1,
+    second_model: str = "gpt-test",
+) -> str:
     rows = [
         {
             "timestamp": "2026-07-20T00:00:00.000Z",
@@ -88,33 +93,138 @@ def rollout(*, extra_turn: bool = False, task_complete_count: int = 1) -> str:
                 }},
             },
         },
-        {
-            "timestamp": "2026-07-20T00:00:04.000Z",
-            "type": "event_msg",
-            "payload": {
-                "type": "token_count",
-                "info": {"total_token_usage": {
-                    "input_tokens": 400,
-                    "cached_input_tokens": 250,
-                    "output_tokens": 50,
-                    "reasoning_output_tokens": 11,
-                    "total_tokens": 450,
-                }},
-            },
-        },
     ]
     if extra_turn:
-        rows.append({
-            "timestamp": "2026-07-20T00:00:04.500Z",
+        rows.extend([{
+            "timestamp": "2026-07-20T00:00:03.000Z",
+            "type": "response_item",
+            "payload": {"type": "message", "role": "assistant", "content": []},
+        }, {
+            "timestamp": "2026-07-20T00:00:03.100Z",
+            "type": "event_msg",
+            "payload": {"type": "task_complete"},
+        }, {
+            "timestamp": "2026-07-20T00:00:03.500Z",
             "type": "turn_context",
-            "payload": {"model": "gpt-test"},
-        })
+            "payload": {"model": second_model},
+        }])
+    rows.extend([{
+        "timestamp": "2026-07-20T00:00:04.800Z",
+        "type": "response_item",
+        "payload": {"type": "message", "role": "assistant", "content": []},
+    }, {
+        "timestamp": "2026-07-20T00:00:04.900Z",
+        "type": "event_msg",
+        "payload": {
+            "type": "token_count",
+            "info": {"total_token_usage": {
+                "input_tokens": 400,
+                "cached_input_tokens": 250,
+                "output_tokens": 50,
+                "reasoning_output_tokens": 11,
+                "total_tokens": 450,
+            }},
+        },
+    }])
     for index in range(task_complete_count):
         rows.append({
             "timestamp": f"2026-07-20T00:00:0{5 + index}.000Z",
             "type": "event_msg",
             "payload": {"type": "task_complete"},
         })
+    return "\n".join(json.dumps(row) for row in rows) + "\n"
+
+
+def forked_multiturn_rollout(*, active_rubric: bool = False) -> str:
+    rubric_path = "skills/x-spec2/evals/evals.json"
+    rows = [
+        {
+            "timestamp": "2026-07-20T15:39:13.099Z",
+            "type": "session_meta",
+            "payload": {"id": "session-active", "git": {"commit_hash": REPO_SHA}},
+        },
+        {
+            "timestamp": "2026-07-20T15:30:00.000Z",
+            "type": "session_meta",
+            "payload": {"id": "session-parent", "git": {"commit_hash": "b" * 40}},
+        },
+        {
+            "timestamp": "2026-07-20T15:39:13.100Z",
+            "type": "response_item",
+            "payload": {"type": "message", "role": "assistant", "content": rubric_path},
+        },
+        {
+            "timestamp": "2026-07-20T15:39:13.100Z",
+            "type": "event_msg",
+            "payload": {"type": "token_count", "info": {"total_token_usage": {
+                "input_tokens": 1_563_360,
+                "cached_input_tokens": 1_459_712,
+                "output_tokens": 12_420,
+                "reasoning_output_tokens": 4_191,
+                "total_tokens": 1_575_780,
+            }}},
+        },
+        {
+            "timestamp": "2026-07-20T15:39:16.375Z",
+            "type": "turn_context",
+            "payload": {"model": "gpt-test"},
+        },
+        {
+            "timestamp": "2026-07-20T15:42:00.000Z",
+            "type": "response_item",
+            "payload": {
+                "type": "message", "role": "user",
+                "content": rubric_path if active_rubric else "请修复 P0",
+            },
+        },
+        {
+            "timestamp": "2026-07-20T15:43:00.000Z",
+            "type": "event_msg",
+            "payload": {"type": "token_count", "info": {"total_token_usage": {
+                "input_tokens": 2_000_000,
+                "cached_input_tokens": 1_850_000,
+                "output_tokens": 25_000,
+                "reasoning_output_tokens": 7_000,
+                "total_tokens": 2_025_000,
+            }}},
+        },
+        {
+            "timestamp": "2026-07-20T15:43:10.000Z",
+            "type": "response_item",
+            "payload": {"type": "message", "role": "assistant", "content": "初稿完成"},
+        },
+        {
+            "timestamp": "2026-07-20T15:43:10.010Z",
+            "type": "event_msg",
+            "payload": {"type": "task_complete"},
+        },
+        {
+            "timestamp": "2026-07-20T15:45:53.572Z",
+            "type": "turn_context",
+            "payload": {"model": "gpt-test"},
+        },
+        {
+            "timestamp": "2026-07-20T15:46:59.364Z",
+            "type": "response_item",
+            "payload": {"type": "message", "role": "assistant", "content": "修复完成"},
+        },
+        {
+            "timestamp": "2026-07-20T15:46:59.433Z",
+            "type": "event_msg",
+            "payload": {"type": "token_count", "info": {"total_token_usage": {
+                "input_tokens": 2_329_026,
+                "cached_input_tokens": 2_163_968,
+                "output_tokens": 31_284,
+                "reasoning_output_tokens": 8_097,
+                "total_tokens": 2_360_310,
+            }}},
+        },
+        {
+            "timestamp": "2026-07-20T15:46:59.446Z",
+            "type": "event_msg",
+            "payload": {"type": "task_complete"},
+        },
+    ]
     return "\n".join(json.dumps(row) for row in rows) + "\n"
 
 
@@ -186,13 +296,32 @@ class TestTimingExtraction(MetricsTestCase):
 
 
 class TestRolloutExtraction(MetricsTestCase):
-    def test_uses_last_cumulative_snapshot_and_task_complete_duration(self):
+    def test_forked_multiturn_uses_incremental_tokens_and_dispatch_duration(self):
+        session = self.root / "forked.jsonl"
+        session.write_text(forked_multiturn_rollout(), encoding="utf-8")
+        result = metrics.parse_codex_session_source(
+            session, ["skills/x-spec2/evals/evals.json"]
+        )
+        self.assertEqual(result["source"], {"kind": "codex_rollout", "id": "session-active"})
+        self.assertEqual(result["repo_sha"], REPO_SHA)
+        self.assertEqual(result["tokens"], {
+            "input": 765_666,
+            "cached_input": 704_256,
+            "output": 18_864,
+            "reasoning_output": 3_906,
+            "total": 784_530,
+        })
+        self.assertEqual(result["started_at"], "2026-07-20T15:39:13.099Z")
+        self.assertEqual(result["ended_at"], "2026-07-20T15:46:59.364Z")
+        self.assertEqual(result["duration_ms"], 466_265)
+
+    def test_uses_last_cumulative_snapshot_and_assistant_reply_duration(self):
         metadata_path, grading_path = self.prepare()
         session = self.root / "rollout.jsonl"
         output = self.root / "measurement.json"
         session.write_text(rollout(), encoding="utf-8")
         code, _stdout, stderr = self.run_main([
-            "extract", "--session", str(session), "--metadata", str(metadata_path),
+            "extract", "--codex-session", str(session), "--metadata", str(metadata_path),
             "--grading", str(grading_path), "--output", str(output),
         ])
         self.assertEqual(code, 0, stderr)
@@ -204,44 +333,130 @@ class TestRolloutExtraction(MetricsTestCase):
             "reasoning_output": 11,
             "total": 450,
         })
-        self.assertEqual(result["duration_ms"], 4000)
-        self.assertEqual(result["started_at"], "2026-07-20T00:00:01.000Z")
-        self.assertEqual(result["ended_at"], "2026-07-20T00:00:05.000Z")
+        self.assertEqual(result["duration_ms"], 4800)
+        self.assertEqual(result["started_at"], "2026-07-20T00:00:00.000Z")
+        self.assertEqual(result["ended_at"], "2026-07-20T00:00:04.800Z")
 
-    def test_multiple_turns_is_invalid_sample(self):
+    def test_multiple_turns_and_completions_are_one_measurement(self):
         metadata_path, grading_path = self.prepare()
         session = self.root / "rollout.jsonl"
-        session.write_text(rollout(extra_turn=True), encoding="utf-8")
+        session.write_text(rollout(extra_turn=True, task_complete_count=2), encoding="utf-8")
         code, _stdout, stderr = self.run_main([
             "extract", "--session", str(session), "--metadata", str(metadata_path),
             "--grading", str(grading_path), "--output", str(self.root / "out.json"),
         ])
-        self.assertEqual(code, 1)
-        self.assertIn("turn_context", stderr)
+        self.assertEqual(code, 0, stderr)
 
-    def test_missing_or_multiple_task_complete_is_invalid(self):
+    def test_missing_task_complete_is_invalid(self):
         metadata_path, grading_path = self.prepare()
-        for count in (0, 2):
-            with self.subTest(count=count):
-                session = self.root / f"rollout-{count}.jsonl"
-                session.write_text(rollout(task_complete_count=count), encoding="utf-8")
-                code, _stdout, stderr = self.run_main([
-                    "extract", "--session", str(session), "--metadata", str(metadata_path),
-                    "--grading", str(grading_path), "--output", str(self.root / f"out-{count}.json"),
-                ])
-                self.assertEqual(code, 1)
-                self.assertIn("task_complete", stderr)
+        session = self.root / "rollout.jsonl"
+        session.write_text(rollout(task_complete_count=0), encoding="utf-8")
+        output = self.root / "out.json"
+        output.write_text("previous measurement\n", encoding="utf-8")
+        code, _stdout, stderr = self.run_main([
+            "extract", "--session", str(session), "--metadata", str(metadata_path),
+            "--grading", str(grading_path), "--output", str(output),
+        ])
+        self.assertEqual(code, 1)
+        self.assertIn("task_complete", stderr)
+        self.assertEqual(output.read_text(encoding="utf-8"), "previous measurement\n")
 
     def test_grader_only_path_in_rollout_is_invalid(self):
         metadata_path, grading_path = self.prepare()
         session = self.root / "rollout.jsonl"
-        session.write_text(rollout() + "skills/x-spec2/evals/evals.json\n", encoding="utf-8")
+        rows = [json.loads(line) for line in rollout().splitlines()]
+        rows.insert(-1, {
+            "timestamp": "2026-07-20T00:00:04.900Z",
+            "type": "response_item",
+            "payload": {
+                "type": "message", "role": "user",
+                "content": "skills/x-spec2/evals/evals.json",
+            },
+        })
+        session.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
         code, _stdout, stderr = self.run_main([
             "extract", "--session", str(session), "--metadata", str(metadata_path),
             "--grading", str(grading_path), "--output", str(self.root / "out.json"),
         ])
         self.assertEqual(code, 1)
         self.assertIn("grader-only", stderr)
+
+    def test_grader_only_path_in_inherited_prefix_is_ignored(self):
+        session = self.root / "forked.jsonl"
+        session.write_text(forked_multiturn_rollout(), encoding="utf-8")
+        result = metrics.parse_codex_session_source(
+            session, ["skills/x-spec2/evals/evals.json"]
+        )
+        self.assertEqual(result["tokens"]["total"], 784_530)
+
+    def test_grader_only_path_in_active_window_is_invalid(self):
+        session = self.root / "forked.jsonl"
+        session.write_text(forked_multiturn_rollout(active_rubric=True), encoding="utf-8")
+        with self.assertRaisesRegex(metrics.InvalidSample, "grader-only"):
+            metrics.parse_codex_session_source(
+                session, ["skills/x-spec2/evals/evals.json"]
+            )
+
+    def test_negative_codex_counter_delta_is_invalid_for_every_bucket(self):
+        baseline = {
+            "input_tokens": 1_563_360,
+            "cached_input_tokens": 1_459_712,
+            "output_tokens": 12_420,
+            "reasoning_output_tokens": 4_191,
+            "total_tokens": 1_575_780,
+        }
+        for field, baseline_value in baseline.items():
+            with self.subTest(field=field):
+                rows = [json.loads(line) for line in forked_multiturn_rollout().splitlines()]
+                rows[-2]["payload"]["info"]["total_token_usage"][field] = baseline_value - 1
+                session = self.root / f"counter-reset-{field}.jsonl"
+                session.write_text(
+                    "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8"
+                )
+                with self.assertRaisesRegex(metrics.InvalidSample, field):
+                    metrics.parse_codex_session_source(session, [])
+
+    def test_active_codex_snapshots_are_monotonic_for_every_bucket(self):
+        fields = (
+            "input_tokens", "cached_input_tokens", "output_tokens",
+            "reasoning_output_tokens", "total_tokens",
+        )
+        for field in fields:
+            with self.subTest(field=field):
+                rows = [json.loads(line) for line in rollout().splitlines()]
+                first = rows[2]["payload"]["info"]["total_token_usage"][field]
+                rows[4]["payload"]["info"]["total_token_usage"][field] = first - 1
+                session = self.root / f"active-reset-{field}.jsonl"
+                session.write_text(
+                    "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8"
+                )
+                with self.assertRaisesRegex(metrics.InvalidSample, field):
+                    metrics.parse_codex_session_source(session, [])
+
+    def test_malformed_active_header_does_not_fall_back_to_parent(self):
+        rows = [json.loads(line) for line in forked_multiturn_rollout().splitlines()]
+        rows[0]["payload"].pop("git")
+        session = self.root / "malformed-header.jsonl"
+        session.write_text("\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8")
+        with self.assertRaisesRegex(metrics.MetricsError, "commit_hash"):
+            metrics.parse_codex_session_source(session, [])
+
+    def test_final_turn_requires_well_formed_token_snapshot_after_reply(self):
+        base_rows = [json.loads(line) for line in forked_multiturn_rollout().splitlines()]
+        cases = {
+            "missing": base_rows[:-2] + base_rows[-1:],
+            "malformed": [json.loads(json.dumps(row)) for row in base_rows],
+        }
+        cases["malformed"][-2]["payload"]["info"] = {}
+        for name, rows in cases.items():
+            with self.subTest(name=name):
+                session = self.root / f"final-token-{name}.jsonl"
+                session.write_text(
+                    "\n".join(json.dumps(row) for row in rows) + "\n", encoding="utf-8"
+                )
+                expected = metrics.InvalidSample if name == "missing" else metrics.MetricsError
+                with self.assertRaises(expected):
+                    metrics.parse_codex_session_source(session, [])
 
     def test_corrupt_json_and_invalid_timestamp_are_schema_errors(self):
         metadata_path, grading_path = self.prepare()
@@ -261,17 +476,17 @@ class TestRolloutExtraction(MetricsTestCase):
                 ])
                 self.assertEqual(code, 2)
 
-    def test_multiple_session_ids_and_missing_tokens_are_invalid(self):
+    def test_active_session_change_and_missing_tokens_are_invalid(self):
         metadata_path, grading_path = self.prepare()
         rows = [json.loads(line) for line in rollout().splitlines()]
         second_session = {
-            "timestamp": "2026-07-20T00:00:00.500Z",
+            "timestamp": "2026-07-20T00:00:01.500Z",
             "type": "session_meta",
             "payload": {"id": "session-2", "git": {"commit_hash": REPO_SHA}},
         }
         multiple = self.root / "multiple-session.jsonl"
         multiple.write_text(
-            "\n".join(json.dumps(row) for row in [rows[0], second_session, *rows[1:]]) + "\n",
+            "\n".join(json.dumps(row) for row in [*rows[:2], second_session, *rows[2:]]) + "\n",
             encoding="utf-8",
         )
         no_tokens = self.root / "no-tokens.jsonl"
@@ -294,6 +509,69 @@ class TestRolloutExtraction(MetricsTestCase):
                 ])
                 self.assertEqual(code, 1)
                 self.assertIn(expected, stderr)
+
+    def test_model_change_and_trailing_unfinished_turn_are_invalid(self):
+        metadata_path, grading_path = self.prepare()
+        cases = {
+            "model": (rollout(extra_turn=True, second_model="gpt-other"), "模型数量"),
+            "unfinished": (
+                rollout() + json.dumps({
+                    "timestamp": "2026-07-20T00:00:06.000Z",
+                    "type": "turn_context",
+                    "payload": {"model": "gpt-test"},
+                }) + "\n",
+                "task_complete",
+            ),
+        }
+        for name, (content, expected) in cases.items():
+            with self.subTest(name=name):
+                session = self.root / f"{name}.jsonl"
+                session.write_text(content, encoding="utf-8")
+                code, _stdout, stderr = self.run_main([
+                    "extract", "--session", str(session), "--metadata", str(metadata_path),
+                    "--grading", str(grading_path), "--output", str(self.root / f"{name}.json"),
+                ])
+                self.assertEqual(code, 1)
+                self.assertIn(expected, stderr)
+
+    def test_session_alias_matches_canonical_codex_option(self):
+        metadata_path, grading_path = self.prepare()
+        session = self.root / "rollout.jsonl"
+        session.write_text(rollout(), encoding="utf-8")
+        outputs = []
+        for option in ("--codex-session", "--session"):
+            output = self.root / f"{option[2:]}.json"
+            code, _stdout, stderr = self.run_main([
+                "extract", option, str(session), "--metadata", str(metadata_path),
+                "--grading", str(grading_path), "--output", str(output),
+            ])
+            self.assertEqual(code, 0, stderr)
+            outputs.append(output.read_bytes())
+        self.assertEqual(outputs[0], outputs[1])
+
+    def test_codex_function_names_and_compatibility_delegate(self):
+        source = inspect.getsource(metrics)
+        tree = ast.parse(source)
+        lower = metrics.parse_timing_source.__code__.co_firstlineno
+        upper = metrics.build_measurement.__code__.co_firstlineno
+        parser_functions = [
+            node.name for node in tree.body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and lower < node.lineno < upper
+        ]
+        self.assertIn("parse_codex_session_source", parser_functions)
+        self.assertTrue(all(
+            "codex" in name
+            for name in parser_functions
+            if name != "parse_rollout_source"
+        ))
+
+        session = self.root / "rollout.jsonl"
+        session.write_text(rollout(), encoding="utf-8")
+        self.assertEqual(
+            metrics.parse_rollout_source(session, []),
+            metrics.parse_codex_session_source(session, []),
+        )
 
 
 class TestMetadataAndPrivacy(MetricsTestCase):
