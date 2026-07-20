@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""xdev task 产物引擎与 V8-V12 校验的标准库测试。"""
+"""xdev V8-V12 旧结构校验 + instructions 产物依赖事实的标准库测试。
+
+scaffold 已整体委托 req.py（不再有旧结构分支），其测试见 test_req_engine.py。
+"""
 
 from __future__ import annotations
 
@@ -173,45 +176,6 @@ class TestInstructions(unittest.TestCase):
         self.assertIn("== instruction", stdout)
 
 
-class TestScaffold(unittest.TestCase):
-    def setUp(self):
-        self.tmp = tempfile.TemporaryDirectory()
-        self.task = Path(self.tmp.name) / "new-task"
-
-    def tearDown(self):
-        self.tmp.cleanup()
-
-    def test_default_scaffold_creates_lean_bundle_and_title(self):
-        code, stdout, stderr = capture_main(["scaffold", str(self.task), "--json"])
-        self.assertEqual(code, 0, stderr)
-        payload = json.loads(stdout)
-        self.assertEqual(len(payload["created"]), 2)
-        self.assertTrue((self.task / "README.md").exists())
-        self.assertTrue((self.task / "dev-checklist.md").exists())
-        self.assertFalse((self.task / "diagram.md").exists())
-        self.assertFalse((self.task / "changelog.md").exists())
-        self.assertTrue((self.task / "README.md").read_text(encoding="utf-8").startswith("# new-task"))
-
-    def test_with_diagram_creates_optional_artifact(self):
-        code, _stdout, stderr = capture_main(["scaffold", str(self.task), "--with-diagram"])
-        self.assertEqual(code, 0, stderr)
-        self.assertTrue((self.task / "diagram.md").exists())
-
-    def test_scaffold_keeps_existing_bytes_and_reports_lists(self):
-        self.task.mkdir()
-        readme = self.task / "README.md"
-        readme.write_bytes(b"user-owned\n\xff")
-        code, stdout, stderr = capture_main([
-            "scaffold", str(self.task), "--with-diagram", "--json",
-        ])
-        self.assertEqual(code, 0, stderr)
-        payload = json.loads(stdout)
-        self.assertEqual(readme.read_bytes(), b"user-owned\n\xff")
-        self.assertIn(str(readme), payload["skipped"])
-        self.assertIn(str(self.task / "dev-checklist.md"), payload["created"])
-        self.assertIn(str(self.task / "diagram.md"), payload["created"])
-
-
 class TestTaskValidation(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -342,34 +306,3 @@ Extra[\"Extra Module\"]
         result = xdev.validate_pkg(spec, include_legacy=False)
         self.assertEqual(result["type"], "capability")
         self.assertEqual(result["issues"], [])
-
-
-class TestScaffoldEndToEnd(unittest.TestCase):
-    def test_scaffold_then_fill_minimum_task_validates_without_issues(self):
-        with tempfile.TemporaryDirectory() as raw:
-            task = Path(raw) / "task"
-            code, _stdout, stderr = capture_main(["scaffold", str(task)])
-            self.assertEqual(code, 0, stderr)
-            (task / "README.md").write_text(valid_readme(), encoding="utf-8")
-            (task / "dev-checklist.md").write_text(valid_checklist(), encoding="utf-8")
-            code, stdout, stderr = capture_main(["validate", str(task), "--json"])
-            self.assertEqual(code, 0, stderr)
-            payload = json.loads(stdout)
-            self.assertEqual(payload["total_issues"], 0)
-            (task / "dev-report.md").write_text(
-                """# report
-
-```verify
-id: S1
-scenario: 单元测试通过
-cmd: python3 -c "print('OK')"
-expect_contains: OK
-```
-""",
-                encoding="utf-8",
-            )
-            code, stdout, stderr = capture_main(["verify", str(task), "--json"])
-            self.assertEqual(code, 0, stderr)
-            verify = json.loads(stdout)
-            self.assertEqual([item["id"] for item in verify["pass"]], ["S1"])
-            self.assertEqual(verify["manual"], [])

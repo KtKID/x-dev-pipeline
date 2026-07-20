@@ -27,6 +27,18 @@
   V17 spec2 design.md 按需生成
   V18 spec2 U/J/D 理由层结构、引用与消费闭合
 
+  V8-V12 与其实现（check_task_* 系列、TASK_CHECKS、status_command/
+  graph_command/verify_command、detect_type 的 "task" 分支）只服务旧结构
+  dev-pipeline/tasks/<task>/README.md+dev-checklist.md，已废弃待删除
+  （见 openspec/changes/xreq-spec-driven/tasks.md 1.1.1/1.2.1、design.md
+  决策 7）。新 task 一律走 docs/spec/<spec>/tasks/，由 tools/req.py 实现，
+  本文件对新结构路径只做识别后转发（见 main() 里 req.spec_of_task_dir 判断）。
+  暂缓删除原因：dev-pipeline/tasks/ 下仍有三个老结构 task 依赖这套实现的
+  status/graph/verify/validate 工具支持——xdev-orchestration-engine、
+  xspec-contract-upgrade（2026-07-19 有改动）、qa-gate-pipeline（CLAUDE.md
+  记为当前主线改造任务，待用户跑完 5 个 e2e smoke case 才能升 ✅）。删除
+  前需先确认三者均已收尾、不再需要这套旧命令。
+
 用法：
   python3 tools/xdev.py validate [包目录 ...] [--include-legacy] [--json]
   不给目录时，从当前工作目录发现 docs/spec/*/、docs/changes/*/、docs/specs/*/。
@@ -130,19 +142,19 @@ DIAGRAM_INSTRUCTION = """README 是架构文字事实源，diagram 是只读投�
 ARTIFACTS = {
     "readme": {
         "generates": "README.md",
-        "template": "skills/x-req/templates/README.md",
+        "template": "deprecated/x-req/templates/README.md",
         "requires": [],
         "instruction": README_INSTRUCTION,
     },
     "dev-checklist": {
         "generates": "dev-checklist.md",
-        "template": "skills/x-req/templates/dev-checklist.md",
+        "template": "deprecated/x-req/templates/dev-checklist.md",
         "requires": ["readme"],
         "instruction": CHECKLIST_INSTRUCTION,
     },
     "diagram": {
         "generates": "diagram.md",
-        "template": "skills/x-req/templates/diagram.md",
+        "template": "deprecated/x-req/templates/diagram.md",
         "requires": ["readme"],
         "instruction": DIAGRAM_INSTRUCTION,
     },
@@ -500,7 +512,7 @@ def detect_type(pkg: Path) -> str:
     if (pkg / "dev-checklist.md").exists() or any(
         parts[i : i + 2] == ("dev-pipeline", "tasks") for i in range(len(parts) - 1)
     ):
-        return "task"
+        return "task"  # 旧结构分类，已废弃待删除，暂缓原因见文件头部模块 docstring
     if (
         (pkg / "diagrams.md").exists()
         or (pkg / "diagrams.html").exists()
@@ -962,6 +974,8 @@ def check_spec2_design(pkg: Path, ptype: str):
         yield issue("design.md", 0, "V17", "design.md 仅在动态模型有建模覆盖落点时生成")
 
 
+# 以下 check_task_* 系列（V8-V12）只服务旧结构 dev-pipeline/tasks/，
+# 已废弃待删除，暂缓原因见文件头部模块 docstring。
 def check_task_files_complete(pkg: Path, ptype: str):
     for name in ("README.md", "dev-checklist.md"):
         if not (pkg / name).exists():
@@ -1169,6 +1183,7 @@ CHECKS = [
     check_spec2_reasoning,  # V18
 ]
 
+# 旧结构 task 校验集合，已废弃待删除，暂缓原因见文件头部模块 docstring。
 TASK_CHECKS = [
     check_link_rules,       # V2
     check_task_files_complete,  # V8
@@ -1183,6 +1198,10 @@ TASK_CHECKS = [
 #
 # 与 validate 段的区别：validate 作用于 docs/{spec,changes} 包，status/graph 作用于
 # dev-pipeline/tasks/<task>/dev-checklist.md。两套目录体系，解析函数复用 first_table/cells。
+#
+# 本段（含以下 DONE/TODO/BLOCKED 等常量、status_command、graph_command）只服务
+# 旧结构，已废弃待删除，暂缓原因见文件头部模块 docstring。新结构的 status/graph
+# 由 tools/req.py 实现，main() 里识别到新路径即转发，不会落到本段代码。
 
 # 引擎三态（编排只关心"能不能往下走"，把 6 个 emoji 中间态压缩）
 DONE = "done"
@@ -2212,6 +2231,8 @@ def execute_verify_block(block: dict) -> dict:
     }
 
 
+# 旧结构 verify 实现，已废弃待删除，暂缓原因见文件头部模块 docstring。
+# 新结构由 tools/req.py 的 verify() 实现，main() 识别到新路径即转发。
 def verify_command(task_dir: Path, as_json: bool, only: str | None) -> int:
     try:
         if not task_dir.is_dir():
@@ -2295,7 +2316,20 @@ def validate_pkg(pkg: Path, include_legacy: bool) -> dict:
             result["issues"].extend(check(pkg, ptype))
         except Exception as e:  # 单条规则崩溃不拖垮整体
             result["issues"].append(issue("(package)", 0, "V0", f"{check.__name__} 执行失败：{e}"))
+    if ptype == "spec2" and (pkg / "tasks").is_dir():
+        try:
+            result["issues"].extend(req.spec_requirement_coverage(pkg))
+        except Exception as e:
+            result["issues"].append(issue("(package)", 0, "V0", f"spec_requirement_coverage 执行失败：{e}"))
     return result
+
+
+def validate_target(pkg: Path, include_legacy: bool) -> dict:
+    """validate 批处理入口：先按路径形状识别 req2 task，委托 req.py；否则走原 spec/change 包校验。"""
+    spec_path = req.spec_of_task_dir(pkg)
+    if spec_path is not None:
+        return {"path": str(pkg), "type": "req2-task", "skipped": False, "issues": req.validate_issues(pkg)}
+    return validate_pkg(pkg, include_legacy)
 
 
 def main(argv=None) -> int:
@@ -2347,9 +2381,15 @@ def main(argv=None) -> int:
         return req.scaffold(Path(args.task_dir), args.with_diagram, args.as_json)
 
     if args.cmd == "verify":
-        return verify_command(Path(args.task_dir), args.as_json, args.only)
+        task_dir = Path(args.task_dir)
+        if req.spec_of_task_dir(task_dir) is not None:
+            return req.verify(task_dir, args.as_json, args.only)
+        return verify_command(task_dir, args.as_json, args.only)
 
     if args.cmd == "flag":
+        # flag_command 不需要像 verify 一样按 req.spec_of_task_dir 分流：其表格定位
+        # （_checklist_layout）按关键词找 "#"/"状态" 列，不关心中间夹了几列，对新旧
+        # 表头（新增 Requirement/风险列）原生兼容；已用 req2 checklist 实测验证。
         return flag_command(
             Path(args.task_dir),
             args.task_ids,
@@ -2365,6 +2405,10 @@ def main(argv=None) -> int:
         if not task_dir.is_dir():
             print(f"错误：不是目录：{task_dir}", file=sys.stderr)
             return 2
+        if req.spec_of_task_dir(task_dir) is not None:
+            if args.cmd == "status":
+                return req.status(task_dir, args.as_json)
+            return req.graph(task_dir, args.as_json)
         if args.cmd == "status":
             return status_command(task_dir, args.as_json)
         return graph_command(task_dir, args.as_json)
@@ -2381,7 +2425,7 @@ def main(argv=None) -> int:
             print("错误：未发现任何包（docs/spec|changes|specs 下无子目录），可显式传目录", file=sys.stderr)
             return 2
 
-    results = [validate_pkg(p, args.include_legacy) for p in pkgs]
+    results = [validate_target(p, args.include_legacy) for p in pkgs]
     total = sum(len(r["issues"]) for r in results)
     skipped = sum(1 for r in results if r["skipped"])
 
