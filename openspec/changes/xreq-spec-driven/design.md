@@ -14,7 +14,7 @@
 **Goals：**
 - x-req 零复述：需求/模块/验收信息只存在于 spec 包，checklist 只留指针与逐行回指。
 - risk 有据：定级依据 spec 包已声明的模块风险与系统不变量，而非 x-req 自造判据。
-- 工具解耦：task 确定性引擎独立成 `tools/req.py`，xdev.py 不再因 task 侧演进而膨胀。
+- 工具解耦：task 规划引擎归 `tools/req.py`，verify 执行与对账归 `tools/verify.py`，xdev.py 保留统一 CLI 与校验编排。
 - 单轨清爽：pipeline 只认一种 task 结构，不维护新旧双轨。
 - spec 包回归安全：v1/v2 spec 包、OpenSpec 存量包的 validate 行为完全不变（spec 包层面，与 task 无关）。
 
@@ -59,19 +59,20 @@
     - `spec:` 的去向：保留并改作**核对项**（与推定归属不一致即报），把"写错路径 / 清单放错目录"从静默错误变成可抓的错误。弃：删掉指针（清单里看不出归属，只能靠目录路径认）；弃：留着但不校验（写错不报，反倒误导）。
     - 边界：`PLUGIN_ROOT` **仅**保留给插件自带资源（模板）解析；verify 块的 `cwd` 改为相对**项目根**（task 往上四级）而非插件根——命令跑在用户项目里。
     - 回归证据：固化夹具置于 `test/fixtures/req2/docs/spec/demo/`，该位置**不在**插件根的 `docs/spec/` 下——旧实现必然解析失败，因此**夹具位置本身**就是这条契约的看门狗（防以后有人改回按根拼路径）。
+## tools/req.py ↔ tools/verify.py ↔ tools/xdev.py 边界
 
-## tools/req.py ↔ tools/xdev.py 边界
+| 关注点 | `tools/req.py` | `tools/verify.py` | `tools/xdev.py` |
+|---|---|---|---|
+| task（`docs/spec/*/tasks/`） | scaffold / validate / status / graph | verify 的执行与对账 | 统一 CLI，委托对应引擎 |
+| spec 包（spec.md / modules.md / v1 七件） | 提供 req2 task 所需解析能力 | 读取验收 Scenario 与 Requirement scope | spec2 / spec7 校验原样 |
+| change 包 | — | — | 校验原样 |
+| checklist 表头解析 | 唯一实现（供 status/graph/verify 复用） | 调用 req.py，不自造 | 需要时 import req.py，不自造 |
+| flag / issue ledger | — | — | 原样 |
+| 旧结构 task（dev-pipeline/tasks/） | 不支持 | 迁移期间保留 legacy verify | 旧校验分支按 1.2.1 后续删除 |
 
-| 关注点 | `tools/req.py`（新） | `tools/xdev.py`（保留） |
-|---|---|---|
-| task（`docs/spec/*/tasks/`） | scaffold / validate / status / graph / verify 的唯一实现 | 检测到后委托 req.py |
-| spec 包（spec.md / modules.md / v1 七件） | — | spec2 / spec7 校验原样 |
-| change 包 | — | 校验原样 |
-| checklist 表头解析 | 唯一实现（供 status/graph/verify 复用） | 需要时 import req.py，不自造 |
-| flag / issue ledger | — | 原样 |
-| 旧结构 task（dev-pipeline/tasks/） | 不支持 | **删除**（旧 V8-V12、V11/V12 README 校验一并移除） |
+衔接（已决 A）：命令入口统一 `python3 tools/xdev.py <cmd>`；scaffold/validate/status/graph 委托 `req.py`，verify 委托 `verify.py`。两个模块都作为被 import 的引擎模块，不单独作主 CLI 入口——下游 x-dev/x-verify/x-qa-gate 的命令零变化。
 
-衔接（已决 A）：命令入口统一 `python3 tools/xdev.py <cmd>`；遇 task，xdev.py 委托 `req.py` 引擎处理。req.py 作为被 import 的引擎模块，不单独作主 CLI 入口——下游 x-dev/x-verify/x-qa-gate 的命令零变化，task 逻辑物理归 req.py。
+Gate① 的 task-scoped Scenario 裁剪、Requirement/Scenario 成对绑定与结构化 mismatch 由后续独立 change `xdev-task-scoped-verify` 承接；归档顺序为本变更在前。
 
 ## Risks / Trade-offs
 

@@ -1,6 +1,6 @@
 ## Context
 
-`xreq-spec-driven` 把 task 归户 `docs/spec/<spec>/tasks/<task>/`，checklist 每行通过 `Requirement` 列回指归属 `spec.md`，并允许一个 spec 拆成多个 task。`tools/req.py` 的 verify 已经把验收数据源从 task README 切到归属 `spec.md`，但对账范围没跟着切——仍是整份 spec.md 的 auto Scenario 对本 task dev-report 的 `scenario:` 回指集合。
+`xreq-spec-driven` 把 task 归户 `docs/spec/<spec>/tasks/<task>/`，checklist 每行通过 `Requirement` 列回指归属 `spec.md`，并允许一个 spec 拆成多个 task。`tools/verify.py` 的 req2 verify 路径已经把验收数据源从 task README 切到归属 `spec.md`，但对账范围没跟着切——仍是整份 spec.md 的 auto Scenario 对本 task dev-report 的 `scenario:` 回指集合。
 
 单 task 时两者恰好重合，缺陷不显形；一旦拆成多 task 就必然互相拖累。
 
@@ -47,7 +47,8 @@
    - 依据：与 spec 包非法、dev-report 缺失的处理一致，不为新依赖另立错误码。
    - 连带：exit 2 的成因集合因此扩大，x-verify 现有的「退回 x-dev」单一分诊会把 x-req 的产物问题指错人，须按来源拆开（见 Risks 与 proposal Impact）。
 
-6. **验收标注不足以判定归属时 verify 拒绝给结论，而不是降级放行**
+6. ~~**验收标注不足以判定归属时 verify 自行检查**~~ **（已撤销，见决策 13）**
+   - 本决策建立在一个未经核实的前提上：以为没有现成的 spec 结构校验。实际 `xdev.py` 的 V3（`scenario_contract_issues`，spec2 profile）早已覆盖「Requirement 无 Scenario」「Scenario 无上级 Requirement」「Scenario 缺 `验证:` 标记」三条。下面的论证保留作记录，实现按决策 13 撤销。
    - 判定单点实现在 `acceptance_defects(spec_md, scope)`，verify 调用后非空即退出码 2 并一次列全；spec 级 validate 的早期检测留给后续 change 复用同一函数（不传 scope 即全量），不各写一份。收两类缺陷：
      - **无父 `### Requirement:` 的 auto 场景**：不进入任何 task 的范围，REQ6 又因 Requirement 全集为空而静默，两道关卡同时失效 → **不受 scope 限制，始终报**。
      - **解析不出合法 `验证: auto|manual` 的场景**：`mode` 为 `None` 时既不进 `expected_auto` 也不进 `manual`，等于自动免检 → 这类场景有父 Requirement、**能够归属**，故按 task-scoped 原则只报落在本 task 范围内的；范围外由承接它的那个 task 拦。两类的范围差异不是随意的：能归属的按归属拦，不能归属的只好全局拦。
@@ -65,16 +66,45 @@
    - `Requirement` 列的空占位判定收敛为与 `parse_deps` 同一集合（`—` / `-` / `n/a` / 空）。
    - 防：现状只排除全角 `—`，写成 ASCII `-` 时范围变成 `["-"]`，`expected_auto` 算空静默返回 0，而人类可读输出显示 `requirements: -`，比全 `—` 显示的「(无验收绑定)」更像正常绑定——恰好废掉决策 4 想要的可区分性。
 
+8. **对账主键用 `(requirement, scenario)`，不是 Scenario 名**
+   - auto 块必须同时写 `requirement:` 与 `scenario:`；同一 Requirement 内 Scenario 重名 → exit 2。
+   - 依据：Scenario 名只在其父 Requirement 内唯一（spec 侧只约束了 Requirement 名唯一）。仅按名字对账时，跨 Requirement 的同名场景一份证据点亮两条，去重消除的是输出重复项，不是歧义本身。
+   - 代价：改 dev-report schema + 四个 skill。这是上游指派的范围，不是可选项。
+
+9. **`--only` 产出 partial 结果，且不计算 `uncovered`**
+   - 现状：只执行选中块，覆盖判定却把未执行块的 `scenario:` 声明算作已覆盖 → 抽查一个块能返回正式 exit 0。
+   - 决策：`partial: true` + `selected` 随结果输出，partial 时不给 `uncovered`；x-verify 禁止用 partial 放行。
+   - 防：同一份产物全量跑 exit 1、`--only` 跑 exit 0，而 Gate① 只看退出码。
+
+10. **`manual` 输出以 spec.md 为准，与 dev-report 对账**
+    - 现状：`manual` 列表只来自 dev-report 的 manual 块，spec.md 里标 manual 的场景完全不被感知——x-dev 漏写 steps 块时没有任何机制发现。
+    - 决策：以范围内的 manual Scenario 为基准，缺对应块的列为未认领。
+    - 防：manual 场景既不进 `expected_auto` 也不进 `manual`，是一条验收要求凭空蒸发，与 Goals「全 spec 的 Scenario 仍须有人认领」直接冲突。
+
+11. **无归属或无场景一律拦截**
+    - 无父 `### Requirement:` 的 Scenario 不分 auto/manual 都 exit 2：决策 6 当初只拦 auto，理由是「manual 不参与 auto 对账」——该理由只在场景有归属时成立，孤儿 manual 是彻底无人认领。
+    - scope 内的 Requirement 在 spec.md 下没有任何 Scenario → exit 2：需求被 task 承接却没有验收场景，范围算空后静默通过。
+
+12. **已知限制：空壳证据块不由引擎判定**
+    - `cmd: true` 这类命令能通过一切事实检查（exit 0、无 expect_contains），引擎无法区分"真验了"和"敷衍了"。
+    - 不在引擎侧加启发式（如禁止 `true`/要求 `expect_contains` 非空）——黑名单绕得过，白名单会误伤合法用法。该判断属 x-qa-gate R3「每个自动验收 Scenario 是否被实际执行」的职责。
+
+13. **spec 结构合法性由 V3 单点负责，verify 前置调用而非重写**
+    - `spec.md` 是 x-spec2 的产出，它写得全不全属 spec 包门禁（V3），不属 Gate①。verify 的职责边界是「本 task 的证据是否对得上范围内的场景」。
+    - verify 需要的是**前提已被校验**，不是自己再查一遍：在 `xdev.py` 调用 `verify.py` 前置跑 spec 包校验，有 issue 即 exit 2 退回 x-spec。放在 CLI 层可直接复用 `xdev.py` 的 V3；`verify.py` 保持执行与对账 owner。
+    - 防：同一条规则两处实现，改一处忘另一处，两边判定漂移后没有任何机制发现。
+    - 教训：动手加检查前先查这条检查是否已存在。决策 6 整段论证、四条「弃」和五个测试用例，都建立在「没有现成检查」这个没核实的前提上。
+
 ## Risks / Trade-offs
 
 - [Risk] dev-report 的块回指了本 task 范围外的 Scenario 时不再报错，只是不计入覆盖 → 该 task 自己的 Scenario 仍会因缺证据进入 `uncovered`，Gate① 照样拦；代价是报错指向结果（缺覆盖）而非病因（写错回指）。留给后续的 `mismatch` 能力。
-- [Risk] 跨 Requirement 的同名 Scenario 只按名字对账，一条 `scenario:` 回指会同时点亮两个场景。两种形状：**分属两个 task** 时两边各自认为已覆盖；**同一 task 承接多个 Requirement** 时（更常见——checklist 本就允许一个 task 接多条 Requirement）去重后只剩一个名字，一份证据即放行两个 Requirement 的验收。决策 7 的去重只消除输出里的重复条目，不解决消歧本身；根治要 Requirement/Scenario 组合键，属后续 `mismatch` 能力的范围。spec 侧现有约束只有「Requirement 名必须唯一」（x-spec2 模板注释，由 REQ5 机械校验），Scenario 名无唯一性要求，故此风险无兜底，需在后续 change 明确认领。
-- [Risk] x-verify 的 exit 2 分诊在本变更后会指错人：现有话术是「指出 dev-report verify 格式或路径问题，退回 x-dev」，而 `dev-checklist.md` 缺失、表头不可解析、验收分层不合法这三类新成因都属 x-req 的产物 → 按来源拆开分诊（proposal Impact 已列）。不修的代价是 Gate① 把 checklist 问题反复退给 x-dev，x-dev 无从下手。
+- [Risk] 引入 `requirement:` 会破坏已写好的 dev-report。当前 `docs/spec/` 下没有真实 req2 task，破坏面为零——这是做该变更最便宜的时机，推迟只会变贵。
+- [Trade-off] 决策 8-11 让 verify 的拦截面显著变宽，spec 写得不规整时会频繁 exit 2。这是有意的：Gate① 的作用是拦，不是尽量放行；每一条拦截都对应一条此前会静默通过的误绿路径。
 - [Trade-off] verify 从「只读 spec.md + dev-report」变成「还要读 dev-checklist.md」，耦合面扩大一个文件；换来的是范围判定不需要任何新增产物。
 
 ## Migration Plan
 
-1. 修改 `req.py` 的解析与对账，跑 `python3 -m unittest discover -s test`。
+1. 修改 `verify.py` 的解析与对账，按需复用 `req.py` 的 checklist/spec 解析能力，跑 `python3 -m unittest discover -s test`。
 2. 既有测试中把「单 task 必须覆盖整个 spec」写成断言的用例改写为多 task 独立验收，并补范围内缺口仍 exit 1 的反例。
 3. 补决策 6/7 的封堵与反例用例：无父 Requirement 的 auto Scenario → exit 2、非 Requirement 的 H3 截断作用域 → exit 2、同一 task 内同名 Scenario 的 `expected_auto` 不重复、`Requirement` 列写 `-` 与写 `—` 等价。
 4. 同步 x-verify 的 exit 2 分诊话术与 `xdev.py` 的 verify 子命令 help 文案。

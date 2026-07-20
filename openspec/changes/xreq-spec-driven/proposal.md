@@ -16,7 +16,7 @@ x-req 应收敛为单一职责：读 `spec.md` + `modules.md`，把需求拆成 
 - **checklist 承重**：头部 `spec:` 指针 + `risk:`；任务表 `# | 任务说明 | Requirement | 风险 | 涉及文件 | 依赖 | 状态 | fix`，每行回指 `spec.md` 的 Requirement 并标注触及的 `spec.md#系统不变量`。
 - **risk 依托 spec 信号**：读 `modules.md` 风险列与 `spec.md` 系统不变量映射（触不变量/模块「高」→Q3；「中」→Q2；「低」局部→Q0/Q1），不自立抽象判据。
 - **取消 x-req 确认**：需求确认已在 spec 阶段完成，x-req 不重复确认，无轻量/完整分叉。
-- **新建 `tools/req.py`**：承载 task 的确定性引擎（骨架、checklist 解析、头部与行级校验、Requirement 跨文件校验、spec 级覆盖、进度/拓扑、verify 场景对账），从 `tools/xdev.py` 剥离；命令统一走 xdev.py 委托 req.py。
+- **新建 `tools/req.py`**：承载 task 的确定性引擎（骨架、checklist 解析、头部与行级校验、Requirement 跨文件校验、spec 级覆盖、进度/拓扑）；verify 场景对账统一归 `tools/verify.py`；命令统一走 xdev.py 委托对应引擎。
 - **下游读取适配（单轨）**：x-dev / x-verify / x-qa-gate / x-fix 从「读 README」改为「读 checklist 头部 + 按 `spec:` 读 `spec.md`/`modules.md`」，不保留旧路。
 
 ## Capabilities
@@ -35,9 +35,10 @@ x-req 应收敛为单一职责：读 `spec.md` + `modules.md`，把需求拆成 
 
 ## Impact
 
-- 受影响代码：**新增 `tools/req.py`**；`tools/xdev.py`（委托 req.py、删除旧结构 task 校验路径）、`skills/x-req/`（SKILL + 模板）、`skills/x-dev|x-verify|x-qa-gate|x-fix/SKILL.md`（读取步骤）、`test/`
+- 受影响代码：**新增 `tools/req.py` 与 `tools/verify.py`**；`tools/xdev.py`（委托对应引擎、删除旧结构 task 校验路径）、`skills/x-req/`（SKILL + 模板）、`skills/x-dev|x-verify|x-qa-gate|x-fix/SKILL.md`（读取步骤）、`test/`
 - 不变量（不许破坏）：status/graph 编排引擎对新表头的解析（req.py 提供）；v1 spec 包、OpenSpec 存量包 validate 行为不变（spec 包层面，与 task 无关）；dev-report issue ledger 契约不变
 - 明确破坏（不兼容）：历史 `dev-pipeline/tasks/` task 不再被识别/校验/运行；旧结构 README 校验（V11/V12）与相关测试删除
 - 前置依赖：xspec-v2 change 先归档
 - 后续边界：`x-qdev` / `x-plan` retire 已由 `risk-routed-development-flow` 既有 Requirement 承接，本变更不重复处理；spec2 包内 U/J/D 账本命令与 spec check 门禁属其他变更范围
+- 后续 change：`xdev-task-scoped-verify` 在本变更完成后负责按当前 task Requirement 裁剪 Scenario、Requirement/Scenario 成对绑定与 Gate①结构化 mismatch；本变更只完成 README→spec 的基础迁移。
 - 取代关系：本变更取代 `xreq-task-v2`（已删）

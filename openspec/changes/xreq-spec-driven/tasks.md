@@ -16,13 +16,13 @@
 - [x] 1.1.5 行级校验：每行 `Requirement` 存在且唯一于归属 `spec.md` 验收（跨文件，悬空/重名报 issue，归属 spec 失效降级为单条指针 issue 不级联）；`风险` 与 `任务说明` 非空
 - [x] 1.1.6 spec 级覆盖检查：一个 spec 下所有 `tasks/` 的 checklist 合并后，未被任何行承接的 Requirement 报**硬 issue**（需求漏做）；spec 级运行，单 task 的 validate 不判全覆盖（免多 task 误报）
 - [x] 1.1.7 `status` / `graph`：checklist 的状态压缩与并行批次，输出格式对齐现有引擎
-- [x] 1.1.8 `verify` 数据源：场景对账指向归属 `spec.md` 的 auto 场景，dev-report verify 块以 spec.md 场景名回指
-- [x] 1.1.9 req.py 作为被 xdev.py import 的引擎模块暴露 scaffold/validate/status/graph/verify 函数，退出码与 JSON 契约字段沿用 xdev.py 风格；不单独作主 CLI 入口（命令统一走 `xdev.py`，见 design 决策 A）
+- [x] 1.1.8 `verify` 数据源：场景对账指向归属 `spec.md` 的 auto 场景，dev-report verify 块以 spec.md 场景名回指；实现现统一归 `tools/verify.py`
+- [x] 1.1.9 req.py 作为被 xdev.py import 的引擎模块暴露 scaffold/validate/status/graph 函数；verify.py 暴露 verify 函数；退出码与 JSON 契约字段沿用 xdev.py 风格，命令统一走 `xdev.py`
 
 ### 1.2 `tools/xdev.py` 分流与清理
 
 - [ ] 1.2.1 遇 `docs/spec/*/tasks/` 委托 req.py；**删除旧结构 README 检测、V8-V12 旧分支与 V11/V12 README 契约校验**
-- [x] 1.2.2 路径发现：显式 validate/status/graph/verify/flag 支持 `docs/spec/*/tasks/`；自动发现继续不扫 task；不再识别 `dev-pipeline/tasks/`。validate/status/graph/verify 四条委托 req.py；`flag` 不需要委托——其表格定位按关键词找 "#"/"状态" 列，不关心中间列数，对新旧表头原生兼容，已用 req2 checklist 实测验证（T3 正确降级 + ledger 正确生成）
+- [x] 1.2.2 路径发现：显式 validate/status/graph/verify/flag 支持 `docs/spec/*/tasks/`；自动发现继续不扫 task；validate/status/graph 委托 req.py，verify 委托 verify.py；`flag` 不需要委托——其表格定位按关键词找 "#"/"状态" 列，不关心中间列数，对新旧表头原生兼容，已用 req2 checklist 实测验证（T3 正确降级 + ledger 正确生成）
 - [x] 1.2.3 spec / change 规则零改动；xdev.py 不内嵌任何新表头解析
 - [ ] 1.2.4 修 `check_req_scenario`：校验 change delta 时跳过 `## REMOVED Requirements` 段的 Requirement（当前对 REMOVED 的 Requirement 误报 V3 缺 Scenario，与官方 openspec CLI 豁免行为不一致）
 - [x] 1.2.5 修复 `instructions` 命令的产物模板路径指向已搬迁的旧目录 `skills/x-req/`：`ba2ea44` 把旧结构 `skills/x-req` 整体归档到 `deprecated/x-req/`（非改名到 `x-req2`——`x-req2` 是表头/流程都不同的全新精简结构，无 README 模板），`xdev.py` 的 `ARTIFACTS` 注册表（readme/dev-checklist/diagram 三个模板路径）未同步，导致 `instructions` 命令三个 artifact 全部读模板失败（`FileNotFoundError`，标准库测试 `test_xdev_artifacts.py::TestInstructions` 首次跑全量测试时暴露）。旧结构 `instructions`/V8-V12 校验按 1.2.1（未做）仍存活，故模板须指向表头兼容的旧版本：改为 `deprecated/x-req/templates/...`（曾误改成 `skills/x-req2/templates/...`，因表头不兼容且缺 README 模板已改正）
@@ -52,6 +52,8 @@
   - x-verify：复跑场景来源改为归属 `spec.md` 的 auto 场景（对应 `xdev-verification-engine` delta）
   - x-qa-gate：RC/R1 对照对象改为 `spec.md` 验收；risk 从 checklist 头读
   - x-fix：risk 从 checklist 头读
+
+> task-scoped Scenario 裁剪、Requirement/Scenario 成对绑定、结构化 mismatch 与多 task Gate① 独立闭环由后续 change `xdev-task-scoped-verify` 承接。
 
 ## 3. 仓库文档
 

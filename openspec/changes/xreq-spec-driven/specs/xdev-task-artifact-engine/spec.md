@@ -4,7 +4,7 @@
 
 ### Requirement: task checklist 头部与表头契约
 
-task 的 `dev-checklist.md` SHALL 由头部与任务表构成，SHALL NOT 产出或依赖 README。头部 SHALL 含 `spec:`（归属 spec 包路径）与 `risk: Q0|Q1|Q2|Q3`。归属 spec 包 SHALL 由 task 实际所在位置推定——即 `docs/spec/<spec-name>/tasks/<task-name>/` 的上两级，该目录 SHALL 为合法 v2 包；`spec:` SHALL 与推定出的实际归属一致，不一致 SHALL 被 validate 报出（指针作核对项，不用于定位）。任务表表头 SHALL 为 `# | 任务说明 | Requirement | 风险 | 涉及文件 | 依赖 | 状态 | fix`，接受既有 token+emoji 双轨状态；每行 `任务说明`、`Requirement`、`风险` 三列 SHALL 非空。头部或表头字段缺失、非法 SHALL 被 validate 报出。
+task 的 `dev-checklist.md` SHALL 由头部与任务表构成，SHALL NOT 产出或依赖 README。头部 SHALL 含 `spec:`（归属 spec 包路径）与 `risk: Q0|Q1|Q2|Q3`。归属 spec 包 SHALL 由 task 实际所在位置推定——即 `docs/spec/<spec-name>/tasks/<task-name>/` 的上两级，该目录 SHALL 为合法 v2 包；`spec:` SHALL 与推定出的实际归属一致，不一致 SHALL 被 validate 报出（指针作核对项，不用于定位）。任务表表头 SHALL 为 `# | 任务说明 | Requirement | 风险 | 涉及文件 | 依赖 | 状态 | fix`，接受既有 token+emoji 双轨状态；每行 `任务说明`、`Requirement`、`风险` 三列 SHALL 非空。纯技术/重构行没有对应验收 Requirement 时 SHALL 在 `Requirement` 列显式写 `None`；`None` SHALL 为唯一合法的「无值」写法，其它占位符（`—`、`-`、`n/a` 等）与空单元格 SHALL 被 validate 报出——该列由 LLM 按模板填写，容忍多种形近写法只会把错误推迟到下游。头部或表头字段缺失、非法 SHALL 被 validate 报出。
 
 #### Scenario: 合法 checklist 通过
 
@@ -36,9 +36,15 @@ task 的 `dev-checklist.md` SHALL 由头部与任务表构成，SHALL NOT 产出
 - **WHEN** 运行 validate
 - **THEN** 报出该行必填列缺失 issue
 
+#### Scenario: 纯技术行显式声明无 Requirement
+
+- **GIVEN** 某纯技术任务行没有对应验收 Requirement，且 `Requirement` 列填写 `—`
+- **WHEN** 运行 validate
+- **THEN** 该行不参与 Requirement 存在性与覆盖检查，且不因 `Requirement` 列报 issue
+
 ### Requirement: checklist 逐行 Requirement 跨文件回指
 
-checklist 每行 `Requirement` 列引用的名字 SHALL 存在且唯一于归属 `spec.md` 的验收；引用不存在或重名的 Requirement SHALL 被 validate 报出。task 实际位置的上级不是合法 spec 包时 SHALL 降级为单条归属失效 issue，不对逐行回指级联报错。
+checklist 每行非 `—` 的 `Requirement` 列引用 SHALL 存在且唯一于归属 `spec.md` 的验收；引用不存在或重名的 Requirement SHALL 被 validate 报出。`—` SHALL 只表示该行不承接验收 Requirement。task 实际位置的上级不是合法 spec 包时 SHALL 降级为单条归属失效 issue，不对逐行回指级联报错。
 
 #### Scenario: 合法回指通过
 
