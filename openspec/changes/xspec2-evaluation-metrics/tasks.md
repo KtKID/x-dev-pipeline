@@ -24,7 +24,7 @@
 - [x] 2.4 独立评分两臂输出，生成各自 `grading.json`；确认评分规则与生成输入分离
 - [x] 2.5 两个子 agent 完成后解析与其一一对应的显式 rollout；通知直接提供统计时也可保存 `timing.json`。主 agent 收尾执行 `extract` 生成两份 `measurement.json`，复核 session/agent ID、repo SHA、prompt hash、真实 total token 与 duration
 - [x] 2.6 运行 `aggregate-spec2` 生成新 iteration 的 `benchmark.json` / `benchmark.md`，确认 `pilot: true`、每臂样本数 1、time 非代理值、tokens 非 output chars
-- [ ] 2.7 使用 skill-creator 的 `eval-viewer/generate_review.py` 生成静态 review HTML，人工核对两臂输出、formal grades 与 benchmark；提交 skill/eval 协议和 pilot 产物切片
+- [x] 2.7 使用 skill-creator 的 `eval-viewer/generate_review.py` 生成静态 review HTML，人工核对两臂输出、formal grades 与 benchmark；提交 skill/eval 协议和 pilot 产物切片
 
 ## 3. Commit C：仓库文档
 

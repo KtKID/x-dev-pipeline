@@ -1,0 +1,20 @@
+{
+  "eval_id": 1,
+  "eval_name": "stackchan-esp32s3-voice-link",
+  "configuration": "with_skill",
+  "run_number": 1,
+  "prompt": "请为下面需求创建一个系统级需求包，直接生成可交给 x-req 的方案文档，不进入 task 拆解，不写代码。将不确定项写成明确假设或待确认项。\n\n设计一个基于 StackChan 的 ESP32-S3 开发板语音收发模块。用户通过唤醒词触发 listen；设备采集语音并发送到服务器；服务器完成 ASR 转文字，再根据文字生成 TTS 语音并流式发送回开发板播放。链路要求低延迟、用户可随时打断播放、全过程可观测、网络与服务波动下可恢复并稳定运行。",
+  "model": "gpt-5.6-sol",
+  "repo_sha": "5a63f0e4a83349a01c81e262e980ad058252298e",
+  "executor_inputs": [
+    "skills/x-spec2/SKILL.md",
+    "skills/x-spec2/templates/spec.md",
+    "skills/x-spec2/templates/modules.md",
+    "skills/x-spec2/templates/design.md"
+  ],
+  "grader_only_inputs": [
+    "skills/x-spec2/evals/evals.json",
+    "skills/x-spec2/evals/stackchan-esp32s3-voice-link.md"
+  ],
+  "rubric_exposed": false
+}

@@ -1,0 +1,117 @@
+{
+  "expectations": [
+    {
+      "text": "输出目录只包含非空的 spec.md、modules.md、design.md，且没有 task、checklist 或实现代码产物。",
+      "passed": false,
+      "evidence": "现场执行 `find outputs -maxdepth 1 -type f` 得到 6 个非空 Markdown 文件：spec.md、README.md、architecture.md、protocol.md、quality-and-acceptance.md、assumptions-and-open-questions.md；modules.md 与 design.md 缺失。transcript.md:20-27 也记录了这组额外产物。"
+    },
+    {
+      "text": "输出通过 python3 tools/xdev.py validate <输出目录>，并被识别为 spec2。",
+      "passed": false,
+      "evidence": "现场复跑指定命令退出码为 0、total_issues 为 0，但 JSON 中 packages[0].type 为 `capability`，未识别为 `spec2`；transcript.md:34-40 记录的最终类型同样是 capability。该断言的类型条件未满足。"
+    },
+    {
+      "text": "用户原话追溯覆盖 StackChan/ESP32-S3、唤醒 listen、采集上行、ASR、TTS 回传播放、低延迟、可打断、可观测、稳定恢复九类要求，并映射到真实且唯一的 Requirement。",
+      "passed": false,
+      "evidence": "spec.md:1-5、11-24、33-43、67-111 分散覆盖九类语义，README.md:18-25 也复述主链路；但输出没有用户原话追溯表，也没有 U1-U9 到唯一 Requirement 的映射。针对 `U/J/D 编号|用户原话|追溯` 的现场检索只命中 quality-and-acceptance.md:158 的笼统发布门槛，无法证明逐条唯一追溯。"
+    },
+    {
+      "text": "数据流、状态、时序、资源、不变量、故障六个元组均标记适用，给出适用理由、真实落点和可验证证据。",
+      "passed": false,
+      "evidence": "architecture.md:11-42、61-130 和 README.md:133-148 提供了部分数据流、时序、状态与不变量内容，但输出没有六元组适用性清单，也没有逐元组的适用理由、落点和验证证据；预期承载动态模型的 design.md 也不存在。"
+    },
+    {
+      "text": "Requirement 与 Module 覆盖关系双向闭合，模块使用统一状态词汇并明确边界、接口和资源所有权。",
+      "passed": false,
+      "evidence": "README.md:91-131 列出 DEV/SRV/E2E 需求，architecture.md:44-59 另列逻辑组件边界；两处没有双向覆盖矩阵或 Requirement 到 Module 的显式链接，且 modules.md 缺失。资源所有权也未按模块形成可核验闭环。"
+    },
+    {
+      "text": "spec.md 的 J 由 Requirement 或 D 拉式消费，无孤儿或悬空；modules.md 是 D 的唯一真源，每个 D 依据至少引用一个 U/J。",
+      "passed": false,
+      "evidence": "现场对全部输出检索 `\\b[UJD][0-9]+\\b` 没有命中；spec.md 未定义 J，modules.md 不存在，也没有 D 的唯一真源、消费关系或 U/J 依据，因此无法证明无孤儿或悬空。"
+    },
+    {
+      "text": "每个模块通过 U/D 回指边界来源；关键决策包含选择理由、真实备选与否决原因、重评条件，design.md 只承载动态模型。",
+      "passed": false,
+      "evidence": "assumptions-and-open-questions.md:37-46 的决策表包含当前选择、理由和重评条件，但没有真实备选及逐项否决原因；模块没有 U/D 回指，modules.md 与 design.md 均缺失，动态模型实际分散在 architecture.md 和 protocol.md。"
+    },
+    {
+      "text": "design.md 描述端到端音频与文本数据流、设备和服务端状态生命周期、关键时序与延迟预算、资源所有权、不变量及故障恢复。",
+      "passed": false,
+      "evidence": "输出目录没有 design.md。architecture.md:11-42、61-157，protocol.md:49-106 和 quality-and-acceptance.md:12-38 分散描述了动态链路，但无法满足由 design.md 集中承载全部指定模型的文件级要求。"
+    },
+    {
+      "text": "低延迟要求包含可测量预算；具体阈值未定时明确列为待确认决策，并定义端到端与关键分段的测量口径。",
+      "passed": true,
+      "evidence": "quality-and-acceptance.md:3-10 定义参考环境和统计窗口，14-24 给出唤醒、上行、ASR、TTS、起播、打断等分段及端到端 p95/p99 预算；assumptions-and-open-questions.md:24-30 将音频参数与参考网络列为冻结前待确认项。"
+    },
+    {
+      "text": "播放打断包含取消传播、当前播放终止、相关资源释放，以及已取消或过期音频永不恢复播放的不变量。",
+      "passed": true,
+      "evidence": "spec.md:33-43 要求本地立即停播、清空旧缓冲、递增代际并异步取消服务端；architecture.md:108-130 展示取消传播到生成/TTS、新话轮并发和旧帧按代际丢弃；quality-and-acceptance.md:98-103 验收旧帧持续到达仍不得再次出声。"
+    },
+    {
+      "text": "可观测设计包含跨设备和服务端的会话或关联标识，以及覆盖关键阶段、时延、错误与恢复的日志、事件或指标。",
+      "passed": true,
+      "evidence": "protocol.md:13-27 定义 session_id、trace_id、utterance_id、response_id 等跨端公共标识；quality-and-acceptance.md:40-73 定义覆盖唤醒、采集、ASR、TTS、播放、打断、断线恢复的结构化事件、分段延迟、错误、资源和连接指标，并要求可按 trace_id 还原链路。"
+    },
+    {
+      "text": "稳定运行设计覆盖网络断开、服务超时、流中断、重试或重连、背压或缓冲上限、部分失败，并给出恢复验收证据。",
+      "passed": true,
+      "evidence": "architecture.md:132-157 覆盖有界重连、上下行恢复、服务超时/熔断和部分依赖失败隔离；protocol.md:81-119 定义恢复握手、确认点、有界背压及网络/服务/资源错误动作；quality-and-acceptance.md:104-152 给出断网、不可恢复缺口、下行迟到帧、ASR/TTS 失败、慢设备背压和 72 小时稳定性的可执行验收。"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 8,
+    "total": 12,
+    "pass_rate": 0.3333333333
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "Read": 0,
+      "Write": 0,
+      "Bash": 0
+    },
+    "total_tool_calls": 0,
+    "total_steps": 6,
+    "errors_encountered": 1,
+    "output_chars": 22288,
+    "transcript_chars": 1013
+  },
+  "claims": [
+    {
+      "claim": "最终校验通过且没有校验问题。",
+      "type": "factual",
+      "verified": true,
+      "evidence": "现场复跑指定 validate 命令退出码 0、total_issues 0；同一结果明确将包类型识别为 capability。"
+    },
+    {
+      "claim": "方案具有可测量的低延迟、可打断、可观测和可恢复设计。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "quality-and-acceptance.md:14-24、40-73、98-152 给出分段预算、跨端追踪、打断及恢复验收；protocol.md:60-106 给出代际隔离、恢复握手和有界背压。"
+    },
+    {
+      "claim": "该需求包可直接作为 x-spec2 三文件方案包交给 x-req。",
+      "type": "quality",
+      "verified": false,
+      "evidence": "现场文件集合为六文件 capability 包，缺少 modules.md 与 design.md；validate 识别类型为 capability，未达到 x-spec2 三文件和 spec2 类型契约。"
+    },
+    {
+      "claim": "执行期间未读取禁止的技能、样本或历史评分内容。",
+      "type": "process",
+      "verified": false,
+      "evidence": "transcript.md:3-9 仅提供执行者自述，现有 transcript 没有逐次原始工具调用记录，无法独立核验读取边界。"
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "12 条断言同时检查产物契约、可追溯建模和关键动态行为，具有较强区分度；本次未发现需要补充的明显评测缺口。"
+  }
+}

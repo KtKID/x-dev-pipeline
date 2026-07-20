@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "eval_id": 1,
+  "eval_name": "stackchan-esp32s3-voice-link",
+  "configuration": "with_skill",
+  "run_number": 1,
+  "source": {
+    "kind": "codex_rollout",
+    "id": "019f7b44-606e-70b0-87d6-1533d95e3bdc"
+  },
+  "model": "gpt-5.6-sol",
+  "repo_sha": "5a63f0e4a83349a01c81e262e980ad058252298e",
+  "prompt_sha256": "sha256:9362a7d42d99092396e857721db1cefd9f390737cb0074f23758b5dfa3be2d6a",
+  "started_at": "2026-07-19T16:45:14.762Z",
+  "ended_at": "2026-07-19T16:55:05.692Z",
+  "duration_ms": 590930,
+  "tokens": {
+    "input": 632737,
+    "cached_input": 555776,
+    "output": 22143,
+    "reasoning_output": 2662,
+    "total": 654880
+  },
+  "quality": {
+    "passed": 10,
+    "total": 12,
+    "pass_rate": 0.8333333333333334
+  }
+}

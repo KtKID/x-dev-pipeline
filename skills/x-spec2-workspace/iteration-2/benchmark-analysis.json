@@ -1,0 +1,7 @@
+[
+  "with_skill 独占通过 6 条契约型断言：三文件/spec2 产物形态、用户原话追溯、六元组覆盖、Requirement 与 Module 双向闭合、J/D 消费纪律、动态模型集中承载；这六条在 without_skill 均失败。",
+  "低延迟预算、播放打断、跨端可观测和波动恢复 4 条动态行为断言在两种配置都通过，说明原始任务与当前模型本身足以驱动这些语义内容，区分度主要来自 x-spec2 的交接契约。",
+  "两种配置都未完全通过平台要求到唯一 Requirement 的映射和六元组逐项理由/证据两条断言；with_skill 已有相关内容，但表级闭合仍不满足评分条件。",
+  "with_skill 的 pass rate 比 without_skill 高 0.50，同时 provider total token 多 206189、session duration 多 114.995 秒；样本量为每臂 1，这些差值只描述本次 pilot。",
+  "grading.execution_metrics 的 tool_calls 为 0 表示 grader 无法从简化 transcript 可靠重建工具调用次数，该字段不应解释为 executor 实际没有工具调用。"
+]
