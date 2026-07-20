@@ -520,41 +520,112 @@ class TestParseFallbacks(ReqEngineTestCase):
         self.assertEqual([i["rule"] for i in issues], ["REQ3"])
 
 
-# ---------- 固化夹具：仓库内真实布局，不 patch、不造临时数据 ----------
+# ---------- 固化夹具：读 test/fixtures/req2/ 下的真实文件，不 patch、不造临时数据 ----------
 
-FIXTURE_SPEC = ROOT / "test" / "fixtures" / "req2" / "docs" / "spec" / "demo"
-FIXTURE_TASK = FIXTURE_SPEC / "tasks" / "ok-task"
+FIXTURE_ROOT = ROOT / "test" / "fixtures" / "req2"
+FIXTURE_SPECS = FIXTURE_ROOT / "docs" / "spec"
 
 
-class TestFixtureRealLayout(unittest.TestCase):
-    """跑仓库内的固化夹具：不 patch PLUGIN_ROOT、不造临时数据、不复制模板。
+def fixture_task(spec_name: str, task_name: str) -> Path:
+    return FIXTURE_SPECS / spec_name / "tasks" / task_name
 
-    夹具在 `test/fixtures/req2/docs/spec/demo/`——一份真实布局的 v2 spec 包 + task，
-    随仓库版本控制，谁 clone 下来都能直接跑、结果可复现。
 
-    本组盯住「归属 spec 包按 task 实际位置推定」这条契约：req.py 曾用 PLUGIN_ROOT 去拼
-    头部 `spec:` 指针，于是插件仓库之外的项目必然报 REQ1（spec 包明明就在也说找不到），
-    且插件仓库恰有同名 spec 时会静默校验错对象。改为从 task 目录往上两级推定后，
-    插件仓库内外一致成立——这几条用例就是这条契约的看门狗。
+class TestFixtureValidate(unittest.TestCase):
+    """跑 `test/fixtures/req2/` 下的固化夹具——夹具清单与各自预期见该目录 README。
+
+    不 patch PLUGIN_ROOT、不复制模板、不造临时数据。夹具位置刻意不在插件根的
+    `docs/spec/` 下，因此这组用例同时锁死「归属 spec 包按 task 实际位置推定」这条契约：
+    谁改回「拿插件根去拼 `spec:` 指针」，整组立刻红。
     """
 
-    def test_fixture_task_validates_clean(self):
-        self.assertEqual(req.validate_issues(FIXTURE_TASK), [])
+    def rules(self, issues: list[dict]) -> list[str]:
+        return sorted(item["rule"] for item in issues)
 
-    def test_spec_dir_resolved_from_task_location_not_plugin_root(self):
-        spec_dir = req.resolve_spec_dir(FIXTURE_TASK)
-        self.assertIsNotNone(spec_dir, "应能从 task 实际位置推出归属 spec 包")
-        self.assertEqual(spec_dir, FIXTURE_SPEC.resolve())
-        self.assertTrue((spec_dir / "spec.md").is_file())
+    # ---- 正样例：验「不误报」----
 
-    def test_fixture_spec_coverage_is_closed(self):
-        self.assertEqual(req.spec_requirement_coverage(FIXTURE_SPEC), [])
+    def test_ok_task_has_zero_issues(self):
+        self.assertEqual(req.validate_issues(fixture_task("demo", "ok-task")), [])
+
+    def test_ok_spec_coverage_is_closed(self):
+        self.assertEqual(req.spec_requirement_coverage(FIXTURE_SPECS / "demo"), [])
+
+    def test_spec_dir_resolved_from_task_location(self):
+        self.assertEqual(
+            req.resolve_spec_dir(fixture_task("demo", "ok-task")),
+            (FIXTURE_SPECS / "demo").resolve(),
+        )
 
     def test_project_root_derived_from_task_location(self):
-        """verify 的 cwd 相对项目根解析：项目根 = 夹具里 docs/ 的上一级。"""
         self.assertEqual(
-            req.project_root_of_task_dir(FIXTURE_TASK),
-            (ROOT / "test" / "fixtures" / "req2").resolve(),
+            req.project_root_of_task_dir(fixture_task("demo", "ok-task")),
+            FIXTURE_ROOT.resolve(),
+        )
+
+    # ---- 坏 A：六种行级错互不遮蔽，一次全报 ----
+
+    def test_bad_rows_reports_all_six_row_defects(self):
+        issues = req.validate_issues(fixture_task("bad-rows", "bad-rows"))
+        self.assertEqual(self.rules(issues), ["REQ4", "REQ4", "REQ5", "REQ5", "REQ7", "REQ8"])
+        messages = " ".join(item["msg"] for item in issues)
+        for expected in ("悬空", "重名", "任务说明为空", "风险列为空", "依赖", "状态非法"):
+            self.assertIn(expected, messages)
+
+    # ---- 坏 B：表头错会遮蔽行级检查，故只应报解析失败 ----
+
+    def test_bad_header_reports_parse_issue_only(self):
+        issues = req.validate_issues(fixture_task("bad-header", "bad-header"))
+        self.assertEqual(self.rules(issues), ["REQ3"])
+
+    # ---- 坏 C：归属失效降级为一条，不级联逐行回指 ----
+
+    def test_broken_pkg_reports_single_issue_without_cascade(self):
+        issues = req.validate_issues(fixture_task("broken-pkg", "orphan"))
+        self.assertEqual(self.rules(issues), ["REQ1"])
+        self.assertEqual(len(issues), 1, msg=f"两行悬空需求不得级联报出：{issues}")
+
+    # ---- 坏 D：risk 非法 ----
+
+    def test_bad_risk_reports_req2_only(self):
+        issues = req.validate_issues(fixture_task("bad-risk", "bad-risk"))
+        self.assertEqual(self.rules(issues), ["REQ2"])
+        self.assertIn("Q9", issues[0]["msg"])
+
+    # ---- 指针与实际归属不符（指针改作核对项后的新规则）----
+
+    def test_pointer_mismatch_reports_req1(self):
+        issues = req.validate_issues(fixture_task("pointer-mismatch", "mismatch"))
+        self.assertEqual(self.rules(issues), ["REQ1"])
+        self.assertIn("不符", issues[0]["msg"])
+
+    # ---- 坏 E：覆盖缺口在 spec 级判定，单 task 不误报 ----
+
+    def test_uncovered_spec_reports_req6(self):
+        issues = req.spec_requirement_coverage(FIXTURE_SPECS / "uncovered")
+        self.assertEqual(self.rules(issues), ["REQ6"])
+        self.assertIn("无人认领的功能Z", issues[0]["msg"])
+
+    def test_uncovered_single_task_is_not_flagged(self):
+        self.assertEqual(req.validate_issues(fixture_task("uncovered", "partial")), [])
+
+    # ---- diagram 与 modules.md 双向一致性 ----
+
+    def test_bad_diagram_reports_both_directions(self):
+        issues = req.validate_issues(fixture_task("bad-diagram", "bad-diagram"))
+        self.assertEqual(self.rules(issues), ["REQ9", "REQ9"])
+        messages = " ".join(item["msg"] for item in issues)
+        self.assertIn("缺少 Mermaid 节点", messages)
+        self.assertIn("未在 modules.md 模块总览声明", messages)
+
+    # ---- 坏 F：auto 场景缺证据回指 ----
+
+    def test_verify_gap_marks_scenario_uncovered_and_exits_1(self):
+        code, stdout, stderr = capture(
+            req.verify, fixture_task("verify-gap", "verify-gap"), True, None
+        )
+        self.assertEqual(code, 1, msg=stderr)
+        payload = json.loads(stdout)
+        self.assertIn(
+            "功能V生效", json.dumps(payload.get("uncovered", []), ensure_ascii=False)
         )
 
 
