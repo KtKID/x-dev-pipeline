@@ -4,19 +4,25 @@
 
 ### Requirement: task checklist 头部与表头契约
 
-task 的 `dev-checklist.md` SHALL 由头部与任务表构成，SHALL NOT 产出或依赖 README。头部 SHALL 含 `spec:`（归属 spec 包路径，目标 SHALL 存在且为合法 v2 包）与 `risk: Q0|Q1|Q2|Q3`。任务表表头 SHALL 为 `# | 任务说明 | Requirement | 风险 | 涉及文件 | 依赖 | 状态 | fix`，接受既有 token+emoji 双轨状态；每行 `任务说明`、`Requirement`、`风险` 三列 SHALL 非空。头部或表头字段缺失、非法 SHALL 被 validate 报出。
+task 的 `dev-checklist.md` SHALL 由头部与任务表构成，SHALL NOT 产出或依赖 README。头部 SHALL 含 `spec:`（归属 spec 包路径）与 `risk: Q0|Q1|Q2|Q3`。归属 spec 包 SHALL 由 task 实际所在位置推定——即 `docs/spec/<spec-name>/tasks/<task-name>/` 的上两级，该目录 SHALL 为合法 v2 包；`spec:` SHALL 与推定出的实际归属一致，不一致 SHALL 被 validate 报出（指针作核对项，不用于定位）。任务表表头 SHALL 为 `# | 任务说明 | Requirement | 风险 | 涉及文件 | 依赖 | 状态 | fix`，接受既有 token+emoji 双轨状态；每行 `任务说明`、`Requirement`、`风险` 三列 SHALL 非空。头部或表头字段缺失、非法 SHALL 被 validate 报出。
 
 #### Scenario: 合法 checklist 通过
 
-- **GIVEN** checklist 含存在的 `spec:` 指针、合法 `risk:`、规定表头且各行三列非空
+- **GIVEN** checklist 的 `spec:` 与 task 实际归属一致、`risk:` 合法、规定表头且各行三列非空
 - **WHEN** 运行 validate
 - **THEN** 头部与表头零 issue
 
 #### Scenario: 缺 spec 指针被抓
 
-- **GIVEN** checklist 头部缺 `spec:` 行或指向不存在的目录
+- **GIVEN** checklist 头部缺 `spec:` 行
 - **WHEN** 运行 validate
-- **THEN** 报出头部契约 issue
+- **THEN** 报出头部缺 `spec:` 的 issue
+
+#### Scenario: spec 指针与实际归属不符被抓
+
+- **GIVEN** checklist 头部 `spec:` 写的路径与 task 实际所在的 `docs/spec/<spec-name>/` 不一致
+- **WHEN** 运行 validate
+- **THEN** 报出指针与实际归属不符的 issue
 
 #### Scenario: 非法 risk 被抓
 
@@ -32,7 +38,7 @@ task 的 `dev-checklist.md` SHALL 由头部与任务表构成，SHALL NOT 产出
 
 ### Requirement: checklist 逐行 Requirement 跨文件回指
 
-checklist 每行 `Requirement` 列引用的名字 SHALL 存在且唯一于归属 `spec.md` 的验收；引用不存在或重名的 Requirement SHALL 被 validate 报出。归属 `spec.md` 缺失或非法时 SHALL 降级为单条指针 issue，不对逐行回指级联报错。
+checklist 每行 `Requirement` 列引用的名字 SHALL 存在且唯一于归属 `spec.md` 的验收；引用不存在或重名的 Requirement SHALL 被 validate 报出。task 实际位置的上级不是合法 spec 包时 SHALL 降级为单条归属失效 issue，不对逐行回指级联报错。
 
 #### Scenario: 合法回指通过
 
@@ -48,9 +54,9 @@ checklist 每行 `Requirement` 列引用的名字 SHALL 存在且唯一于归属
 
 #### Scenario: 归属 spec 失效不级联
 
-- **GIVEN** checklist 头部 `spec:` 指向的目录缺 `spec.md`
+- **GIVEN** task 上级目录缺 `spec.md`/`modules.md`（未放在合法 spec 包的 `tasks/` 下）
 - **WHEN** 运行 validate
-- **THEN** 报出单条指针失效 issue，不为每行回指重复报错
+- **THEN** 报出单条归属失效 issue，不为每行回指重复报错
 
 ### Requirement: spec 级 Requirement 覆盖闭合
 
