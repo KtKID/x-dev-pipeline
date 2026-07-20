@@ -111,6 +111,22 @@ flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-
 
 Task validation covers V8–V12: required files, checklist contract, optional diagram consistency, README risk and required sections, and Requirement/Scenario structure.
 
+## x-spec2 pilot metrics
+
+`tools/metrics.py` records a completed x-spec2 eval from either one explicit Codex rollout JSONL or a saved subagent completion notification. The minimum measurement contains the execution source ID, model, repository SHA, prompt hash, duration, real provider total tokens, and independently graded expectation pass rate.
+
+```bash
+python3 tools/metrics.py extract \
+  --timing <run-dir>/timing.json \
+  --metadata <run-dir>/eval_metadata.json \
+  --grading <run-dir>/grading.json \
+  --output <run-dir>/measurement.json
+
+python3 tools/metrics.py aggregate-spec2 skills/x-spec2-workspace/iteration-2
+```
+
+Exit 0 means extraction or aggregation succeeded; exit 1 means a readable run violates the fresh-session, rubric-isolation, or paired-comparison boundary; exit 2 means usage, IO, JSON, or schema failure. A one-pair result is marked `pilot: true`: it proves the measurement flow and remains insufficient for a stable skill-effect estimate.
+
 ## Reports and recovery
 
 - Gate ① returns a short pass receipt. Failures create `reports/verify/verify-report-*.md` with facts for x-fix.

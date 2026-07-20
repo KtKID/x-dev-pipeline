@@ -81,6 +81,14 @@ Agent({
 
 prompt 预算 10,000 estimated tokens。保留 reviewer 检查清单（默认线 `rc-unified.md` / 高危线 `r{N}-*.md`）、task root、必读文件路径、diff 命令、evidence 输出路径、`Context Completeness` 要求和一轮列全约束；完整 diff、源码、测试文件通过只读工具按需读取。复审轮追加：上轮带 issue ID 的 review 回执、x-fix 处置表、fix 增量 diff 命令，尽量由同一个 reviewer 承接（机制由执行时 LLM 按环境自行处理）。
 
+## x-spec2 eval 计量边界
+
+- `tools/metrics.py extract` 只读取调用方显式给出的完成态 Codex rollout JSONL，或主 agent 在子 agent 完成通知到达时保存的 `timing.json`；工具不扫描 session 目录。
+- rollout 样本必须只有一个 session ID、一个 `turn_context` 和一个 `task_complete`。token 使用完成事件前最后一份 provider 累计快照，duration 使用 `turn_context` 到 `task_complete` 的时间差。
+- 子 agent 通知源保留真实 `total_tokens` 与 `duration_ms`；细分 token、起止时间缺失时写 `null`。collector 和 grader 的 token、耗时不计入被测样本。
+- executor inputs 与 grader-only inputs 必须在 metadata 中分开声明；重叠或 `rubric_exposed: true` 使样本退出 1。paired 聚合还要求 prompt hash、model、repo SHA 与评分断言完全一致。
+- measurement 只保存 prompt 哈希，不复制 prompt、对话、工具参数或文件内容。退出码：0 成功，1 可读但无效的样本/配对，2 参数、IO、JSON 或 schema 错误。
+
 x-qdev 的 Q2 只派一个综合 reviewer，输入锚定已脱敏的用户原始请求、明示假设、DoD 证据矩阵、diff 命令和相关实现/测试路径。Q0/Q1 由主 agent 完成，Q3 升级完整流程。
 
 ## 常用维护操作

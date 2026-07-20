@@ -30,11 +30,11 @@
 
 - [x] 3.1 更新 `CLAUDE.md`：记录 `tools/metrics.py` 边界、fresh-session 纪律、collector 不入样本与退出码
 - [x] 3.2 更新 `README.md` / `README_zh.md`：增加 x-spec2 pilot metrics 的命令、最小字段和单样本解释边界
-- [ ] 3.3 提交仓库文档切片；历史 task、x-spec2 产物模板与 validator 文档保持原样
+- [x] 3.3 提交仓库文档切片；历史 task、x-spec2 产物模板与 validator 文档保持原样
 
 ## 4. 交付验证与验收
 
-- [ ] 4.1 复跑 `python3 -m unittest discover -s test`、extract 幂等性测试、aggregate 幂等性测试与 `git diff --check`
+- [x] 4.1 复跑 `python3 -m unittest discover -s test`、extract 幂等性测试、aggregate 幂等性测试与 `git diff --check`
 - [x] 4.2 运行 `openspec validate xspec2-evaluation-metrics --type change --strict` 与 `openspec validate --all --strict`
-- [ ] 4.3 交付两条 session ID、两份 measurement、paired benchmark、静态 review 页面、三段提交记录及所有偏离说明
+- [x] 4.3 交付两条 session ID、两份 measurement、paired benchmark、静态 review 页面、三段提交记录及所有偏离说明
 - [ ] 4.4 用户确认 pilot 数据与展示口径后再归档 change；确认前保持 active

@@ -111,6 +111,22 @@ flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-
 
 task 校验覆盖 V8–V12：必需文件、checklist 契约、可选图一致性、README risk 与必需章节、Requirement/Scenario 结构。
 
+## x-spec2 pilot 计量
+
+`tools/metrics.py` 从一个显式 Codex rollout JSONL，或保存后的子 agent 完成通知中记录一次 x-spec2 eval。最小 measurement 包含执行来源 ID、模型、仓库 SHA、prompt 哈希、耗时、provider 返回的真实总 token，以及独立 grader 给出的断言通过率。
+
+```bash
+python3 tools/metrics.py extract \
+  --timing <run-dir>/timing.json \
+  --metadata <run-dir>/eval_metadata.json \
+  --grading <run-dir>/grading.json \
+  --output <run-dir>/measurement.json
+
+python3 tools/metrics.py aggregate-spec2 skills/x-spec2-workspace/iteration-2
+```
+
+退出码 0 表示提取或聚合成功；1 表示可读取的样本违反 fresh-session、rubric 隔离或 paired 可比性边界；2 表示参数、IO、JSON 或 schema 错误。单个 paired run 标记为 `pilot: true`，它用于证明测量流程成立，稳定效果判断需要更多题目与重复运行。
+
 ## 报告与回流
 
 - Gate ① 全过只输出回执；失败生成 `reports/verify/verify-report-*.md`，交 x-fix。
