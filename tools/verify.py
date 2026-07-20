@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 """xdev verify 的确定性执行引擎。
 
-统一承接两种 task 结构：
+只承接 ``docs/spec/<spec>/tasks/<task>/`` 结构：验收场景来自归属
+``spec.md``，对账范围由 ``dev-checklist.md`` 承接的 Requirement 决定。
 
-- 旧结构 ``dev-pipeline/tasks/<task>/``：验收场景来自 task ``README.md``。
-- req2 结构 ``docs/spec/<spec>/tasks/<task>/``：验收场景来自归属 ``spec.md``，
-  对账范围由 ``dev-checklist.md`` 承接的 Requirement 决定。
-
-公开 CLI 仍由 ``tools/xdev.py`` 提供；本模块负责路径分流、verify block 解析、
-命令执行、验收覆盖对账和退出码。
+公开 CLI 仍由 ``tools/xdev.py`` 提供；本模块负责 verify block 解析、命令执行、
+验收覆盖对账和退出码。
 """
 
 from __future__ import annotations
@@ -22,15 +19,12 @@ from pathlib import Path
 import req
 
 
-PLUGIN_ROOT = Path(__file__).resolve().parent.parent
-
 REQ_RE = re.compile(r"^###\s+Requirement:\s*(.*)$")
 SCEN_RE = re.compile(r"^####\s+Scenario:\s*(.*)$")
 H2_RE = re.compile(r"^##\s+")
 H3_RE = re.compile(r"^###\s+")
 H4_RE = re.compile(r"^####\s+")
 VALIDATION_RE = re.compile(r"^\s*[-*+]?\s*验证\s*[：:]\s*(auto|manual)\s*$", re.IGNORECASE)
-LEGACY_VALIDATION_RE = re.compile(r"^\s*[-*+]?\s*验证:\s*(auto|manual)\s*$", re.IGNORECASE)
 VERIFY_FENCE_RE = re.compile(r"^\s*```verify\s*$", re.IGNORECASE)
 FENCE_END_RE = re.compile(r"^\s*```\s*$")
 
@@ -142,44 +136,6 @@ def parse_verify_blocks(report: Path) -> list[dict]:
         })
 
     return blocks
-
-
-def legacy_acceptance_scenarios(readme: Path) -> list[dict]:
-    """读取旧 task README「验收」节的 Scenario 名和验证标记。"""
-    if not readme.exists():
-        raise FileNotFoundError(f"缺少 README.md：{readme.parent}")
-    lines = read_text(readme).splitlines()
-    start, end = section_bounds(lines, "验收")
-    if start is None:
-        return []
-    scenarios: list[dict] = []
-    current: tuple[str, list[str]] | None = None
-
-    def close_current() -> None:
-        nonlocal current
-        if current is None:
-            return
-        name, body = current
-        marker = next(
-            (match.group(1).lower() for line in body if (match := LEGACY_VALIDATION_RE.match(line))),
-            None,
-        )
-        scenarios.append({"name": name, "mode": marker})
-        current = None
-
-    for index in range(start + 1, end):
-        line = lines[index]
-        if (scenario_match := SCEN_RE.match(line)):
-            close_current()
-            current = (scenario_match.group(1).strip(), [])
-            continue
-        if H3_RE.match(line) or H4_RE.match(line):
-            close_current()
-            continue
-        if current is not None:
-            current[1].append(line)
-    close_current()
-    return scenarios
 
 
 def acceptance_scenarios(spec_md: Path) -> list[dict]:
@@ -356,34 +312,6 @@ def emit_payload(payload: dict, as_json: bool, requirements: list[str] | None = 
     return 0 if not payload["fail"] and not payload["uncovered"] else 1
 
 
-def verify_legacy(task_dir: Path, as_json: bool, only: str | None) -> int:
-    """验证旧 ``dev-pipeline/tasks/<task>/`` 结构。"""
-    try:
-        if not task_dir.is_dir():
-            raise FileNotFoundError(f"不是目录：{task_dir}")
-        report = latest_dev_report(task_dir)
-        blocks = parse_verify_blocks(report)
-        pass_items, fail_items, manual, declared_auto = execute_verify_blocks(
-            blocks, only, PLUGIN_ROOT, "仓库",
-        )
-        uncovered = [
-            item["name"] for item in legacy_acceptance_scenarios(task_dir / "README.md")
-            if item["mode"] == "auto" and item["name"].strip() not in declared_auto
-        ]
-        payload = {
-            "task": task_dir.name,
-            "dev_report": str(report),
-            "pass": pass_items,
-            "fail": fail_items,
-            "manual": manual,
-            "uncovered": uncovered,
-        }
-    except (FileNotFoundError, OSError, ValueError) as exc:
-        print(f"错误：{exc}", file=sys.stderr)
-        return 2
-    return emit_payload(payload, as_json)
-
-
 def verify_req2(task_dir: Path, as_json: bool, only: str | None) -> int:
     """验证 req2 task，并把场景对账限定在本 task 承接的 Requirement 内。"""
     try:
@@ -437,7 +365,5 @@ def verify_req2(task_dir: Path, as_json: bool, only: str | None) -> int:
 
 
 def verify(task_dir: Path, as_json: bool, only: str | None) -> int:
-    """按 task 路径形状分流到 req2 或旧结构 verify。"""
-    if req.spec_of_task_dir(task_dir) is not None:
-        return verify_req2(task_dir, as_json, only)
-    return verify_legacy(task_dir, as_json, only)
+    """验证 ``docs/spec/<spec>/tasks/<task>`` 结构。"""
+    return verify_req2(task_dir, as_json, only)

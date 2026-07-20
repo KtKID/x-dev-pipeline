@@ -29,9 +29,9 @@
   dev-pipeline/tasks/<task>/README.md+dev-checklist.md，已废弃待删除
   （见 openspec/changes/xreq-spec-driven/tasks.md 1.1.1/1.2.1、design.md
   决策 7）。新 task 一律走 docs/spec/<spec>/tasks/，由 tools/req.py 实现，
-  verify 的新旧结构执行统一由 tools/verify.py 实现。
+  verify 只认 docs/spec/<spec>/tasks/ 新结构，由 tools/verify.py 实现。
   暂缓删除原因：dev-pipeline/tasks/ 下仍有三个老结构 task 依赖这套实现的
-  status/graph/verify/validate 工具支持——xdev-orchestration-engine、
+  status/graph/validate 工具支持——xdev-orchestration-engine、
   xspec-contract-upgrade（2026-07-19 有改动）、qa-gate-pipeline（CLAUDE.md
   记为当前主线改造任务，待用户跑完 5 个 e2e smoke case 才能升 ✅）。删除
   前需先确认三者均已收尾、不再需要这套旧命令。
@@ -2128,7 +2128,7 @@ def main(argv=None) -> int:
     verify = sub.add_parser("verify", help="复跑 dev-report verify 块并对账本 task 承接的自动场景")
     verify.add_argument(
         "task_dir",
-        help="task 目录（req2：含 dev-checklist.md 与 dev-report*.md，验收场景读归属 spec.md；旧结构：含 README.md）",
+        help="task 目录（docs/spec/<spec>/tasks/<task>/，含 dev-checklist.md 与 dev-report*.md）",
     )
     verify.add_argument("--json", action="store_true", dest="as_json", help="机器可读输出")
     verify.add_argument("--only", help="只执行指定的 auto verify 块")

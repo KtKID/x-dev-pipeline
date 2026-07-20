@@ -27,34 +27,14 @@ def capture_main(args: list[str]) -> tuple[int, str, str]:
     return code, stdout.getvalue(), stderr.getvalue()
 
 
-def readme(*scenarios: tuple[str, str]) -> str:
+def spec_md(*scenarios: tuple[str, str]) -> str:
     body = "\n\n".join(
         f"#### Scenario: {name}\n\n- **WHEN** 执行验证\n- **THEN** 得到预期结果\n- 验证: {mode}"
         for name, mode in scenarios
     )
-    return f"""# verify-task
+    return f"""# verify-spec
 
-risk: Q2
-
-## 核心目标
-
-- 验证引擎工作。
-
-## 需求要点
-
-- 验证证据可复跑。
-
-## 涉及模块
-
-- tools/xdev.py
-
-## 架构拆分策略
-
-- 引擎负责机械事实。
-
-## 技术设计
-
-- verify 块是输入。
+> spec_version: 2
 
 ## 验收
 
@@ -62,23 +42,32 @@ risk: Q2
 
 {body}
 
-### 自动化测试责任
-
-- x-dev 写 verify 块。
 """
 
 
 class TestVerifyCommand(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
-        self.task = Path(self.tmp.name) / "task"
-        self.task.mkdir()
+        self.root = Path(self.tmp.name)
+        self.spec = self.root / "docs" / "spec" / "verify-spec"
+        self.task = self.spec / "tasks" / "task"
+        self.task.mkdir(parents=True)
 
     def tearDown(self):
         self.tmp.cleanup()
 
     def write_task(self, report: str, *scenarios: tuple[str, str]) -> None:
-        (self.task / "README.md").write_text(readme(*scenarios), encoding="utf-8")
+        (self.spec / "spec.md").write_text(spec_md(*scenarios), encoding="utf-8")
+        (self.spec / "modules.md").write_text("# modules\n", encoding="utf-8")
+        (self.task / "dev-checklist.md").write_text(
+            "# task\n\n"
+            "> spec: docs/spec/verify-spec\n"
+            "> risk: Q1\n\n"
+            "| # | 任务说明 | Requirement | 风险 | 涉及文件 | 依赖 | 状态 | fix |\n"
+            "|---|---------|-------------|------|----------|------|------|-----|\n"
+            "| T1 | 验证证据 | 证据验证 | 低 | None | None | [x] ✅ | None |\n",
+            encoding="utf-8",
+        )
         (self.task / "dev-report.md").write_text(report, encoding="utf-8")
 
     def verify_json(self, *extra: str) -> tuple[int, dict, str]:
@@ -195,17 +184,15 @@ expect_contains: fast
         self.assertEqual(code, 1, stderr)
         self.assertTrue(payload["fail"][0]["timed_out"])
 
-    def test_legacy_fullwidth_validation_marker_keeps_previous_semantics(self):
-        self.write_task("# report\n", ("旧格式全角标记", "auto"))
-        readme_path = self.task / "README.md"
-        readme_path.write_text(
-            readme_path.read_text(encoding="utf-8").replace("验证: auto", "验证：auto"),
-            encoding="utf-8",
-        )
+    def test_legacy_task_path_is_rejected(self):
+        legacy_task = self.root / "dev-pipeline" / "tasks" / "legacy-task"
+        legacy_task.mkdir(parents=True)
+        (legacy_task / "README.md").write_text("# legacy\n", encoding="utf-8")
+        (legacy_task / "dev-report.md").write_text("# report\n", encoding="utf-8")
 
-        code, payload, stderr = self.verify_json()
-        self.assertEqual(code, 0, stderr)
-        self.assertEqual(payload["uncovered"], [])
+        code, stdout, stderr = capture_main(["verify", str(legacy_task), "--json"])
+        self.assertEqual(code, 2, stdout)
+        self.assertIn("不在 docs/spec/<spec-name>/tasks/<task-name>/ 结构下", stderr)
 
     def test_dev_report_template_uses_supported_manual_path(self):
         template = (ROOT / "skills/x-dev/templates/dev-report-template.md").read_text(encoding="utf-8")
@@ -217,14 +204,12 @@ expect_contains: fast
         owned_names = {
             "latest_dev_report",
             "parse_verify_blocks",
-            "legacy_acceptance_scenarios",
             "acceptance_scenarios",
             "acceptance_defects",
             "task_requirements",
             "project_root_of_task_dir",
             "verify_cwd",
             "execute_verify_block",
-            "verify_legacy",
             "verify_req2",
             "verify",
         }
@@ -232,6 +217,8 @@ expect_contains: fast
             self.assertTrue(hasattr(verify_engine, name), name)
             self.assertFalse(hasattr(xdev, name), f"xdev.{name}")
             self.assertFalse(hasattr(req, name), f"req.{name}")
+        for removed_name in {"legacy_acceptance_scenarios", "verify_legacy"}:
+            self.assertFalse(hasattr(verify_engine, removed_name), removed_name)
         self.assertIs(xdev.verify_engine, verify_engine)
 
 
