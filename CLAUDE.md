@@ -6,6 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 这不是应用代码仓库，而是一个 **AI 开发工作流 skill 集合**——为 Claude Code / Codex 提供 `/x-*` 系列 slash command 的 plugin。仓库本身**不包含可运行代码、没有 build、没有测试套件**，所有"产物"都是 markdown skill 文件。
 
+**方案讲解要通俗**: 不要自己乱造词汇，用大白话和用户套路方案，用户偏好费曼学习法，要多使用。
 ⚠️ **命名陷阱**：仓库叫 `x-dev-pipeline`，仓库内部有一个子目录叫 `dev-pipeline/`（无 `x-` 前缀），它是 task 工件的输出目录。两者不是同一个东西。
 
 ## 仓库布局
@@ -31,12 +32,9 @@ x-dev-pipeline/
 
 ```
 x-spec ─→ x-req ─→ x-dev ─→ x-verify ─→ x-qa-gate ─→ x-fix
-(docs/spec/) (task/)         Gate ①       Gate ②       批量修+增量复审
+(docs/spec/) (task/)         验证是否符合spec.md              批量修+增量复审
                              命令+smoke/e2e 风险路由：默认 RC 综合 / 高危 R1→R2→R3
 
-x-qdev ─→ 定向验证 ─→ DoD 证据闭环 ─→ ✅
-                         ├─ Q2：一个综合 reviewer
-                         └─ Q3：升级 x-req → x-dev 完整流程
 ```
 
 - x-spec 产出 `docs/spec/<spec-name>/` 独立需求包，`docs/spec/README.md` 做索引，迭代原地更新
@@ -49,7 +47,7 @@ x-qdev ─→ 定向验证 ─→ DoD 证据闭环 ─→ ✅
 
 | 契约 | 内容 |
 |------|------|
-| spec 需求包目录 | x-spec 产出 `docs/spec/<spec-name>/`，`docs/spec/README.md` 汇总 spec 导航，spec 目录含 7 文件。x-req 的 README `spec:` 字段指向 `docs/spec/<spec-name>`，一个 task 只归属一个 spec |
+| spec 需求包目录 | x-spec 产出 `docs/spec/<spec-name>/`，`docs/spec/README.md` 汇总 spec 导航。x-req 的 README `spec:` 字段指向 `docs/spec/<spec-name>`，一个 task 只归属一个 spec |
 | `dev-report.md` schema | x-dev 使用 `skills/x-dev/templates/dev-report-template.md`（含 `risk: default/high` 字段，Gate ② 路由依据）；x-verify 的必跑清单 = dev-report 命令表 + task README Smoke/E2E 用例（manual 用例列入待人工验收）；x-qdev 默认使用 `skills/x-qdev/templates/dev-report.md`，用户指定完整门禁时改用 x-dev schema |
 | 测试分层契约 | x-spec 写验证策略；x-req README 显式列 smoke/e2e 验收用例；单元/契约/边界测试由 x-dev 按实际改动补齐，并写入 `dev-report.md` 验证命令清单 |
 | `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。语义 = **批量修轮数**（一轮 = 一份 issue 清单的整体修复）。x-verify 首次创建，x-fix 按轮递增，x-qa-gate 在 Gate ② 最终 pass 后重置。**3 轮上限**，三方共享 |
@@ -89,7 +87,6 @@ prompt 预算 10,000 estimated tokens。保留 reviewer 检查清单（默认线
 - executor inputs 与 grader-only inputs 必须在 metadata 中分开声明；重叠或 `rubric_exposed: true` 使样本退出 1。paired 聚合还要求 prompt hash、model、repo SHA 与评分断言完全一致。
 - measurement 只保存 prompt 哈希，不复制 prompt、对话、工具参数或文件内容。退出码：0 成功，1 可读但无效的样本/配对，2 参数、IO、JSON 或 schema 错误。
 
-x-qdev 的 Q2 只派一个综合 reviewer，输入锚定已脱敏的用户原始请求、明示假设、DoD 证据矩阵、diff 命令和相关实现/测试路径。Q0/Q1 由主 agent 完成，Q3 升级完整流程。
 
 ## 常用维护操作
 
