@@ -40,7 +40,7 @@ risk 定级 SHALL NOT 自造判据，只读归属 spec 包既有信号。用户�
 2. 读 `spec.md`（系统不变量、Requirement/Scenario 验收）与 `modules.md`（模块职责、依赖、风险列、状态、回指 Requirement），确定本次 task 覆盖哪些 Requirement、涉及哪些模块。
 3. 按"定级"表判断 risk；用户显式指定时覆盖默认定级。
 4. 运行 `python3 tools/xdev.py scaffold <task-dir>`（新结构由 xdev.py 委托 `tools/req.py` 引擎处理）；涉及图或用户要求时加 `--with-diagram`。
-5. 填写 `dev-checklist.md`：头部 `spec:` 指针 + `risk:`；逐行填 `任务说明`、回指的 `Requirement`（名字须在归属 spec.md 验收中存在且唯一；纯技术/重构行没有对应 Requirement 时该列写 `—`）、`风险`（该行触及的 `spec.md#系统不变量` 或 `modules.md` 模块风险等级，无触及写 `—`）、`涉及文件`、`依赖`、初始状态 `[ ] ⏳`。按需填写 `diagram.md`，节点对照 `modules.md` 模块名。删除模板 HTML 注释与占位符。更新已有 task 时在头部追加一行 `updated: YYYY-MM-DD <summary>`。
+5. 填写 `dev-checklist.md`：头部 `spec:` 指针 + `risk:`；逐行填 `任务说明`、回指的 `Requirement`（名字须在归属 spec.md 验收中存在且唯一；纯技术/重构行没有对应 Requirement 时该列写 `None`）、`风险`（该行触及的 `spec.md#系统不变量` 或 `modules.md` 模块风险等级，无触及写 `None`）、`涉及文件`、`依赖`、初始状态 `[ ] ⏳`。按需填写 `diagram.md`，节点对照 `modules.md` 模块名。删除模板 HTML 注释与占位符。更新已有 task 时在头部追加一行 `updated: YYYY-MM-DD <summary>`。
 6. 运行 `python3 tools/xdev.py validate <task-dir>`，修复机械 issue 直到零 issue（新结构校验由 xdev.py 委托 `tools/req.py` 执行，命令入口不变）。
 7. 判断自审（机械校验之外，主 agent 检查；任一失败时修复内容并重跑第 6 步）：
    1. **需求覆盖**：每行 `Requirement` 可追溯到归属 spec.md 的某个 Requirement；且这个 spec 下所有 task（含既有 task）合并后，spec.md 每条 Requirement 至少被一行承接——出现缺口时补入承接该 Requirement 的任务行，不留给"以后再说"。这是 spec 级的硬性交接前提，不是要求单个 task 独自覆盖全部 Requirement（task:spec 多对一）。
@@ -53,7 +53,7 @@ risk 定级 SHALL NOT 自造判据，只读归属 spec 包既有信号。用户�
 
 - checklist 表头固定 `# | 任务说明 | Requirement | 风险 | 涉及文件 | 依赖 | 状态 | fix`，token+emoji 双轨状态与依赖拓扑规则与旧结构一致。
 - 需求、模块、架构、验收内容不复制进 task，只用指针/回指引用归属 spec 包；risk 判据不区分 Q 等级——checklist 形态在所有风险等级下相同，只有头部 `risk:` 值与下游评审路由不同。
-- 纯技术/重构任务没有对应 spec.md Requirement 时，`Requirement` 列写 `—`，不计入覆盖率。
+- 纯技术/重构任务没有对应 spec.md Requirement 时，`Requirement` 列写 `None`，不计入覆盖率。`None` 是表格里唯一合法的「无值」写法，其它占位符（`—`、`-`、`n/a`）与空单元格一律报错。
 - spec 级 Requirement 覆盖是硬性门槛：一个 spec 包 `tasks/` 下所有 task 的 checklist 合并后，spec.md 每条 Requirement 必须被至少一行承接；单个 task 的校验不判全覆盖，避免多 task 拆分互相误报。
 - x-req2 不改 spec 包内容；拆 task 时发现 spec.md 表述需要调整，回到 x-spec2 更新，不在 task 侧绕过。
 - 历史 `dev-pipeline/tasks/` task 是死档案，已不再被工具识别或校验，不属于本 skill 范围；新 task 一律要求 spec 归属，没有归属先用 x-spec2 建 spec 包，不再有"跳过 spec 直接建 task"的路径。

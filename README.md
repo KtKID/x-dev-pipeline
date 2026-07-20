@@ -97,7 +97,8 @@ expect_contains: passed
 
 ## Deterministic engine
 
-`tools/xdev.py` keeps mechanical rules outside skill prose:
+`tools/xdev.py` provides the unified CLI for mechanical rules outside skill prose. Verify parsing,
+execution, and Scenario reconciliation are owned by `tools/verify.py`:
 
 ```text
 validate [pkg...]                 validate specs, changes, and task contracts

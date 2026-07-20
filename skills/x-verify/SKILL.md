@@ -9,7 +9,7 @@ description: |
 
 ## 输入
 
-`README.md` 的验收 Scenario 与 `dev-report*.md` fenced `verify` 块。引擎负责复跑命令、比较 exit/输出、列出 manual 和自动场景覆盖。
+task 的 `dev-checklist.md`（承接的 Requirement）、归属 `spec.md` 的验收 Scenario，与 `dev-report*.md` fenced `verify` 块。引擎负责复跑命令、比较 exit/输出、列出 manual 和本 task 范围内的自动场景覆盖。
 
 ## 流程
 
