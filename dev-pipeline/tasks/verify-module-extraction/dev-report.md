@@ -60,3 +60,16 @@
 - [x] Q2 综合 reviewer 已通过或当前路线为 Q0/Q1
 
 结论：complete
+
+## 后续收敛 — 删除旧结构 verify — 20260720
+
+- 风险等级：Q1；主 agent 证据闭环。
+- `tools/verify.py` 删除 `LEGACY_VALIDATION_RE`、`legacy_acceptance_scenarios()`、
+  `verify_legacy()`、仓库根常量和旧路径 fallback。
+- `tools/xdev.py` 的 verify 帮助与模块说明同步为仅接受
+  `docs/spec/<spec>/tasks/<task>/`。
+- `test/test_xdev_verify.py` 的通用执行测试改用真实 spec task 结构，并增加旧路径
+  exit 2 与 legacy 定义不存在的回归断言。
+- `PYTHONPYCACHEPREFIX=/tmp/xdev-pycache python3 -m py_compile tools/verify.py tools/xdev.py`：exit 0。
+- `python3 -m unittest test.test_xdev_verify test.test_req_engine`：67 tests，exit 0。
+- `python3 -m unittest discover -s test`：166 tests，exit 0。
