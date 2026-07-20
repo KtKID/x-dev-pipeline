@@ -7,12 +7,12 @@
 ## 验证证据
 
 > 本节是 `python3 tools/xdev.py verify <task-dir>` 的唯一自动输入。
-> 至少保留一条测试类 auto 块；无法自动验证的场景在 README 标为 `验证: manual`，并用 manual 块记录可复现人工步骤与理由。
-> README 中每个 `验证: auto` 的 Scenario 都必须有一个 auto 块用 `scenario:` 精确回指。
+> 至少保留一条测试类 auto 块；归属 `spec.md` 中标为 `验证: manual` 的场景用 manual 块记录可复现人工步骤与理由。
+> 本 task checklist 承接的 Requirement 下，每个 `验证: auto` 的 Scenario 都必须有一个 auto 块用 `scenario:` 精确回指；兄弟 task 承接的 Scenario 不在本报告范围内。
 
 ```verify
 id: S1
-scenario: <README 验收 Scenario 名>
+scenario: <归属 spec.md 验收 Scenario 名>
 cmd: python3 -m unittest discover -s test
 cwd: .
 expect_exit: 0
@@ -22,7 +22,7 @@ mode: auto
 
 ```verify
 id: M1
-scenario: <README 人工验收 Scenario 名>
+scenario: <归属 spec.md 人工验收 Scenario 名>
 mode: manual
 steps: <可复现的人工验收步骤>
 ```

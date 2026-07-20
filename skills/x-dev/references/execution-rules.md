@@ -24,19 +24,19 @@
 
 ```verify
 id: S1
-scenario: <README Scenario 名>
+scenario: <归属 spec.md 验收 Scenario 名>
 cmd: <可复跑命令>
 expect_exit: 0
 expect_contains: <关键输出>
 ```
 
 - auto 块执行命令；manual 块只记录 `steps`。
-- `scenario:` 与 auto Scenario strip 后精确匹配。
+- `scenario:` 取归属 `spec.md`「验收」节的场景名，strip 后精确匹配；只覆盖本 task checklist 承接的 Requirement 下的 Scenario。
 - `python3 tools/xdev.py verify <task-dir> --json` 返回 0、1、2；1 的全部 failure 与 uncovered 同轮进入 x-fix，2 回到 dev-report 编辑。
 
 ## Risk 路由
 
-| README risk | verify 通过后的动作 |
+| checklist 头部 risk | verify 通过后的动作 |
 |---|---|
 | Q0 / Q1 | 交付回执，列出 manual 与定级依据 |
 | Q2 | x-qa-gate RC |
