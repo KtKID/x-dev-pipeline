@@ -367,19 +367,37 @@ def requirement_name_counts(spec_md: Path) -> Counter:
     return Counter(spec_requirements(spec_md))
 
 
-def resolve_spec_dir(spec_value: str) -> Path | None:
-    """把头部 spec: 取值解析为合法 spec 包目录；缺 spec.md/modules.md 视为非法。"""
-    candidate = (PLUGIN_ROOT / spec_value).resolve()
+def resolve_spec_dir(task_dir: Path) -> Path | None:
+    """从 task 的实际位置推出归属 spec 包目录。
+
+    task 固定住在 `<项目>/docs/spec/<spec-name>/tasks/<task-name>/`，归属 spec 包就是
+    task 目录往上两级——不依赖 PLUGIN_ROOT，也不依赖调用方 cwd，在插件仓库内外一致成立。
+    （PLUGIN_ROOT 只用于解析插件自带的模板资源；spec 包与 task 是用户项目数据，
+    用插件根去拼会解析到插件仓库下，在真实项目中必然失败。）
+    上级缺 spec.md/modules.md 视为非法。
+    """
+    parents = task_dir.resolve().parents
+    if len(parents) < 2:
+        return None
+    candidate = parents[1]
     if (candidate / "spec.md").is_file() and (candidate / "modules.md").is_file():
         return candidate
     return None
+
+
+def project_root_of_task_dir(task_dir: Path) -> Path | None:
+    """从 task 的实际位置推出项目根（`docs/` 的上一级），供 verify 的 cwd 解析使用。"""
+    parents = task_dir.resolve().parents
+    return parents[4] if len(parents) >= 5 else None
 
 
 def validate_issues(task_dir: Path) -> list[dict]:
     """单 task 校验：头部（spec:/risk:）+ 行级（Requirement 悬空/重名、风险与任务说明非空）。
 
     不判定 spec 级 Requirement 全覆盖（见 spec_requirement_coverage，避免多 task 互相误报）。
-    归属 spec 指针失效时，降级为一条头部 issue，行级 Requirement 存在性检查随之跳过（不级联）。
+    归属 spec 包按 task 实际位置推定（往上两级）；该位置不是合法 spec 包时，降级为一条头部
+    issue，行级 Requirement 存在性检查随之跳过（不级联）。头部 `spec:` 不再用于拼路径，
+    改作核对项——与实际归属不一致时报出，防止清单放错目录或写错归属。
     """
     checklist = task_dir / "dev-checklist.md"
     rel = str(checklist)
@@ -389,13 +407,14 @@ def validate_issues(task_dir: Path) -> list[dict]:
     issues: list[dict] = []
 
     spec_value = header_value(text, "spec")
-    spec_dir: Path | None = None
+    spec_dir = resolve_spec_dir(task_dir)
+    declared = spec_of_task_dir(task_dir)
     if not spec_value:
         issues.append(issue(rel, 0, "REQ1", "头部缺少 spec: 指针"))
-    else:
-        spec_dir = resolve_spec_dir(spec_value)
-        if spec_dir is None:
-            issues.append(issue(rel, 0, "REQ1", f"spec: 指针未指向合法 spec 包（缺 spec.md/modules.md）：{spec_value}"))
+    elif spec_dir is None:
+        issues.append(issue(rel, 0, "REQ1", f"task 上级不是合法 spec 包（缺 spec.md/modules.md）：{spec_value}"))
+    elif declared and spec_value.strip().rstrip("/") != declared:
+        issues.append(issue(rel, 0, "REQ1", f"spec: 指针与 task 实际归属不符：头部写「{spec_value}」，实际位于「{declared}」"))
 
     risk_value = header_value(text, "risk")
     if not risk_value:
@@ -837,19 +856,20 @@ def acceptance_scenarios(spec_md: Path) -> list[dict]:
     return scenarios
 
 
-def verify_cwd(raw_cwd: str, block_id: str) -> Path:
-    candidate = (PLUGIN_ROOT / raw_cwd).resolve()
+def verify_cwd(raw_cwd: str, block_id: str, project_root: Path) -> Path:
+    """verify 块的 cwd 相对**项目根**解析（不是插件根）：命令跑在用户项目里。"""
+    candidate = (project_root / raw_cwd).resolve()
     try:
-        candidate.relative_to(PLUGIN_ROOT.resolve())
+        candidate.relative_to(project_root.resolve())
     except ValueError as exc:
-        raise ValueError(f"verify 块 {block_id} 的 cwd 必须是仓库内相对路径：{raw_cwd}") from exc
+        raise ValueError(f"verify 块 {block_id} 的 cwd 必须是项目内相对路径：{raw_cwd}") from exc
     if not candidate.is_dir():
         raise ValueError(f"verify 块 {block_id} 的 cwd 不存在或不是目录：{raw_cwd}")
     return candidate
 
 
-def execute_verify_block(block: dict) -> dict:
-    cwd = verify_cwd(block["cwd"], block["id"])
+def execute_verify_block(block: dict, project_root: Path) -> dict:
+    cwd = verify_cwd(block["cwd"], block["id"], project_root)
     timed_out = False
     try:
         result = subprocess.run(
@@ -887,7 +907,13 @@ def verify(task_dir: Path, as_json: bool, only: str | None) -> int:
         spec_path = spec_of_task_dir(task_dir)
         if spec_path is None:
             raise ValueError(f"{task_dir} 不在 docs/spec/<spec-name>/tasks/<task-name>/ 结构下")
-        spec_md = PLUGIN_ROOT / spec_path / "spec.md"
+        spec_dir = resolve_spec_dir(task_dir)
+        if spec_dir is None:
+            raise ValueError(f"{task_dir} 的上级不是合法 spec 包（缺 spec.md/modules.md）")
+        spec_md = spec_dir / "spec.md"
+        project_root = project_root_of_task_dir(task_dir)
+        if project_root is None:
+            raise ValueError(f"无法从 {task_dir} 推出项目根")
         report = latest_dev_report(task_dir)
         blocks = parse_verify_blocks(report)
         all_auto = [block for block in blocks if block["mode"] == "auto"]
@@ -901,7 +927,7 @@ def verify(task_dir: Path, as_json: bool, only: str | None) -> int:
             {"id": block["id"], "scenario": block["scenario"], "steps": block["steps"]}
             for block in blocks if block["mode"] == "manual"
         ]
-        results = [execute_verify_block(block) for block in selected]
+        results = [execute_verify_block(block, project_root) for block in selected]
         pass_items = [{key: value for key, value in result.items() if key != "output_tail"}
                       for result in results if result["pass"]]
         fail_items = [{key: value for key, value in result.items() if key != "pass"}

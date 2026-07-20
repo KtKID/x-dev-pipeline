@@ -143,7 +143,9 @@ class TestValidateNegative(ReqEngineTestCase):
         )
         issues = req.validate_issues(task)
         self.assertEqual([i["rule"] for i in issues], ["REQ1"])
-        self.assertIn("未指向合法 spec 包", issues[0]["msg"])
+        # 归属改为按 task 实际位置推定后，文案由「指针未指向」变为「task 上级不是」；
+        # 断言取两者共有的稳定子串，避免微调文案就误红。
+        self.assertIn("合法 spec 包", issues[0]["msg"])
 
     def test_missing_or_invalid_risk_reports_req2(self):
         self.make_spec("demo-spec", ["示例功能A"])
@@ -494,6 +496,66 @@ class TestEndToEnd(ReqEngineTestCase):
         self.assertEqual([item["id"] for item in payload["pass"]], ["v1"])
         self.assertEqual(payload["fail"], [])
         self.assertEqual(payload["uncovered"], [])
+
+
+# ---------- 解析前置分支：REQ0（无清单文件）与 REQ3（正文无表格） ----------
+
+class TestParseFallbacks(ReqEngineTestCase):
+    def test_missing_checklist_file_reports_req0(self):
+        """task 目录存在但没有 dev-checklist.md → REQ0。"""
+        self.make_spec("demo-spec", ["示例功能A"])
+        task_dir = self.root / "docs" / "spec" / "demo-spec" / "tasks" / "empty-task"
+        task_dir.mkdir(parents=True)
+        issues = req.validate_issues(task_dir)
+        self.assertEqual([i["rule"] for i in issues], ["REQ0"])
+
+    def test_checklist_without_any_table_reports_req3(self):
+        """有 checklist 但正文没有任何表格 → REQ3（解析失败的另一条分支）。"""
+        self.make_spec("demo-spec", ["示例功能A"])
+        task = self.write_checklist(
+            "demo-spec", "no-table",
+            "# no-table\n\n> spec: docs/spec/demo-spec\n> risk: Q1\n\n正文没有任何表格。\n",
+        )
+        issues = req.validate_issues(task)
+        self.assertEqual([i["rule"] for i in issues], ["REQ3"])
+
+
+# ---------- 固化夹具：仓库内真实布局，不 patch、不造临时数据 ----------
+
+FIXTURE_SPEC = ROOT / "test" / "fixtures" / "req2" / "docs" / "spec" / "demo"
+FIXTURE_TASK = FIXTURE_SPEC / "tasks" / "ok-task"
+
+
+class TestFixtureRealLayout(unittest.TestCase):
+    """跑仓库内的固化夹具：不 patch PLUGIN_ROOT、不造临时数据、不复制模板。
+
+    夹具在 `test/fixtures/req2/docs/spec/demo/`——一份真实布局的 v2 spec 包 + task，
+    随仓库版本控制，谁 clone 下来都能直接跑、结果可复现。
+
+    本组盯住「归属 spec 包按 task 实际位置推定」这条契约：req.py 曾用 PLUGIN_ROOT 去拼
+    头部 `spec:` 指针，于是插件仓库之外的项目必然报 REQ1（spec 包明明就在也说找不到），
+    且插件仓库恰有同名 spec 时会静默校验错对象。改为从 task 目录往上两级推定后，
+    插件仓库内外一致成立——这几条用例就是这条契约的看门狗。
+    """
+
+    def test_fixture_task_validates_clean(self):
+        self.assertEqual(req.validate_issues(FIXTURE_TASK), [])
+
+    def test_spec_dir_resolved_from_task_location_not_plugin_root(self):
+        spec_dir = req.resolve_spec_dir(FIXTURE_TASK)
+        self.assertIsNotNone(spec_dir, "应能从 task 实际位置推出归属 spec 包")
+        self.assertEqual(spec_dir, FIXTURE_SPEC.resolve())
+        self.assertTrue((spec_dir / "spec.md").is_file())
+
+    def test_fixture_spec_coverage_is_closed(self):
+        self.assertEqual(req.spec_requirement_coverage(FIXTURE_SPEC), [])
+
+    def test_project_root_derived_from_task_location(self):
+        """verify 的 cwd 相对项目根解析：项目根 = 夹具里 docs/ 的上一级。"""
+        self.assertEqual(
+            req.project_root_of_task_dir(FIXTURE_TASK),
+            (ROOT / "test" / "fixtures" / "req2").resolve(),
+        )
 
 
 if __name__ == "__main__":
