@@ -15,6 +15,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 
+import req  # noqa: E402
+import verify as verify_engine  # noqa: E402
 import xdev  # noqa: E402
 
 
@@ -193,11 +195,44 @@ expect_contains: fast
         self.assertEqual(code, 1, stderr)
         self.assertTrue(payload["fail"][0]["timed_out"])
 
+    def test_legacy_fullwidth_validation_marker_keeps_previous_semantics(self):
+        self.write_task("# report\n", ("旧格式全角标记", "auto"))
+        readme_path = self.task / "README.md"
+        readme_path.write_text(
+            readme_path.read_text(encoding="utf-8").replace("验证: auto", "验证：auto"),
+            encoding="utf-8",
+        )
+
+        code, payload, stderr = self.verify_json()
+        self.assertEqual(code, 0, stderr)
+        self.assertEqual(payload["uncovered"], [])
+
     def test_dev_report_template_uses_supported_manual_path(self):
         template = (ROOT / "skills/x-dev/templates/dev-report-template.md").read_text(encoding="utf-8")
         self.assertNotIn("no-test-framework", template)
         self.assertIn("验证: manual", template)
         self.assertIn("steps:", template)
+
+    def test_verify_implementation_has_single_module_owner(self):
+        owned_names = {
+            "latest_dev_report",
+            "parse_verify_blocks",
+            "legacy_acceptance_scenarios",
+            "acceptance_scenarios",
+            "acceptance_defects",
+            "task_requirements",
+            "project_root_of_task_dir",
+            "verify_cwd",
+            "execute_verify_block",
+            "verify_legacy",
+            "verify_req2",
+            "verify",
+        }
+        for name in owned_names:
+            self.assertTrue(hasattr(verify_engine, name), name)
+            self.assertFalse(hasattr(xdev, name), f"xdev.{name}")
+            self.assertFalse(hasattr(req, name), f"req.{name}")
+        self.assertIs(xdev.verify_engine, verify_engine)
 
 
 if __name__ == "__main__":

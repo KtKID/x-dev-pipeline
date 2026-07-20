@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 
 import req  # noqa: E402
+import verify as verify_engine  # noqa: E402
 import xdev  # noqa: E402
 
 
@@ -95,7 +96,7 @@ class TestValidatePositive(ReqEngineTestCase):
         self.make_spec("demo-spec", ["示例功能A"])
         task = self.make_task(
             "demo-spec", "demo-task",
-            ["| T1 | 实现示例功能A | 示例功能A | 低：INV1 | product:src/a.py | — | [x] ✅ | — |"],
+            ["| T1 | 实现示例功能A | 示例功能A | 低：INV1 | product:src/a.py | None | [x] ✅ | None |"],
         )
         self.assertEqual(req.validate_issues(task), [])
 
@@ -104,8 +105,8 @@ class TestValidatePositive(ReqEngineTestCase):
         task = self.make_task(
             "demo-spec", "demo-task",
             [
-                "| T1 | 实现示例功能A | 示例功能A | 低 | — | — | [x] ✅ | — |",
-                "| T2 | 补充测试 | — | — | — | T1 | [ ] ⏳ | — |",
+                "| T1 | 实现示例功能A | 示例功能A | 低 | None | None | [x] ✅ | None |",
+                "| T2 | 补充测试 | None | None | None | T1 | [ ] ⏳ | None |",
             ],
         )
         status_code, _out, err = capture(req.status, task, as_json=True)
@@ -133,7 +134,7 @@ class TestValidateNegative(ReqEngineTestCase):
         task = self.write_checklist(
             "demo-spec", "demo-task",
             f"# demo-task\n\n> risk: Q1\n\n{CHECKLIST_HEADER}"
-            "| T1 | 任务 | — | — | — | — | [ ] ⏳ | — |\n",
+            "| T1 | 任务 | None | None | None | None | [ ] ⏳ | None |\n",
         )
         issues = req.validate_issues(task)
         self.assertEqual([i["rule"] for i in issues], ["REQ1"])
@@ -142,7 +143,7 @@ class TestValidateNegative(ReqEngineTestCase):
     def test_invalid_spec_pointer_reports_req1_without_cascading_to_req5(self):
         task = self.make_task(
             "demo-spec", "demo-task",
-            ["| T1 | 任务 | 不存在的需求 | 低 | — | — | [ ] ⏳ | — |"],
+            ["| T1 | 任务 | 不存在的需求 | 低 | None | None | [ ] ⏳ | None |"],
             spec_pointer="docs/spec/no-such-spec",
         )
         issues = req.validate_issues(task)
@@ -156,7 +157,7 @@ class TestValidateNegative(ReqEngineTestCase):
         missing = self.write_checklist(
             "demo-spec", "task-missing-risk",
             f"# task-missing-risk\n\n> spec: docs/spec/demo-spec\n\n{CHECKLIST_HEADER}"
-            "| T1 | 任务 | — | — | — | — | [ ] ⏳ | — |\n",
+            "| T1 | 任务 | None | None | None | None | [ ] ⏳ | None |\n",
         )
         issues = req.validate_issues(missing)
         req2 = [i for i in issues if i["rule"] == "REQ2"]
@@ -165,7 +166,7 @@ class TestValidateNegative(ReqEngineTestCase):
 
         invalid = self.make_task(
             "demo-spec", "task-invalid-risk",
-            ["| T1 | 任务 | — | — | — | — | [ ] ⏳ | — |"],
+            ["| T1 | 任务 | None | None | None | None | [ ] ⏳ | None |"],
             risk="trivial",
         )
         issues = req.validate_issues(invalid)
@@ -177,7 +178,7 @@ class TestValidateNegative(ReqEngineTestCase):
         self.make_spec("demo-spec", ["示例功能A"])
         task = self.make_task(
             "demo-spec", "demo-task",
-            ["| T1 | 任务 | 不存在的需求X | 低 | — | — | [ ] ⏳ | — |"],
+            ["| T1 | 任务 | 不存在的需求X | 低 | None | None | [ ] ⏳ | None |"],
         )
         issues = req.validate_issues(task)
         self.assertEqual([i["rule"] for i in issues], ["REQ5"])
@@ -187,7 +188,7 @@ class TestValidateNegative(ReqEngineTestCase):
         self.make_spec("demo-spec", ["重复功能", "重复功能"])
         task = self.make_task(
             "demo-spec", "demo-task",
-            ["| T1 | 任务 | 重复功能 | 低 | — | — | [ ] ⏳ | — |"],
+            ["| T1 | 任务 | 重复功能 | 低 | None | None | [ ] ⏳ | None |"],
         )
         issues = req.validate_issues(task)
         self.assertEqual([i["rule"] for i in issues], ["REQ5"])
@@ -197,7 +198,7 @@ class TestValidateNegative(ReqEngineTestCase):
         self.make_spec("demo-spec", ["示例功能A"])
         task = self.make_task(
             "demo-spec", "demo-task",
-            ["| T1 |  | — |  | — | — | [ ] ⏳ | — |"],
+            ["| T1 |  | None |  | None | None | [ ] ⏳ | None |"],
         )
         issues = req.validate_issues(task)
         self.assertEqual(len(issues), 2)
@@ -210,7 +211,7 @@ class TestValidateNegative(ReqEngineTestCase):
         self.make_spec("demo-spec", ["示例功能A"])
         task = self.make_task(
             "demo-spec", "demo-task",
-            ["| T1 | 任务 | 示例功能A | 低 | — | — | waiting | — |"],
+            ["| T1 | 任务 | 示例功能A | 低 | None | None | waiting | None |"],
         )
         issues = req.validate_issues(task)
         self.assertEqual([i["rule"] for i in issues], ["REQ7"])
@@ -221,7 +222,7 @@ class TestValidateNegative(ReqEngineTestCase):
         self.make_spec("demo-spec", ["示例功能A"])
         task = self.make_task(
             "demo-spec", "demo-task",
-            ["| T1 | 任务 | 示例功能A | 低 | — | T9 | [ ] ⏳ | — |"],
+            ["| T1 | 任务 | 示例功能A | 低 | None | T9 | [ ] ⏳ | None |"],
         )
         issues = req.validate_issues(task)
         self.assertEqual([i["rule"] for i in issues], ["REQ8"])
@@ -234,12 +235,12 @@ class TestValidateNegative(ReqEngineTestCase):
         task = self.make_task(
             "demo-spec", "demo-task",
             [
-                "| T1 | 任务一 | 不存在的需求 | 低 | — | — | [ ] ⏳ | — |",
-                "| T2 | 任务二 | 重复功能 | 低 | — | — | [ ] ⏳ | — |",
-                "| T3 | 任务三 | 功能A |  | — | — | [ ] ⏳ | — |",
-                "| T4 |  | 功能A | 低 | — | — | [ ] ⏳ | — |",
-                "| T5 | 任务五 | 功能A | 低 | — | T9 | [ ] ⏳ | — |",
-                "| T6 | 任务六 | 功能A | 低 | — | — | waiting | — |",
+                "| T1 | 任务一 | 不存在的需求 | 低 | None | None | [ ] ⏳ | None |",
+                "| T2 | 任务二 | 重复功能 | 低 | None | None | [ ] ⏳ | None |",
+                "| T3 | 任务三 | 功能A |  | None | None | [ ] ⏳ | None |",
+                "| T4 |  | 功能A | 低 | None | None | [ ] ⏳ | None |",
+                "| T5 | 任务五 | 功能A | 低 | None | T9 | [ ] ⏳ | None |",
+                "| T6 | 任务六 | 功能A | 低 | None | None | waiting | None |",
             ],
         )
         issues = req.validate_issues(task)
@@ -266,7 +267,7 @@ class TestValidateNegative(ReqEngineTestCase):
             "# demo-task\n\n> spec: docs/spec/demo-spec\n> risk: Q1\n\n"
             "| 任务说明 | Requirement | 风险 | 涉及文件 | 依赖 | fix |\n"
             "|---------|-------------|------|---------|------|-----|\n"
-            "| 任务 | 示例功能A | 低 | — | — | — |\n",
+            "| 任务 | 示例功能A | 低 | None | None | None |\n",
         )
         issues = req.validate_issues(task)
         self.assertEqual([i["rule"] for i in issues], ["REQ3"])
@@ -276,7 +277,7 @@ class TestValidateNegative(ReqEngineTestCase):
 
 class TestDiagramConsistency(ReqEngineTestCase):
     def _write_modules(self, spec_dir: Path, modules: list[str]) -> None:
-        rows = "\n".join(f"| {m} | 职责 | 无 | — | 低 | — | 方案确认 | — |" for m in modules)
+        rows = "\n".join(f"| {m} | 职责 | 无 | None | 低 | None | 方案确认 | None |" for m in modules)
         (spec_dir / "modules.md").write_text(
             "# modules\n\n## 模块总览\n\n"
             "| 模块 | 职责 | 依赖 | 边界类/对外契约 | 风险 | 决策回指 | 状态 | 回指 Requirement |\n"
@@ -290,7 +291,7 @@ class TestDiagramConsistency(ReqEngineTestCase):
         self._write_modules(spec_dir, ["Artifact Engine"])
         task = self.make_task(
             "demo-spec", "demo-task",
-            ["| T1 | 实现 | 示例功能A | 低 | — | — | [x] ✅ | — |"],
+            ["| T1 | 实现 | 示例功能A | 低 | None | None | [x] ✅ | None |"],
         )
         (task / "diagram.md").write_text(
             '```mermaid\nflowchart TD\nEngine["Artifact Engine"]\n```\n', encoding="utf-8",
@@ -303,7 +304,7 @@ class TestDiagramConsistency(ReqEngineTestCase):
         self._write_modules(spec_dir, ["Artifact Engine", "Unrendered Module"])
         task = self.make_task(
             "demo-spec", "demo-task",
-            ["| T1 | 实现 | 示例功能A | 低 | — | — | [x] ✅ | — |"],
+            ["| T1 | 实现 | 示例功能A | 低 | None | None | [x] ✅ | None |"],
         )
         issues = req.validate_issues(task)
         self.assertEqual([i for i in issues if i["rule"] == "REQ9"], [])
@@ -313,7 +314,7 @@ class TestDiagramConsistency(ReqEngineTestCase):
         self._write_modules(spec_dir, ["Artifact Engine", "Missing Module"])
         task = self.make_task(
             "demo-spec", "demo-task",
-            ["| T1 | 实现 | 示例功能A | 低 | — | — | [x] ✅ | — |"],
+            ["| T1 | 实现 | 示例功能A | 低 | None | None | [x] ✅ | None |"],
         )
         (task / "diagram.md").write_text(
             '```mermaid\nflowchart TD\nEngine["Artifact Engine"]\nExtra["Extra Module"]\n```\n',
@@ -329,7 +330,7 @@ class TestDiagramConsistency(ReqEngineTestCase):
 class TestSpecCoverage(ReqEngineTestCase):
     def test_uncovered_requirement_across_multi_task_spec_reports_req6(self):
         spec_dir = self.make_spec("demo-spec", ["功能A", "功能B"])
-        self.make_task("demo-spec", "task-1", ["| T1 | 做功能A | 功能A | 低 | — | — | [x] ✅ | — |"])
+        self.make_task("demo-spec", "task-1", ["| T1 | 做功能A | 功能A | 低 | None | None | [x] ✅ | None |"])
         issues = req.spec_requirement_coverage(spec_dir)
         self.assertEqual(len(issues), 1)
         self.assertEqual(issues[0]["rule"], "REQ6")
@@ -337,18 +338,18 @@ class TestSpecCoverage(ReqEngineTestCase):
 
     def test_coverage_merges_across_multiple_tasks_in_same_spec(self):
         spec_dir = self.make_spec("demo-spec", ["功能A", "功能B"])
-        self.make_task("demo-spec", "task-1", ["| T1 | 做功能A | 功能A | 低 | — | — | [x] ✅ | — |"])
-        self.make_task("demo-spec", "task-2", ["| T1 | 做功能B | 功能B | 低 | — | — | [x] ✅ | — |"])
+        self.make_task("demo-spec", "task-1", ["| T1 | 做功能A | 功能A | 低 | None | None | [x] ✅ | None |"])
+        self.make_task("demo-spec", "task-2", ["| T1 | 做功能B | 功能B | 低 | None | None | [x] ✅ | None |"])
         self.assertEqual(req.spec_requirement_coverage(spec_dir), [])
 
     def test_single_task_validate_does_not_flag_missing_coverage(self):
         self.make_spec("demo-spec", ["功能A", "功能B"])
-        task = self.make_task("demo-spec", "task-1", ["| T1 | 做功能A | 功能A | 低 | — | — | [x] ✅ | — |"])
+        task = self.make_task("demo-spec", "task-1", ["| T1 | 做功能A | 功能A | 低 | None | None | [x] ✅ | None |"])
         self.assertEqual(req.validate_issues(task), [])
 
     def test_xdev_validate_on_spec_package_surfaces_req6(self):
         spec_dir = self.make_spec("demo-spec", ["功能A", "功能B"])
-        self.make_task("demo-spec", "task-1", ["| T1 | 做功能A | 功能A | 低 | — | — | [x] ✅ | — |"])
+        self.make_task("demo-spec", "task-1", ["| T1 | 做功能A | 功能A | 低 | None | None | [x] ✅ | None |"])
         result = xdev.validate_pkg(spec_dir, include_legacy=False)
         self.assertEqual(result["type"], "spec2")
         self.assertIn("REQ6", {i["rule"] for i in result["issues"]})
@@ -420,10 +421,10 @@ class TestVerifyEvidence(ReqEngineTestCase):
         """一个 spec 拆成多个 task 时，别的 task 承接的 Scenario 不算本 task 的缺口。"""
         self.make_spec("demo-spec", ["功能A", "功能B"])
         task_a = self.make_task(
-            "demo-spec", "task-a", ["| T1 | 做功能A | 功能A | 低 | — | — | [x] ✅ | — |"],
+            "demo-spec", "task-a", ["| T1 | 做功能A | 功能A | 低 | None | None | [x] ✅ | None |"],
         )
         task_b = self.make_task(
-            "demo-spec", "task-b", ["| T1 | 做功能B | 功能B | 低 | — | — | [x] ✅ | — |"],
+            "demo-spec", "task-b", ["| T1 | 做功能B | 功能B | 低 | None | None | [x] ✅ | None |"],
         )
         self.write_report(task_a, ["功能A生效"])
         self.write_report(task_b, ["功能B生效"])
@@ -445,8 +446,8 @@ class TestVerifyEvidence(ReqEngineTestCase):
         task = self.make_task(
             "demo-spec", "demo-task",
             [
-                "| T1 | 做功能A | 功能A | 低 | — | — | [x] ✅ | — |",
-                "| T2 | 做功能B | 功能B | 低 | — | T1 | [x] ✅ | — |",
+                "| T1 | 做功能A | 功能A | 低 | None | None | [x] ✅ | None |",
+                "| T2 | 做功能B | 功能B | 低 | None | T1 | [x] ✅ | None |",
             ],
         )
         self.write_report(task, ["功能A生效"])
@@ -460,8 +461,8 @@ class TestVerifyEvidence(ReqEngineTestCase):
         task = self.make_task(
             "demo-spec", "demo-task",
             [
-                "| T1 | 做功能A | 功能A | 低 | — | — | [x] ✅ | — |",
-                "| T2 | 做功能B | 功能B | 低 | — | T1 | [x] ✅ | — |",
+                "| T1 | 做功能A | 功能A | 低 | None | None | [x] ✅ | None |",
+                "| T2 | 做功能B | 功能B | 低 | None | T1 | [x] ✅ | None |",
             ],
         )
         self.write_report(task, ["功能A生效", "功能B生效"])
@@ -470,11 +471,11 @@ class TestVerifyEvidence(ReqEngineTestCase):
         self.assertEqual(payload["uncovered"], [])
 
     def test_task_without_requirement_binding_only_runs_commands(self):
-        """纯技术 task（Requirement 全 `—`）范围为空，只复跑命令，不承担验收覆盖。"""
+        """纯技术 task（Requirement 全 `None`）范围为空，只复跑命令，不承担验收覆盖。"""
         self.make_spec("demo-spec", ["功能A"])
         task = self.make_task(
             "demo-spec", "chore-task",
-            ["| T1 | 重构内部工具 | — | 低 | — | — | [x] ✅ | — |"],
+            ["| T1 | 重构内部工具 | None | 低 | None | None | [x] ✅ | None |"],
         )
         self.write_report(task, ["功能A生效"])
         code, payload = self.verify_json(task)
@@ -486,7 +487,7 @@ class TestVerifyEvidence(ReqEngineTestCase):
     def test_scenario_keeps_parent_requirement(self):
         spec_dir = self.make_spec("demo-spec", ["功能A", "功能B"])
         self.assertEqual(
-            req.acceptance_scenarios(spec_dir / "spec.md"),
+            verify_engine.acceptance_scenarios(spec_dir / "spec.md"),
             [
                 {"requirement": "功能A", "name": "功能A生效", "mode": "auto"},
                 {"requirement": "功能B", "name": "功能B生效", "mode": "auto"},
@@ -497,7 +498,7 @@ class TestVerifyEvidence(ReqEngineTestCase):
         """验收节整节无 Requirement 分层：场景不属于任何 task，verify 拒绝给结论而非算空范围放行。"""
         self.make_spec_raw("demo-spec", "#### Scenario: 孤儿场景\n\n- **THEN** ok\n- 验证: auto")
         task = self.make_task(
-            "demo-spec", "demo-task", ["| T1 | 做事 | — | 低 | — | — | [x] ✅ | — |"],
+            "demo-spec", "demo-task", ["| T1 | 做事 | None | 低 | None | None | [x] ✅ | None |"],
         )
         self.write_report(task, ["孤儿场景"])
         code, payload = self.verify_json(task)
@@ -512,7 +513,7 @@ class TestVerifyEvidence(ReqEngineTestCase):
             "### 补充说明\n\n与验收无关的一段\n\n#### Scenario: 掉队场景\n\n- 验证: auto",
         )
         task = self.make_task(
-            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |"],
+            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | None | None | [x] ✅ | None |"],
         )
         self.write_report(task, ["功能A生效"])
         code, payload = self.verify_json(task)
@@ -528,7 +529,7 @@ class TestVerifyEvidence(ReqEngineTestCase):
             "### 附录\n\n#### Scenario: 人工巡检\n\n- 验证: manual",
         )
         task = self.make_task(
-            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |"],
+            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | None | None | [x] ✅ | None |"],
         )
         self.write_report(task, ["功能A生效"])
         code, payload = self.verify_json(task)
@@ -542,7 +543,7 @@ class TestVerifyEvidence(ReqEngineTestCase):
             "### Requirement: 功能A\n\n系统 SHALL A。\n\n#### Scenario: 功能A生效\n\n- 验证：auto",
         )
         task = self.make_task(
-            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |"],
+            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | None | None | [x] ✅ | None |"],
         )
         self.write_report(task, [])
         code, payload = self.verify_json(task)
@@ -556,7 +557,7 @@ class TestVerifyEvidence(ReqEngineTestCase):
             "### Requirement: 功能A\n\n系统 SHALL A。\n\n#### Scenario: 功能A生效\n\n- **THEN** 有结果",
         )
         task = self.make_task(
-            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |"],
+            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | None | None | [x] ✅ | None |"],
         )
         self.write_report(task, ["功能A生效"])
         code, payload = self.verify_json(task)
@@ -572,14 +573,14 @@ class TestVerifyEvidence(ReqEngineTestCase):
             "### Requirement: 功能B\n\n系统 SHALL B。\n\n#### Scenario: 功能B生效\n\n- **THEN** 漏标记",
         )
         task_a = self.make_task(
-            "demo-spec", "task-a", ["| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |"],
+            "demo-spec", "task-a", ["| T1 | 做A | 功能A | 低 | None | None | [x] ✅ | None |"],
         )
         self.write_report(task_a, ["功能A生效"])
         code_a, payload_a = self.verify_json(task_a)
         self.assertEqual(code_a, 0, payload_a)
 
         task_b = self.make_task(
-            "demo-spec", "task-b", ["| T1 | 做B | 功能B | 低 | — | — | [x] ✅ | — |"],
+            "demo-spec", "task-b", ["| T1 | 做B | 功能B | 低 | None | None | [x] ✅ | None |"],
         )
         self.write_report(task_b, ["功能B生效"])
         code_b, payload_b = self.verify_json(task_b)
@@ -590,7 +591,7 @@ class TestVerifyEvidence(ReqEngineTestCase):
         """既无父 Requirement 又无标记：不落在任何 scope 内，仍须报出而不是两头落空。"""
         self.make_spec_raw("demo-spec", "#### Scenario: 双缺场景\n\n- **THEN** 有结果")
         task = self.make_task(
-            "demo-spec", "demo-task", ["| T1 | 做事 | — | 低 | — | — | [x] ✅ | — |"],
+            "demo-spec", "demo-task", ["| T1 | 做事 | None | 低 | None | None | [x] ✅ | None |"],
         )
         self.write_report(task, [])
         code, payload = self.verify_json(task)
@@ -607,8 +608,8 @@ class TestVerifyEvidence(ReqEngineTestCase):
         task = self.make_task(
             "demo-spec", "demo-task",
             [
-                "| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |",
-                "| T2 | 做B | 功能B | 低 | — | T1 | [x] ✅ | — |",
+                "| T1 | 做A | 功能A | 低 | None | None | [x] ✅ | None |",
+                "| T2 | 做B | 功能B | 低 | None | T1 | [x] ✅ | None |",
             ],
         )
         self.write_report(task, ["同名场景"])
@@ -616,23 +617,69 @@ class TestVerifyEvidence(ReqEngineTestCase):
         self.assertEqual(code, 0, payload)
         self.assertEqual(payload["expected_auto"], ["同名场景"])
 
-    def test_ascii_dash_requirement_is_treated_as_no_binding(self):
-        """`-` 与 `—` 同为无绑定占位：不能被当成真实 Requirement 名让范围假装非空。"""
+    def test_ascii_dash_requirement_is_rejected(self):
+        """契约只认 `None`。`-` 会作为 Requirement 名进入范围，被悬空检查抓出。"""
         self.make_spec("demo-spec", ["功能A"])
         task = self.make_task(
-            "demo-spec", "chore-task", ["| T1 | 内部重构 | - | 低 | — | — | [x] ✅ | — |"],
+            "demo-spec", "chore-task", ["| T1 | 内部重构 | - | 低 | None | None | [x] ✅ | None |"],
         )
         self.write_report(task, ["功能A生效"])
         code, payload = self.verify_json(task)
+        self.assertEqual(code, 2, payload)
+        self.assertIn("不存在", payload["stderr"])
+
+    def test_none_is_the_only_no_binding_form(self):
+        """纯技术行显式写 `None` 才是契约内的无绑定写法。"""
+        self.make_spec("demo-spec", ["功能A"])
+        task = self.make_task(
+            "demo-spec", "chore-task", ["| T1 | 内部重构 | None | 低 | None | None | [x] ✅ | None |"],
+        )
+        self.write_report(task, [])
+        code, payload = self.verify_json(task)
         self.assertEqual(code, 0, payload)
         self.assertEqual(payload["requirements"], [])
-        self.assertEqual(payload["expected_auto"], [])
+
+    def test_em_dash_requirement_is_rejected(self):
+        """切到 None 后 `—` 不再是占位符：形近符号一律当 Requirement 名，由悬空检查抓出。"""
+        self.make_spec("demo-spec", ["功能A"])
+        task = self.make_task(
+            "demo-spec", "chore-task", ["| T1 | 内部重构 | — | 低 | None | None | [x] ✅ | None |"],
+        )
+        self.write_report(task, ["功能A生效"])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 2, payload)
+        self.assertIn("不存在", payload["stderr"])
+
+    def test_missing_requirement_column_exits_2(self):
+        """表头没有 Requirement 列时，每行都会被读成空值——不能静默当成整个 task 无验收绑定。"""
+        self.make_spec("demo-spec", ["功能A"])
+        task = self.write_checklist(
+            "demo-spec", "demo-task",
+            "# demo-task\n\n> spec: docs/spec/demo-spec\n> risk: Q1\n\n"
+            "| # | 任务说明 | 风险 | 状态 |\n|---|---------|------|------|\n"
+            "| T1 | 做A | 低 | [x] ✅ |\n",
+        )
+        self.write_report(task, [])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 2, payload)
+        self.assertIn("Requirement 列", payload["stderr"])
+
+    def test_empty_requirement_cell_exits_2(self):
+        """契约要求该列每行非空；空单元格是行违约，不是「不绑定验收」。"""
+        self.make_spec("demo-spec", ["功能A"])
+        task = self.make_task(
+            "demo-spec", "demo-task", ["| T1 | 做A |  | 低 | None | None | [x] ✅ | None |"],
+        )
+        self.write_report(task, [])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 2, payload)
+        self.assertIn("为空", payload["stderr"])
 
     def test_missing_checklist_exits_2_pointing_at_checklist(self):
         """verify 新增的 checklist 依赖失败时，错误须指向 checklist 而非 dev-report。"""
         self.make_spec("demo-spec", ["功能A"])
         task = self.make_task(
-            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |"],
+            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | None | None | [x] ✅ | None |"],
         )
         self.write_report(task, ["功能A生效"])
         (task / "dev-checklist.md").unlink()
@@ -669,7 +716,7 @@ class TestEndToEnd(ReqEngineTestCase):
         text = text.replace("> risk: <Q0|Q1|Q2|Q3>", "> risk: Q1")
         start = text.index("| T1 |")
         end = text.index("\n\n## 并行机会")
-        filled_row = "| T1 | 实现示例功能A | 示例功能A | 低 | — | — | [x] ✅ | — |"
+        filled_row = "| T1 | 实现示例功能A | 示例功能A | 低 | None | None | [x] ✅ | None |"
         text = text[:start] + filled_row + text[end:]
         (task_dir / "dev-checklist.md").write_text(text, encoding="utf-8")
 
@@ -765,7 +812,7 @@ class TestFixtureValidate(unittest.TestCase):
 
     def test_project_root_derived_from_task_location(self):
         self.assertEqual(
-            req.project_root_of_task_dir(fixture_task("demo", "ok-task")),
+            verify_engine.project_root_of_task_dir(fixture_task("demo", "ok-task")),
             FIXTURE_ROOT.resolve(),
         )
 
@@ -828,7 +875,7 @@ class TestFixtureValidate(unittest.TestCase):
 
     def test_verify_gap_marks_scenario_uncovered_and_exits_1(self):
         code, stdout, stderr = capture(
-            req.verify, fixture_task("verify-gap", "verify-gap"), True, None
+            verify_engine.verify, fixture_task("verify-gap", "verify-gap"), True, None
         )
         self.assertEqual(code, 1, msg=stderr)
         payload = json.loads(stdout)
