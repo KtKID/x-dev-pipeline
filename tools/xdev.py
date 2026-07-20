@@ -2358,8 +2358,11 @@ def main(argv=None) -> int:
     c.add_argument("--with-diagram", action="store_true", help="同时创建可选 diagram.md")
     c.add_argument("--json", action="store_true", dest="as_json", help="机器可读输出")
 
-    verify = sub.add_parser("verify", help="复跑 dev-report verify 块并对账 README 自动场景")
-    verify.add_argument("task_dir", help="task 目录（含 README.md 与 dev-report*.md）")
+    verify = sub.add_parser("verify", help="复跑 dev-report verify 块并对账本 task 承接的自动场景")
+    verify.add_argument(
+        "task_dir",
+        help="task 目录（req2：含 dev-checklist.md 与 dev-report*.md，验收场景读归属 spec.md；旧结构：含 README.md）",
+    )
     verify.add_argument("--json", action="store_true", dest="as_json", help="机器可读输出")
     verify.add_argument("--only", help="只执行指定的 auto verify 块")
 

@@ -53,17 +53,21 @@ class ReqEngineTestCase(unittest.TestCase):
         self.addCleanup(patcher.stop)
         self.addCleanup(self.tmp.cleanup)
 
-    def make_spec(self, name: str, requirements: list[str]) -> Path:
+    def make_spec_raw(self, name: str, acceptance_body: str) -> Path:
+        """验收节由调用方完全控制的 spec 包，用于构造非常规分层（无 Requirement、H3 截断等）。"""
         spec_dir = self.root / "docs" / "spec" / name
         spec_dir.mkdir(parents=True)
         (spec_dir / "modules.md").write_text("# modules\n\n## 模块总览\n", encoding="utf-8")
+        (spec_dir / "spec.md").write_text(f"# {name}\n\n## 验收\n\n{acceptance_body}\n", encoding="utf-8")
+        return spec_dir
+
+    def make_spec(self, name: str, requirements: list[str]) -> Path:
         body = "\n\n".join(
             f"### Requirement: {r}\n\n系统 SHALL {r}。\n\n#### Scenario: {r}生效\n\n"
             f"- **WHEN** 触发{r}\n- **THEN** {r}生效\n- 验证: auto"
             for r in requirements
         )
-        (spec_dir / "spec.md").write_text(f"# {name}\n\n## 验收\n\n{body}\n", encoding="utf-8")
-        return spec_dir
+        return self.make_spec_raw(name, body)
 
     def make_task(
         self, spec_name: str, task_name: str, rows: list[str], risk: str = "Q1", spec_pointer: str | None = None
@@ -393,56 +397,260 @@ class TestScaffold(ReqEngineTestCase):
 # ---------- 1.3.7 坏 F · verify 无证据回指 ----------
 
 class TestVerifyEvidence(ReqEngineTestCase):
-    def test_missing_verify_block_reports_uncovered_scenario_and_exit1(self):
-        self.make_spec("demo-spec", ["功能A", "功能B"])
-        task = self.make_task(
-            "demo-spec", "demo-task",
-            ["| T1 | 做功能A | 功能A | 低 | — | — | [x] ✅ | — |"],
-        )
-        (task / "dev-report.md").write_text(
-            "# demo-task dev-report\n\n"
+    """verify 的验收对账：范围 = 本 task checklist 承接的 Requirement 下的 auto Scenario。"""
+
+    def write_report(self, task: Path, scenarios: list[str]) -> None:
+        blocks = "\n".join(
             "```verify\n"
-            "id: v1\n"
-            "scenario: 功能A生效\n"
+            f"id: v{index}\n"
+            f"scenario: {scenario}\n"
             "cmd: python3 -c \"print('ok')\"\n"
             "expect_contains: ok\n"
             "mode: auto\n"
-            "```\n",
-            encoding="utf-8",
+            "```\n"
+            for index, scenario in enumerate(scenarios, start=1)
         )
+        (task / "dev-report.md").write_text(f"# {task.name} dev-report\n\n{blocks}", encoding="utf-8")
+
+    def verify_json(self, task: Path) -> tuple[int, dict]:
         code, stdout, stderr = capture_main(["verify", str(task), "--json"])
-        self.assertEqual(code, 1, stderr)
-        payload = json.loads(stdout)
+        return code, json.loads(stdout) if stdout else {"stderr": stderr}
+
+    def test_other_tasks_requirements_stay_out_of_scope(self):
+        """一个 spec 拆成多个 task 时，别的 task 承接的 Scenario 不算本 task 的缺口。"""
+        self.make_spec("demo-spec", ["功能A", "功能B"])
+        task_a = self.make_task(
+            "demo-spec", "task-a", ["| T1 | 做功能A | 功能A | 低 | — | — | [x] ✅ | — |"],
+        )
+        task_b = self.make_task(
+            "demo-spec", "task-b", ["| T1 | 做功能B | 功能B | 低 | — | — | [x] ✅ | — |"],
+        )
+        self.write_report(task_a, ["功能A生效"])
+        self.write_report(task_b, ["功能B生效"])
+
+        code_a, payload_a = self.verify_json(task_a)
+        self.assertEqual(code_a, 0, payload_a)
+        self.assertEqual(payload_a["requirements"], ["功能A"])
+        self.assertEqual(payload_a["expected_auto"], ["功能A生效"])
+        self.assertEqual(payload_a["uncovered"], [])
+
+        code_b, payload_b = self.verify_json(task_b)
+        self.assertEqual(code_b, 0, payload_b)
+        self.assertEqual(payload_b["expected_auto"], ["功能B生效"])
+        self.assertEqual(payload_b["uncovered"], [])
+
+    def test_missing_verify_block_inside_scope_reports_uncovered_and_exit1(self):
+        """范围内的缺口照旧被抓：承接两个 Requirement 却只给一份证据。"""
+        self.make_spec("demo-spec", ["功能A", "功能B"])
+        task = self.make_task(
+            "demo-spec", "demo-task",
+            [
+                "| T1 | 做功能A | 功能A | 低 | — | — | [x] ✅ | — |",
+                "| T2 | 做功能B | 功能B | 低 | — | T1 | [x] ✅ | — |",
+            ],
+        )
+        self.write_report(task, ["功能A生效"])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 1, payload)
+        self.assertEqual(payload["expected_auto"], ["功能A生效", "功能B生效"])
         self.assertEqual(payload["uncovered"], ["功能B生效"])
 
     def test_full_verify_block_coverage_keeps_scenario_out_of_uncovered(self):
         self.make_spec("demo-spec", ["功能A", "功能B"])
         task = self.make_task(
             "demo-spec", "demo-task",
-            ["| T1 | 做功能A | 功能A | 低 | — | — | [x] ✅ | — |"],
+            [
+                "| T1 | 做功能A | 功能A | 低 | — | — | [x] ✅ | — |",
+                "| T2 | 做功能B | 功能B | 低 | — | T1 | [x] ✅ | — |",
+            ],
         )
-        (task / "dev-report.md").write_text(
-            "# demo-task dev-report\n\n"
-            "```verify\n"
-            "id: v1\n"
-            "scenario: 功能A生效\n"
-            "cmd: python3 -c \"print('ok')\"\n"
-            "expect_contains: ok\n"
-            "mode: auto\n"
-            "```\n\n"
-            "```verify\n"
-            "id: v2\n"
-            "scenario: 功能B生效\n"
-            "cmd: python3 -c \"print('ok')\"\n"
-            "expect_contains: ok\n"
-            "mode: auto\n"
-            "```\n",
-            encoding="utf-8",
-        )
-        code, stdout, stderr = capture_main(["verify", str(task), "--json"])
-        self.assertEqual(code, 0, stderr)
-        payload = json.loads(stdout)
+        self.write_report(task, ["功能A生效", "功能B生效"])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 0, payload)
         self.assertEqual(payload["uncovered"], [])
+
+    def test_task_without_requirement_binding_only_runs_commands(self):
+        """纯技术 task（Requirement 全 `—`）范围为空，只复跑命令，不承担验收覆盖。"""
+        self.make_spec("demo-spec", ["功能A"])
+        task = self.make_task(
+            "demo-spec", "chore-task",
+            ["| T1 | 重构内部工具 | — | 低 | — | — | [x] ✅ | — |"],
+        )
+        self.write_report(task, ["功能A生效"])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload["requirements"], [])
+        self.assertEqual(payload["expected_auto"], [])
+        self.assertEqual(payload["uncovered"], [])
+
+    def test_scenario_keeps_parent_requirement(self):
+        spec_dir = self.make_spec("demo-spec", ["功能A", "功能B"])
+        self.assertEqual(
+            req.acceptance_scenarios(spec_dir / "spec.md"),
+            [
+                {"requirement": "功能A", "name": "功能A生效", "mode": "auto"},
+                {"requirement": "功能B", "name": "功能B生效", "mode": "auto"},
+            ],
+        )
+
+    def test_scenario_without_parent_requirement_exits_2(self):
+        """验收节整节无 Requirement 分层：场景不属于任何 task，verify 拒绝给结论而非算空范围放行。"""
+        self.make_spec_raw("demo-spec", "#### Scenario: 孤儿场景\n\n- **THEN** ok\n- 验证: auto")
+        task = self.make_task(
+            "demo-spec", "demo-task", ["| T1 | 做事 | — | 低 | — | — | [x] ✅ | — |"],
+        )
+        self.write_report(task, ["孤儿场景"])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 2, payload)
+        self.assertIn("孤儿场景", payload["stderr"])
+
+    def test_non_requirement_h3_truncates_scope_and_exits_2(self):
+        """非 Requirement 的 H3 结束作用域，其后的场景掉队成无父级 → 同样拦截，只点名掉队的那条。"""
+        self.make_spec_raw(
+            "demo-spec",
+            "### Requirement: 功能A\n\n系统 SHALL A。\n\n#### Scenario: 功能A生效\n\n- 验证: auto\n\n"
+            "### 补充说明\n\n与验收无关的一段\n\n#### Scenario: 掉队场景\n\n- 验证: auto",
+        )
+        task = self.make_task(
+            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |"],
+        )
+        self.write_report(task, ["功能A生效"])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 2, payload)
+        self.assertIn("掉队场景", payload["stderr"])
+        self.assertNotIn("功能A生效", payload["stderr"])
+
+    def test_unparented_manual_scenario_does_not_block(self):
+        """manual 场景不参与 auto 对账，缺父 Requirement 不构成拦截理由。"""
+        self.make_spec_raw(
+            "demo-spec",
+            "### Requirement: 功能A\n\n系统 SHALL A。\n\n#### Scenario: 功能A生效\n\n- 验证: auto\n\n"
+            "### 附录\n\n#### Scenario: 人工巡检\n\n- 验证: manual",
+        )
+        task = self.make_task(
+            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |"],
+        )
+        self.write_report(task, ["功能A生效"])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload["expected_auto"], ["功能A生效"])
+
+    def test_fullwidth_colon_marker_is_recognized(self):
+        """`验证：auto`（全角冒号）与半角等价：中文输入法高频误击，识别失败的代价曾是场景免检。"""
+        self.make_spec_raw(
+            "demo-spec",
+            "### Requirement: 功能A\n\n系统 SHALL A。\n\n#### Scenario: 功能A生效\n\n- 验证：auto",
+        )
+        task = self.make_task(
+            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |"],
+        )
+        self.write_report(task, [])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 1, payload)
+        self.assertEqual(payload["uncovered"], ["功能A生效"])
+
+    def test_scenario_without_validation_marker_exits_2(self):
+        """漏标记的场景既不进 expected_auto 也不进 manual，等于自动免检 → 拒绝给结论。"""
+        self.make_spec_raw(
+            "demo-spec",
+            "### Requirement: 功能A\n\n系统 SHALL A。\n\n#### Scenario: 功能A生效\n\n- **THEN** 有结果",
+        )
+        task = self.make_task(
+            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |"],
+        )
+        self.write_report(task, ["功能A生效"])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 2, payload)
+        self.assertIn("功能A生效", payload["stderr"])
+        self.assertIn("验证", payload["stderr"])
+
+    def test_unmarked_scenario_outside_scope_does_not_block_task(self):
+        """漏标记的场景能归属，故按 task-scoped 只拦承接它的 task；兄弟 task 不受牵连。"""
+        self.make_spec_raw(
+            "demo-spec",
+            "### Requirement: 功能A\n\n系统 SHALL A。\n\n#### Scenario: 功能A生效\n\n- 验证: auto\n\n"
+            "### Requirement: 功能B\n\n系统 SHALL B。\n\n#### Scenario: 功能B生效\n\n- **THEN** 漏标记",
+        )
+        task_a = self.make_task(
+            "demo-spec", "task-a", ["| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |"],
+        )
+        self.write_report(task_a, ["功能A生效"])
+        code_a, payload_a = self.verify_json(task_a)
+        self.assertEqual(code_a, 0, payload_a)
+
+        task_b = self.make_task(
+            "demo-spec", "task-b", ["| T1 | 做B | 功能B | 低 | — | — | [x] ✅ | — |"],
+        )
+        self.write_report(task_b, ["功能B生效"])
+        code_b, payload_b = self.verify_json(task_b)
+        self.assertEqual(code_b, 2, payload_b)
+        self.assertIn("功能B生效", payload_b["stderr"])
+
+    def test_scenario_missing_both_parent_and_marker_is_reported(self):
+        """既无父 Requirement 又无标记：不落在任何 scope 内，仍须报出而不是两头落空。"""
+        self.make_spec_raw("demo-spec", "#### Scenario: 双缺场景\n\n- **THEN** 有结果")
+        task = self.make_task(
+            "demo-spec", "demo-task", ["| T1 | 做事 | — | 低 | — | — | [x] ✅ | — |"],
+        )
+        self.write_report(task, [])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 2, payload)
+        self.assertIn("双缺场景", payload["stderr"])
+
+    def test_duplicate_scenario_name_in_scope_counts_once(self):
+        """同一 task 承接的两个 Requirement 下有同名场景时，expected_auto 不出现重复条目。"""
+        self.make_spec_raw(
+            "demo-spec",
+            "### Requirement: 功能A\n\n系统 SHALL A。\n\n#### Scenario: 同名场景\n\n- 验证: auto\n\n"
+            "### Requirement: 功能B\n\n系统 SHALL B。\n\n#### Scenario: 同名场景\n\n- 验证: auto",
+        )
+        task = self.make_task(
+            "demo-spec", "demo-task",
+            [
+                "| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |",
+                "| T2 | 做B | 功能B | 低 | — | T1 | [x] ✅ | — |",
+            ],
+        )
+        self.write_report(task, ["同名场景"])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload["expected_auto"], ["同名场景"])
+
+    def test_ascii_dash_requirement_is_treated_as_no_binding(self):
+        """`-` 与 `—` 同为无绑定占位：不能被当成真实 Requirement 名让范围假装非空。"""
+        self.make_spec("demo-spec", ["功能A"])
+        task = self.make_task(
+            "demo-spec", "chore-task", ["| T1 | 内部重构 | - | 低 | — | — | [x] ✅ | — |"],
+        )
+        self.write_report(task, ["功能A生效"])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 0, payload)
+        self.assertEqual(payload["requirements"], [])
+        self.assertEqual(payload["expected_auto"], [])
+
+    def test_missing_checklist_exits_2_pointing_at_checklist(self):
+        """verify 新增的 checklist 依赖失败时，错误须指向 checklist 而非 dev-report。"""
+        self.make_spec("demo-spec", ["功能A"])
+        task = self.make_task(
+            "demo-spec", "demo-task", ["| T1 | 做A | 功能A | 低 | — | — | [x] ✅ | — |"],
+        )
+        self.write_report(task, ["功能A生效"])
+        (task / "dev-checklist.md").unlink()
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 2, payload)
+        self.assertIn("dev-checklist.md", payload["stderr"])
+
+    def test_checklist_missing_key_column_exits_2(self):
+        self.make_spec("demo-spec", ["功能A"])
+        task = self.write_checklist(
+            "demo-spec", "demo-task",
+            "# demo-task\n\n> spec: docs/spec/demo-spec\n> risk: Q1\n\n"
+            "| 任务说明 | Requirement |\n|---------|-------------|\n| 做A | 功能A |\n",
+        )
+        self.write_report(task, ["功能A生效"])
+        code, payload = self.verify_json(task)
+        self.assertEqual(code, 2, payload)
+        self.assertIn("关键列", payload["stderr"])
 
 
 # ---------- 1.3.8 端到端：scaffold → 填写 → validate → status/graph → dev-report → verify ----------
