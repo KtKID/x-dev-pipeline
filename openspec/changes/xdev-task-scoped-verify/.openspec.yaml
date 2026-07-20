@@ -1,0 +1,3 @@
+schema: spec-driven
+created: 2026-07-20
+goal: 让同一 spec 下多个 task 能独立完成 verify，不互相承担对方的验收场景。
