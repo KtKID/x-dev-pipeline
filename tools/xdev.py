@@ -52,7 +52,8 @@
   返回 task 产物的模板、填写规则、目标路径和依赖存在状态。
 
   python3 tools/xdev.py scaffold <task-dir> [--with-diagram] [--json]
-  增量创建 README.md、dev-checklist.md 与可选 diagram.md；已有文件逐字节保留。
+  委托 tools/req.py：只认 docs/spec/<spec-name>/tasks/<task-name>/ 结构，增量创建
+  dev-checklist.md（不产 README）与可选 diagram.md；已有文件逐字节保留。
 
   python3 tools/xdev.py verify <task-dir> [--json] [--only <id>]
   解析 dev-report 的 fenced verify 块，复跑自动命令并对账 README 自动验收场景。
@@ -76,6 +77,8 @@ import sys
 import uuid
 from datetime import datetime
 from pathlib import Path
+
+import req
 
 STATUS_VOCAB = ("探索中", "方案确认", "可进入 x-req", "开发中", "已完成")
 
@@ -478,41 +481,6 @@ def instructions_command(artifact_id: str, task_dir: Path, as_json: bool) -> int
     print(payload["template"])
     print("\n== instruction\n")
     print(payload["instruction"])
-    return 0
-
-
-def scaffold_command(task_dir: Path, with_diagram: bool, as_json: bool) -> int:
-    """scaffold 子命令：仅创建缺失产物，已有文件保持原字节内容。"""
-    artifact_ids = ["readme", "dev-checklist"]
-    if with_diagram:
-        artifact_ids.append("diagram")
-    created: list[str] = []
-    skipped: list[str] = []
-    try:
-        task_dir.mkdir(parents=True, exist_ok=True)
-        for artifact_id in artifact_ids:
-            path = task_dir / ARTIFACTS[artifact_id]["generates"]
-            if path.exists():
-                skipped.append(str(path))
-                continue
-            content = artifact_template(artifact_id)
-            if artifact_id == "readme":
-                content = content.replace("# <task-name>", f"# {task_dir.name}", 1)
-            path.write_text(content, encoding="utf-8")
-            created.append(str(path))
-    except OSError as exc:
-        print(f"错误：scaffold 无法写入 {task_dir}：{exc}", file=sys.stderr)
-        return 2
-
-    payload = {"task": str(task_dir), "created": created, "skipped": skipped}
-    if as_json:
-        print(json.dumps(payload, ensure_ascii=False, indent=2))
-    else:
-        print(f"== scaffold {task_dir}")
-        for path in created:
-            print(f"  created: {path}")
-        for path in skipped:
-            print(f"  skipped: {path}")
     return 0
 
 
@@ -2376,7 +2344,7 @@ def main(argv=None) -> int:
         return instructions_command(args.artifact_id, Path(args.task_dir), args.as_json)
 
     if args.cmd == "scaffold":
-        return scaffold_command(Path(args.task_dir), args.with_diagram, args.as_json)
+        return req.scaffold(Path(args.task_dir), args.with_diagram, args.as_json)
 
     if args.cmd == "verify":
         return verify_command(Path(args.task_dir), args.as_json, args.only)

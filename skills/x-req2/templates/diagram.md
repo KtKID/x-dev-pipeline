@@ -1,0 +1,51 @@
+# <TASK_NAME> · 模块/组件图
+
+<!--
+x-req2 diagram 模板填写规则：
+- 替换标题中的 TASK_NAME 为实际 task 名，保留查看/缩放建议引用块。
+- 替换 mermaid 代码块中的占位模块为实际内容。
+- 节点来自归属 modules.md「模块总览」列出的模块、边界类、架构单元和本 task 新增组件。
+- 节点格式：ID["名称<br/>P0/P1/P2 · 一句话职责"]:::p{0|1|2}。
+- 单图节点上限约 12 个；超限时压缩同质节点并使用 "×N" 后缀。
+- subgraph 一律按模块划分，一个模块一个框，框线即模块边界。
+- 模块清单必须与归属 modules.md 完全一致（双向校验，多一个少一个都会报 issue）。
+-->
+
+> 来源：x-req2 阶段产出。归属 spec 包的 `modules.md` 是文字事实源，本文件是架构拆分的只读视图——模块、边界或任务切分变化时同步更新，且改动先回到 x-spec2，不在这里单方面改。
+>
+> **查看与缩放**：GitHub 渲染 mermaid 自带缩放/平移控件；VS Code 建议安装 Mermaid Chart（官方）或 Markdown Preview Enhanced 插件。
+
+图例：🔵 P0 阻塞性/核心 · 🟠 P1 必须完成/主要 · ⚪ P2 增强/辅助
+
+```mermaid
+flowchart TD
+  classDef p0 fill:#E8F1FE,stroke:#0071E3,color:#1D1D1F,stroke-width:1.5px
+  classDef p1 fill:#FFF4E5,stroke:#FF9500,color:#1D1D1F,stroke-width:1.5px
+  classDef p2 fill:#F2F2F7,stroke:#8E8E93,color:#1D1D1F,stroke-width:1.5px
+
+  %% 写图守则：
+  %% 1. 节点格式：ID["名称<br/>P0/P1/P2 · 一句话职责"]:::p{0|1|2}
+  %% 2. 实线 -->（强依赖）；虚线 -.->（弱依赖、可选、调起）
+  %% 3. 单图节点上限 ~12：超限先压缩同质节点（×N）
+  %% 4. subgraph 一律按模块划分：一个模块一个框，框线即模块边界，
+  %%    边界类节点放框内第一位；邻居模块压成单节点放框外。禁止按技术栈/层次混分
+  %% 5. 同质重复节点（如 17 个 adapter）压成单节点 + "×N" 后缀，避免图爆炸
+  %% 6. 模块清单和架构单元必须与归属 modules.md 完全一致——这里是只读视图，modules.md 才是事实源
+
+  subgraph ModA["模块 A（本 task 主战场）"]
+    SvcA["AService<br/>P0 · 边界类，唯一入口"]:::p0
+    ContractA["契约与事实源<br/>P0 · 输入输出错误定义"]:::p0
+    NewComp["核心实现<br/>P0 · 主边界内行为"]:::p0
+    AdapterA["适配集成<br/>P1 · 外部入口接入"]:::p1
+  end
+
+  VerifyA["验证闭环<br/>P1 · 契约/边界/Smoke"]:::p1
+  ModB["模块 B<br/>P2 · 邻居依赖，压成单节点"]:::p2
+
+  ModB --> SvcA
+  SvcA --> ContractA
+  ContractA --> NewComp
+  NewComp --> AdapterA
+  NewComp --> VerifyA
+  AdapterA --> VerifyA
+```
