@@ -1,0 +1,33 @@
+{
+  "skill_name": "x-spec2",
+  "evals": [
+    {
+      "id": 1,
+      "name": "stackchan-esp32s3-voice-link",
+      "prompt_file": "evals/problems/stackchan-esp32s3-voice-link.md",
+      "files": [],
+      "grader": {
+        "rubric": "evals/answers/stackchan-esp32s3-voice-link/rubric.md",
+        "script": "evals/answers/stackchan-esp32s3-voice-link/grader.py"
+      }
+    },
+    {
+      "id": 2,
+      "name": "stackchan-boundary-round-trip-update",
+      "prompt": "清空此前对话，只读取给定的 x-spec2 三文件包与当前仓库。解释为什么设备双工传输是独立模块、当初考虑并否决了什么方案、哪些事实或假设支撑该选择、什么条件下应重评。新证据：目标平台 SDK 已原生提供帧序号、确认、背压、控制优先级和断线续传。判断‘把设备双工传输合并进交互会话协调器’属于原地细化还是意图变化，并列出需要同步更新的 U/J/D、模块与动态模型。输出 update-assessment.md，不修改原包。",
+      "expected_output": "一份只依赖包内 U/J/D 与仓库证据的边界解释和更新分类；能够指出原选择、备选、重评条件以及受影响产物。",
+      "files": [
+        "../x-spec2-workspace/iteration-1/eval-1/with_skill/run-1/outputs/spec.md",
+        "../x-spec2-workspace/iteration-1/eval-1/with_skill/run-1/outputs/modules.md",
+        "../x-spec2-workspace/iteration-1/eval-1/with_skill/run-1/outputs/design.md",
+        "evals/stackchan-boundary-round-trip-update.md"
+      ],
+      "expectations": [
+        "回答引用设备双工传输对应 D 及其 U/J 依据，不依赖原始对话或 transcript。",
+        "回答恢复原选择理由、至少一个备选及否决原因、重评条件。",
+        "回答把 SDK 能力变化归类为触发重评的仓库事实变化，并在需求本质、系统目标和不变量保持时判为原地更新。",
+        "回答列出需要同步更新的判断依据、关键决策、模块边界/依赖/接口、Requirement 覆盖和 design.md 动态模型。"
+      ]
+    }
+  ]
+}

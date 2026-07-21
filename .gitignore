@@ -6,3 +6,6 @@ Thumbs.db
 .claude/settings.local.json
 test/__pycache__
 tools/__pycache__
+skills/x-spec2-workspace
+.xcodeatlas
+docs/spec/codex-session-metrics/tasks/

@@ -2,9 +2,10 @@
 
 ## 输入隔离
 
-- executor 只接收 `evals.json` 的 `prompt` 和该 case 的 `files`。
-- `expectations` 与标记为 grader-only 的 case rubric 只交给独立 grader。
-- eval 1 的 `files` 为空；`stackchan-esp32s3-voice-link.md` 是 grader-only rubric。
+- executor 只接收 case 的 `prompt_file` 和 `files`。
+- `evals/problems/` 只放可直接交给 executor 的题面，每个 case 使用一个独立文件。
+- `evals/answers/<case>/` 只放 rubric、expectations、grader 等答案相关资料，只交给独立 grader。
+- eval 1 的 `files` 为空；executor 的唯一题目输入是 `evals/problems/stackchan-esp32s3-voice-link.md`。
 - with-skill executor 读取 `skills/x-spec2/SKILL.md` 与模板；without-skill executor不得读取 x-spec2 skill、模板或 eval rubric。
 
 ## 运行边界

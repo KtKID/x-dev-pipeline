@@ -1,6 +1,6 @@
-# Eval Case: StackChan ESP32-S3 低延迟语音链路
+# Grader Rubric: StackChan ESP32-S3 低延迟语音链路
 
-> Grader-only rubric：本文件不得传给 with-skill 或 without-skill executor。executor 只接收「测试题目」中的原始需求；以下预期产物、六元组、U/J/D 映射与验收判定只供独立评分使用。
+> Grader-only：本文件及同目录文件不得传给 executor。executor 只接收 `evals/problems/stackchan-esp32s3-voice-link.md`。
 
 ## 基本信息
 
