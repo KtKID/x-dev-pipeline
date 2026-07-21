@@ -1,36 +1,51 @@
 ---
 name: x-qa-gate
 description: |
-  Gate ② 质量门禁。README risk Q2 走 RC，Q3 串行走 R1、R2、R3；reviewer 一轮列全问题候选，主 agent 通过 xdev flag 登记 issue 并交 x-fix 批量修复。
+  verify 通过后的质量审查。risk Q2 由一个 reviewer 一次完成 q1-intent、q2-correctness、q3-evidence；risk Q3 依次使用三个独立 reviewer：q1-intent 检查用户意图、需求、公开契约与实现是否对齐，q2-correctness 检查边界、失败路径、状态与并发是否正确，q3-evidence 检查测试和 verify 证据是否真实有效。发现 P0/P1 后登记 issue 并交 x-fix 批量修复，修复后增量复审。
 ---
 
-# x-qa-gate · Gate ②
+# verify 后续质量审查
 
 ## 路由
 
-读取 README 唯一的 `risk:` 字段：Q2 使用 RC；Q3 使用 R1→R2→R3；Q0/Q1 被显式调用时按 Q2 处理并在回执说明。Gate ① verify exit 0 是进入条件。
+verify exit 0 后进入质量审查。读取 task所属 spec.md 的 `risk:` 字段：
+
+- Q0和Q1 risk串行检查 ：三个 reviewer agent 并行完成 q1-intent、q2-correctness、q3-evidence。
+
+## 三类审查
+
+### q1-intent
+
+检查实现是否对齐用户意图、已确认需求、验收 Scenario、既有公开契约和声明的改动范围。
+
+### q2-correctness
+
+检查非法输入、边界条件、失败路径、状态转换、缓存、并发、幂等性和资源清理是否正确。
+
+### q3-evidence
+
+检查测试和 verify 证据是否真实触达改动路径，断言是否独立于实现，mock 是否保留真实契约，证据是否能击穿错误实现。
 
 ## 事实源
 
 1. 用户原始请求、已确认 spec、既有公开契约。
 2. 真实调用方、schema/数据约束、改动前测试契约。
-3. README 的需求要点、验收、架构拆分策略、技术设计与 dev-checklist。
+3. spec.md 的需求要点、验收、架构拆分策略、技术设计与 dev-checklist。
 4. dev-report verify 块、verify JSON 或失败报告、当前 diff。
 
 ## 输入裁剪
 
 | Reviewer | 必读输入 |
 |---|---|
-| RC | diff + README `验收`/`架构拆分策略` + dev-report |
-| R1 | diff + README `需求要点`/`验收` |
-| R2 | diff + README `技术设计`/`架构拆分策略` |
-| R3 | diff + dev-report verify 块 + 测试文件 |
+| 综合 reviewer | diff + spec.md `验收`/`架构拆分策略` + dev-report + 测试文件 |
+| q1-intent | diff + spec.md `需求要点`/`验收` |
+| q2-correctness | diff + spec.md `技术设计`/`架构拆分策略` |
+| q3-evidence | diff + dev-report verify 块 + 测试文件 |
 
 主 agent 提供文件路径、节名、`git diff --stat`、`git diff --name-only` 和按需 diff 命令。reviewer 按需读取源代码与测试文件。
 
 ## Review 纪律
 
-- RC 一轮覆盖契约、边界、测试真实性；Q3 严格串行 R1、R2、R3。
 - 每个 reviewer 独立、只读，只返回 review 回执；x-fix 负责改动。
 - 每轮穷尽检查范围后一次返回全部问题候选，并声明“已检查范围内无其他 P0/P1”。
 - 每条候选固定提供 `task`、`severity`、`loc`、`msg`；`task` 可为 `T2,T3`，`severity` 为 P0/P1/P2，`loc` 为 `file:line`，`msg` 为单条问题描述。
@@ -50,17 +65,17 @@ python3 tools/xdev.py flag <task-dir> --task T2,T3 --severity P0 \
 2. 保存 JSON 返回的 `issue`、`downgraded`、`report`、`recovered`，把 issue ID 回填到交给 x-fix 的问题映射。
 3. `recovered:true` 表示命令完成了上一笔 pending 事务；主 agent 使用原参数再次调用，完成本条候选登记。
 4. `flag` 是 issue ledger 与 P0/P1 checklist 降级的唯一写入口。reviewer、子 agent 与 x-fix 保持这两处原样。
-5. 本轮无问题时省略 ledger 创建，直接进入 Gate pass 回执。
+5. 本轮无问题时省略 ledger 创建，直接输出通过回执。
 
 ## 回流
 
-本轮存在 P0/P1 时，主 agent 把带 `issue-<n>` 的完整问题映射交给 x-fix `gate-fix`。修复后复审对应 issue 与 fix diff；fix 扩大到新文件时纳入新文件，公开 API 签名变化时重做相关契约对照。`reports/.fix-counter` 是 verify 与 qa-gate 共享的批量修复轮数，保留三轮上限；Gate ② 最终 pass 写回 0。
+本轮存在 P0/P1 时，主 agent 把带 `issue-<n>` 的完整问题映射交给 x-fix 批量修复。修复后复审对应 issue 与 fix diff；fix 扩大到新文件时纳入新文件，公开 API 签名变化时重做相关意图和契约对照。`reports/.fix-counter` 记录 verify 与质量审查共享的批量修复轮数，保留三轮上限；质量审查最终通过后写回 0。
 
 ## Prompt 模板
 
 ```text
 Agent({
-  description: "<RC/R1/R2/R3> review round <N>",
+  description: "<combined/q1-intent/q2-correctness/q3-evidence> review round <N>",
   subagent_type: "general-purpose",
   prompt: <对应 reference + task root + 输入裁剪表指定路径/节 + diff 命令 + 输出格式>
 })
@@ -68,10 +83,10 @@ Agent({
 
 ## 回执与状态
 
-问题 ledger 由 `flag` 写入 `reports/qa-gate/qa-gate-report-<timestamp>[-NN].md`。通过时输出：
+问题 ledger 路径以 `flag --json` 返回的 `report` 为准。通过时输出：
 
 ```text
-🛡️ Gate② ✅ · <task> · Q2 RC / Q3 R1→R2→R3 · P0 ×0 · P1 ×0
+✅ 质量审查通过 · <task> · risk Q2 combined / risk Q3 q1-intent→q2-correctness→q3-evidence · P0 ×0 · P1 ×0
 ```
 
 失败回执列出 issue ID、严重度、task、位置和 x-fix 去向。最终通过后，主 agent 亲自确认复审结果并把已解除阻塞的 checklist 状态升为 `[x] ✅`。
