@@ -4,7 +4,8 @@
 确定性工具层把散落在 SKILL.md 散文里的格式法律搬进代码。skills 管判断，
 本工具管机械。
 
-规则编号用于 run-log 聚合；V1-V7 保持旧版契约，V13-V18 对应 skills/x-spec2/：
+规则编号用于 run-log 聚合；V1-V7 保持旧版契约，V13-V18 对应 skills/x-spec2/，
+V19-V20 对应 skills/x-spec3/：
   V0 包类型无法识别 / 文件不可读
   V2 路径引用规则：包内链接只用 ./ 且目标存在；代码路径只写 repo: 纯文本；
      禁 ../ 、绝对路径、file://、盘符、docs/ 仓库相对路径
@@ -23,6 +24,8 @@
   V16 spec2 Requirement 与模块双向覆盖、模块状态
   V17 spec2 design.md 按需生成
   V18 spec2 U/J/D 理由层结构、引用与消费闭合
+  V19 spec3 单文件结构、固定章节、边界表与六元组覆盖
+  V20 spec3 直接 Scenario 的 GWT、测试层、依据与名称唯一性
 
   V8-V12 与其实现（check_task_* 系列、TASK_CHECKS、status_command/
   graph_command、detect_type 的 "task" 分支）只服务旧结构
@@ -87,6 +90,7 @@ from datetime import datetime
 from pathlib import Path
 
 import req
+import req3
 import verify as verify_engine
 
 STATUS_VOCAB = ("探索中", "方案确认", "可进入 x-req", "开发中", "已完成")
@@ -101,6 +105,7 @@ SPEC7_REQUIRED = [
     "90-task-map.md",
 ]
 SPEC2_REQUIRED = ["spec.md", "modules.md"]
+SPEC3_REQUIRED = ["spec.md"]
 CHANGE_REQUIRED = ["proposal.md", "tasks.md"]
 SPEC2_FORBIDDEN_TASK_FILES = ("task.md", "tasks.md", "90-task-map.md", "dev-checklist.md")
 MODEL_TUPLE = ("数据流", "状态", "时序", "资源", "不变量", "故障")
@@ -110,6 +115,7 @@ SPEC2_LINK_RE = re.compile(r"\[[^\]]*\]\((<[^>]+>|[^)]+)\)")
 REQ_RE = re.compile(r"^###\s+Requirement:\s*(.*)$")
 SCEN_RE = re.compile(r"^####\s+Scenario:\s*(.*)$")
 SPEC2_MARKER_RE = re.compile(r"^>\s*spec_version:\s*2\s*$", re.IGNORECASE)
+SPEC3_MARKER_RE = re.compile(r"^>\s*spec_version:\s*3\s*$", re.IGNORECASE)
 H3_RE = re.compile(r"^###\s+")
 H4_RE = re.compile(r"^####\s+")
 H2_RE = re.compile(r"^##\s+")
@@ -499,8 +505,17 @@ def has_spec2_marker(pkg: Path) -> bool:
     return any(SPEC2_MARKER_RE.match(line) for _number, line in lines_outside_fences(read_text(spec)))
 
 
+def has_spec3_marker(pkg: Path) -> bool:
+    spec = pkg / "spec.md"
+    if not spec.is_file():
+        return False
+    return any(SPEC3_MARKER_RE.match(line) for _number, line in lines_outside_fences(read_text(spec)))
+
+
 def detect_type(pkg: Path) -> str:
     parts = pkg.resolve().parts
+    if has_spec3_marker(pkg):
+        return "spec3"
     if (pkg / "modules.md").exists() or has_spec2_marker(pkg):
         return "spec2"
     if (pkg / "dev-checklist.md").exists() or any(
@@ -534,6 +549,15 @@ def check_files_complete(pkg: Path, ptype: str):
         for name in SPEC2_FORBIDDEN_TASK_FILES:
             if (pkg / name).exists():
                 yield issue(name, 0, "V13", f"spec2 包不得包含 task 产物：{name}")
+    elif ptype == "spec3":
+        for name in SPEC3_REQUIRED:
+            if not (pkg / name).exists():
+                yield issue("(package)", 0, "V19", f"spec3 包缺少必需文件：{name}")
+        if not has_spec3_marker(pkg):
+            yield issue("spec.md", 0, "V19", "spec3 包缺少 > spec_version: 3 标记")
+        for name in ("modules.md", "design.md"):
+            if (pkg / name).exists():
+                yield issue(name, 0, "V19", f"spec3 单文件包不包含 {name}")
     elif ptype == "spec7":
         for name in SPEC7_REQUIRED:
             if not (pkg / name).exists():
@@ -552,7 +576,7 @@ def check_link_rules(pkg: Path, ptype: str):
     for f in md_files(pkg):
         rel = str(f.relative_to(pkg))
         for ln, line in lines_outside_fences(read_text(f)):
-            link_re = SPEC2_LINK_RE if ptype == "spec2" else LINK_RE
+            link_re = SPEC2_LINK_RE if ptype in {"spec2", "spec3"} else LINK_RE
             for m in link_re.finditer(line):
                 target = m.group(1).strip()
                 if target.startswith("<") and target.endswith(">"):
@@ -599,6 +623,8 @@ def check_link_rules(pkg: Path, ptype: str):
 
 
 def check_req_scenario(pkg: Path, ptype: str):
+    if ptype == "spec3":
+        return
     files = [pkg / "spec.md"] if ptype == "spec2" else md_files(pkg)
     profile = "spec2" if ptype == "spec2" else "legacy"
     for f in files:
@@ -606,6 +632,12 @@ def check_req_scenario(pkg: Path, ptype: str):
             continue
         rel = str(f.relative_to(pkg))
         yield from scenario_contract_issues(list(lines_outside_fences(read_text(f))), rel, profile)
+
+
+def check_spec3_contract(pkg: Path, ptype: str):
+    if ptype != "spec3":
+        return
+    yield from req3.spec3_contract_issues(pkg)
 
 
 def check_delta_markers(pkg: Path, ptype: str):
@@ -1175,6 +1207,7 @@ CHECKS = [
     check_spec2_modules,    # V16
     check_spec2_design,     # V17
     check_spec2_reasoning,  # V18
+    check_spec3_contract,   # V19/V20
 ]
 
 # 旧结构 task 校验集合，已废弃待删除，暂缓原因见文件头部模块 docstring。
@@ -2088,13 +2121,20 @@ def validate_pkg(pkg: Path, include_legacy: bool) -> dict:
             result["issues"].extend(req.spec_requirement_coverage(pkg))
         except Exception as e:
             result["issues"].append(issue("(package)", 0, "V0", f"spec_requirement_coverage 执行失败：{e}"))
+    if ptype == "spec3" and (pkg / "tasks").is_dir():
+        try:
+            result["issues"].extend(req3.spec_scenario_coverage(pkg))
+        except Exception as e:
+            result["issues"].append(issue("(package)", 0, "V0", f"spec_scenario_coverage 执行失败：{e}"))
     return result
 
 
 def validate_target(pkg: Path, include_legacy: bool) -> dict:
-    """validate 批处理入口：先按路径形状识别 req2 task，委托 req.py；否则走原 spec/change 包校验。"""
+    """validate 批处理入口：按父 spec 版本委托 req2/req3 task 引擎。"""
     spec_path = req.spec_of_task_dir(pkg)
     if spec_path is not None:
+        if req3.resolve_spec_dir(pkg) is not None:
+            return {"path": str(pkg), "type": "req3-task", "skipped": False, "issues": req3.validate_issues(pkg)}
         return {"path": str(pkg), "type": "req2-task", "skipped": False, "issues": req.validate_issues(pkg)}
     return validate_pkg(pkg, include_legacy)
 
@@ -2145,9 +2185,13 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
 
     if args.cmd == "instructions":
+        if req3.resolve_spec_dir(Path(args.task_dir)) is not None:
+            return req3.instructions(args.artifact_id, Path(args.task_dir), args.as_json)
         return instructions_command(args.artifact_id, Path(args.task_dir), args.as_json)
 
     if args.cmd == "scaffold":
+        if req3.resolve_spec_dir(Path(args.task_dir)) is not None:
+            return req3.scaffold(Path(args.task_dir), args.with_diagram, args.as_json)
         return req.scaffold(Path(args.task_dir), args.with_diagram, args.as_json)
 
     if args.cmd == "verify":
@@ -2173,9 +2217,10 @@ def main(argv=None) -> int:
             print(f"错误：不是目录：{task_dir}", file=sys.stderr)
             return 2
         if req.spec_of_task_dir(task_dir) is not None:
+            task_engine = req3 if req3.resolve_spec_dir(task_dir) is not None else req
             if args.cmd == "status":
-                return req.status(task_dir, args.as_json)
-            return req.graph(task_dir, args.as_json)
+                return task_engine.status(task_dir, args.as_json)
+            return task_engine.graph(task_dir, args.as_json)
         if args.cmd == "status":
             return status_command(task_dir, args.as_json)
         return graph_command(task_dir, args.as_json)

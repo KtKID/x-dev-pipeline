@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """xdev verify 的确定性执行引擎。
 
-只承接 ``docs/spec/<spec>/tasks/<task>/`` 结构：验收场景来自归属
-``spec.md``，对账范围由 ``dev-checklist.md`` 承接的 Requirement 决定。
+承接 ``docs/spec/<spec>/tasks/<task>/`` 结构。req2 按 Requirement 限定验收
+Scenario；req3 直接按 checklist 的 Scenario 限定范围。
 
 公开 CLI 仍由 ``tools/xdev.py`` 提供；本模块负责 verify block 解析、命令执行、
 验收覆盖对账和退出码。
@@ -17,6 +17,7 @@ import sys
 from pathlib import Path
 
 import req
+import req3
 
 
 REQ_RE = re.compile(r"^###\s+Requirement:\s*(.*)$")
@@ -364,6 +365,82 @@ def verify_req2(task_dir: Path, as_json: bool, only: str | None) -> int:
     return emit_payload(payload, as_json, scope)
 
 
+def verify_req3(task_dir: Path, as_json: bool, only: str | None) -> int:
+    """验证 req3 task；unit/smoke 必须 auto，e2e 必须声明 auto 或 manual。"""
+    try:
+        if not task_dir.is_dir():
+            raise FileNotFoundError(f"不是目录：{task_dir}")
+        spec_path = req.spec_of_task_dir(task_dir)
+        if spec_path is None:
+            raise ValueError(f"{task_dir} 不在 docs/spec/<spec-name>/tasks/<task-name>/ 结构下")
+        spec_dir = req3.resolve_spec_dir(task_dir)
+        if spec_dir is None:
+            raise ValueError(f"{task_dir} 的上级不是合法 spec_version: 3 包")
+        spec_md = spec_dir / "spec.md"
+        scope = req3.task_scenarios(task_dir)
+        scenarios = req3.spec_scenarios(spec_md)
+        by_id = {item["id"]: item for item in scenarios}
+        if dangling := [scenario_id for scenario_id in scope if scenario_id not in by_id]:
+            raise ValueError(
+                f"checklist 承接的 Scenario 在 {spec_md} 中不存在：{'、'.join(dangling)}"
+            )
+        malformed = [
+            scenario_id for scenario_id in scope
+            if by_id[scenario_id]["layer"] not in {"unit", "smoke", "e2e"}
+        ]
+        if malformed:
+            raise ValueError(
+                f"{spec_md} 的 Scenario 缺少合法测试层：{'、'.join(malformed)}"
+            )
+
+        project_root = project_root_of_task_dir(task_dir)
+        if project_root is None:
+            raise ValueError(f"无法从 {task_dir} 推出项目根")
+        report = latest_dev_report(task_dir)
+        blocks = parse_verify_blocks(report)
+        pass_items, fail_items, manual, declared_auto = execute_verify_blocks(
+            blocks, only, project_root, "项目",
+        )
+        declared_manual = {
+            item["scenario"].strip() for item in manual if item["scenario"].strip()
+        }
+        expected_auto = [
+            scenario_id for scenario_id in scope
+            if by_id[scenario_id]["layer"] in {"unit", "smoke"}
+        ]
+        expected_declared = [
+            scenario_id for scenario_id in scope
+            if by_id[scenario_id]["layer"] == "e2e"
+        ]
+        uncovered = [name for name in expected_auto if name not in declared_auto]
+        uncovered.extend(
+            name for name in expected_declared
+            if name not in declared_auto and name not in declared_manual
+        )
+        payload = {
+            "task": task_dir.name,
+            "spec": spec_path,
+            "profile": "req3",
+            "dev_report": str(report),
+            "scenarios": scope,
+            "scenario_layers": {
+                scenario_id: by_id[scenario_id]["layer"] for scenario_id in scope
+            },
+            "expected_auto": expected_auto,
+            "expected_declared": expected_declared,
+            "pass": pass_items,
+            "fail": fail_items,
+            "manual": manual,
+            "uncovered": list(dict.fromkeys(uncovered)),
+        }
+    except (FileNotFoundError, OSError, ValueError) as exc:
+        print(f"错误：{exc}", file=sys.stderr)
+        return 2
+    return emit_payload(payload, as_json)
+
+
 def verify(task_dir: Path, as_json: bool, only: str | None) -> int:
     """验证 ``docs/spec/<spec>/tasks/<task>`` 结构。"""
+    if req3.resolve_spec_dir(task_dir) is not None:
+        return verify_req3(task_dir, as_json, only)
     return verify_req2(task_dir, as_json, only)

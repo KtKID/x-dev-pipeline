@@ -8,7 +8,7 @@ description: |
 
 ## 路由
 
-verify exit 0 后进入质量审查。读取 task所属 spec.md 的 `risk:` 字段：
+verify exit 0 后进入质量审查。读取 task `dev-checklist.md` 头部的 `risk:`：
 
 - Q0和Q1 risk串行检查 ：三个 reviewer agent 并行完成 q1-intent、q2-correctness、q3-evidence。
 
@@ -30,16 +30,16 @@ verify exit 0 后进入质量审查。读取 task所属 spec.md 的 `risk:` 字�
 
 1. 用户原始请求、已确认 spec、既有公开契约。
 2. 真实调用方、schema/数据约束、改动前测试契约。
-3. spec.md 的需求要点、验收、架构拆分策略、技术设计与 dev-checklist。
+3. spec2 的 Requirement/Scenario、系统不变量、modules/design；或 spec3 的目标、影响边界与不变量、判断依据、建模覆盖和直接 Scenarios。
 4. dev-report verify 块、verify JSON 或失败报告、当前 diff。
 
 ## 输入裁剪
 
 | Reviewer | 必读输入 |
 |---|---|
-| 综合 reviewer | diff + spec.md `验收`/`架构拆分策略` + dev-report + 测试文件 |
-| q1-intent | diff + spec.md `需求要点`/`验收` |
-| q2-correctness | diff + spec.md `技术设计`/`架构拆分策略` |
+| 综合 reviewer | diff + task 引用的 Scenario + 相关边界/不变量 + dev-report + 测试文件 |
+| q1-intent | diff + 目标/Requirement + task 引用的 Scenario |
+| q2-correctness | diff + 影响边界、不变量、建模覆盖及相关 modules/design |
 | q3-evidence | diff + dev-report verify 块 + 测试文件 |
 
 主 agent 提供文件路径、节名、`git diff --stat`、`git diff --name-only` 和按需 diff 命令。reviewer 按需读取源代码与测试文件。
