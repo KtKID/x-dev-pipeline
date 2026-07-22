@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "storage_profile": "bootstrap-json-v0",
+  "knowledge_id": "pkn-20260721-artifact-snapshot-001",
+  "entry_type": "process_gap",
+  "status": "resolved",
+  "title": "仅记录 artifact hash 无法复原历史 attempt",
+  "source": {
+    "pipeline_run_id": "prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001",
+    "stage": "x-spec2.spec",
+    "attempt": 2,
+    "detected_stage": "self_review",
+    "origin_stage": "run_bootstrap"
+  },
+  "reason_codes": [
+    "AUDIT_HASH_WITHOUT_ARTIFACT"
+  ],
+  "observed_facts": {
+    "attempt_1_was_overwritten_before_snapshot": true,
+    "ledger_initially_retained_hash_and_measurements_only": true,
+    "original_content_was_recoverable_from_codex_rollout": true
+  },
+  "root_cause": {
+    "status": "confirmed",
+    "confidence": "high",
+    "summary": "Bootstrap 账本记录了 artifact hash，却未同步保存逐 attempt 内容或可重放 diff。hash 能证明内容身份，无法单独恢复内容。"
+  },
+  "key_learnings": [
+    "每个 artifact attempt 需要保存不可变内容快照或可验证的内容寻址对象。",
+    "hash 用于完整性校验，快照或可重放 diff 用于历史复原，两者共同构成可审计证据。",
+    "artifact 写入成功事件应在快照持久化成功后进入 ready_for_review。"
+  ],
+  "resolution": {
+    "status": "applied",
+    "artifacts": [
+      {
+        "attempt": 1,
+        "path": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md",
+        "sha256": "f1fbb5c8b521b2bd8c1ee2b9f2788be9ca3c7b5f96bfc38ac8105c22e58a16bf"
+      },
+      {
+        "attempt": 2,
+        "path": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md",
+        "sha256": "b3d0d5cde7ff2cc65e2df558f6e603897c0a95affa304c634bbfe6ce559953fc"
+      }
+    ],
+    "evidence_events": [
+      "evt-013",
+      "evt-014"
+    ]
+  },
+  "recorded_at": "2026-07-21T14:28:45Z",
+  "resolved_at": "2026-07-21T14:28:45Z"
+}

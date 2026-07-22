@@ -28,6 +28,239 @@
         "回答把 SDK 能力变化归类为触发重评的仓库事实变化，并在需求本质、系统目标和不变量保持时判为原地更新。",
         "回答列出需要同步更新的判断依据、关键决策、模块边界/依赖/接口、Requirement 覆盖和 design.md 动态模型。"
       ]
+    },
+    {
+      "id": 3,
+      "name": "scenario-pruning-run-ledger-contract",
+      "prompt_file": "evals/problems/scenario-pruning-run-ledger-contract.md",
+      "expected_output": "仅依据给定 spec.md 生成可直接进入开发的运行账本 task-contract.md，覆盖可靠事件归并、版本绑定和恢复验收。",
+      "files": [],
+      "configuration_inputs": {
+        "with_skill": {
+          "label": "compact_spec",
+          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md",
+          "executor_path": "inputs/spec.md"
+        },
+        "without_skill": {
+          "label": "verbose_spec",
+          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md",
+          "executor_path": "inputs/spec.md"
+        }
+      },
+      "expectations": [
+        "一个用户任务对应一个 run，反馈返工使用同一 run 的新 attempt，并在任务创建时绑定 pipeline 版本。",
+        "重复 event_id 幂等，乱序事件可重建逻辑顺序，冲突终态被隔离。",
+        "终态后的迟到证据通过修订关联，不能静默改写已发布结果。",
+        "stage 中断或部分持久化后可以安全重放，避免重复提交，并记录缺失指标原因。",
+        "task contract 给出可实现的数据/状态所有者和清晰范围。",
+        "验收用例包含可执行输入、动作、预期状态与证据。"
+      ],
+      "grader": {
+        "rubric": "evals/answers/scenario-pruning-run-ledger-contract/rubric.md"
+      }
+    },
+    {
+      "id": 4,
+      "name": "scenario-pruning-knowledge-lifecycle",
+      "prompt_file": "evals/problems/scenario-pruning-knowledge-lifecycle.md",
+      "expected_output": "仅依据给定 spec.md 生成知识写入、并发去重、归因修订与重评分 task-contract.md。",
+      "files": [],
+      "configuration_inputs": {
+        "with_skill": {
+          "label": "compact_spec",
+          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md",
+          "executor_path": "inputs/spec.md"
+        },
+        "without_skill": {
+          "label": "verbose_spec",
+          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md",
+          "executor_path": "inputs/spec.md"
+        }
+      },
+      "expectations": [
+        "执行失败、grader 扣分和 rubric 升级后的重评分形成独立记录并保留各自版本。",
+        "两个 writer 并发提交相同证据时只形成一个 canonical 条目，其余请求稳定关联。",
+        "新证据通过追加修订更新根因，历史结论与当时决策引用保持可查询。",
+        "证据不足时根因保持待确认，区分 detected_stage 与 origin_stage，并记录候选原因和缺失证据。",
+        "知识记录能追溯 run、attempt、pipeline 版本、artifact 与原始证据。",
+        "验收用例能够击穿覆盖写入、错误归因和并发重复条目。"
+      ],
+      "grader": {
+        "rubric": "evals/answers/scenario-pruning-knowledge-lifecycle/rubric.md"
+      }
+    },
+    {
+      "id": 5,
+      "name": "scenario-pruning-paired-promotion",
+      "prompt_file": "evals/problems/scenario-pruning-paired-promotion.md",
+      "expected_output": "仅依据给定 spec.md 生成可比配对评测、候选拒绝与并发晋级 task-contract.md。",
+      "files": [],
+      "configuration_inputs": {
+        "with_skill": {
+          "label": "compact_spec",
+          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md",
+          "executor_path": "inputs/spec.md"
+        },
+        "without_skill": {
+          "label": "verbose_spec",
+          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md",
+          "executor_path": "inputs/spec.md"
+        }
+      },
+      "expectations": [
+        "配对 manifest 固定任务、模型、repo、权限、预算和 grader 断言，任一不一致都会使样本失效。",
+        "评测期间生产 baseline 漂移时保留原评测事实，并在晋级前触发重放或重新基准化。",
+        "两个候选并发发布通过版本前置条件或 compare-and-set 保证唯一胜者。",
+        "正确性门槛先于 Token；成本更低但出现关键回归的候选必须被拒绝。",
+        "候选不合格时稳定生产版本继续服务，拒绝依据与评测成本保持可查询。",
+        "决策包能够追溯知识、假设、逐案例结果、审批、发布版本和回滚目标。"
+      ],
+      "grader": {
+        "rubric": "evals/answers/scenario-pruning-paired-promotion/rubric.md"
+      }
+    },
+    {
+      "id": 6,
+      "name": "scenario-pruning-canary-rollback-binding",
+      "prompt_file": "evals/problems/scenario-pruning-canary-rollback-binding.md",
+      "expected_output": "仅依据给定 spec.md 生成 canary 回滚、任务版本绑定和并发切换 task-contract.md。",
+      "files": [],
+      "configuration_inputs": {
+        "with_skill": {
+          "label": "compact_spec",
+          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md",
+          "executor_path": "inputs/spec.md"
+        },
+        "without_skill": {
+          "label": "verbose_spec",
+          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md",
+          "executor_path": "inputs/spec.md"
+        }
+      },
+      "expectations": [
+        "任务创建与 pipeline/路由版本绑定是单一原子动作，run 不会处于未绑定或混合版本。",
+        "回滚提交前已创建任务保持原版本，提交后的新任务全部绑定稳定版本。",
+        "回滚命令可幂等重试，进程在切换中崩溃后能够恢复到明确版本。",
+        "发布与回滚并发时通过序列号、租约或 fencing token 阻止旧操作覆盖新状态。",
+        "canary 触发条件、观测窗口、回滚原因和受影响 run 进入决策记录与知识库。",
+        "验收用例明确覆盖切换边界并能检测混合版本任务。"
+      ],
+      "grader": {
+        "rubric": "evals/answers/scenario-pruning-canary-rollback-binding/rubric.md"
+      }
+    },
+    {
+      "id": 7,
+      "name": "scenario-pruning-contract-risk-routing",
+      "prompt_file": "evals/problems/scenario-pruning-contract-risk-routing.md",
+      "expected_output": "仅依据给定 spec.md 生成阶段契约漂移检测与风险路由校准 task-contract.md。",
+      "files": [],
+      "configuration_inputs": {
+        "with_skill": {
+          "label": "compact_spec",
+          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md",
+          "executor_path": "inputs/spec.md"
+        },
+        "without_skill": {
+          "label": "verbose_spec",
+          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md",
+          "executor_path": "inputs/spec.md"
+        }
+      },
+      "expectations": [
+        "每个阶段字段定义唯一 producer、consumer 和有效来源，风险、Requirement、Scenario 与报告路径语义一致。",
+        "consumer 读取退役字段或旧路径时产生可定位 CONTRACT_DRIFT 并阻止版本进入 baseline。",
+        "公开契约、共享状态、并发或不可逆操作进入完整 spec/task/verify/独立审查路径。",
+        "低风险轻量路径保留影子 QA，发现 P0/P1 后形成知识并提高同类任务风险权重。",
+        "路由策略有独立版本，run 记录决策输入、profile 和策略版本，可通过历史错误放行率校准。",
+        "验收同时覆盖合法新契约、旧字段漂移和路由低估三类反例。"
+      ],
+      "grader": {
+        "rubric": "evals/answers/scenario-pruning-contract-risk-routing/rubric.md"
+      }
+    },
+    {
+      "id": 8,
+      "name": "instruction-form-adherence",
+      "evaluation_type": "multi_arm_instruction_form",
+      "prompt_file": "evals/problems/instruction-form-adherence/prompt.md",
+      "expected_output": "针对 10 个边界微任务输出可确定性评分的 decisions.json，用三种指令表达各重复三次。",
+      "files": [
+        "evals/problems/instruction-form-adherence/cases.json"
+      ],
+      "matrix_manifest": "evals/instruction-form-abc.json",
+      "repetitions_per_configuration": 3,
+      "microtasks_per_run": 10,
+      "expectations": [
+        "feedback_same_task：同一用户任务反馈沿用 run 并创建新 attempt。",
+        "duplicate_event_same_payload：相同事件重试幂等收敛。",
+        "duplicate_event_conflicting_payload：冲突 payload 被隔离且已发布终态保持稳定。",
+        "late_evidence_after_terminal：迟到证据通过修订关联。",
+        "crash_after_partial_persist：部分持久化后安全重放并记录缺失指标原因。",
+        "insufficient_origin_evidence：检测阶段与待确认根因阶段保持分离。",
+        "concurrent_knowledge_dedup：并发写入收敛为单一 canonical 并保留来源。",
+        "publish_rollback_fencing：更高 fencing token 阻止迟到发布覆盖回滚。",
+        "task_binding_at_rollback_boundary：切换提交点两侧的任务保持单一版本绑定。",
+        "retired_contract_field：退役字段触发契约漂移并阻止 baseline。"
+      ],
+      "grader": {
+        "rubric": "evals/answers/instruction-form-adherence/rubric.md",
+        "expected": "evals/answers/instruction-form-adherence/expected.json",
+        "script": "evals/scripts/instruction_form_abc.py"
+      }
+    },
+    {
+      "id": 9,
+      "name": "task-01-configresolver-spec-quality",
+      "evaluation_type": "paired_skill_spec_generation",
+      "prompt_file": "evals/problems/task-01-configresolver/PROMPT.md",
+      "expected_output": "只生成规格文档；x-spec2 基线生成其 2+1 包，x-spec3 生成单一 spec.md；不实现代码，不运行 xdev。",
+      "files": [],
+      "configuration_inputs": {
+        "with_skill": {
+          "label": "x-spec3",
+          "source": "skills/x-spec3"
+        },
+        "without_skill": {
+          "label": "x-spec2-frozen",
+          "source": "skills/x-spec3-workspace/iteration-1/baseline-x-spec2"
+        }
+      },
+      "expectations": [
+        "普通覆盖语义明确且可测试。",
+        "三层对象递归合并明确且可测试。",
+        "递归合并保留未覆盖兄弟叶子。",
+        "数组整体替换明确且可测试。",
+        "可选字段 nil 删除明确且可测试。",
+        "删除同步移除叶子 Provenance。",
+        "四类核心合并路径均有具体 Scenario。",
+        "required 删除与缺失均断言 ErrRequiredRemoved。",
+        "未知字段断言 ErrUnknownField。",
+        "类型错误断言 ErrTypeMismatch。",
+        "五类 Field.Type 语义完整。",
+        "Provenance 只记录最终叶子与最终来源。",
+        "递归保留与覆盖叶子来源分别验证。",
+        "RFC 6901 转义与原始 Config key 同时明确。",
+        "schema、sources、嵌套输入不可变并深比较。",
+        "nil Data 保持 nil 且空输入有判定。",
+        "Result 与输入可变所有权封闭。",
+        "不同 map 插入顺序输出 DeepEqual。",
+        "100 字段 10000 次、2 秒与 race detector 均覆盖。",
+        "go test、go vet、性能和竞态入口可执行。",
+        "目标与非目标明确。",
+        "目标、上游、下游模块边界明确。",
+        "相关模块不变量明确。",
+        "判断依据有消费者。",
+        "六元组建模覆盖完整。",
+        "unit、smoke、e2e 分层且 E2E 有决策依据。",
+        "TDD 顺序明确。",
+        "Scenario 使用 GIVEN、WHEN、THEN 并标测试层和依据。"
+      ],
+      "grader": {
+        "rubric": "evals/answers/task-01-configresolver-spec-quality/rubric.md",
+        "reference": "evals/problems/EVALUATION.md",
+        "rubric_exposed": false
+      }
     }
   ]
 }

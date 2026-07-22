@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "storage_profile": "bootstrap-json-v0",
+  "knowledge_id": "pkn-20260722-instruction-form-eval-result-001",
+  "entry_type": "evaluation_result",
+  "status": "confirmed",
+  "title": "目标状态表达稳定通过；单独禁止表达出现一次目标来源遗漏",
+  "source": {
+    "pipeline_run_id": "prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001",
+    "stage": "x-spec2.instruction_form_eval",
+    "attempt": 1,
+    "eval_id": 8,
+    "comparison": "do_vs_dont_vs_do_reason_assertion"
+  },
+  "reason_codes": [
+    "NEGATIVE_ONLY_TARGET_SOURCE_OMITTED",
+    "INSTRUCTION_FORM_EVAL_CEILING_EFFECT",
+    "TOOL_CALL_TOKEN_CONFOUND",
+    "FIXED_LAUNCH_ORDER_TIME_CONFOUND"
+  ],
+  "design": {
+    "microtasks_per_run": 10,
+    "independent_rollouts_per_configuration": 3,
+    "case_judgments_per_configuration": 30,
+    "grader": "deterministic_exact_json_match",
+    "rubric_exposed": false
+  },
+  "quality": {
+    "arm_a_do": {"passed": 30, "total": 30, "all_10_runs": "3/3"},
+    "arm_b_dont": {"passed": 29, "total": 30, "all_10_runs": "2/3"},
+    "arm_c_do_reason_assertion": {"passed": 30, "total": 30, "all_10_runs": "3/3"},
+    "discriminating_case": {
+      "case_id": "retired_contract_field",
+      "arm_b_frequency": "2/3",
+      "failure": "有效 source 被写成 null；契约漂移和 baseline 阻断仍正确"
+    }
+  },
+  "efficiency": {
+    "total_executor_tokens": 890677,
+    "total_duration_seconds": 397.245,
+    "arm_a_do": {"instruction_chars": 864, "tokens": 325489, "duration_seconds": 113.763, "tool_calls": 8},
+    "arm_b_dont": {"instruction_chars": 873, "tokens": 265499, "duration_seconds": 117.211, "tool_calls": 6},
+    "arm_c_do_reason_assertion": {"instruction_chars": 1880, "tokens": 299689, "duration_seconds": 166.271, "tool_calls": 7}
+  },
+  "confirmed_observations": [
+    "A 与 C 的 30 个状态断言全部通过。",
+    "B 在一个 rollout 中只识别了无效来源，没有补全有效目标来源。",
+    "完整 Token 离群值与额外工具调用一致，当前 Token 排名不能归因于规则正文长度。",
+    "C 的规则正文字符数约为 A 的 2.18 倍，本轮没有获得额外质量收益。"
+  ],
+  "policy_candidate": {
+    "confidence": "directional",
+    "default": "用明确目标状态描述普通行为",
+    "critical_boundary": "目标状态加紧凑机器断言",
+    "prohibition": "用 validator、错误码或违规状态补充",
+    "rationale": "保存在 J-ID 或知识库，按任务风险和推理需要加载"
+  },
+  "next_eval": {
+    "candidate": "DO + compact ASSERT without inline WHY",
+    "requirements": [
+      "加入低天花板、需要跨字段推导的 holdout case",
+      "轮换三臂启动顺序",
+      "固定输出校验工具调用策略",
+      "继续记录 provider Token 分桶、工具调用和独立 rollout 方差"
+    ]
+  },
+  "measurement_limitations": [
+    "30 个 case 判断只有 3 个独立 executor rollout。",
+    "三轮均按 A、B、C 顺序启动。",
+    "executor 自主增加校验调用，工具调用数为 8、6、7。",
+    "A/C 满分导致两种正向表达没有区分度。"
+  ],
+  "evidence_refs": [
+    {"kind": "manifest", "value": "evals/instruction-form-abc.json"},
+    {"kind": "benchmark", "value": "skills/x-spec2-workspace/iteration-4/benchmark.json"},
+    {"kind": "analysis", "value": "skills/x-spec2-workspace/iteration-4/benchmark-analysis.json"},
+    {"kind": "review", "value": "skills/x-spec2-workspace/iteration-4/review.html"},
+    {"kind": "result", "value": "skills/x-spec2-workspace/iteration-4/result.md"}
+  ],
+  "recorded_at": "2026-07-21T16:33:35Z"
+}

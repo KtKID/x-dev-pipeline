@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "eval_id": 8,
+  "eval_name": "instruction-form-adherence",
+  "pipeline_run_id": "prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001",
+  "execution_unit": "10 bundled boundary microtasks",
+  "repetitions_per_configuration": 3,
+  "arms": {
+    "arm_a_do": {
+      "label": "DO：目标行为",
+      "rules": "evals/problems/instruction-form-adherence/rules-do.md"
+    },
+    "arm_b_dont": {
+      "label": "DON'T：禁止行为",
+      "rules": "evals/problems/instruction-form-adherence/rules-dont.md"
+    },
+    "arm_c_do_reason_assertion": {
+      "label": "DO + WHY + ASSERT：目标、原因、断言",
+      "rules": "evals/problems/instruction-form-adherence/rules-do-reason-assertion.md"
+    }
+  },
+  "common": {
+    "prompt": "evals/problems/instruction-form-adherence/prompt.md",
+    "cases": "evals/problems/instruction-form-adherence/cases.json",
+    "expected": "evals/answers/instruction-form-adherence/expected.json",
+    "rubric": "evals/answers/instruction-form-adherence/rubric.md"
+  },
+  "paired_orders": {
+    "1": [
+      "feedback_same_task",
+      "duplicate_event_same_payload",
+      "duplicate_event_conflicting_payload",
+      "late_evidence_after_terminal",
+      "crash_after_partial_persist",
+      "insufficient_origin_evidence",
+      "concurrent_knowledge_dedup",
+      "publish_rollback_fencing",
+      "task_binding_at_rollback_boundary",
+      "retired_contract_field"
+    ],
+    "2": [
+      "publish_rollback_fencing",
+      "insufficient_origin_evidence",
+      "duplicate_event_same_payload",
+      "retired_contract_field",
+      "feedback_same_task",
+      "crash_after_partial_persist",
+      "task_binding_at_rollback_boundary",
+      "duplicate_event_conflicting_payload",
+      "concurrent_knowledge_dedup",
+      "late_evidence_after_terminal"
+    ],
+    "3": [
+      "crash_after_partial_persist",
+      "retired_contract_field",
+      "late_evidence_after_terminal",
+      "concurrent_knowledge_dedup",
+      "duplicate_event_conflicting_payload",
+      "feedback_same_task",
+      "publish_rollback_fencing",
+      "duplicate_event_same_payload",
+      "insufficient_origin_evidence",
+      "task_binding_at_rollback_boundary"
+    ]
+  },
+  "controlled_variables": [
+    "executor model",
+    "repo SHA",
+    "permission profile",
+    "common prompt",
+    "microtask facts and shortcuts",
+    "paired case order per repetition",
+    "output schema",
+    "deterministic expected results and grader"
+  ],
+  "metrics": [
+    "microtask exact-match pass rate",
+    "all-10 pass rate",
+    "provider input/cached-input/output/reasoning/total tokens",
+    "executor duration",
+    "same-case pass frequency across three repetitions"
+  ],
+  "known_limitations": [
+    "10 个 case 在同一 executor run 内执行，30 个 case 判断只有 3 个独立 rollout。",
+    "三轮均按 A、B、C 顺序启动，耗时可能包含固定启动位置影响。",
+    "executor 自主选择是否增加 JSON 校验工具调用，Token 差异同时反映工具调用行为。",
+    "本轮存在 A/C 天花板效应，只有 retired_contract_field 产生区分。"
+  ]
+}

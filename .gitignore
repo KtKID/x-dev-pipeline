@@ -7,5 +7,6 @@ Thumbs.db
 test/__pycache__
 tools/__pycache__
 skills/x-spec2-workspace
+skills/x-spec3-workspace
 .xcodeatlas
 docs/spec/codex-session-metrics/tasks/

@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "storage_profile": "bootstrap-json-v0",
+  "knowledge_id": "pkn-20260721-scenario-pruning-eval-001",
+  "entry_type": "evaluation_requirement",
+  "status": "confirmed",
+  "title": "Scenario 精简需要用下游真实任务证明无质量回归",
+  "source": {
+    "pipeline_run_id": "prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001",
+    "stage": "x-spec2.spec",
+    "attempt": 2,
+    "detected_stage": "user_review",
+    "origin_stage": "scenario_pruning"
+  },
+  "reason_codes": [
+    "SCENARIO_PRUNING_UNVALIDATED",
+    "SPEC_EXECUTABLE_COVERAGE_GAPS"
+  ],
+  "observed_facts": {
+    "attempt_1_scenarios": 31,
+    "attempt_2_scenarios": 15,
+    "attempt_1_characters": 14328,
+    "attempt_2_characters": 6429,
+    "existing_xspec2_eval_generation_cases": 1,
+    "existing_paired_pilot_sample_size_per_configuration": 1
+  },
+  "pruning_rationale": [
+    "合并描述同一状态所有者的正常路径与失败路径。",
+    "把稳定事实收敛到 Requirement、约束和不变量。",
+    "移除 x-spec2 校验与 x-req2 交接等方案生产元流程。",
+    "用乱序、并发、基线漂移和回滚竞态替换低区分度正常路径。"
+  ],
+  "executable_coverage_gaps": [
+    "stage 中断、部分写入与恢复当前缺少独立 Scenario。",
+    "当前 producer/consumer 契约漂移缺少阻断 Scenario。",
+    "根因证据不足时 detected_stage 与 origin_stage 的处理缺少 Scenario。",
+    "模型、repo、权限或 grader 断言不一致时配对失效缺少完整 Scenario。",
+    "候选 Token 更低但正确性回归时的拒绝行为只存在于约束和不变量。"
+  ],
+  "key_learnings": [
+    "Scenario 数量是文档体量指标，隐藏错误放行率才是覆盖质量指标。",
+    "Scenario 可以删除的前提是其行为由其他可执行 Scenario 或 grader-only eval 继续击穿。",
+    "文档压缩结果应作为候选版本，通过相同下游任务的 paired eval 后再进入稳定基线。"
+  ],
+  "recommended_eval": {
+    "comparison": "attempt-001-spec.md 与 attempt-002-spec.md 分别驱动相同 x-req2/dev 任务",
+    "isolation": "固定模型、repo SHA、权限、预算和任务输入；grader-only expectations 对 executor 隐藏",
+    "cases": [
+      "run 事件幂等、乱序、迟到和中断恢复",
+      "知识并发去重、失败/扣分分型和根因修订",
+      "baseline 漂移、配对不可比和并发晋级",
+      "canary 回滚与新任务版本绑定竞态",
+      "producer/consumer 契约漂移与错误放行"
+    ],
+    "decision_metrics": [
+      "P0/P1 隐藏断言通过率",
+      "错误放行率",
+      "需求澄清次数与修复轮数",
+      "delivery_tokens_to_accepted",
+      "审计证据完整率"
+    ],
+    "promotion_rule": "精简版关键断言零新增回归、总体正确率不低于首版，再比较完整交付 Token。"
+  },
+  "evidence_refs": [
+    {
+      "kind": "artifact",
+      "value": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md"
+    },
+    {
+      "kind": "artifact",
+      "value": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md"
+    },
+    {
+      "kind": "eval_protocol",
+      "value": "evals/README.md"
+    }
+  ],
+  "recorded_at": "2026-07-21T14:45:31Z",
+  "confirmed_at": "2026-07-21T15:13:30Z",
+  "confirmation_event": "evt-017"
+}

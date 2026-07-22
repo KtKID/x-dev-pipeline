@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "storage_profile": "bootstrap-json-v0",
+  "knowledge_id": "pkn-20260721-spec-density-001",
+  "entry_type": "score_deduction",
+  "status": "confirmed",
+  "title": "Spec 形式完整但有效信息密度偏低",
+  "source": {
+    "pipeline_run_id": "prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001",
+    "stage": "x-spec2.spec",
+    "attempt": 1,
+    "detected_stage": "user_review",
+    "origin_stage": "x-spec2.spec_generation"
+  },
+  "reason_codes": [
+    "SPEC_LOW_INFORMATION_DENSITY",
+    "SPEC_HIDDEN_BOUNDARY_GAP",
+    "PIPELINE_RUN_NOT_RECORDED_AT_START"
+  ],
+  "score": {
+    "rubric": "strong-model-task-completion-v0",
+    "value": 58,
+    "max": 100,
+    "deductions": [
+      {
+        "reason": "隐藏边界和竞态缺少可执行 Scenario",
+        "points": 15
+      },
+      {
+        "reason": "目标、约束、不变量和验收重复表达",
+        "points": 12
+      },
+      {
+        "reason": "MVP、远期路线和实现选择混合",
+        "points": 6
+      },
+      {
+        "reason": "V2 交接等元流程占用产品 Requirement",
+        "points": 5
+      },
+      {
+        "reason": "Spec 生成未在开始时建立 pipeline run",
+        "points": 4
+      }
+    ]
+  },
+  "observed_facts": {
+    "artifact": "docs/spec/pipeline-self-evolution/spec.md",
+    "artifact_sha256": "f1fbb5c8b521b2bd8c1ee2b9f2788be9ca3c7b5f96bfc38ac8105c22e58a16bf",
+    "lines": 417,
+    "characters": 14328,
+    "requirements": 13,
+    "scenarios": 31,
+    "acceptance_characters": 7835,
+    "explicit_out_of_order_or_concurrent_write_scenarios": 0
+  },
+  "root_cause": {
+    "status": "confirmed",
+    "confidence": "high",
+    "summary": "x-spec2 当前契约和本次执行共同偏向形式覆盖，缺少信息预算与对抗性边界优先级；模型把每个概念扩展成独立 Requirement 和重复说明。"
+  },
+  "key_learnings": [
+    "每次 artifact 生产都是 pipeline run；同一任务的修订使用 stage attempt 表达。",
+    "强模型已能覆盖大部分正常路径，spec 的主要信息预算应投入隐藏边界、竞态、失败恢复和证据入口。",
+    "审计明细应进入按需读取的 run/knowledge 数据，执行 spec 保持高信息密度。",
+    "文档长度和 Requirement 数量需要显式预算，新增内容必须对应下游决策、实现边界或反例验证。"
+  ],
+  "improvement_targets": [
+    {
+      "target": "docs/spec/pipeline-self-evolution/spec.md",
+      "action": "压缩到约 7 个 Requirement、12 至 15 个高价值 Scenario、6000 字符左右"
+    },
+    {
+      "target": "skills/x-spec2/SKILL.md",
+      "action": "后续候选加入信息密度预算、最小充分文档和边界/竞态优先规则"
+    },
+    {
+      "target": "pipeline run observability",
+      "action": "run 启动时建立 ID，修订作为 attempt，原始 Token 使用 provider 累计差分"
+    }
+  ],
+  "priority_scenarios": [
+    "stage 事件重复或乱序",
+    "run 终态后的迟到事件",
+    "两个 agent 并发登记同一失败",
+    "配对评测期间 baseline 变化",
+    "两个候选并发晋级",
+    "canary 回滚与新任务绑定竞态",
+    "grader 规则升级后的历史重评分"
+  ],
+  "evidence_refs": [
+    {
+      "kind": "artifact_hash",
+      "value": "sha256:f1fbb5c8b521b2bd8c1ee2b9f2788be9ca3c7b5f96bfc38ac8105c22e58a16bf"
+    },
+    {
+      "kind": "codex_rollout",
+      "value": "019f84e4-1296-7fb2-a2a1-50b391b11c1c"
+    },
+    {
+      "kind": "user_feedback_timestamp",
+      "value": "2026-07-21T14:01:58.095Z"
+    }
+  ],
+  "recorded_at": "2026-07-21T14:05:39.017Z",
+  "confirmed_at": "2026-07-21T14:14:48.658Z"
+}

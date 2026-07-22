@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "storage_profile": "bootstrap-json-v0",
+  "knowledge_id": "pkn-20260721-scenario-pruning-eval-result-001",
+  "entry_type": "evaluation_result",
+  "status": "confirmed",
+  "title": "Scenario 精简显著降低 Token，但当前候选存在关键正确性回归",
+  "source": {
+    "pipeline_run_id": "prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001",
+    "stage": "x-spec2.scenario_pruning_eval",
+    "attempt": 1,
+    "comparison": "compact_spec_vs_verbose_spec"
+  },
+  "reason_codes": [
+    "SCENARIO_PRUNING_P0_REGRESSION",
+    "EVAL_VARIANCE_NOT_MEASURED",
+    "EVAL_ORCHESTRATION_TOKEN_OVERHEAD"
+  ],
+  "quality": {
+    "assertions_total": 30,
+    "compact_passed": 23,
+    "verbose_passed": 24,
+    "compact_pass_rate": 0.7666666666666667,
+    "verbose_pass_rate": 0.8,
+    "compact_p0_failures": 5,
+    "verbose_p0_failures": 1,
+    "promotion_gate": "failed"
+  },
+  "efficiency": {
+    "compact_executor_tokens": 540559,
+    "verbose_executor_tokens": 859100,
+    "executor_token_delta": -318541,
+    "executor_token_reduction_ratio": 0.37078,
+    "compact_duration_seconds": 928.986,
+    "verbose_duration_seconds": 1119.39,
+    "duration_reduction_seconds": 190.404,
+    "grader_tokens": 2248396,
+    "analyzer_tokens": 653712,
+    "orchestrator_tokens_observed": {
+      "partial": true,
+      "through_timestamp": "2026-07-21T15:52:19.314Z",
+      "input": 17482361,
+      "cached_input": 17348608,
+      "output": 40875,
+      "reasoning_output": 8473,
+      "total": 17523236,
+      "source_semantics": "provider cumulative delta"
+    },
+    "total_evolution_eval_tokens_observed": 21825003
+  },
+  "case_results": [
+    {
+      "eval_id": 3,
+      "compact": "5/6",
+      "verbose": "5/6",
+      "finding": "Compact 保留同一 run 新 attempt；Verbose 保留中断缺失指标原因。"
+    },
+    {
+      "eval_id": 4,
+      "compact": "5/6",
+      "verbose": "2/6",
+      "finding": "Compact 的重评分、并发 canonical 去重和 attempt 追溯更完整；detected/origin 分离缺失。"
+    },
+    {
+      "eval_id": 5,
+      "compact": "6/6",
+      "verbose": "6/6",
+      "finding": "配对晋级质量相同，Compact executor Token 少 48.2%。"
+    },
+    {
+      "eval_id": 6,
+      "compact": "4/6",
+      "verbose": "6/6",
+      "finding": "Compact 缺少发布/回滚共享 fencing 和 canary 观测知识链。"
+    },
+    {
+      "eval_id": 7,
+      "compact": "3/6",
+      "verbose": "5/6",
+      "finding": "Compact 缺少逐阶段唯一契约源和退役字段 CONTRACT_DRIFT。"
+    }
+  ],
+  "key_learnings": [
+    "Scenario 数量下降可以稳定减少 executor Token，本轮五个 case 均降低 Token。",
+    "总通过率接近会掩盖 P0 行为差异，晋级必须按断言严重度执行硬门禁。",
+    "最佳候选应保留 Compact 的高密度结构，并按失败断言补回 5 个 Scenario。",
+    "跨 case 单次运行不能估计模型随机方差；sample size 需要同时表达 case 数和每题重复数。",
+    "LLM grader、analyzer 和长上下文 orchestrator 的 Token 高于 executor，后续应优先使用确定性 grader 和短上下文 collector。"
+  ],
+  "required_scenario_additions": [
+    "stage 中断、部分持久化、安全重放与缺失指标原因",
+    "证据不足时 detected_stage 与 origin_stage 分离",
+    "发布与回滚共享 fencing",
+    "canary 触发窗口、受影响 run 与知识入库",
+    "逐阶段唯一契约源与退役字段 CONTRACT_DRIFT"
+  ],
+  "decision": {
+    "compact_spec_status": "candidate_rejected_quality_gate",
+    "next_candidate": "attempt 3 with approximately 20 high-value scenarios",
+    "implementation_eval": "stopped before dev because task-contract quality gate failed"
+  },
+  "measurement_limitations": [
+    "每个 case 只有一次 paired run，未测量随机方差。",
+    "aggregate-spec2 的 pilot 字段按总 pair 数计算，不能区分 case 数和重复数。",
+    "benchmark tool_calls=0 来自缺失 execution_metrics，不代表真实零调用。",
+    "总观测成本中的 orchestrator Token 截止于记录时间，最终回复成本未包含。"
+  ],
+  "evidence_refs": [
+    {
+      "kind": "benchmark",
+      "value": "skills/x-spec2-workspace/iteration-3/benchmark.json"
+    },
+    {
+      "kind": "analysis",
+      "value": "skills/x-spec2-workspace/iteration-3/benchmark-analysis.json"
+    },
+    {
+      "kind": "review",
+      "value": "skills/x-spec2-workspace/iteration-3/review.html"
+    },
+    {
+      "kind": "result",
+      "value": "skills/x-spec2-workspace/iteration-3/result.md"
+    }
+  ],
+  "recorded_at": "2026-07-21T15:50:41Z"
+}

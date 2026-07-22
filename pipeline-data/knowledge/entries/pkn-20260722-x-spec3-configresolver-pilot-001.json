@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "storage_profile": "bootstrap-json-v0",
+  "knowledge_id": "pkn-20260722-x-spec3-configresolver-pilot-001",
+  "entry_type": "evaluation_result",
+  "status": "confirmed",
+  "title": "x-spec3 单文档规格在 ConfigResolver pilot 中提高覆盖并降低成本",
+  "source": {
+    "pipeline_run_id": "prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001",
+    "stage": "x-spec3.spec_format_eval",
+    "attempt": 1,
+    "eval_id": 9,
+    "comparison": "x-spec3_vs_x-spec2-frozen"
+  },
+  "reason_codes": [
+    "SPEC3_PAIRED_PILOT_WIN",
+    "THREE_LEVEL_RECURSION_EXAMPLE_MISSING",
+    "MAP_INSERTION_ORDER_CASE_MISSING",
+    "RESULT_ALIAS_OWNERSHIP_GAP",
+    "SINGLE_CASE_VARIANCE_UNKNOWN",
+    "COMPOUND_ASSERTION_AMBIGUITY"
+  ],
+  "design": {
+    "task": "evals/problems/task-01-configresolver/PROMPT.md",
+    "hidden_reference": "evals/problems/EVALUATION.md",
+    "candidate": "skills/x-spec3",
+    "baseline": "skills/x-spec3-workspace/iteration-1/baseline-x-spec2",
+    "executor_model": "gpt-5.6-sol",
+    "independent_rollouts_per_configuration": 1,
+    "rubric_exposed": false,
+    "blind_comparison": true,
+    "xdev_validation": false
+  },
+  "quality": {
+    "x_spec3": {"task_semantic_score": 85, "task_semantic_passed": 17, "structure_passed": 8, "total_passed": 25, "total": 28, "scenario_count": 14},
+    "x_spec2_frozen": {"task_semantic_score": 75, "task_semantic_passed": 15, "structure_passed": 5, "total_passed": 20, "total": 28, "scenario_count": 21},
+    "blind_winner": "x-spec3"
+  },
+  "efficiency": {
+    "x_spec3": {"artifact_files": 1, "artifact_bytes": 16557, "input_tokens": 319451, "cached_input_tokens": 292608, "output_tokens": 12373, "reasoning_output_tokens": 4485, "total_tokens": 331824, "duration_seconds": 283.084},
+    "x_spec2_frozen": {"artifact_files": 3, "artifact_bytes": 30675, "input_tokens": 410125, "cached_input_tokens": 350464, "output_tokens": 17876, "reasoning_output_tokens": 5209, "total_tokens": 428001, "duration_seconds": 364.792},
+    "reductions": {"artifact_bytes_ratio": 0.4602, "total_tokens_ratio": 0.2247, "output_tokens_ratio": 0.3078, "duration_ratio": 0.2240}
+  },
+  "confirmed_observations": [
+    "x-spec3 用 14 个 Scenario 覆盖 17/20 个任务语义断言；x-spec2-frozen 用 21 个 Scenario 覆盖 15/20 个。",
+    "单文档边界表、分层验收、TDD 和 Scenario 级测试映射提高了下游可执行性。",
+    "原则性写出递归与确定性仍不足以触发三层嵌套和 map 插入顺序反例。",
+    "modules.md 的所有权决策帮助 x-spec2-frozen 捕获 Result 可变别名风险，x-spec3 当前模板未稳定触发该断言。",
+    "规格文档有效性应以隐藏边界覆盖和可执行验收衡量，Scenario 数量只作为描述性指标。"
+  ],
+  "policy_candidate": {
+    "confidence": "directional",
+    "decision": "retain_x-spec3_as_candidate",
+    "next_revision_targets": [
+      "高风险递归语义至少提供一个超过常见深度的嵌套实例",
+      "确定性语义加入逻辑等价但构造顺序不同的输入对照",
+      "输入不可变性加入返回结果变异后的所有权断言"
+    ]
+  },
+  "measurement_limitations": [
+    "每个配置只有一个独立 rollout，运行方差未知。",
+    "当前 rubric 第 16 与第 19 条包含复合条件，失败定位粒度有限。",
+    "本轮停在规格评测，尚未测量实际实现通过隐藏测试的比例。"
+  ],
+  "evidence_refs": [
+    {"kind": "benchmark", "value": "skills/x-spec3-workspace/iteration-1/benchmark.json"},
+    {"kind": "blind_comparison", "value": "skills/x-spec3-workspace/iteration-1-anonymous/comparison.json"},
+    {"kind": "analysis", "value": "skills/x-spec3-workspace/iteration-1/benchmark-analysis.json"},
+    {"kind": "review", "value": "skills/x-spec3-workspace/iteration-1/review.html"},
+    {"kind": "result", "value": "skills/x-spec3-workspace/iteration-1/result.md"}
+  ],
+  "recorded_at": "2026-07-21T17:30:42Z"
+}
