@@ -62,5 +62,5 @@ LLM turn 的主要成本不是最终文字，而是每次 turn 再次携带历�
 - Grader 的三次协议修复只移除了题面未规定的表示假设，旧结果保留；正式样本统一由最终 evaluator 重评。
 - 每次运行保存 grading、measurement、timing、transcript 和 rollout SHA provenance。
 - 原始 rollout 位于本机 Codex session 目录，仓库保存文件名与 SHA-256；因此 Token 可在当前机器复核，但仅凭仓库 clone 不能重建原始 telemetry。
-- `skill-creator` quick validation 对 x-spec3、x-req3、x-qa-gate、x-fix 通过；评测快照中的 x-dev 因旧触发示例使用尖括号而被元数据规则拒绝。为保持评测快照字节不变，该非语义规范化在正式结果提交后单独处理，不计入性能结论。
+- `skill-creator` quick validation 对 x-spec3、x-req3、x-qa-gate、x-fix 通过；评测快照中的 x-dev 因旧触发示例使用尖括号而被元数据规则拒绝。正式结果提交后，live x-dev 已用单独的元数据提交去除尖括号并通过验证；评测 snapshot 保持字节不变，这项规范化不计入性能结论。
 - Candidate 的 100 分表示冻结的 20 项契约全部通过，不代表穷尽所有可能的 mutation 强度。Baseline 的深层证据循环确实发现了 grader 之外的测试覆盖要求；候选选择以单轮 reviewer + 确定性回归限制这种无界扩张。

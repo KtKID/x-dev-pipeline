@@ -2,7 +2,7 @@
 name: x-dev
 description: |
   开发任务执行 skill。读取单个 task 的 dev-checklist，按 `spec:` 指针跟读归属 spec 包，按依赖实现、写 verify 证据，并由 checklist 头部 risk 驱动交付或 Gate ②。
-  触发：`x-dev <功能名称>` 或现有 task 目录。
+  触发：`x-dev 功能名称` 或现有 task 目录。
 ---
 
 # x-dev — 统一执行
