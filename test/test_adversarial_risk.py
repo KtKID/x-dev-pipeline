@@ -1,0 +1,181 @@
+import json
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+SCRIPT = ROOT / "skills" / "x-adversarial-risk" / "scripts" / "risk_contract.py"
+
+
+def valid_spec(
+    *,
+    complexity: int = 4,
+    importance: int = 4,
+    average: str = "4.0",
+    budget: str = "full",
+    status: str = "complete",
+    source: str = "initial-spec",
+) -> str:
+    return f"""> spec_version: 3
+> adversarial_risk_version: 1
+> complexity: {complexity}
+> importance: {importance}
+> risk_average: {average}
+> review_budget: {budget}
+> adversarial_review: {status}
+
+# demo
+
+## 风险评分依据
+
+- 复杂度：包含状态恢复。
+- 重要性：影响全部用户数据。
+
+## 对抗性审查记录
+
+| Review | 预算 | 匹配 issue | 被推翻假设 | 新增 Scenario |
+|---|---|---|---|---|
+| ARV-1 | {budget} | AR-001 | 多文件替换具有崩溃窗口 | SC_01 |
+
+## Scenarios
+
+### Scenario SC_01: 恢复一致状态
+
+- **GIVEN** 新 snapshot 与旧 journal 同时存在
+- **WHEN** 服务重启
+- **THEN** 系统恢复一致状态
+- 测试层：unit
+- 依据：用户任务
+- 来源：{source}
+"""
+
+
+def valid_corpus() -> str:
+    return """# 风险错题集
+
+## AR-001: compact 替换窗口
+
+- 确认状态：confirmed
+- 动作维度：先替换 snapshot，再替换 journal
+- 数据维度：持久化状态与请求历史
+- 场景维度：compact 中途崩溃后重启
+- 被破坏不变量：恢复结果保持一致
+- 最小反例：新 snapshot 与旧 journal 同时存在
+- 应补 Scenario：重启应识别旧 journal 前缀
+- 来源证据：eval-11 baseline Q1
+"""
+
+
+class RiskContractCliTest(unittest.TestCase):
+    def run_cli(self, command: str, path: Path, *extra: str):
+        return subprocess.run(
+            [sys.executable, str(SCRIPT), command, str(path), *extra],
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+    def write(self, directory: Path, name: str, content: str) -> Path:
+        path = directory / name
+        path.write_text(content, encoding="utf-8")
+        return path
+
+    def test_valid_spec_json_is_stable_and_read_only(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = self.write(Path(raw), "spec.md", valid_spec())
+            before = path.read_bytes()
+            first = self.run_cli("validate-spec", path, "--json")
+            second = self.run_cli("validate-spec", path, "--json")
+
+            self.assertEqual(first.returncode, 0, first.stdout + first.stderr)
+            self.assertEqual(first.stdout, second.stdout)
+            self.assertEqual(path.read_bytes(), before)
+            payload = json.loads(first.stdout)
+            self.assertEqual(
+                list(payload),
+                ["command", "target", "valid", "issues"],
+            )
+            self.assertTrue(payload["valid"])
+            self.assertEqual(payload["issues"], [])
+
+    def test_single_dimension_five_forces_full_budget(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = self.write(
+                Path(raw),
+                "spec.md",
+                valid_spec(
+                    complexity=5,
+                    importance=1,
+                    average="3.0",
+                    budget="deep",
+                ),
+            )
+            result = self.run_cli("validate-spec", path)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("review_budget 应为 full", result.stdout)
+
+    def test_pending_status_blocks_contract(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = self.write(
+                Path(raw),
+                "spec.md",
+                valid_spec(status="pending"),
+            )
+            result = self.run_cli("validate-spec", path)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("阻断 x-req3", result.stdout)
+
+    def test_scenario_source_is_required(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = self.write(
+                Path(raw),
+                "spec.md",
+                valid_spec().replace("- 来源：initial-spec\n", ""),
+            )
+            result = self.run_cli("validate-spec", path)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("SC_01 缺少来源字段", result.stdout)
+
+    def test_adversarial_source_requires_issue_or_assumption(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = self.write(
+                Path(raw),
+                "spec.md",
+                valid_spec(source="adversarial-review (AR-001, AR-002)"),
+            )
+            result = self.run_cli("validate-spec", path)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_valid_corpus_passes(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = self.write(Path(raw), "risk-mistakes.md", valid_corpus())
+            result = self.run_cli("validate-corpus", path, "--json")
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertTrue(json.loads(result.stdout)["valid"])
+
+    def test_corpus_rejects_duplicate_id_and_missing_dimension(self):
+        with tempfile.TemporaryDirectory() as raw:
+            broken = valid_corpus().replace("- 数据维度：持久化状态与请求历史\n", "")
+            broken += valid_corpus().replace("# 风险错题集\n\n", "")
+            path = self.write(Path(raw), "risk-mistakes.md", broken)
+            result = self.run_cli("validate-corpus", path)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("issue ID 重复：AR-001", result.stdout)
+            self.assertIn("AR-001 缺少字段：数据维度", result.stdout)
+
+    def test_missing_file_exits_two(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "missing.md"
+            result = self.run_cli("validate-spec", path, "--json")
+            self.assertEqual(result.returncode, 2)
+            payload = json.loads(result.stdout)
+            self.assertFalse(payload["valid"])
+            self.assertEqual(payload["issues"][0]["code"], "IO_ERROR")
+
+
+if __name__ == "__main__":
+    unittest.main()
