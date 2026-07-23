@@ -1,4 +1,10 @@
 > spec_version: 3
+> adversarial_risk_version: 1
+> complexity: <1..5>
+> importance: <1..5>
+> risk_average: <1.0..5.0>
+> review_budget: <standard|deep|full>
+> adversarial_review: pending
 
 # <spec-name>
 
@@ -9,6 +15,12 @@
 ## 非目标
 
 - <本次明确排除或延后的工作>
+
+## 风险评分依据
+
+- 复杂度：<分数锚点及当前任务中的状态、分支、并发、外部交互或算法证据>
+- 重要性：<分数锚点及用户范围、核心链路、资金、隐私或合规证据>
+- 预算升级：<平均分映射；任一维度为 4/5 时写单维升级依据，无则写“无”>
 
 ## 影响边界与不变量
 
@@ -55,6 +67,12 @@
 2. `SC_02` → 先写会失败的 `<test>`。
 3. 实现满足测试的最小代码，重构后复跑全部已选测试层。
 
+## 对抗性审查记录
+
+| Review | 预算 | 匹配 issue | 被推翻假设 | 新增 Scenario |
+|---|---|---|---|---|
+| ARV-pending | <standard / deep / full> | 待审查 | 待审查 | 待审查 |
+
 ## Scenarios
 
 ### Scenario SC_01: <可判定行为名称>
@@ -64,3 +82,4 @@
 - **THEN** <可观察结果、错误、状态或副作用>
 - 测试层：unit / smoke / e2e
 - 依据：用户任务 / `J1`
+- 来源：initial-spec

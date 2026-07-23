@@ -22,10 +22,11 @@ x-req3 把 spec3 的行为契约压缩成可执行 checklist。spec.md 保留目
 拆解前确认：
 
 1. `python3 tools/xdev.py validate <spec-dir> --json` 对 spec3 返回零 issue；该检查会把任一待确认 J-ID 判为未就绪。
-2. spec3 的 J-ID 状态全部为“已确认”。x-spec3 只保存会改变实现或验收的判断，因此任一“待确认”都会停止 scaffold 和 task 写入。
-3. Scenario ID 符合 `SC_01` 两位格式、顺序递增且唯一，GIVEN/WHEN/THEN 可直接转成测试，测试层为 unit、smoke 或 e2e。
+2. spec 含 `> adversarial_risk_version: 1` 时，运行 `python3 skills/x-adversarial-risk/scripts/risk_contract.py validate-spec <spec.md> --json`。退出码必须为 0；`pending`、评分/预算不一致、审查记录或 Scenario 来源缺失都会停止 scaffold 和 task 写入。
+3. spec3 的 J-ID 状态全部为“已确认”。x-spec3 只保存会改变实现或验收的判断，因此任一“待确认”都会停止 scaffold 和 task 写入。
+4. Scenario ID 符合 `SC_01` 两位格式、顺序递增且唯一，GIVEN/WHEN/THEN 可直接转成测试，测试层为 unit、smoke 或 e2e。
 
-执行环境缺少命令工具时，直接读取判断依据表并执行同一门禁；“待确认”始终是阻断状态，不能解释为可在开发中处理。
+执行环境缺少命令工具时，直接读取判断依据表、风险元数据、审查记录和 Scenario 来源并执行同一门禁；“待确认”或 `pending` 始终是阻断状态，不能解释为可在开发中处理。未带 adversarial risk 版本标记的存量 spec3 沿用原门禁。
 
 ## 拆解规则
 
@@ -59,7 +60,7 @@ x-req3 把 spec3 的行为契约压缩成可执行 checklist。spec.md 保留目
 
 高能力模型按一个压缩批次完成拆解：一次读取完整 spec、scaffold 模板和相关目录；一次写完 checklist 与按需 diagram；随后把 validate、status、graph 作为同一验证批次执行。机械检查返回多个 issue 时一次修全并整体复跑。除非文件内容变化，省略重复读取 spec、模板和已验证产物。
 
-1. 读取完整 spec.md，确定本 task 的 Scenario、影响模块、不变量、判断依据和测试层。
+1. 读取完整 spec.md，先完成就绪门禁，再确定本 task 的 Scenario、影响模块、不变量、判断依据和测试层；风险审查新增 Scenario 与第一版 Scenario 使用同一拆解规则。
 2. 运行 `python3 tools/xdev.py scaffold <task-dir>`；达到三个影响模块时自动生成图，少于三个模块但用户要求图时加 `--with-diagram`。
 3. 填写 `dev-checklist.md`，删除模板注释与占位行。每个 Scenario ID 必须在 spec.md 中存在且唯一；一个任务行可引用多个 ID。
 4. scaffold 生成 `diagram.md` 时填写它，每个影响边界模块恰好一个节点。
@@ -71,6 +72,7 @@ x-req3 把 spec3 的行为契约压缩成可执行 checklist。spec.md 保留目
 
 - checklist 中每个非 `None` Scenario ID 都精确存在于 spec3。
 - spec 下全部 task 合并后覆盖所有 Scenario。
+- 带 adversarial risk v1 标记的 spec 已通过风险契约门禁，审查状态为 `skipped-standard` 或 `complete`。
 - 高损失边界、失败、并发和资源 Scenario 已落到实现或验证任务。
 - 每行文件范围足够执行，依赖图无悬空和环。
 - task 文档没有复述 spec 正文。
