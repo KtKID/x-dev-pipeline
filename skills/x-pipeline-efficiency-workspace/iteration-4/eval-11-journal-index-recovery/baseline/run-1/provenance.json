@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "collector": {
+    "path": "tools/metrics.py",
+    "sha256": "6f9ddb19f92b7bf644b0575b2b38e3fa9287837519930b5b06581f4fe6a87daa",
+    "command_shape": "python3 tools/metrics.py extract --codex-session <normalized-root> --codex-session <normalized-q1> --codex-session <normalized-q2> --codex-session <normalized-q3> --metadata eval_metadata.json --grading grading.json --output measurement.json",
+    "normalization": "normalization.json"
+  },
+  "evaluator": {
+    "path": "evals/answers/journal-index-recovery/evaluate.py",
+    "sha256": "dbb6a7143d92bb77cc83e35d0973a7eb3d300f86dec14834c9cd3064be648183",
+    "rubric_sha256": "86b9824d6a7a90b31da8b791da3e65439b9b58f67a1cd26e674e5ae6b40df2b4",
+    "command_shape": "PYTHONDONTWRITEBYTECODE=1 python3 evals/answers/journal-index-recovery/evaluate.py <workspace> --output grading.json",
+    "exit_code": 1,
+    "output_sha256": "f044d870e2a38056624f781420d41bdda1aa048bd3787f329bc2c84eaa840820",
+    "exit_code_reason": "19/20 expectations passed; evaluator uses a nonzero exit when any expectation fails."
+  },
+  "archive_replay": {
+    "quality_score": 95,
+    "passed": 19,
+    "total": 20,
+    "result": "same semantic result; the only JSON difference is the absolute spec evidence path."
+  },
+  "runner": {
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "xhigh",
+    "skills_include_instructions": false,
+    "plugins_enabled": false,
+    "reviewer_fork_turns": "all"
+  },
+  "rollouts": [
+    {
+      "role": "main",
+      "session_id": "019f8e1b-8326-7b82-b447-c7f86bea2dc3",
+      "file": "rollout-2026-07-23T16-33-15-019f8e1b-8326-7b82-b447-c7f86bea2dc3.jsonl",
+      "sha256": "d9b3c354a80dc056ecbf144d497a580da883946163015d592b5ffac9c1d6436e",
+      "model_evidence_line": 8,
+      "spawn_evidence_lines": [235, 332, 427]
+    },
+    {
+      "role": "q1-intent",
+      "session_id": "019f8e29-810d-7922-a5e6-fc9bda681fee",
+      "file": "rollout-2026-07-23T16-48-32-019f8e29-810d-7922-a5e6-fc9bda681fee.jsonl",
+      "sha256": "4331ce29187c974eff8bcd0905ec2702f9c4627e0f4727d7b10250d24ae7cf99",
+      "model_evidence_line": 8
+    },
+    {
+      "role": "q2-correctness",
+      "session_id": "019f8e2f-cc91-7721-89ef-3c51a072d2af",
+      "file": "rollout-2026-07-23T16-55-25-019f8e2f-cc91-7721-89ef-3c51a072d2af.jsonl",
+      "sha256": "2aaa509eefcb344717b231ce512f1c446515d68c7a83f4b57cc12350fae3ca25",
+      "model_evidence_line": 8
+    },
+    {
+      "role": "q3-evidence",
+      "session_id": "019f8e36-67cb-7dd2-8c34-a84c18d787f3",
+      "file": "rollout-2026-07-23T17-02-38-019f8e36-67cb-7dd2-8c34-a84c18d787f3.jsonl",
+      "sha256": "f68a533b182ba52be4082fd63ca1319dec08bbfa1029ada42d6e04770ac5ba54",
+      "model_evidence_line": 8
+    }
+  ]
+}

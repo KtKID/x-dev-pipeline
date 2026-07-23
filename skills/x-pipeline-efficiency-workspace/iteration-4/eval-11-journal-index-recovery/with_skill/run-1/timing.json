@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "agent_id": "019f8d9f-76a1-78b3-bfac-f152cac66684",
+  "started_at": "2026-07-23T06:17:46.149Z",
+  "ended_at": "2026-07-23T06:39:51.560Z",
+  "duration_ms": 1325411,
+  "total_tokens": 3369225,
+  "agent_tree": [
+    {
+      "role": "main",
+      "session_id": "019f8d9f-76a1-78b3-bfac-f152cac66684",
+      "duration_ms": 1325411,
+      "total_tokens": 3223090
+    },
+    {
+      "role": "q3-tri-lens",
+      "session_id": "019f8dad-852b-74b3-ac17-3049f6d85d06",
+      "duration_ms": 204829,
+      "total_tokens": 146135
+    }
+  ]
+}

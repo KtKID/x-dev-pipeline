@@ -1,0 +1,45 @@
+{
+  "eval_id": 11,
+  "eval_name": "journal-index-recovery",
+  "configuration": "with_skill",
+  "variant": "baseline-frozen-terra-20260723",
+  "run_number": 1,
+  "prompt": "Read EXECUTOR-INSTRUCTIONS.md and PROMPT.md, then complete the task end to end. Follow the frozen workspace skills exactly.",
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "repo_sha": "d6d9218bf5f819be9ade8521856309f6da9613c3",
+  "input_tree_sha256": "eb4b444dc4825130d860f6bcc0fa14301c5cb1f0dc9fc078843b036fe0fc99ef",
+  "prompt_sha256": "e0553105744253f76e8d2bdd63a0cdb0d1e2d6534d72a4f776485bb99c5e50c9",
+  "skill_snapshot": "skills/x-pipeline-efficiency-workspace/snapshots/baseline-20260723",
+  "skill_snapshot_sha256": "c4f98677d4920dc943ac52250b032092582389a04115a0743f0cd46a88a5ae78",
+  "selected_skill_tools_sha256": "dd520f34eb95c92bfc4d7819e369caf3065636ca225b0e49aed52f931b1ce394",
+  "executor_inputs": [
+    "evals/problems/journal-index-recovery/PROMPT.md",
+    "cases/journal-index-recovery/task",
+    "cases/journal-index-recovery/fixture",
+    "skills/x-pipeline-efficiency-workspace/snapshots/baseline-20260723"
+  ],
+  "grader_only_inputs": [
+    "evals/answers/journal-index-recovery/rubric.md",
+    "evals/answers/journal-index-recovery/evaluate.py"
+  ],
+  "rubric_exposed": false,
+  "runner": {
+    "binary": "/Applications/ChatGPT.app/Contents/Resources/codex",
+    "skills_include_instructions": false,
+    "plugins_enabled": false,
+    "multi_agent_enabled": true,
+    "approval_policy": "never",
+    "sandbox": "workspace-write"
+  },
+  "sessions": {
+    "root": "019f8e1b-8326-7b82-b447-c7f86bea2dc3",
+    "q1_intent_review": "019f8e29-810d-7922-a5e6-fc9bda681fee",
+    "q2_correctness_review": "019f8e2f-cc91-7721-89ef-3c51a072d2af",
+    "q3_evidence_review": "019f8e36-67cb-7dd2-8c34-a84c18d787f3"
+  },
+  "reviewer_context": {
+    "fork_turns": "all",
+    "reason": "保留冻结 baseline skill 的原始 Q3 行为；父会话本身运行在干净隔离 workspace。"
+  }
+}

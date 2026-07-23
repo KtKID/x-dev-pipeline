@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "collector": {
+    "path": "tools/metrics.py",
+    "sha256": "6f9ddb19f92b7bf644b0575b2b38e3fa9287837519930b5b06581f4fe6a87daa",
+    "command_shape": "python3 tools/metrics.py extract --codex-session <normalized-root> --codex-session <normalized-reviewer> --metadata eval_metadata.json --grading grading.json --output measurement.json",
+    "normalization": "normalization.json"
+  },
+  "evaluator": {
+    "path": "evals/answers/journal-index-recovery/evaluate.py",
+    "sha256": "dbb6a7143d92bb77cc83e35d0973a7eb3d300f86dec14834c9cd3064be648183",
+    "rubric_sha256": "86b9824d6a7a90b31da8b791da3e65439b9b58f67a1cd26e674e5ae6b40df2b4",
+    "command_shape": "python3 evals/answers/journal-index-recovery/evaluate.py <workspace> --output grading.json"
+  },
+  "runner": {
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "xhigh",
+    "skills_include_instructions": false,
+    "plugins_enabled": false,
+    "reviewer_fork_turns": "none"
+  },
+  "rollouts": [
+    {
+      "role": "main",
+      "session_id": "019f8d9f-76a1-78b3-bfac-f152cac66684",
+      "file": "rollout-2026-07-23T14-17-45-019f8d9f-76a1-78b3-bfac-f152cac66684.jsonl",
+      "sha256": "cb467c53c4a16f962d3d8b3210bcece41885cd04af831d2236a7d41ea06a5612",
+      "model_evidence_line": 8,
+      "spawn_evidence_line": 193
+    },
+    {
+      "role": "q3-tri-lens",
+      "session_id": "019f8dad-852b-74b3-ac17-3049f6d85d06",
+      "file": "rollout-2026-07-23T14-33-07-019f8dad-852b-74b3-ac17-3049f6d85d06.jsonl",
+      "sha256": "0c8de8e26b9e0b145204f086bf5f44df7d51ae02ad80a09dfe60c025a94695ee",
+      "model_evidence_line": 8
+    }
+  ]
+}

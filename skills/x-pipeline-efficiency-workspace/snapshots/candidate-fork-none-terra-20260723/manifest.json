@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "snapshot_name": "candidate-fork-none-terra-20260723",
+  "source_repo": "/Volumes/machub_app/proj/x-dev-pipeline",
+  "source_branch": "evo",
+  "source_head": "d5bb8d59d0511c5657662aaf84666952995d1da7",
+  "source_worktree_dirty": true,
+  "captured_scope": [
+    "skills/x-spec3",
+    "skills/x-req3",
+    "skills/x-dev",
+    "skills/x-verify",
+    "skills/x-qa-gate",
+    "skills/x-fix",
+    "tools/xdev.py",
+    "tools/req.py",
+    "tools/req3.py",
+    "tools/verify.py",
+    "tools/metrics.py"
+  ],
+  "parent_snapshot": "candidate-batched-trilens-20260723",
+  "changed_files": [
+    "skills/x-dev/SKILL.md",
+    "skills/x-qa-gate/SKILL.md"
+  ],
+  "snapshot_tree_sha256": "ffc9a47060d6b0b78c98d662063be6a10b1a2f65b86cddcfa69deec01646b882",
+  "hash_command": "find skills tools -type f ! -name .DS_Store ! -path '*/__pycache__/*' -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+  "note": "合并 x-dev 重复批次纪律，并强制 x-qa-gate reviewer 使用 fork_turns:none；本快照用于 Terra xhigh 单次独立评测。"
+}

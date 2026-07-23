@@ -1,0 +1,35 @@
+{
+  "eval_id": 11,
+  "eval_name": "journal-index-recovery",
+  "configuration": "with_skill",
+  "variant": "candidate-fork-none-terra-20260723",
+  "run_number": 1,
+  "prompt": "完成当前工作区 task/ 与 fixture/ 定义的本地 journal/index 全链路实现，并依次使用工作区内 x-spec3、x-req3、x-dev、x-verify，按风险进入 x-qa-gate；产出 docs/spec/journal-index-recovery 下的规格、任务、开发和验证证据；只使用 Python 标准库、本地文件和本地进程。reviewer 必须使用 fork_turns:none。",
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "repo_sha": "d5bb8d59d0511c5657662aaf84666952995d1da7",
+  "input_tree_sha256": "eb4b444dc4825130d860f6bcc0fa14301c5cb1f0dc9fc078843b036fe0fc99ef",
+  "skill_snapshot": "skills/x-pipeline-efficiency-workspace/snapshots/candidate-fork-none-terra-20260723",
+  "skill_snapshot_sha256": "ffc9a47060d6b0b78c98d662063be6a10b1a2f65b86cddcfa69deec01646b882",
+  "executor_inputs": [
+    "evals/problems/journal-index-recovery/PROMPT.md",
+    "cases/journal-index-recovery/task",
+    "cases/journal-index-recovery/fixture",
+    "skills/x-pipeline-efficiency-workspace/snapshots/candidate-fork-none-terra-20260723"
+  ],
+  "grader_only_inputs": [
+    "evals/answers/journal-index-recovery/rubric.md",
+    "evals/answers/journal-index-recovery/evaluate.py"
+  ],
+  "rubric_exposed": false,
+  "runner": {
+    "binary": "/Applications/ChatGPT.app/Contents/Resources/codex",
+    "skills_include_instructions": false,
+    "plugins_enabled": false,
+    "multi_agent_enabled": true
+  },
+  "sessions": {
+    "root": "019f8d9f-76a1-78b3-bfac-f152cac66684",
+    "reviewer": "019f8dad-852b-74b3-ac17-3049f6d85d06"
+  }
+}

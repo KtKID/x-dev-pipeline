@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "verdict": "pass",
+  "workspace": "/private/tmp/xdev-terra-baseline.hc0CxN",
+  "workspace_had_git": false,
+  "root_session_is_fresh": true,
+  "root_session": "019f8e1b-8326-7b82-b447-c7f86bea2dc3",
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "plugins_enabled": false,
+  "skills_include_instructions": false,
+  "rubric_exposed": false,
+  "reviewer_context": {
+    "fork_turns": "all",
+    "inherited_scope": "当前干净 baseline 根会话",
+    "reason": "冻结 baseline 的 Q3 skill 明确采用顺序独立 reviewer；保持该行为才能测量真实 baseline。"
+  },
+  "tool_call_audit": {
+    "sessions_checked": 4,
+    "forbidden_patterns": [
+      "/Volumes/",
+      "/Users/",
+      "evals/answers",
+      "rubric",
+      "oracle",
+      "candidate",
+      "prior",
+      "grading.json",
+      "../"
+    ],
+    "matching_tool_calls": 0
+  },
+  "grader_only_scan": {
+    "collector": "tools/metrics.py",
+    "result": "pass"
+  }
+}

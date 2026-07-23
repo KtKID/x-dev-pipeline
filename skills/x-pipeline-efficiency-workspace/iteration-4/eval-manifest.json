@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "iteration": 4,
+  "purpose": "Terra xhigh 同模型配对验证：合并 x-dev 重复批次纪律，并把 Q3 reviewer 收敛为单个 tri-lens reviewer，强制 fork_turns:none。",
+  "evals": [
+    {
+      "eval_id": 11,
+      "eval_name": "journal-index-recovery",
+      "input_tree_sha256": "eb4b444dc4825130d860f6bcc0fa14301c5cb1f0dc9fc078843b036fe0fc99ef",
+      "baseline_snapshot": "baseline-20260723",
+      "baseline_snapshot_sha256": "c4f98677d4920dc943ac52250b032092582389a04115a0743f0cd46a88a5ae78",
+      "candidate_snapshot": "candidate-fork-none-terra-20260723",
+      "candidate_snapshot_sha256": "ffc9a47060d6b0b78c98d662063be6a10b1a2f65b86cddcfa69deec01646b882",
+      "valid_runs": 2,
+      "valid_baseline_runs": 1,
+      "valid_candidate_runs": 1,
+      "invalid_attempts": 1
+    }
+  ]
+}

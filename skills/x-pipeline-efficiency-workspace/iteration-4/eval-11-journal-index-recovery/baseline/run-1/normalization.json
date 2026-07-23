@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "reason": "隔离执行目录没有 .git，原始 session_meta.git 为 null；tools/metrics.py 要求非空 commit_hash。",
+  "originals_modified": false,
+  "transformation": "对临时 JSONL 副本重新序列化；仅目标 session_meta.payload.git 的 JSON 值写入冻结源仓库 commit_hash、branch 与 repository_url，其余 JSON 值保持不变。",
+  "injected_git": {
+    "commit_hash": "d6d9218bf5f819be9ade8521856309f6da9613c3",
+    "branch": "evo",
+    "repository_url": "https://github.com/KtKID/x-dev-pipeline.git"
+  },
+  "files": [
+    {
+      "session_id": "019f8e1b-8326-7b82-b447-c7f86bea2dc3",
+      "original_sha256": "d9b3c354a80dc056ecbf144d497a580da883946163015d592b5ffac9c1d6436e",
+      "normalized_sha256": "a6243e9134044cb3cf6b6966d58e9bdfc21466e9a479dc73e5736fe1e93b354b"
+    },
+    {
+      "session_id": "019f8e29-810d-7922-a5e6-fc9bda681fee",
+      "original_sha256": "4331ce29187c974eff8bcd0905ec2702f9c4627e0f4727d7b10250d24ae7cf99",
+      "normalized_sha256": "3208a37c38e0221beadc7dd01411aad208722b61b0c181774871f7f919fa4b19"
+    },
+    {
+      "session_id": "019f8e2f-cc91-7721-89ef-3c51a072d2af",
+      "original_sha256": "2aaa509eefcb344717b231ce512f1c446515d68c7a83f4b57cc12350fae3ca25",
+      "normalized_sha256": "d2d5058a55a105feba9e03993f7086a1da236d0d8c1c8f69a43a2f1b71baf32f"
+    },
+    {
+      "session_id": "019f8e36-67cb-7dd2-8c34-a84c18d787f3",
+      "original_sha256": "f68a533b182ba52be4082fd63ca1319dec08bbfa1029ada42d6e04770ac5ba54",
+      "normalized_sha256": "26d66ff64e513ce83b5fdccc113f9e23ecbbb88a64c2b1c737f8f3c3fac67414"
+    }
+  ]
+}

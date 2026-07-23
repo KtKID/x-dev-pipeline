@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "reason": "隔离执行目录没有 .git，原始 session_meta.git 为 null；tools/metrics.py 要求非空 commit_hash。",
+  "originals_modified": false,
+  "transformation": "仅在临时 JSONL 副本的 session_meta.payload.git 写入已冻结源仓库的 commit_hash、branch 与 repository_url；其余事件保持不变。",
+  "injected_git": {
+    "commit_hash": "d5bb8d59d0511c5657662aaf84666952995d1da7",
+    "branch": "evo",
+    "repository_url": "https://github.com/KtKID/x-dev-pipeline.git"
+  },
+  "files": [
+    {
+      "session_id": "019f8d9f-76a1-78b3-bfac-f152cac66684",
+      "original_sha256": "cb467c53c4a16f962d3d8b3210bcece41885cd04af831d2236a7d41ea06a5612",
+      "normalized_sha256": "77d7b5187c9651e003eeeabcabdd8878ff5723a7af7d1dbb3e680610dfcae666"
+    },
+    {
+      "session_id": "019f8dad-852b-74b3-ac17-3049f6d85d06",
+      "original_sha256": "0c8de8e26b9e0b145204f086bf5f44df7d51ae02ad80a09dfe60c025a94695ee",
+      "normalized_sha256": "7d5c4273c92dc91ed7d8419c72717472b3bc03e32a8d7289bd3a366aed80bc09"
+    }
+  ]
+}

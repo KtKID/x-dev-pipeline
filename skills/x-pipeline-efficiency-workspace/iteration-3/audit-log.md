@@ -51,3 +51,10 @@ Excluded attempts remain available for audit and never enter grading, token aggr
 - Token reduction: `63.75%`, exceeding the predeclared `10%` gate.
 - Mean wall-time reduction: `63.06%`.
 - Decision: promote the batched tri-lens candidate for this task family. Do not generalize the exact percentage beyond comparable self-contained local multi-module tasks without another case replication.
+
+## Post-evaluation live cleanup
+
+- 2026-07-23: merged the live `skills/x-dev/SKILL.md` standalone four-item batching overlay into its existing seven-step execution workflow.
+- The cleanup preserves the batching, evidence-matrix, focused-to-full verification, delta-status, contract-replay, and risk-routing rules while removing duplicate numbering.
+- Frozen candidate snapshots, run workspaces, manifest hashes, grading, and telemetry remain unchanged.
+- The published `100/100` and `-63.75%` results continue to describe the frozen candidate. This live structural cleanup requires a new run before it can inherit the same measured result.
