@@ -52,6 +52,17 @@ user request → x-req → x-dev → xdev.py verify
 
 The user can explicitly set the risk. Q0/Q1 prepare and execute directly; Q2/Q3 show one confirmation before task files are written.
 
+## Adversarial Spec risk
+
+Spec3 packages use a risk gate before task decomposition:
+
+```text
+user request → x-spec3 → x-adversarial-risk → x-req3 → x-dev
+                    score + initial tests   adversarial tests
+```
+
+x-spec3 records 1–5 complexity and importance scores and marks first-draft Scenarios as `initial-spec`. x-adversarial-risk selects a standard, deep, or full budget; deep/full runs load its private mistake corpus and append only applicable counterexample Scenarios with `adversarial-review` provenance. x-req3 blocks a versioned Spec while its adversarial review is pending.
+
 ## Acceptance and evidence
 
 Each README acceptance section uses Requirement/Scenario structure:
@@ -90,6 +101,7 @@ expect_contains: passed
 | `/x-fix` | Batch-fix verify, gate, or CR issues |
 | `/x-cr` | Investigate a reported correctness issue, module, diff, or PR |
 | `/x-spec` | Create a system-level architecture and task map |
+| `/x-adversarial-risk` | Challenge a Spec's risk assumptions and add traceable counterexample Scenarios |
 | `/x-multi-llm-align` | Align a protocol, data structure, or process across agents |
 | `/x-audit-perf` | Run an independent performance audit |
 | `/x-audit-style` | Run an independent style audit |

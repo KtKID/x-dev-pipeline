@@ -52,6 +52,17 @@ dev-pipeline/tasks/<task-name>/
 
 用户可显式指定 risk。Q0/Q1 直接准备并执行；Q2/Q3 在写 task 文件前展示一次确认。
 
+## Spec 对抗性风险门禁
+
+spec3 包在 task 拆解前经过独立风险门禁：
+
+```text
+用户请求 → x-spec3 → x-adversarial-risk → x-req3 → x-dev
+                   双评分 + 初版测试       对抗性测试
+```
+
+x-spec3 分别记录 1–5 的复杂度和重要性，并把第一版 Scenario 标记为 `initial-spec`。x-adversarial-risk 按评分选择 standard、deep 或 full 预算；deep/full 才读取本 skill 独占的错题集，并只追加适用于当前 Spec 的 `adversarial-review` 反例 Scenario。带风险版本标记的 Spec 审查状态仍为 pending 时，x-req3 阻断任务拆解。
+
 ## 验收与证据
 
 README 的验收使用 Requirement/Scenario：
@@ -90,6 +101,7 @@ expect_contains: passed
 | `/x-fix` | 批量修复 verify、gate 或 CR 发现 |
 | `/x-cr` | 调查已知正确性问题、模块、diff 或 PR |
 | `/x-spec` | 产出系统级架构与 task 映射 |
+| `/x-adversarial-risk` | 推翻 Spec 风险假设并补充可追溯反例 Scenario |
 | `/x-multi-llm-align` | 对齐协议、数据结构或流程 |
 | `/x-audit-perf` | 独立性能巡检 |
 | `/x-audit-style` | 独立规范巡检 |
