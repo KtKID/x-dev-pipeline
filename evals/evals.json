@@ -286,6 +286,31 @@
         "script": "evals/answers/voice-chain-end-to-end/evaluate.py",
         "rubric_exposed": false
       }
+    },
+    {
+      "id": 11,
+      "name": "journal-index-recovery",
+      "evaluation_type": "paired_pipeline_implementation",
+      "prompt_file": "evals/problems/journal-index-recovery/PROMPT.md",
+      "expected_output": "使用冻结的 x-dev-pipeline 完成本地日志/index 的 spec、req、实现和验证，并通过独立隐藏状态、恢复、压缩与并发评分。",
+      "files": [
+        "cases/journal-index-recovery/task",
+        "cases/journal-index-recovery/fixture"
+      ],
+      "repetitions_per_configuration": 2,
+      "expectations": [
+        "CLI、规范日志、幂等与乐观版本语义正确。",
+        "尾部恢复、中间损坏拒绝和已提交 snapshot 处理正确。",
+        "原子压缩保留状态、请求账本和 seq 单调性。",
+        "多进程并发写入和冲突更新保持线性化结果。",
+        "实现只依赖标准库并保持声明的存储布局。",
+        "spec3、req3 与 verify 证据形成可复跑闭环。"
+      ],
+      "grader": {
+        "rubric": "evals/answers/journal-index-recovery/rubric.md",
+        "script": "evals/answers/journal-index-recovery/evaluate.py",
+        "rubric_exposed": false
+      }
     }
   ]
 }

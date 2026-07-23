@@ -1,0 +1,9 @@
+{
+  "run": "without_skill/run-2",
+  "start": "2026-07-23T11:35:54+0800",
+  "start_source": "PROMPT.md filesystem birth time",
+  "end": "2026-07-23T12:48:58+0800",
+  "end_source": "executor completion capture",
+  "duration_seconds": 4384,
+  "duration_human": "1h 13m 04s"
+}

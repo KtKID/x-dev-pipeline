@@ -1,0 +1,5 @@
+{
+  "skill_name": "x-dev-pipeline",
+  "skill_path": "skills/x-spec3,skills/x-req3,skills/x-dev,skills/x-verify,skills/x-qa-gate,skills/x-fix",
+  "pilot_note": "两个独立重复样本用于验证新增自包含 case 上的质量与 token 改善；结论只外推到同类本地多模块开发任务。"
+}

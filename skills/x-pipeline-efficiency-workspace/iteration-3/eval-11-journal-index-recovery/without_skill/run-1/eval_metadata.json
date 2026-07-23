@@ -1,0 +1,16 @@
+{
+  "eval_id": 11,
+  "eval_name": "journal-index-recovery",
+  "configuration": "without_skill",
+  "variant": "baseline-20260723",
+  "run_number": 1,
+  "prompt": "完成当前工作区 task/ 与 fixture/ 定义的本地 journal/index 全链路实现，并依次使用工作区内 x-spec3、x-req3、x-dev、x-verify，产出 docs/spec/journal-index-recovery 下的规格、任务、开发和验证证据；只使用 Python 标准库、本地文件和本地进程。",
+  "model": "gpt-5.6-sol",
+  "repo_sha": "1a461b9852180e74b983f4a933e7dd45f2855a57",
+  "input_tree_sha256": "eb4b444dc4825130d860f6bcc0fa14301c5cb1f0dc9fc078843b036fe0fc99ef",
+  "skill_snapshot": "skills/x-pipeline-efficiency-workspace/snapshots/baseline-20260723",
+  "skill_snapshot_sha256": "c4f98677d4920dc943ac52250b032092582389a04115a0743f0cd46a88a5ae78",
+  "executor_inputs": ["evals/problems/journal-index-recovery/PROMPT.md", "cases/journal-index-recovery/task", "cases/journal-index-recovery/fixture", "skills/x-pipeline-efficiency-workspace/snapshots/baseline-20260723"],
+  "grader_only_inputs": ["evals/answers/journal-index-recovery/rubric.md", "evals/answers/journal-index-recovery/evaluate.py"],
+  "rubric_exposed": false
+}

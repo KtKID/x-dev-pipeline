@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "snapshot_name": "candidate-batched-trilens-20260723",
+  "source_repo": "/Volumes/machub_app/proj/x-dev-pipeline",
+  "source_branch": "evo",
+  "source_head": "1a461b9852180e74b983f4a933e7dd45f2855a57",
+  "source_worktree_dirty": true,
+  "captured_scope": [
+    "skills/x-spec3",
+    "skills/x-req3",
+    "skills/x-dev",
+    "skills/x-verify",
+    "skills/x-qa-gate",
+    "skills/x-fix",
+    "skills/x-cr",
+    "tools"
+  ],
+  "parent_snapshot": "candidate-contract-replay-20260723",
+  "changed_files": [
+    "skills/x-spec3/SKILL.md",
+    "skills/x-req3/SKILL.md",
+    "skills/x-dev/SKILL.md",
+    "skills/x-qa-gate/SKILL.md",
+    "skills/x-fix/SKILL.md",
+    "skills/x-fix/references/qa-gate-fix-mode.md"
+  ],
+  "snapshot_tree_sha256": "bc0437cbf5a341960fd5f8e3f93b4e63ba05698ad44aa714ceaf18724ab71f05",
+  "hash_command": "find skills tools -type f ! -name .DS_Store ! -path '*/__pycache__/*' -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+  "note": "高能力模型使用宽读取、批量编辑、递增验证链与单轮 tri-lens Q3 reviewer；目标是在 100 分质量门禁下继续降低完整 agent-tree token。"
+}

@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "agent_id": "019f8c84-62d0-71a0-a4d8-2692442b12e9",
+  "started_at": "2026-07-23T01:08:34.322Z",
+  "ended_at": "2026-07-23T02:27:55.073Z",
+  "duration_ms": 4760751,
+  "total_tokens": 19136529,
+  "agent_tree": [
+    {"role": "main", "session_id": "019f8c84-62d0-71a0-a4d8-2692442b12e9", "turns": 1, "duration_ms": 4760751, "total_tokens": 12630701},
+    {"role": "q1-intent", "session_id": "019f8c94-70c8-7753-817a-091a3798ed7d", "turns": 2, "duration_ms": 769410, "total_tokens": 1262201},
+    {"role": "q2-correctness", "session_id": "019f8ca0-e3a2-7442-97ec-8abb05c14307", "turns": 2, "duration_ms": 867415, "total_tokens": 1222687},
+    {"role": "q3-evidence", "session_id": "019f8cae-ca98-7e22-a8ac-6192b71f9979", "turns": 4, "duration_ms": 1759734, "total_tokens": 4020940}
+  ]
+}

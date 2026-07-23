@@ -1,0 +1,50 @@
+{
+  "root_task": "/root",
+  "executor": {
+    "task_path": "/root/journal_baseline_r2_clean",
+    "session_id": "unexposed_by_collaboration_api"
+  },
+  "children": [
+    {
+      "task_path": "/root/journal_baseline_r2_clean/q1_intent_round1",
+      "session_id": "unexposed_by_collaboration_api",
+      "status": "completed"
+    },
+    {
+      "task_path": "/root/journal_baseline_r2_clean/q2_correctness_round1",
+      "session_id": "unexposed_by_collaboration_api",
+      "status": "completed"
+    },
+    {
+      "task_path": "/root/journal_baseline_r2_clean/q3_evidence_round1",
+      "session_id": "unexposed_by_collaboration_api",
+      "status": "completed"
+    },
+    {
+      "task_path": "/root/journal_baseline_r2_clean/q1_intent_round2",
+      "session_id": "unexposed_by_collaboration_api",
+      "status": "completed"
+    },
+    {
+      "task_path": "/root/journal_baseline_r2_clean/q2_correctness_round2",
+      "session_id": "unexposed_by_collaboration_api",
+      "status": "completed"
+    },
+    {
+      "task_path": "/root/journal_baseline_r2_clean/q3_evidence_round2",
+      "session_id": "unexposed_by_collaboration_api",
+      "status": "completed"
+    },
+    {
+      "task_path": "/root/journal_baseline_r2_clean/q3_evidence_round3",
+      "session_id": "unexposed_by_collaboration_api",
+      "status": "completed"
+    },
+    {
+      "task_path": "/root/journal_baseline_r2_clean/q3_evidence_round4",
+      "session_id": "unexposed_by_collaboration_api",
+      "status": "completed"
+    }
+  ],
+  "running_children_at_completion": []
+}

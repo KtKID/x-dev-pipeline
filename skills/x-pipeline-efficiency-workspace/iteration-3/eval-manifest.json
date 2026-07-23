@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "model": "gpt-5.6-sol",
+  "repo_sha": "1a461b9852180e74b983f4a933e7dd45f2855a57",
+  "execution_order": "serial; one top-level executor at a time so skill-required reviewers retain a free agent slot",
+  "fresh_context": "fork_turns:none for every executor",
+  "runs_per_configuration": 2,
+  "formal_eval_ids": [11],
+  "protocol_status": "repaired-before-baseline-run-2",
+  "evals": [
+    {
+      "eval_id": 11,
+      "name": "journal-index-recovery",
+      "prompt_file_sha256": "e0553105744253f76e8d2bdd63a0cdb0d1e2d6534d72a4f776485bb99c5e50c9",
+      "rubric_sha256": "86b9824d6a7a90b31da8b791da3e65439b9b58f67a1cd26e674e5ae6b40df2b4",
+      "evaluator_sha256": "dbb6a7143d92bb77cc83e35d0973a7eb3d300f86dec14834c9cd3064be648183",
+      "input_tree_sha256": "eb4b444dc4825130d860f6bcc0fa14301c5cb1f0dc9fc078843b036fe0fc99ef",
+      "runs_fresh": [1, 2]
+    }
+  ],
+  "baseline_snapshot": {
+    "name": "baseline-20260723",
+    "sha256": "c4f98677d4920dc943ac52250b032092582389a04115a0743f0cd46a88a5ae78"
+  },
+  "candidate_snapshot": {
+    "name": "candidate-batched-trilens-20260723",
+    "sha256": "bc0437cbf5a341960fd5f8e3f93b4e63ba05698ad44aa714ceaf18724ab71f05"
+  },
+  "promotion_gate": {
+    "candidate_quality_score_each_run": 100,
+    "critical_assertions_required": "1-19",
+    "per_case_candidate_median_token_delta_vs_baseline_max_percent": -10,
+    "pooled_candidate_median_token_delta_vs_baseline_max_percent": -10
+  },
+  "result": {
+    "formal_case": "journal-index-recovery",
+    "candidate_scores": [100, 100],
+    "baseline_scores": [95, 95],
+    "candidate_median_tokens": 8017101.5,
+    "baseline_median_tokens": 22113622.5,
+    "median_token_delta": -14096521,
+    "median_token_delta_percent": -63.74586976873644,
+    "mean_wall_time_delta_percent": -63.06390809555376,
+    "promotion_gate_passed": true
+  }
+}

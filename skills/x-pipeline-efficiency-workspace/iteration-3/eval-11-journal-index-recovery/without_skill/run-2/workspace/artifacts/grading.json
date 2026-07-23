@@ -1,0 +1,42 @@
+{
+  "run": "without_skill/run-2",
+  "result": "blocked_by_qa_fix_limit",
+  "implementation": {
+    "unittest": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONWARNINGS=error::ResourceWarning python3 -m unittest discover -s fixture/backend/tests -v",
+      "tests": 14,
+      "passed": 14,
+      "failed": 0
+    },
+    "gate_1": {
+      "command": "python3 tools/xdev.py verify docs/spec/journal-index-recovery/tasks/implement-journal-index --json",
+      "pass": 14,
+      "fail": 0,
+      "manual": 0,
+      "uncovered": 0
+    }
+  },
+  "gate_2": {
+    "risk": "Q3",
+    "resolved_p1": [
+      "issue-1",
+      "issue-2",
+      "issue-5",
+      "issue-6",
+      "issue-11",
+      "issue-12",
+      "issue-13",
+      "issue-14",
+      "issue-15"
+    ],
+    "remaining_p1": [
+      "issue-10"
+    ],
+    "fix_attempts": 3,
+    "blocked_report": "docs/spec/journal-index-recovery/tasks/implement-journal-index/reports/fix/fix-blocked-report.md"
+  },
+  "external_hidden_grader": {
+    "availability": "prohibited_by_isolation_contract",
+    "reason": "The run contract forbids reading evaluator, rubric, answer, oracle, prior-result, and sibling-run material."
+  }
+}

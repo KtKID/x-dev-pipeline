@@ -1,0 +1,540 @@
+{
+  "metadata": {
+    "skill_name": "x-dev-pipeline",
+    "skill_path": "skills/x-spec3,skills/x-req3,skills/x-dev,skills/x-verify,skills/x-qa-gate,skills/x-fix",
+    "executor_model": "gpt-5.6-sol",
+    "timestamp": "2026-07-23T04:50:48.935Z",
+    "evals_run": [
+      11
+    ],
+    "runs_per_configuration": 2,
+    "pilot": false,
+    "sample_size_per_configuration": 2
+  },
+  "runs": [
+    {
+      "eval_id": 11,
+      "eval_name": "journal-index-recovery",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 20,
+        "failed": 0,
+        "total": 20,
+        "time_seconds": 1539.247,
+        "tokens": 6606699,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "CLI JSON 结构与稳定退出码符合契约。",
+          "passed": true,
+          "evidence": "CLI emitted one JSON object and stable usage/not-found/version/idempotency exits"
+        },
+        {
+          "text": "put/get/list 跨进程保持值、version 与排序。",
+          "passed": true,
+          "evidence": "put/get/list persisted exact values and versions across fresh CLI processes"
+        },
+        {
+          "text": "同 request_id 同内容重试返回原 seq 且不追加。",
+          "passed": true,
+          "evidence": "identical request replay returned seq=1 and appended zero bytes"
+        },
+        {
+          "text": "同 request_id 不同内容产生无副作用幂等冲突。",
+          "passed": true,
+          "evidence": "request_id conflict preserved log and live value"
+        },
+        {
+          "text": "expected_version 冲突保持状态稳定。",
+          "passed": true,
+          "evidence": "stale expected_version caused a side-effect-free VERSION_CONFLICT"
+        },
+        {
+          "text": "delete、tombstone version 与 NOT_FOUND 语义正确。",
+          "passed": true,
+          "evidence": "delete hid live data, retained version=2, and allowed versioned resurrection"
+        },
+        {
+          "text": "events.log 使用规范 JSON 与可独立校验 CRC-32。",
+          "passed": true,
+          "evidence": "events.log matched canonical UTF-8 JSON and independently computed CRC-32"
+        },
+        {
+          "text": "截断尾部触发恢复并精确截断。",
+          "passed": true,
+          "evidence": "recover truncated an incomplete tail at the last valid byte boundary"
+        },
+        {
+          "text": "最后记录 CRC 损坏可恢复且既有状态稳定。",
+          "passed": true,
+          "evidence": "recover removed a final CRC-invalid record and preserved committed state"
+        },
+        {
+          "text": "中间记录损坏只读失败且 recover 拒绝改写。",
+          "passed": true,
+          "evidence": "middle corruption produced read-only CORRUPT_LOG for normal and recover paths"
+        },
+        {
+          "text": "compact 通过 snapshot + 空 log 恢复 live/tombstone 状态。",
+          "passed": true,
+          "evidence": "compact restored live and tombstoned states from snapshot with an empty log"
+        },
+        {
+          "text": "compact 保留幂等账本与后续 seq 单调性。",
+          "passed": true,
+          "evidence": "snapshot retained request replay data and next global seq"
+        },
+        {
+          "text": "未提交 snapshot 临时文件被忽略，损坏的已提交 snapshot 被拒绝。",
+          "passed": true,
+          "evidence": "stale snapshot.tmp was ignored and malformed committed snapshot was rejected"
+        },
+        {
+          "text": "多进程并发写不同 key 无丢失且 seq 唯一。",
+          "passed": true,
+          "evidence": "20 concurrent processes committed unique seq values with no lost keys"
+        },
+        {
+          "text": "同 key 同 expected_version 并发更新只有一个成功。",
+          "passed": true,
+          "evidence": "one of eight same-version writers committed and seven observed VERSION_CONFLICT"
+        },
+        {
+          "text": "backend 运行时代码只依赖 Python 标准库与本地模块。",
+          "passed": true,
+          "evidence": "backend imports resolve to Python stdlib or local modules"
+        },
+        {
+          "text": "spec3 覆盖持久化状态机、损坏分类、并发不变量与稳定 Scenario。",
+          "passed": true,
+          "evidence": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-3/eval-11-journal-index-recovery/with_skill/run-1/workspace/docs/spec/journal-index-recovery/spec.md validates with stable scenarios and all four implementation modules"
+        },
+        {
+          "text": "req3 checklist 完整覆盖 Scenario 且通过机械校验。",
+          "passed": true,
+          "evidence": "1 checklist(s) cover all 14 scenarios and validate"
+        },
+        {
+          "text": "dev-report 提供可复跑的 unit、smoke、e2e 证据。",
+          "passed": true,
+          "evidence": "1 dev-report file(s) replayed unit, smoke, and e2e evidence"
+        },
+        {
+          "text": "运行产物保持在声明范围且输入未被改写。",
+          "passed": true,
+          "evidence": "task and fixture README remained byte-identical; no nested git or pid state"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 11,
+      "eval_name": "journal-index-recovery",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.95,
+        "passed": 19,
+        "failed": 1,
+        "total": 20,
+        "time_seconds": 4760.751,
+        "tokens": 19136529,
+        "tool_calls": 0,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "CLI JSON 结构与稳定退出码符合契约。",
+          "passed": true,
+          "evidence": "CLI emitted one JSON object and stable usage/not-found/version/idempotency exits"
+        },
+        {
+          "text": "put/get/list 跨进程保持值、version 与排序。",
+          "passed": true,
+          "evidence": "put/get/list persisted exact values and versions across fresh CLI processes"
+        },
+        {
+          "text": "同 request_id 同内容重试返回原 seq 且不追加。",
+          "passed": true,
+          "evidence": "identical request replay returned seq=1 and appended zero bytes"
+        },
+        {
+          "text": "同 request_id 不同内容产生无副作用幂等冲突。",
+          "passed": true,
+          "evidence": "request_id conflict preserved log and live value"
+        },
+        {
+          "text": "expected_version 冲突保持状态稳定。",
+          "passed": true,
+          "evidence": "stale expected_version caused a side-effect-free VERSION_CONFLICT"
+        },
+        {
+          "text": "delete、tombstone version 与 NOT_FOUND 语义正确。",
+          "passed": true,
+          "evidence": "delete hid live data, retained version=2, and allowed versioned resurrection"
+        },
+        {
+          "text": "events.log 使用规范 JSON 与可独立校验 CRC-32。",
+          "passed": true,
+          "evidence": "events.log matched canonical UTF-8 JSON and independently computed CRC-32"
+        },
+        {
+          "text": "截断尾部触发恢复并精确截断。",
+          "passed": true,
+          "evidence": "recover truncated an incomplete tail at the last valid byte boundary"
+        },
+        {
+          "text": "最后记录 CRC 损坏可恢复且既有状态稳定。",
+          "passed": true,
+          "evidence": "recover removed a final CRC-invalid record and preserved committed state"
+        },
+        {
+          "text": "中间记录损坏只读失败且 recover 拒绝改写。",
+          "passed": true,
+          "evidence": "middle corruption produced read-only CORRUPT_LOG for normal and recover paths"
+        },
+        {
+          "text": "compact 通过 snapshot + 空 log 恢复 live/tombstone 状态。",
+          "passed": true,
+          "evidence": "compact restored live and tombstoned states from snapshot with an empty log"
+        },
+        {
+          "text": "compact 保留幂等账本与后续 seq 单调性。",
+          "passed": true,
+          "evidence": "snapshot retained request replay data and next global seq"
+        },
+        {
+          "text": "未提交 snapshot 临时文件被忽略，损坏的已提交 snapshot 被拒绝。",
+          "passed": true,
+          "evidence": "stale snapshot.tmp was ignored and malformed committed snapshot was rejected"
+        },
+        {
+          "text": "多进程并发写不同 key 无丢失且 seq 唯一。",
+          "passed": true,
+          "evidence": "20 concurrent processes committed unique seq values with no lost keys"
+        },
+        {
+          "text": "同 key 同 expected_version 并发更新只有一个成功。",
+          "passed": true,
+          "evidence": "one of eight same-version writers committed and seven observed VERSION_CONFLICT"
+        },
+        {
+          "text": "backend 运行时代码只依赖 Python 标准库与本地模块。",
+          "passed": true,
+          "evidence": "backend imports resolve to Python stdlib or local modules"
+        },
+        {
+          "text": "spec3 覆盖持久化状态机、损坏分类、并发不变量与稳定 Scenario。",
+          "passed": true,
+          "evidence": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-3/eval-11-journal-index-recovery/without_skill/run-1/workspace/docs/spec/journal-index-recovery/spec.md validates with stable scenarios and all four implementation modules"
+        },
+        {
+          "text": "req3 checklist 完整覆盖 Scenario 且通过机械校验。",
+          "passed": true,
+          "evidence": "1 checklist(s) cover all 16 scenarios and validate"
+        },
+        {
+          "text": "dev-report 提供可复跑的 unit、smoke、e2e 证据。",
+          "passed": false,
+          "evidence": "AssertionError: "
+        },
+        {
+          "text": "运行产物保持在声明范围且输入未被改写。",
+          "passed": true,
+          "evidence": "task and fixture README remained byte-identical; no nested git or pid state"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 11,
+      "eval_name": "journal-index-recovery",
+      "configuration": "with_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 20,
+        "failed": 0,
+        "total": 20,
+        "time_seconds": 1872.47,
+        "tokens": 9427504,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "CLI JSON 结构与稳定退出码符合契约。",
+          "passed": true,
+          "evidence": "CLI emitted one JSON object and stable usage/not-found/version/idempotency exits"
+        },
+        {
+          "text": "put/get/list 跨进程保持值、version 与排序。",
+          "passed": true,
+          "evidence": "put/get/list persisted exact values and versions across fresh CLI processes"
+        },
+        {
+          "text": "同 request_id 同内容重试返回原 seq 且不追加。",
+          "passed": true,
+          "evidence": "identical request replay returned seq=1 and appended zero bytes"
+        },
+        {
+          "text": "同 request_id 不同内容产生无副作用幂等冲突。",
+          "passed": true,
+          "evidence": "request_id conflict preserved log and live value"
+        },
+        {
+          "text": "expected_version 冲突保持状态稳定。",
+          "passed": true,
+          "evidence": "stale expected_version caused a side-effect-free VERSION_CONFLICT"
+        },
+        {
+          "text": "delete、tombstone version 与 NOT_FOUND 语义正确。",
+          "passed": true,
+          "evidence": "delete hid live data, retained version=2, and allowed versioned resurrection"
+        },
+        {
+          "text": "events.log 使用规范 JSON 与可独立校验 CRC-32。",
+          "passed": true,
+          "evidence": "events.log matched canonical UTF-8 JSON and independently computed CRC-32"
+        },
+        {
+          "text": "截断尾部触发恢复并精确截断。",
+          "passed": true,
+          "evidence": "recover truncated an incomplete tail at the last valid byte boundary"
+        },
+        {
+          "text": "最后记录 CRC 损坏可恢复且既有状态稳定。",
+          "passed": true,
+          "evidence": "recover removed a final CRC-invalid record and preserved committed state"
+        },
+        {
+          "text": "中间记录损坏只读失败且 recover 拒绝改写。",
+          "passed": true,
+          "evidence": "middle corruption produced read-only CORRUPT_LOG for normal and recover paths"
+        },
+        {
+          "text": "compact 通过 snapshot + 空 log 恢复 live/tombstone 状态。",
+          "passed": true,
+          "evidence": "compact restored live and tombstoned states from snapshot with an empty log"
+        },
+        {
+          "text": "compact 保留幂等账本与后续 seq 单调性。",
+          "passed": true,
+          "evidence": "snapshot retained request replay data and next global seq"
+        },
+        {
+          "text": "未提交 snapshot 临时文件被忽略，损坏的已提交 snapshot 被拒绝。",
+          "passed": true,
+          "evidence": "stale snapshot.tmp was ignored and malformed committed snapshot was rejected"
+        },
+        {
+          "text": "多进程并发写不同 key 无丢失且 seq 唯一。",
+          "passed": true,
+          "evidence": "20 concurrent processes committed unique seq values with no lost keys"
+        },
+        {
+          "text": "同 key 同 expected_version 并发更新只有一个成功。",
+          "passed": true,
+          "evidence": "one of eight same-version writers committed and seven observed VERSION_CONFLICT"
+        },
+        {
+          "text": "backend 运行时代码只依赖 Python 标准库与本地模块。",
+          "passed": true,
+          "evidence": "backend imports resolve to Python stdlib or local modules"
+        },
+        {
+          "text": "spec3 覆盖持久化状态机、损坏分类、并发不变量与稳定 Scenario。",
+          "passed": true,
+          "evidence": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-3/eval-11-journal-index-recovery/with_skill/run-2/workspace/docs/spec/journal-index-recovery/spec.md validates with stable scenarios and all four implementation modules"
+        },
+        {
+          "text": "req3 checklist 完整覆盖 Scenario 且通过机械校验。",
+          "passed": true,
+          "evidence": "1 checklist(s) cover all 12 scenarios and validate"
+        },
+        {
+          "text": "dev-report 提供可复跑的 unit、smoke、e2e 证据。",
+          "passed": true,
+          "evidence": "1 dev-report file(s) replayed unit, smoke, and e2e evidence"
+        },
+        {
+          "text": "运行产物保持在声明范围且输入未被改写。",
+          "passed": true,
+          "evidence": "task and fixture README remained byte-identical; no nested git or pid state"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 11,
+      "eval_name": "journal-index-recovery",
+      "configuration": "without_skill",
+      "run_number": 2,
+      "result": {
+        "pass_rate": 0.95,
+        "passed": 19,
+        "failed": 1,
+        "total": 20,
+        "time_seconds": 4476.06,
+        "tokens": 25090716,
+        "tool_calls": 0,
+        "errors": 1
+      },
+      "expectations": [
+        {
+          "text": "CLI JSON 结构与稳定退出码符合契约。",
+          "passed": true,
+          "evidence": "CLI emitted one JSON object and stable usage/not-found/version/idempotency exits"
+        },
+        {
+          "text": "put/get/list 跨进程保持值、version 与排序。",
+          "passed": true,
+          "evidence": "put/get/list persisted exact values and versions across fresh CLI processes"
+        },
+        {
+          "text": "同 request_id 同内容重试返回原 seq 且不追加。",
+          "passed": true,
+          "evidence": "identical request replay returned seq=1 and appended zero bytes"
+        },
+        {
+          "text": "同 request_id 不同内容产生无副作用幂等冲突。",
+          "passed": true,
+          "evidence": "request_id conflict preserved log and live value"
+        },
+        {
+          "text": "expected_version 冲突保持状态稳定。",
+          "passed": true,
+          "evidence": "stale expected_version caused a side-effect-free VERSION_CONFLICT"
+        },
+        {
+          "text": "delete、tombstone version 与 NOT_FOUND 语义正确。",
+          "passed": true,
+          "evidence": "delete hid live data, retained version=2, and allowed versioned resurrection"
+        },
+        {
+          "text": "events.log 使用规范 JSON 与可独立校验 CRC-32。",
+          "passed": true,
+          "evidence": "events.log matched canonical UTF-8 JSON and independently computed CRC-32"
+        },
+        {
+          "text": "截断尾部触发恢复并精确截断。",
+          "passed": true,
+          "evidence": "recover truncated an incomplete tail at the last valid byte boundary"
+        },
+        {
+          "text": "最后记录 CRC 损坏可恢复且既有状态稳定。",
+          "passed": true,
+          "evidence": "recover removed a final CRC-invalid record and preserved committed state"
+        },
+        {
+          "text": "中间记录损坏只读失败且 recover 拒绝改写。",
+          "passed": true,
+          "evidence": "middle corruption produced read-only CORRUPT_LOG for normal and recover paths"
+        },
+        {
+          "text": "compact 通过 snapshot + 空 log 恢复 live/tombstone 状态。",
+          "passed": true,
+          "evidence": "compact restored live and tombstoned states from snapshot with an empty log"
+        },
+        {
+          "text": "compact 保留幂等账本与后续 seq 单调性。",
+          "passed": true,
+          "evidence": "snapshot retained request replay data and next global seq"
+        },
+        {
+          "text": "未提交 snapshot 临时文件被忽略，损坏的已提交 snapshot 被拒绝。",
+          "passed": true,
+          "evidence": "stale snapshot.tmp was ignored and malformed committed snapshot was rejected"
+        },
+        {
+          "text": "多进程并发写不同 key 无丢失且 seq 唯一。",
+          "passed": true,
+          "evidence": "20 concurrent processes committed unique seq values with no lost keys"
+        },
+        {
+          "text": "同 key 同 expected_version 并发更新只有一个成功。",
+          "passed": true,
+          "evidence": "one of eight same-version writers committed and seven observed VERSION_CONFLICT"
+        },
+        {
+          "text": "backend 运行时代码只依赖 Python 标准库与本地模块。",
+          "passed": true,
+          "evidence": "backend imports resolve to Python stdlib or local modules"
+        },
+        {
+          "text": "spec3 覆盖持久化状态机、损坏分类、并发不变量与稳定 Scenario。",
+          "passed": true,
+          "evidence": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-3/eval-11-journal-index-recovery/without_skill/run-2/workspace/docs/spec/journal-index-recovery/spec.md validates with stable scenarios and all four implementation modules"
+        },
+        {
+          "text": "req3 checklist 完整覆盖 Scenario 且通过机械校验。",
+          "passed": true,
+          "evidence": "1 checklist(s) cover all 14 scenarios and validate"
+        },
+        {
+          "text": "dev-report 提供可复跑的 unit、smoke、e2e 证据。",
+          "passed": false,
+          "evidence": "AssertionError: "
+        },
+        {
+          "text": "运行产物保持在声明范围且输入未被改写。",
+          "passed": true,
+          "evidence": "task and fixture README remained byte-identical; no nested git or pid state"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 1705.8585,
+        "stddev": 166.61149999999998,
+        "min": 1539.247,
+        "max": 1872.47
+      },
+      "tokens": {
+        "mean": 8017101.5,
+        "stddev": 1410402.5,
+        "min": 6606699.0,
+        "max": 9427504.0
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.95,
+        "stddev": 0.0,
+        "min": 0.95,
+        "max": 0.95
+      },
+      "time_seconds": {
+        "mean": 4618.405500000001,
+        "stddev": 142.3454999999999,
+        "min": 4476.06,
+        "max": 4760.751
+      },
+      "tokens": {
+        "mean": 22113622.5,
+        "stddev": 2977093.5,
+        "min": 19136529.0,
+        "max": 25090716.0
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.05",
+      "time_seconds": "-2912.5",
+      "tokens": "-14096521"
+    }
+  },
+  "notes": []
+}

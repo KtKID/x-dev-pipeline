@@ -1,0 +1,23 @@
+{
+  "run": "without_skill/run-2",
+  "token_buckets": {
+    "executor": null,
+    "reviewers": null,
+    "total": null,
+    "collection_status": "unavailable_in_collaboration_api"
+  },
+  "work_counts": {
+    "fresh_reviewers": 8,
+    "qa_fix_attempts": 3,
+    "spec_scenarios": 14,
+    "unittest_tests": 14,
+    "gate_1_auto_blocks": 14,
+    "gate_1_failures": 0,
+    "gate_2_remaining_p1": 1
+  },
+  "evidence": {
+    "dev_report": "docs/spec/journal-index-recovery/tasks/implement-journal-index/dev-report-20260723-034744.md",
+    "qa_ledger": "docs/spec/journal-index-recovery/tasks/implement-journal-index/reports/qa-gate/qa-gate-report-20260723-120503.md",
+    "fix_counter": "docs/spec/journal-index-recovery/tasks/implement-journal-index/reports/.fix-counter"
+  }
+}

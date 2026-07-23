@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "collector": {
+    "path": "tools/metrics.py",
+    "sha256": "6f9ddb19f92b7bf644b0575b2b38e3fa9287837519930b5b06581f4fe6a87daa",
+    "command_shape": "python3 tools/metrics.py extract --codex-session <root> --codex-session <q1> --codex-session <q2> --codex-session <q3> --metadata eval_metadata.json --grading grading.json --output measurement.json"
+  },
+  "evaluator": {
+    "path": "evals/answers/journal-index-recovery/evaluate.py",
+    "sha256": "dbb6a7143d92bb77cc83e35d0973a7eb3d300f86dec14834c9cd3064be648183",
+    "rubric_sha256": "86b9824d6a7a90b31da8b791da3e65439b9b58f67a1cd26e674e5ae6b40df2b4",
+    "command_shape": "python3 evals/answers/journal-index-recovery/evaluate.py <workspace> --output grading.json"
+  },
+  "rollouts": [
+    {
+      "session_id": "019f8c84-62d0-71a0-a4d8-2692442b12e9",
+      "file": "rollout-2026-07-23T09-08-34-019f8c84-62d0-71a0-a4d8-2692442b12e9.jsonl",
+      "sha256": "940c9f6449c858e98e6bbf17f7352ca5821bc74dd11266bc965f545f52bcea6e"
+    },
+    {
+      "session_id": "019f8c94-70c8-7753-817a-091a3798ed7d",
+      "file": "rollout-2026-07-23T09-26-06-019f8c94-70c8-7753-817a-091a3798ed7d.jsonl",
+      "sha256": "e18cee35a7b0c2f319ff66035ea360951e603d66c80e365ac50cb883753318dc"
+    },
+    {
+      "session_id": "019f8ca0-e3a2-7442-97ec-8abb05c14307",
+      "file": "rollout-2026-07-23T09-39-42-019f8ca0-e3a2-7442-97ec-8abb05c14307.jsonl",
+      "sha256": "ec5998f40acd85956bc4f62064432f81beaa9d51e73cac750ed903cef5c9b962"
+    },
+    {
+      "session_id": "019f8cae-ca98-7e22-a8ac-6192b71f9979",
+      "file": "rollout-2026-07-23T09-54-53-019f8cae-ca98-7e22-a8ac-6192b71f9979.jsonl",
+      "sha256": "39947144d5f89ffd12af821851a57df2314838c792842e98246c17b110ca2bdc"
+    }
+  ]
+}

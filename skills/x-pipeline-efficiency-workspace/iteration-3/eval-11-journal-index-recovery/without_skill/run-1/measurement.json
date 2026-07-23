@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "eval_id": 11,
+  "eval_name": "journal-index-recovery",
+  "configuration": "without_skill",
+  "run_number": 1,
+  "source": {
+    "kind": "codex_rollout_tree",
+    "root_id": "019f8c84-62d0-71a0-a4d8-2692442b12e9",
+    "ids": [
+      "019f8c84-62d0-71a0-a4d8-2692442b12e9",
+      "019f8c94-70c8-7753-817a-091a3798ed7d",
+      "019f8ca0-e3a2-7442-97ec-8abb05c14307",
+      "019f8cae-ca98-7e22-a8ac-6192b71f9979"
+    ],
+    "incomplete_ids": []
+  },
+  "model": "gpt-5.6-sol",
+  "repo_sha": "1a461b9852180e74b983f4a933e7dd45f2855a57",
+  "prompt_sha256": "sha256:a351e957ca085adfbe987b610462b8f4091da163154ed70cf3fb4663d64f12c4",
+  "started_at": "2026-07-23T01:08:34.322Z",
+  "ended_at": "2026-07-23T02:27:55.073Z",
+  "duration_ms": 4760751,
+  "tokens": {
+    "input": 18949523,
+    "cached_input": 18391296,
+    "output": 187006,
+    "reasoning_output": 76881,
+    "total": 19136529
+  },
+  "quality": {
+    "passed": 19,
+    "total": 20,
+    "pass_rate": 0.95
+  }
+}
