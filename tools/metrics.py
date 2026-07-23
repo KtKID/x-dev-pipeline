@@ -318,7 +318,7 @@ def _codex_token_delta(
 
 
 def parse_codex_session_source(
-    path: Path, grader_only_inputs: list[str]
+    path: Path, grader_only_inputs: list[str], *, allow_incomplete: bool = False
 ) -> dict[str, Any]:
     """把一个显式 Codex session JSONL 转换为 normalized source。
 
@@ -346,17 +346,17 @@ def parse_codex_session_source(
         and isinstance(rows[index][2].get("payload"), dict)
         and rows[index][2]["payload"].get("type") == "task_complete"
     ]
-    if not completions:
-        raise InvalidSample("活动 session 缺少 task_complete")
-    active_end_index = completions[-1]
-
     turns = [
         (index, rows[index])
         for index in range(active_start_index, len(rows))
         if rows[index][2].get("type") == "turn_context"
     ]
-    if turns[-1][0] >= active_end_index:
+    is_complete = bool(completions) and turns[-1][0] < completions[-1]
+    if not is_complete and not allow_incomplete:
+        if not completions:
+            raise InvalidSample("活动 session 缺少 task_complete")
         raise InvalidSample("最后活动 turn_context 之后缺少 task_complete")
+    active_end_index = completions[-1] if is_complete else len(rows) - 1
 
     models: set[str] = set()
     for _index, (line_number, _raw_line, row, _timestamp) in turns:
@@ -387,22 +387,31 @@ def parse_codex_session_source(
         if isinstance(candidate_sha, str) and candidate_sha.strip() != repo_sha:
             raise InvalidSample("活动执行窗口出现不同 repo SHA")
 
-    assistant_replies = [
-        (index, rows[index])
-        for index in range(active_start_index, active_end_index)
-        if rows[index][2].get("type") == "response_item"
-        and isinstance(rows[index][2].get("payload"), dict)
-        and rows[index][2]["payload"].get("type") == "message"
-        and rows[index][2]["payload"].get("role") == "assistant"
-    ]
-    last_turn_index = turns[-1][0]
-    assistant_replies = [item for item in assistant_replies if item[0] > last_turn_index]
-    if not assistant_replies:
-        raise InvalidSample("最后活动 turn_context 之后缺少 assistant 回复")
-    reply_index, (_line, _raw_line, reply_row, ended_at) = assistant_replies[-1]
+    reply_index: int | None = None
+    if is_complete:
+        assistant_replies = [
+            (index, rows[index])
+            for index in range(active_start_index, active_end_index)
+            if rows[index][2].get("type") == "response_item"
+            and isinstance(rows[index][2].get("payload"), dict)
+            and rows[index][2]["payload"].get("type") == "message"
+            and rows[index][2]["payload"].get("role") == "assistant"
+        ]
+        last_turn_index = turns[-1][0]
+        assistant_replies = [item for item in assistant_replies if item[0] > last_turn_index]
+        if not assistant_replies:
+            raise InvalidSample("最后活动 turn_context 之后缺少 assistant 回复")
+        reply_index, (_line, _raw_line, reply_row, ended_at) = assistant_replies[-1]
+        ended_at_raw = _non_empty_string(
+            reply_row.get("timestamp"), "assistant_reply.timestamp"
+        )
+    else:
+        _line, _raw_line, end_row, ended_at = rows[active_end_index]
+        ended_at_raw = _non_empty_string(
+            end_row.get("timestamp"), "incomplete_session.timestamp"
+        )
     if ended_at < started_at:
-        raise MetricsError("最后 assistant 回复时间早于 session_meta")
-    ended_at_raw = _non_empty_string(reply_row.get("timestamp"), "assistant_reply.timestamp")
+        raise MetricsError("session 结束时间早于 session_meta")
 
     baseline_usage: dict[str, Any] | None = None
     for index in range(header_index + 1, active_start_index):
@@ -411,11 +420,13 @@ def parse_codex_session_source(
             baseline_usage = usage
 
     active_usages: list[tuple[int, dict[str, Any]]] = []
-    for index in range(active_start_index, active_end_index):
+    for index in range(active_start_index, active_end_index + (0 if is_complete else 1)):
         usage = _codex_total_usage(rows[index][2])
         if usage is not None:
             active_usages.append((index, usage))
-    if not active_usages or active_usages[-1][0] <= reply_index:
+    if not active_usages:
+        raise InvalidSample("活动 session 缺少 token_count")
+    if is_complete and reply_index is not None and active_usages[-1][0] <= reply_index:
         raise InvalidSample("最后 assistant 回复之后缺少累计 token_count")
     final_usage = active_usages[-1][1]
     _validate_codex_token_snapshots(
@@ -439,6 +450,70 @@ def parse_codex_session_source(
         "ended_at": ended_at_raw,
         "duration_ms": duration_ms,
         "tokens": _codex_token_delta(baseline_usage, final_usage),
+        "complete": is_complete,
+    }
+
+
+def parse_codex_session_tree_source(
+    paths: list[Path], grader_only_inputs: list[str]
+) -> dict[str, Any]:
+    """聚合显式给出的 root 与 reviewer Codex sessions。
+
+    调用方负责按 root-first 顺序传入完整 agent tree。每个 session 仍独立执行
+    生命周期、模型、repo、token 单调性和 grader-only 检查；聚合只求和 token，
+    并用最早开始到最晚结束表示整棵执行树的墙钟时间。
+    """
+    if len(paths) < 2:
+        raise MetricsError("Codex session tree 至少需要两个显式 session")
+    sources = [parse_codex_session_source(paths[0], grader_only_inputs)]
+    sources.extend(
+        parse_codex_session_source(path, grader_only_inputs, allow_incomplete=True)
+        for path in paths[1:]
+    )
+    ids = [source["source"]["id"] for source in sources]
+    if len(set(ids)) != len(ids):
+        raise InvalidSample("Codex session tree 包含重复 session ID")
+    models = {source["model"] for source in sources}
+    if len(models) != 1:
+        raise InvalidSample(f"Codex session tree 模型数量必须为 1，实际 {len(models)}")
+    repo_shas = {source["repo_sha"] for source in sources}
+    if len(repo_shas) != 1:
+        raise InvalidSample(
+            f"Codex session tree repo SHA 数量必须为 1，实际 {len(repo_shas)}"
+        )
+
+    starts = [
+        parse_timestamp(source["started_at"], f"session_tree[{index}].started_at")
+        for index, source in enumerate(sources, start=1)
+    ]
+    ends = [
+        parse_timestamp(source["ended_at"], f"session_tree[{index}].ended_at")
+        for index, source in enumerate(sources, start=1)
+    ]
+    started_at_index = min(range(len(starts)), key=starts.__getitem__)
+    ended_at_index = max(range(len(ends)), key=ends.__getitem__)
+    started_at = starts[started_at_index]
+    ended_at = ends[ended_at_index]
+    return {
+        "source": {
+            "kind": "codex_rollout_tree",
+            "root_id": ids[0],
+            "ids": ids,
+            "incomplete_ids": [
+                source["source"]["id"]
+                for source in sources
+                if not source["complete"]
+            ],
+        },
+        "model": sources[0]["model"],
+        "repo_sha": sources[0]["repo_sha"],
+        "started_at": sources[started_at_index]["started_at"],
+        "ended_at": sources[ended_at_index]["ended_at"],
+        "duration_ms": round((ended_at - started_at).total_seconds() * 1000),
+        "tokens": {
+            key: sum(source["tokens"][key] for source in sources)
+            for key in TOKEN_KEYS
+        },
     }
 
 
@@ -521,9 +596,15 @@ def extract_command(args: argparse.Namespace) -> int:
     metadata = validate_metadata(read_json(Path(args.metadata)))
     grading = read_json(Path(args.grading))
     if args.codex_session:
-        source = parse_codex_session_source(
-            Path(args.codex_session), metadata["grader_only_inputs"]
-        )
+        session_paths = [Path(path) for path in args.codex_session]
+        if len(session_paths) == 1:
+            source = parse_codex_session_source(
+                session_paths[0], metadata["grader_only_inputs"]
+            )
+        else:
+            source = parse_codex_session_tree_source(
+                session_paths, metadata["grader_only_inputs"]
+            )
     else:
         source = parse_timing_source(Path(args.timing))
     measurement, _expectations = build_measurement(metadata, grading, source)
@@ -591,6 +672,29 @@ def _load_grading_for_measurement(path: Path) -> dict[str, Any]:
     return read_json(grading_path) if grading_path.exists() else {}
 
 
+def _load_benchmark_metadata(iteration_dir: Path) -> dict[str, str]:
+    """读取可选的 benchmark-metadata.json，并保留 x-spec2 的兼容默认值。"""
+    defaults = {
+        "skill_name": "x-spec2",
+        "skill_path": "skills/x-spec2",
+        "pilot_note": "单样本 pilot 只验证测量链路，不用于推断 x-spec2 的稳定增益。",
+    }
+    path = iteration_dir / "benchmark-metadata.json"
+    if not path.exists():
+        return defaults
+    value = read_json(path)
+    if not isinstance(value, dict):
+        raise MetricsError(f"{path} 必须是 object")
+    result = dict(defaults)
+    for key in defaults:
+        if key in value:
+            field = value[key]
+            if not isinstance(field, str) or not field.strip():
+                raise MetricsError(f"{path}.{key} 必须是非空字符串")
+            result[key] = field.strip()
+    return result
+
+
 def aggregate_spec2(iteration_dir: Path) -> tuple[dict[str, Any], str]:
     """聚合一个 iteration 目录下所有成对的 with/without skill measurement。
 
@@ -603,6 +707,7 @@ def aggregate_spec2(iteration_dir: Path) -> tuple[dict[str, Any], str]:
 
     返回 ``(benchmark_dict, benchmark_markdown)``。
     """
+    benchmark_metadata = _load_benchmark_metadata(iteration_dir)
     paths = sorted(iteration_dir.rglob("measurement.json"))
     if not paths:
         raise InvalidSample(f"未找到 measurement.json: {iteration_dir}")
@@ -712,13 +817,11 @@ def aggregate_spec2(iteration_dir: Path) -> tuple[dict[str, Any], str]:
     }
     sample_size = len(pairs)
     pilot = sample_size == 1
-    notes = [
-        "单样本 pilot 只验证测量链路，不用于推断 x-spec2 的稳定增益。"
-    ] if pilot else []
+    notes = [benchmark_metadata["pilot_note"]] if pilot else []
     benchmark = {
         "metadata": {
-            "skill_name": "x-spec2",
-            "skill_path": "skills/x-spec2",
+            "skill_name": benchmark_metadata["skill_name"],
+            "skill_path": benchmark_metadata["skill_path"],
             "executor_model": pairs[0][1]["with_skill"][1]["model"],
             "timestamp": max(
                 (item["ended_at"] for _path, item in loaded if item["ended_at"] is not None),
@@ -735,7 +838,7 @@ def aggregate_spec2(iteration_dir: Path) -> tuple[dict[str, Any], str]:
     }
     # 生成 Markdown 摘要表格
     markdown_lines = [
-        "# Skill Benchmark: x-spec2",
+        f"# Skill Benchmark: {benchmark_metadata['skill_name']}",
         "",
         f"- Pilot: {'yes' if pilot else 'no'}",
         f"- Samples per configuration: {sample_size}",
@@ -783,7 +886,11 @@ def main(argv: list[str] | None = None) -> int:
     source = extract.add_mutually_exclusive_group(required=True)
     source.add_argument(
         "--codex-session", "--session", dest="codex_session",
-        help="已完成的 Codex rollout JSONL（--session 为兼容别名）",
+        action="append",
+        help=(
+            "已完成的 Codex rollout JSONL；按 root-first 顺序重复传入可聚合完整 "
+            "agent tree（--session 为兼容别名）"
+        ),
     )
     source.add_argument("--timing", help="子 agent 完成通知保存的 timing.json")
     extract.add_argument("--metadata", required=True, help="run eval_metadata.json")

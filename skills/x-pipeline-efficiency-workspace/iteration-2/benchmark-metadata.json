@@ -1,0 +1,5 @@
+{
+  "skill_name": "x-dev-pipeline",
+  "skill_path": "skills/x-spec3,skills/x-req3,skills/x-dev,skills/x-verify,skills/x-qa-gate,skills/x-fix",
+  "pilot_note": "单个自包含多模块 case 的一次 candidate 运行与冻结 baseline 配对，证明本轮门槛；稳定增益需要后续重复样本确认。"
+}

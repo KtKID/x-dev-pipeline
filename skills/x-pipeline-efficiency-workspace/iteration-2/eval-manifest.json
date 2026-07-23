@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "eval_id": 10,
+  "prompt_file_sha256": "bff313261b35c00b30041ff1bf5bc49c90829021c30ad55c6641b79a7458e6b5",
+  "executor_prompt_sha256": "sha256:4ad9f6916ba0c0dfe1d142bb9c7f42c6928969c93df1f9264c9560a417fedb5b",
+  "rubric_sha256": "880f6077b7c86a1fc1f1fda4654d640afe0193e12abdd61b456322ac24341491",
+  "evaluator_sha256": "6bc648083d9cdf1b47708b359fd95f72c20c7bb2941954adf39fb1ffd002d38c",
+  "input_tree_sha256": "f78ecb7e3249101aa49a432dc9957e2c0949846bb13355814a949ed32c3da251",
+  "baseline_snapshot_sha256": "c4f98677d4920dc943ac52250b032092582389a04115a0743f0cd46a88a5ae78",
+  "candidate_snapshot_sha256": "93a665d20e4b97cb9f6f1cb9a7a4584afa4178afe3eb277689a950dfbaba44ba",
+  "changed_file_sha256": {
+    "skills/x-qa-gate/SKILL.md": "dc7405577724ad2fc412e45ad21be24d50b68aa390ca3c667a62956ac53ab253",
+    "skills/x-dev/SKILL.md": "d6d75abe08e143e181a701e31af9756b92292ce645a3c8622642464862b9b573",
+    "skills/x-fix/SKILL.md": "d38aaee8859c9470ad4fb6d00c47515a6476e0d76802b575a148d2f382820c93",
+    "skills/x-fix/references/qa-gate-fix-mode.md": "82c8005046201bc32255a12828f38e59dd83ec618ed59938309d1a8429432e3d"
+  },
+  "promotion_gate": {
+    "quality_score_min": 90,
+    "critical_assertions_required": "1-19",
+    "agent_tree_total_token_delta_max_percent": -5
+  }
+}

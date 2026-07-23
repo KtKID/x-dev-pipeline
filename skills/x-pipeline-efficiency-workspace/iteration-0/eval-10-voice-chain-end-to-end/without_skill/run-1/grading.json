@@ -1,0 +1,120 @@
+{
+  "expectations": [
+    {
+      "text": "流式解码同时处理半包、粘包和连续多帧。",
+      "passed": true,
+      "evidence": "real TCP backend handled split HELLO and glued/split AUDIO_CHUNK frames"
+    },
+    {
+      "text": "协议错误返回 BAD_MAGIC、BAD_CRC、PAYLOAD_TOO_LARGE 并关闭连接。",
+      "passed": true,
+      "evidence": "all three protocol error codes returned and connections closed"
+    },
+    {
+      "text": "HELLO、流水线 AUDIO_CHUNK、AUDIO_END 与 ACK 顺序正确。",
+      "passed": true,
+      "evidence": "pipelined chunks acknowledged; AUDIO_END returned exact success payload"
+    },
+    {
+      "text": "upload.wav 与输入逐字节一致，AUDIO_END ACK 含 ok、text、reply。",
+      "passed": true,
+      "evidence": "upload.wav matched 32138 input bytes"
+    },
+    {
+      "text": "同一 session_id 断线续传并完成全链路。",
+      "passed": true,
+      "evidence": "HELLO last_seq=2 and resumed upload completed"
+    },
+    {
+      "text": "SHA-256 不匹配产生 INTEGRITY_FAIL 并跳过回复产物。",
+      "passed": true,
+      "evidence": "bad digest produced INTEGRITY_FAIL, no reply.wav, and zero upstream calls"
+    },
+    {
+      "text": "ASR、LLM、TTS 成功链路产出正确文本与 reply.wav。",
+      "passed": true,
+      "evidence": "ASR/LLM outputs and TTS WAV matched deterministic fixtures"
+    },
+    {
+      "text": "上游超时按配置产生 UPSTREAM_TIMEOUT。",
+      "passed": true,
+      "evidence": "all stages returned UPSTREAM_TIMEOUT with 120ms config: {'asr': 0.12276054199999997, 'llm': 0.13085541700000003, 'tts': 0.124755167}"
+    },
+    {
+      "text": "5xx 按 retry_max_5xx 重试并可恢复。",
+      "passed": true,
+      "evidence": "single injected 500 recovered at ASR, LLM, and TTS with retry_max_5xx=1"
+    },
+    {
+      "text": "4xx 零重试并产生 UPSTREAM_ERROR。",
+      "passed": true,
+      "evidence": "ASR/LLM/TTS 4xx returned promptly with retry_max_5xx=100000: {'asr': 0.0025375829999998434, 'llm': 0.002583249999999815, 'tts': 0.0026695830000000864}"
+    },
+    {
+      "text": "动态服务地址、超时和重试配置生效。",
+      "passed": true,
+      "evidence": "dynamic port 52122, retry=0, and timeout tiers affected behavior: {80: 0.08276925000000013, 400: 0.4028050420000002}"
+    },
+    {
+      "text": "AUDIO_END ACK 后下发连续 TTS_CHUNK 与 TTS_END。",
+      "passed": true,
+      "evidence": "ACK preceded 9 ordered TTS_CHUNK frames and TTS_END"
+    },
+    {
+      "text": "下行载荷为精确 PCM，并带可验证完整性摘要。",
+      "passed": true,
+      "evidence": "downlink matched 26656 PCM bytes with verifiable digest"
+    },
+    {
+      "text": "两台设备并发时会话、文件、结果与 PCM 隔离。",
+      "passed": true,
+      "evidence": "two concurrent sessions matched exact ACK, upload, reply.wav, and PCM oracles"
+    },
+    {
+      "text": "下行断连后端保持存活并服务其他会话。",
+      "passed": true,
+      "evidence": "backend stayed alive after a forced large downlink reset and completed a second session"
+    },
+    {
+      "text": "backend 运行时代码只依赖 Python 标准库与本地模块。",
+      "passed": true,
+      "evidence": "backend imports resolve to stdlib or local modules"
+    },
+    {
+      "text": "spec3 文档完整、可交接并使用稳定 Scenario ID。",
+      "passed": true,
+      "evidence": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-0/eval-10-voice-chain-end-to-end/without_skill/run-1/workspace/docs/spec/voice-chain/spec.md is a validated, ready spec3 contract with stable IDs and four backend modules"
+    },
+    {
+      "text": "req3 checklist 完整覆盖 Scenario 且通过机械校验。",
+      "passed": true,
+      "evidence": "1 checklist(s) cover 13 scenarios and validate"
+    },
+    {
+      "text": "dev-report 提供可复跑的 unit、smoke、e2e 证据。",
+      "passed": true,
+      "evidence": "1 dev-report file(s) replayed successfully through xdev verify"
+    },
+    {
+      "text": "运行产物保持隔离且无后台 pid 残留。",
+      "passed": true,
+      "evidence": "read-only task/oracles match frozen case; no pid files or nested git state"
+    }
+  ],
+  "summary": {
+    "passed": 20,
+    "failed": 0,
+    "total": 20,
+    "pass_rate": 1.0
+  },
+  "quality_score": 100,
+  "critical_gate_passed": true,
+  "execution_metrics": {
+    "total_tool_calls": 0,
+    "errors_encountered": 0
+  },
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "Deterministic local protocol, integration, concurrency, and artifact checks."
+  }
+}

@@ -337,6 +337,70 @@ class TestRolloutExtraction(MetricsTestCase):
         self.assertEqual(result["started_at"], "2026-07-20T00:00:00.000Z")
         self.assertEqual(result["ended_at"], "2026-07-20T00:00:04.800Z")
 
+    def test_repeated_codex_session_aggregates_explicit_agent_tree(self):
+        metadata_path, grading_path = self.prepare()
+        root_session = self.root / "root.jsonl"
+        reviewer_session = self.root / "reviewer.jsonl"
+        output = self.root / "measurement.json"
+        root_session.write_text(rollout(), encoding="utf-8")
+        reviewer_session.write_text(
+            rollout().replace('"session-1"', '"session-reviewer"', 1),
+            encoding="utf-8",
+        )
+        code, _stdout, stderr = self.run_main([
+            "extract",
+            "--codex-session", str(root_session),
+            "--codex-session", str(reviewer_session),
+            "--metadata", str(metadata_path),
+            "--grading", str(grading_path),
+            "--output", str(output),
+        ])
+        self.assertEqual(code, 0, stderr)
+        result = json.loads(output.read_text(encoding="utf-8"))
+        self.assertEqual(result["source"], {
+            "kind": "codex_rollout_tree",
+            "root_id": "session-1",
+            "ids": ["session-1", "session-reviewer"],
+            "incomplete_ids": [],
+        })
+        self.assertEqual(result["tokens"], {
+            "input": 800,
+            "cached_input": 500,
+            "output": 100,
+            "reasoning_output": 22,
+            "total": 900,
+        })
+        self.assertEqual(result["duration_ms"], 4800)
+
+    def test_agent_tree_rejects_duplicate_session_ids(self):
+        first = self.root / "first.jsonl"
+        second = self.root / "second.jsonl"
+        first.write_text(rollout(), encoding="utf-8")
+        second.write_text(rollout(), encoding="utf-8")
+        with self.assertRaisesRegex(metrics.InvalidSample, "重复 session ID"):
+            metrics.parse_codex_session_tree_source([first, second], [])
+
+    def test_agent_tree_counts_interrupted_child_last_token_snapshot(self):
+        root_session = self.root / "root.jsonl"
+        child_session = self.root / "child.jsonl"
+        root_session.write_text(rollout(), encoding="utf-8")
+        child_rows = [json.loads(line) for line in rollout().splitlines()]
+        child_rows[0]["payload"]["id"] = "session-interrupted"
+        child_rows[-1] = {
+            "timestamp": "2026-07-20T00:00:05.000Z",
+            "type": "event_msg",
+            "payload": {"type": "turn_aborted"},
+        }
+        child_session.write_text(
+            "\n".join(json.dumps(row) for row in child_rows) + "\n",
+            encoding="utf-8",
+        )
+        result = metrics.parse_codex_session_tree_source(
+            [root_session, child_session], []
+        )
+        self.assertEqual(result["source"]["incomplete_ids"], ["session-interrupted"])
+        self.assertEqual(result["tokens"]["total"], 900)
+
     def test_multiple_turns_and_completions_are_one_measurement(self):
         metadata_path, grading_path = self.prepare()
         session = self.root / "rollout.jsonl"
@@ -651,6 +715,24 @@ class TestAggregate(MetricsTestCase):
         self.assertEqual(self.run_main(args)[0], 0)
         self.assertEqual((self.root / "benchmark.json").read_bytes(), first_json)
         self.assertEqual((self.root / "benchmark.md").read_bytes(), first_md)
+
+    def test_paired_aggregate_uses_iteration_metadata(self):
+        self.make_measurement("with_skill")
+        self.make_measurement("without_skill")
+        write_json(self.root / "benchmark-metadata.json", {
+            "skill_name": "x-dev-pipeline",
+            "skill_path": "skills",
+            "pilot_note": "单样本，仅证明本轮结果。",
+        })
+        code, _stdout, stderr = self.run_main(["aggregate-spec2", str(self.root)])
+        self.assertEqual(code, 0, stderr)
+        result = json.loads((self.root / "benchmark.json").read_text(encoding="utf-8"))
+        self.assertEqual(result["metadata"]["skill_name"], "x-dev-pipeline")
+        self.assertEqual(result["metadata"]["skill_path"], "skills")
+        self.assertEqual(result["notes"], ["单样本，仅证明本轮结果。"])
+        self.assertIn("# Skill Benchmark: x-dev-pipeline", (
+            self.root / "benchmark.md"
+        ).read_text(encoding="utf-8"))
 
     def test_model_mismatch_is_invalid_pair(self):
         self.make_measurement("with_skill")

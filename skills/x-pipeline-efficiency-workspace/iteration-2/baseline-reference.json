@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "source_iteration": "skills/x-pipeline-efficiency-workspace/iteration-1",
+  "source_run": "eval-10-voice-chain-end-to-end/without_skill/run-1",
+  "measurement_sha256": "4e35380bbd2d92c4146a0efbd1240f32721001a591d4a1b2dbfbaff8c48e36f3",
+  "reuse_reason": "Prompt, model, repository commit, fixtures, evaluator, rubric, and baseline skill snapshot are frozen; candidate-only rerun isolates the iteration-2 changes."
+}

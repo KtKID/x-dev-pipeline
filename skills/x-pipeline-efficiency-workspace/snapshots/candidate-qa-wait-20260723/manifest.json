@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "snapshot_name": "candidate-qa-wait-20260723",
+  "source_repo": "/Volumes/machub_app/proj/x-dev-pipeline",
+  "source_branch": "evo",
+  "source_head": "d6d9218bf5f819be9ade8521856309f6da9613c3",
+  "source_worktree_dirty": true,
+  "captured_scope": [
+    "skills/x-spec3",
+    "skills/x-req3",
+    "skills/x-dev",
+    "skills/x-verify",
+    "skills/x-qa-gate",
+    "skills/x-fix",
+    "skills/x-cr",
+    "tools"
+  ],
+  "baseline_snapshot": "baseline-20260723",
+  "changed_files": [
+    "skills/x-qa-gate/SKILL.md"
+  ],
+  "snapshot_tree_sha256": "29bd6ed81df565cc1ee6ae99ddebfeebb144898e26a65a2e95919f291c5e9cde",
+  "hash_command": "find skills tools -type f ! -name .DS_Store ! -path '*/__pycache__/*' -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+  "note": "候选只修改 QA reviewer 的风险路由表述与 token 约束调度纪律，保留 Q3 三位独立 reviewer 和全部质量门禁。"
+}

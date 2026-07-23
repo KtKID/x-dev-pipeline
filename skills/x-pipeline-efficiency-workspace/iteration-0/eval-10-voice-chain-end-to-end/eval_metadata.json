@@ -1,0 +1,27 @@
+{
+  "eval_id": 10,
+  "eval_name": "voice-chain-end-to-end",
+  "prompt": "完成当前工作区 task/ 与 fixture/ 定义的语音对话后端全链路实现，并依次使用工作区内 x-spec3、x-req3、x-dev、x-verify，产出 docs/spec/voice-chain 下的规格、任务、开发和验证证据；只使用 Python 标准库、本地文件、本地进程和回环网络。",
+  "assertions": [
+    "流式解码同时处理半包、粘包和连续多帧。",
+    "协议错误返回 BAD_MAGIC、BAD_CRC、PAYLOAD_TOO_LARGE 并关闭连接。",
+    "HELLO、流水线 AUDIO_CHUNK、AUDIO_END 与 ACK 顺序正确。",
+    "upload.wav 与输入逐字节一致，AUDIO_END ACK 含 ok、text、reply。",
+    "同一 session_id 断线续传并完成全链路。",
+    "SHA-256 不匹配产生 INTEGRITY_FAIL 并跳过回复产物。",
+    "ASR、LLM、TTS 成功链路产出正确文本与 reply.wav。",
+    "上游超时按配置产生 UPSTREAM_TIMEOUT。",
+    "5xx 按 retry_max_5xx 重试并可恢复。",
+    "4xx 零重试并产生 UPSTREAM_ERROR。",
+    "动态服务地址、超时和重试配置生效。",
+    "AUDIO_END ACK 后下发连续 TTS_CHUNK 与 TTS_END。",
+    "下行载荷为精确 PCM，并带可验证完整性摘要。",
+    "两台设备并发时会话、文件、结果与 PCM 隔离。",
+    "下行断连后端保持存活并服务其他会话。",
+    "backend 运行时代码只依赖 Python 标准库与本地模块。",
+    "spec3 文档完整、可交接并使用稳定 Scenario ID。",
+    "req3 checklist 完整覆盖 Scenario 且通过机械校验。",
+    "dev-report 提供可复跑的 unit、smoke、e2e 证据。",
+    "运行产物保持隔离且无后台 pid 残留。"
+  ]
+}

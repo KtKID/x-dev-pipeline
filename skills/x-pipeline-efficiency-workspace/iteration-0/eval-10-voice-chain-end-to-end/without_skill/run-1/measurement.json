@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "eval_id": 10,
+  "eval_name": "voice-chain-end-to-end",
+  "configuration": "without_skill",
+  "run_number": 1,
+  "source": {
+    "kind": "codex_rollout_tree",
+    "root_id": "019f8ab0-1b49-7b51-80b8-72aba90cc389",
+    "ids": [
+      "019f8ab0-1b49-7b51-80b8-72aba90cc389",
+      "019f8abe-b9df-7011-aa7d-41e9a63593da",
+      "019f8ac2-1ea0-7613-ade4-6176d10d7411",
+      "019f8ac6-d336-7303-9f5b-ace3427f5978",
+      "019f8acc-7fe8-7d33-89b5-2b7efa9e135d"
+    ],
+    "incomplete_ids": [
+      "019f8ac2-1ea0-7613-ade4-6176d10d7411"
+    ]
+  },
+  "model": "gpt-5.6-sol",
+  "repo_sha": "d6d9218bf5f819be9ade8521856309f6da9613c3",
+  "prompt_sha256": "sha256:4ad9f6916ba0c0dfe1d142bb9c7f42c6928969c93df1f9264c9560a417fedb5b",
+  "started_at": "2026-07-22T16:37:05.170Z",
+  "ended_at": "2026-07-22T17:23:45.281Z",
+  "duration_ms": 2800111,
+  "tokens": {
+    "input": 15183380,
+    "cached_input": 14805504,
+    "output": 90533,
+    "reasoning_output": 29703,
+    "total": 15273913
+  },
+  "quality": {
+    "passed": 20,
+    "total": 20,
+    "pass_rate": 1.0
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "snapshot_name": "candidate-contract-replay-20260723",
+  "source_repo": "/Volumes/machub_app/proj/x-dev-pipeline",
+  "source_branch": "evo",
+  "source_head": "d6d9218bf5f819be9ade8521856309f6da9613c3",
+  "source_worktree_dirty": true,
+  "captured_scope": [
+    "skills/x-spec3",
+    "skills/x-req3",
+    "skills/x-dev",
+    "skills/x-verify",
+    "skills/x-qa-gate",
+    "skills/x-fix",
+    "skills/x-cr",
+    "tools"
+  ],
+  "baseline_snapshot": "baseline-20260723",
+  "changed_files": [
+    "skills/x-qa-gate/SKILL.md",
+    "skills/x-dev/SKILL.md",
+    "skills/x-fix/SKILL.md",
+    "skills/x-fix/references/qa-gate-fix-mode.md"
+  ],
+  "snapshot_tree_sha256": "93a665d20e4b97cb9f6f1cb9a7a4584afa4178afe3eb277689a950dfbaba44ba",
+  "hash_command": "find skills tools -type f ! -name .DS_Store ! -path '*/__pycache__/*' -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+  "note": "在 iteration-1 QA 调度优化上增加 reviewer 单轮终止、原始最小配置回放与 unit/smoke/e2e 显式证据标签。"
+}

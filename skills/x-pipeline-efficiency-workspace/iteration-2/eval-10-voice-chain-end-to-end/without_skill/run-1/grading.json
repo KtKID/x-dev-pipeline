@@ -1,0 +1,120 @@
+{
+  "expectations": [
+    {
+      "text": "流式解码同时处理半包、粘包和连续多帧。",
+      "passed": false,
+      "evidence": "AssertionError: "
+    },
+    {
+      "text": "协议错误返回 BAD_MAGIC、BAD_CRC、PAYLOAD_TOO_LARGE 并关闭连接。",
+      "passed": true,
+      "evidence": "all three protocol error codes returned and connections closed"
+    },
+    {
+      "text": "HELLO、流水线 AUDIO_CHUNK、AUDIO_END 与 ACK 顺序正确。",
+      "passed": false,
+      "evidence": "AssertionError: (5, 0, b'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}')"
+    },
+    {
+      "text": "upload.wav 与输入逐字节一致，AUDIO_END ACK 含 ok、text、reply。",
+      "passed": false,
+      "evidence": "AssertionError: (5, 0, b'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}')"
+    },
+    {
+      "text": "同一 session_id 断线续传并完成全链路。",
+      "passed": false,
+      "evidence": "AssertionError: (5, 0, b'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}')"
+    },
+    {
+      "text": "SHA-256 不匹配产生 INTEGRITY_FAIL 并跳过回复产物。",
+      "passed": false,
+      "evidence": "AssertionError: (5, 0, b'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}')"
+    },
+    {
+      "text": "ASR、LLM、TTS 成功链路产出正确文本与 reply.wav。",
+      "passed": false,
+      "evidence": "AssertionError: (5, 0, b'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}')"
+    },
+    {
+      "text": "上游超时按配置产生 UPSTREAM_TIMEOUT。",
+      "passed": false,
+      "evidence": "AssertionError: (5, 0, b'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}')"
+    },
+    {
+      "text": "5xx 按 retry_max_5xx 重试并可恢复。",
+      "passed": false,
+      "evidence": "AssertionError: (5, 0, b'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}')"
+    },
+    {
+      "text": "4xx 零重试并产生 UPSTREAM_ERROR。",
+      "passed": false,
+      "evidence": "AssertionError: (5, 0, b'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}')"
+    },
+    {
+      "text": "动态服务地址、超时和重试配置生效。",
+      "passed": false,
+      "evidence": "AssertionError: (5, 0, b'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}')"
+    },
+    {
+      "text": "AUDIO_END ACK 后下发连续 TTS_CHUNK 与 TTS_END。",
+      "passed": false,
+      "evidence": "AssertionError: (5, 0, b'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}')"
+    },
+    {
+      "text": "下行载荷为精确 PCM，并带可验证完整性摘要。",
+      "passed": false,
+      "evidence": "AssertionError: (5, 0, b'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}')"
+    },
+    {
+      "text": "两台设备并发时会话、文件、结果与 PCM 隔离。",
+      "passed": false,
+      "evidence": "AssertionError: ['a: (5, 0, b\\'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}\\')', 'b: (5, 0, b\\'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}\\')']"
+    },
+    {
+      "text": "下行断连后端保持存活并服务其他会话。",
+      "passed": false,
+      "evidence": "AssertionError: (5, 0, b'{\"code\":\"UPSTREAM_ERROR\",\"msg\":\"internal processing failure\"}')"
+    },
+    {
+      "text": "backend 运行时代码只依赖 Python 标准库与本地模块。",
+      "passed": true,
+      "evidence": "backend imports resolve to stdlib or local modules"
+    },
+    {
+      "text": "spec3 文档完整、可交接并使用稳定 Scenario ID。",
+      "passed": true,
+      "evidence": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-1/eval-10-voice-chain-end-to-end/without_skill/run-1/workspace/docs/spec/voice-chain/spec.md is a validated, ready spec3 contract with stable IDs and four backend modules"
+    },
+    {
+      "text": "req3 checklist 完整覆盖 Scenario 且通过机械校验。",
+      "passed": true,
+      "evidence": "1 checklist(s) cover 13 scenarios and validate"
+    },
+    {
+      "text": "dev-report 提供可复跑的 unit、smoke、e2e 证据。",
+      "passed": true,
+      "evidence": "1 dev-report file(s) replayed successfully through xdev verify"
+    },
+    {
+      "text": "运行产物保持隔离且无后台 pid 残留。",
+      "passed": true,
+      "evidence": "read-only task/oracles match frozen case; no pid files or nested git state"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 14,
+    "total": 20,
+    "pass_rate": 0.3
+  },
+  "quality_score": 30,
+  "critical_gate_passed": false,
+  "execution_metrics": {
+    "total_tool_calls": 0,
+    "errors_encountered": 14
+  },
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "Deterministic local protocol, integration, concurrency, and artifact checks."
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "listen_host": "127.0.0.1",
+  "mock_base_url": "http://127.0.0.1:9100",
+  "service_timeout_ms": 5000,
+  "retry_max_5xx": 1
+}

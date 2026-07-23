@@ -261,6 +261,31 @@
         "reference": "evals/problems/EVALUATION.md",
         "rubric_exposed": false
       }
+    },
+    {
+      "id": 10,
+      "name": "voice-chain-end-to-end",
+      "evaluation_type": "paired_pipeline_implementation",
+      "prompt_file": "evals/problems/voice-chain-end-to-end/PROMPT.md",
+      "expected_output": "使用冻结的 x-dev-pipeline 完成自包含 Python 语音链路的 spec、req、实现和验证，并通过独立隐藏协议与集成评分。",
+      "files": [
+        "cases/voice-chain/task",
+        "cases/voice-chain/fixture"
+      ],
+      "repetitions_per_configuration": 1,
+      "expectations": [
+        "流式协议处理半包、粘包与错误帧。",
+        "上传、断线续传与完整性校验正确。",
+        "ASR、LLM、TTS 编排及超时、4xx、5xx 策略正确。",
+        "PCM 下行、完整性、顺序与断连隔离正确。",
+        "多设备并发会话完全隔离。",
+        "spec3、req3 与 verify 证据形成可复跑闭环。"
+      ],
+      "grader": {
+        "rubric": "evals/answers/voice-chain-end-to-end/rubric.md",
+        "script": "evals/answers/voice-chain-end-to-end/evaluate.py",
+        "rubric_exposed": false
+      }
     }
   ]
 }

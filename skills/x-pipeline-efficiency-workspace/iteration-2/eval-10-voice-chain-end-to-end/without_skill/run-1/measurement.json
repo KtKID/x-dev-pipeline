@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "eval_id": 10,
+  "eval_name": "voice-chain-end-to-end",
+  "configuration": "without_skill",
+  "run_number": 1,
+  "source": {
+    "kind": "codex_rollout_tree",
+    "root_id": "019f8add-ed94-7e53-8e3a-ae1ae24735e3",
+    "ids": [
+      "019f8add-ed94-7e53-8e3a-ae1ae24735e3",
+      "019f8aec-1b56-79e0-aa96-5a51234af9fc",
+      "019f8af3-97cb-70b0-afac-508bc45ac3c7",
+      "019f8b02-b129-7082-97a6-641c7c31eeed"
+    ],
+    "incomplete_ids": []
+  },
+  "model": "gpt-5.6-sol",
+  "repo_sha": "d6d9218bf5f819be9ade8521856309f6da9613c3",
+  "prompt_sha256": "sha256:4ad9f6916ba0c0dfe1d142bb9c7f42c6928969c93df1f9264c9560a417fedb5b",
+  "started_at": "2026-07-22T17:27:08.072Z",
+  "ended_at": "2026-07-22T18:17:10.501Z",
+  "duration_ms": 3002429,
+  "tokens": {
+    "input": 31104991,
+    "cached_input": 30247936,
+    "output": 276559,
+    "reasoning_output": 94314,
+    "total": 31381550
+  },
+  "quality": {
+    "passed": 6,
+    "total": 20,
+    "pass_rate": 0.3
+  }
+}

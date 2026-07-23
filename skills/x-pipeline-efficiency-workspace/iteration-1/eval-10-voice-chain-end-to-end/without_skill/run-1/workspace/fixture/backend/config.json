@@ -1,0 +1,19 @@
+{
+  "listen_host": "127.0.0.1",
+  "mock_base_url": "http://127.0.0.1:9100",
+  "service_timeout_ms": 5000,
+  "retry_max_5xx": 1,
+  "audio_chunk_bytes": 3200,
+  "pcm_sample_rate_hz": 16000,
+  "pcm_channels": 1,
+  "pcm_bits_per_sample": 16,
+  "max_upload_bytes": 4000000,
+  "max_sessions": 64,
+  "session_ttl_seconds": 600,
+  "session_id_max_length": 128,
+  "device_id_max_length": 128,
+  "max_json_response_bytes": 131072,
+  "max_tts_wav_bytes": 4000000,
+  "max_http_header_bytes": 65536,
+  "sessions_dir": "sessions"
+}

@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "snapshot_name": "baseline-20260723",
+  "source_repo": "/Volumes/machub_app/proj/x-dev-pipeline",
+  "source_branch": "evo",
+  "source_head": "d6d9218bf5f819be9ade8521856309f6da9613c3",
+  "source_worktree_dirty": true,
+  "captured_scope": [
+    "skills/x-spec3",
+    "skills/x-req3",
+    "skills/x-dev",
+    "skills/x-verify",
+    "skills/x-qa-gate",
+    "skills/x-fix",
+    "skills/x-cr",
+    "tools"
+  ],
+  "snapshot_tree_sha256": "c4f98677d4920dc943ac52250b032092582389a04115a0743f0cd46a88a5ae78",
+  "hash_command": "find skills tools -type f ! -name .DS_Store ! -path '*/__pycache__/*' -print0 | sort -z | xargs -0 shasum -a 256 | shasum -a 256",
+  "note": "快照冻结了本轮开始时的已提交版本与用户现有未提交 pipeline 改动；后续候选优化以该快照为 baseline。"
+}

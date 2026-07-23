@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "agent_id": "019f8b41-7cd0-7d61-81d0-a73e1546c828",
+  "started_at": "2026-07-22T19:15:52.861Z",
+  "ended_at": "2026-07-22T19:56:19.699Z",
+  "duration_ms": 2426838,
+  "total_tokens": 10518383,
+  "agent_tree": [
+    {
+      "role": "main",
+      "session_id": "019f8b41-7cd0-7d61-81d0-a73e1546c828",
+      "turns": 1,
+      "duration_ms": 2426838,
+      "total_tokens": 9555363
+    },
+    {
+      "role": "q1-intent",
+      "session_id": "019f8b4e-6b66-7763-9941-e540716988dd",
+      "turns": 1,
+      "duration_ms": 203453,
+      "total_tokens": 205235
+    },
+    {
+      "role": "q2-correctness",
+      "session_id": "019f8b54-bb7c-7b52-9160-25e2b9ea8b4f",
+      "turns": 1,
+      "duration_ms": 319825,
+      "total_tokens": 149989
+    },
+    {
+      "role": "q3-evidence",
+      "session_id": "019f8b5b-c4c7-7363-8164-a982e39eb5b5",
+      "turns": 1,
+      "duration_ms": 265141,
+      "total_tokens": 607796
+    }
+  ]
+}
