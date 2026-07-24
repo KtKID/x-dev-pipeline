@@ -1,0 +1,39 @@
+{
+  "expectations": [
+    {
+      "text": "执行记录包含对 x-dev-rag-call/scripts/rag_retrieve.py 的真实调用",
+      "passed": false,
+      "evidence": "baseline 调用了 x-adversarial-risk/scripts/risk_retrieve.py。"
+    },
+    {
+      "text": "source 使用调用方指定的 references 目录",
+      "passed": true,
+      "evidence": "transcript.md 从调用方指定的 references 目录发现并读取 risk-mistakes.md。"
+    },
+    {
+      "text": "返回结果包含 A-risk-003 的完整正文且不包含相似度分数",
+      "passed": true,
+      "evidence": "result.md 包含 A-risk-003 的关键词与 Risk 全文，输出没有相似度分数。"
+    },
+    {
+      "text": "最终输出使用召回正文检查序列连续性和状态转换语义",
+      "passed": true,
+      "evidence": "result.md 使用命中内容补充序列连续性和状态转换验收条件。"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 1,
+    "total": 4,
+    "pass_rate": 0.75
+  },
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [
+      "baseline 搜索意外暴露目标 skill 的少量元数据，本结果禁止进入有效对比结论"
+    ],
+    "workarounds": [
+      "使用已有 x-adversarial-risk 检索脚本"
+    ]
+  }
+}

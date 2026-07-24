@@ -1,0 +1,39 @@
+{
+  "expectations": [
+    {
+      "text": "执行记录包含对 x-dev-rag-call/scripts/rag_retrieve.py 的真实调用",
+      "passed": false,
+      "evidence": "baseline 调用了 x-adversarial-risk/scripts/risk_retrieve.py。"
+    },
+    {
+      "text": "调用参数包含明确指定的 source、LLM 提炼的 query 和 top-n 1",
+      "passed": true,
+      "evidence": "transcript.md 记录了指定语料、提炼后的幂等查询和 TopN=1。"
+    },
+    {
+      "text": "返回结果包含 A-risk-004 的完整正文且不包含相似度分数",
+      "passed": true,
+      "evidence": "result.md 包含 A-risk-004 的关键词与 Risk 全文，输出没有相似度分数。"
+    },
+    {
+      "text": "最终输出说明 A-risk-004 对当前 Spec 风险检查的具体影响",
+      "passed": true,
+      "evidence": "result.md 使用命中内容检查占位时机、合法重试和唯一副作用。"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 1,
+    "total": 4,
+    "pass_rate": 0.75
+  },
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [
+      "baseline 搜索意外暴露目标 skill 的少量元数据，本结果禁止进入有效对比结论"
+    ],
+    "workarounds": [
+      "使用已有 x-adversarial-risk 检索脚本"
+    ]
+  }
+}

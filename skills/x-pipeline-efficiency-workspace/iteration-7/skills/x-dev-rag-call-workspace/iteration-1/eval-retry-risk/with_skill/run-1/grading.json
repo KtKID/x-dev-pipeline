@@ -1,0 +1,37 @@
+{
+  "expectations": [
+    {
+      "text": "执行记录包含对 x-dev-rag-call/scripts/rag_retrieve.py 的真实调用",
+      "passed": true,
+      "evidence": "transcript.md 保存了完整 uv 命令，目标为 x-dev-rag-call/scripts/rag_retrieve.py；原始 JSON 和 exit=0 均已记录。"
+    },
+    {
+      "text": "调用参数包含明确指定的 source、LLM 提炼的 query 和 top-n 1",
+      "passed": true,
+      "evidence": "transcript.md 的完整命令包含指定 risk-mistakes.md、从 Spec 提炼的幂等失败查询以及 --top-n 1。"
+    },
+    {
+      "text": "返回结果包含 A-risk-004 的完整正文且不包含相似度分数",
+      "passed": true,
+      "evidence": "result.md 和原始 JSON 均包含 A-risk-004 标题、关键词与 Risk 全文，返回字段只有 id、source、text。"
+    },
+    {
+      "text": "最终输出说明 A-risk-004 对当前 Spec 风险检查的具体影响",
+      "passed": true,
+      "evidence": "result.md 将命中用于检查幂等记录时机、失败后合法重试和唯一业务副作用。"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 0,
+    "total": 4,
+    "pass_rate": 1.0
+  },
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": [
+      "使用 uv 离线依赖缓存运行本地 Qwen 模型"
+    ]
+  }
+}

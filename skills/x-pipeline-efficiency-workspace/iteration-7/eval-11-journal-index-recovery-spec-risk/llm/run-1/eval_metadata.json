@@ -1,0 +1,9 @@
+{
+  "eval_name": "journal-index-recovery-spec-risk",
+  "skill_source": "skills/x-pipeline-efficiency-workspace/iteration-7/skills",
+  "task_source": "evals/problems/journal-index-recovery/PROMPT.md",
+  "fixture_source": "cases/journal-index-recovery/fixture",
+  "scope": "x-spec3 -> x-adversarial-risk",
+  "executor": "LLM",
+  "risk_policy": "按 x-spec3 动态预算执行；deep/full 调用 x-dev-rag-call"
+}

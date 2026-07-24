@@ -1,0 +1,11 @@
+{
+  "eval_id": 2,
+  "eval_name": "recovery-risk",
+  "prompt": "使用 x-dev-rag-call 阅读 recovery-spec.md，从目录 skills/x-pipeline-efficiency-workspace/iteration-7/skills/x-adversarial-risk/references 召回 Top1。返回实际查询、CLI 退出码、命中 ID 和完整原文，并把召回内容用于恢复语义检查。",
+  "assertions": [
+    "执行记录包含对 x-dev-rag-call/scripts/rag_retrieve.py 的真实调用",
+    "source 使用调用方指定的 references 目录",
+    "返回结果包含 A-risk-003 的完整正文且不包含相似度分数",
+    "最终输出使用召回正文检查序列连续性和状态转换语义"
+  ]
+}

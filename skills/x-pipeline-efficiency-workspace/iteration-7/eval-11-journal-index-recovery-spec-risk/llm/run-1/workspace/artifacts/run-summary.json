@@ -1,0 +1,76 @@
+{
+  "spec_name": "journal-index-recovery",
+  "workflow": [
+    "x-spec3",
+    "x-adversarial-risk",
+    "x-dev-rag-call"
+  ],
+  "inputs": {
+    "task": "evals/problems/journal-index-recovery/PROMPT.md",
+    "fixture": "cases/journal-index-recovery/fixture",
+    "skill_root": "skills/x-pipeline-efficiency-workspace/iteration-7/skills"
+  },
+  "outputs": {
+    "spec": "workspace/docs/spec/journal-index-recovery/spec.md",
+    "initial_spec": "workspace/artifacts/spec.initial.md",
+    "final_spec": "workspace/artifacts/spec.final.md",
+    "transcript": "workspace/artifacts/transcript.md"
+  },
+  "risk": {
+    "complexity": 5,
+    "importance": 1,
+    "risk_average": 3.0,
+    "review_budget": "full",
+    "adversarial_review": "complete"
+  },
+  "rag": {
+    "source": "skills/x-pipeline-efficiency-workspace/iteration-7/skills/x-adversarial-risk/references/risk-mistakes.md",
+    "query": "功能关键词：journal、snapshot、compact、events.log、崩溃恢复、旧日志前缀、序列单调\nRisk：snapshot 已发布但 journal 清空尚未稳定提交时发生崩溃，重启可能重复应用已被 snapshot 覆盖的 mutation 或丢失提交状态。",
+    "top_n": 1,
+    "exit_code": 0,
+    "match_count": 1,
+    "match_id": "A-risk-003",
+    "spec_annotation": "RAG:A-risk-003",
+    "decision": "复用 SC_11；初稿已经把物理完整但语义非法的尾部 record 定义为 CORRUPT_LOG，并覆盖 recover 只读失败。"
+  },
+  "independent_assumption": {
+    "id": "compact-log-replace-dir-fsync-window",
+    "decision": "新增 SC_20",
+    "reason": "full 预算要求在 RAG 候选之外独立检查一个故障假设；初稿只显式覆盖 snapshot 发布后旧 journal 尚未清空的窗口。"
+  },
+  "scenario_counts": {
+    "initial_spec": 19,
+    "rag_added": 0,
+    "rag_reused": 1,
+    "assumption_added": 1,
+    "final": 20
+  },
+  "mistake_recording": {
+    "decision": "skipped",
+    "reason": "RAG 命中已有 A-risk-003；本轮新增内容是 Spec 独立故障假设，尚无已验证的新错题事实。"
+  },
+  "validation": {
+    "initial_xdev": {
+      "exit_code": 0,
+      "total_issues": 0
+    },
+    "initial_risk_contract": {
+      "exit_code": 1,
+      "expected_issue": "SPEC_PENDING"
+    },
+    "final_xdev": {
+      "exit_code": 0,
+      "total_issues": 0
+    },
+    "final_validate_review": {
+      "exit_code": 0,
+      "valid": true,
+      "issues": []
+    },
+    "iteration_7_tests": {
+      "exit_code": 0,
+      "tests": 46
+    }
+  },
+  "handoff": "ready-for-x-req3"
+}

@@ -1,0 +1,11 @@
+{
+  "eval_id": 1,
+  "eval_name": "retry-risk",
+  "prompt": "使用 x-dev-rag-call 阅读 retry-spec.md，从指定路径 skills/x-pipeline-efficiency-workspace/iteration-7/skills/x-adversarial-risk/references/risk-mistakes.md 召回 Top1。返回实际查询、CLI 退出码、命中 ID 和完整原文，并说明它如何影响 Spec 风险检查。",
+  "assertions": [
+    "执行记录包含对 x-dev-rag-call/scripts/rag_retrieve.py 的真实调用",
+    "调用参数包含明确指定的 source、LLM 提炼的 query 和 top-n 1",
+    "返回结果包含 A-risk-004 的完整正文且不包含相似度分数",
+    "最终输出说明 A-risk-004 对当前 Spec 风险检查的具体影响"
+  ]
+}

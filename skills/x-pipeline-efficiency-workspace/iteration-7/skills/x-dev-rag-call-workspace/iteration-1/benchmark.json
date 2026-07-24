@@ -1,0 +1,231 @@
+{
+  "metadata": {
+    "skill_name": "x-dev-rag-call",
+    "skill_path": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-7/skills/x-dev-rag-call",
+    "executor_model": "GPT-5 Codex",
+    "analyzer_model": "GPT-5 Codex",
+    "timestamp": "2026-07-24T14:12:47Z",
+    "evals_run": [
+      1,
+      2
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 2,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "\u6267\u884c\u8bb0\u5f55\u5305\u542b\u5bf9 x-dev-rag-call/scripts/rag_retrieve.py \u7684\u771f\u5b9e\u8c03\u7528",
+          "passed": true,
+          "evidence": "transcript.md \u4fdd\u5b58\u4e86\u8c03\u7528 x-dev-rag-call/scripts/rag_retrieve.py \u7684\u5b8c\u6574\u547d\u4ee4\u3001\u539f\u59cb JSON \u548c exit=0\u3002"
+        },
+        {
+          "text": "source \u4f7f\u7528\u8c03\u7528\u65b9\u6307\u5b9a\u7684 references \u76ee\u5f55",
+          "passed": true,
+          "evidence": "\u5b8c\u6574\u547d\u4ee4\u4f7f\u7528 --source skills/x-pipeline-efficiency-workspace/iteration-7/skills/x-adversarial-risk/references\u3002"
+        },
+        {
+          "text": "\u8fd4\u56de\u7ed3\u679c\u5305\u542b A-risk-003 \u7684\u5b8c\u6574\u6b63\u6587\u4e14\u4e0d\u5305\u542b\u76f8\u4f3c\u5ea6\u5206\u6570",
+          "passed": true,
+          "evidence": "result.md \u548c\u539f\u59cb JSON \u5747\u5305\u542b A-risk-003 \u6807\u9898\u3001\u5173\u952e\u8bcd\u4e0e Risk \u5168\u6587\uff0c\u8fd4\u56de\u5b57\u6bb5\u53ea\u6709 id\u3001source\u3001text\u3002"
+        },
+        {
+          "text": "\u6700\u7ec8\u8f93\u51fa\u4f7f\u7528\u53ec\u56de\u6b63\u6587\u68c0\u67e5\u5e8f\u5217\u8fde\u7eed\u6027\u548c\u72b6\u6001\u8f6c\u6362\u8bed\u4e49",
+          "passed": true,
+          "evidence": "result.md \u5c06\u53ec\u56de\u5185\u5bb9\u7528\u4e8e\u9a8c\u8bc1\u672b\u6761\u8bb0\u5f55\u7684\u5e8f\u5217\u8fde\u7eed\u6027\u548c\u72b6\u6001\u8f6c\u6362\u5408\u6cd5\u6027\u3002"
+        }
+      ],
+      "notes": [
+        "\u4f7f\u7528 uv \u79bb\u7ebf\u4f9d\u8d56\u7f13\u5b58\u8fd0\u884c\u672c\u5730 Qwen \u6a21\u578b"
+      ]
+    },
+    {
+      "eval_id": 1,
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 4,
+        "failed": 0,
+        "total": 4,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "\u6267\u884c\u8bb0\u5f55\u5305\u542b\u5bf9 x-dev-rag-call/scripts/rag_retrieve.py \u7684\u771f\u5b9e\u8c03\u7528",
+          "passed": true,
+          "evidence": "transcript.md \u4fdd\u5b58\u4e86\u5b8c\u6574 uv \u547d\u4ee4\uff0c\u76ee\u6807\u4e3a x-dev-rag-call/scripts/rag_retrieve.py\uff1b\u539f\u59cb JSON \u548c exit=0 \u5747\u5df2\u8bb0\u5f55\u3002"
+        },
+        {
+          "text": "\u8c03\u7528\u53c2\u6570\u5305\u542b\u660e\u786e\u6307\u5b9a\u7684 source\u3001LLM \u63d0\u70bc\u7684 query \u548c top-n 1",
+          "passed": true,
+          "evidence": "transcript.md \u7684\u5b8c\u6574\u547d\u4ee4\u5305\u542b\u6307\u5b9a risk-mistakes.md\u3001\u4ece Spec \u63d0\u70bc\u7684\u5e42\u7b49\u5931\u8d25\u67e5\u8be2\u4ee5\u53ca --top-n 1\u3002"
+        },
+        {
+          "text": "\u8fd4\u56de\u7ed3\u679c\u5305\u542b A-risk-004 \u7684\u5b8c\u6574\u6b63\u6587\u4e14\u4e0d\u5305\u542b\u76f8\u4f3c\u5ea6\u5206\u6570",
+          "passed": true,
+          "evidence": "result.md \u548c\u539f\u59cb JSON \u5747\u5305\u542b A-risk-004 \u6807\u9898\u3001\u5173\u952e\u8bcd\u4e0e Risk \u5168\u6587\uff0c\u8fd4\u56de\u5b57\u6bb5\u53ea\u6709 id\u3001source\u3001text\u3002"
+        },
+        {
+          "text": "\u6700\u7ec8\u8f93\u51fa\u8bf4\u660e A-risk-004 \u5bf9\u5f53\u524d Spec \u98ce\u9669\u68c0\u67e5\u7684\u5177\u4f53\u5f71\u54cd",
+          "passed": true,
+          "evidence": "result.md \u5c06\u547d\u4e2d\u7528\u4e8e\u68c0\u67e5\u5e42\u7b49\u8bb0\u5f55\u65f6\u673a\u3001\u5931\u8d25\u540e\u5408\u6cd5\u91cd\u8bd5\u548c\u552f\u4e00\u4e1a\u52a1\u526f\u4f5c\u7528\u3002"
+        }
+      ],
+      "notes": [
+        "\u4f7f\u7528 uv \u79bb\u7ebf\u4f9d\u8d56\u7f13\u5b58\u8fd0\u884c\u672c\u5730 Qwen \u6a21\u578b"
+      ]
+    },
+    {
+      "eval_id": 2,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "\u6267\u884c\u8bb0\u5f55\u5305\u542b\u5bf9 x-dev-rag-call/scripts/rag_retrieve.py \u7684\u771f\u5b9e\u8c03\u7528",
+          "passed": false,
+          "evidence": "baseline \u8c03\u7528\u4e86 x-adversarial-risk/scripts/risk_retrieve.py\u3002"
+        },
+        {
+          "text": "source \u4f7f\u7528\u8c03\u7528\u65b9\u6307\u5b9a\u7684 references \u76ee\u5f55",
+          "passed": true,
+          "evidence": "transcript.md \u4ece\u8c03\u7528\u65b9\u6307\u5b9a\u7684 references \u76ee\u5f55\u53d1\u73b0\u5e76\u8bfb\u53d6 risk-mistakes.md\u3002"
+        },
+        {
+          "text": "\u8fd4\u56de\u7ed3\u679c\u5305\u542b A-risk-003 \u7684\u5b8c\u6574\u6b63\u6587\u4e14\u4e0d\u5305\u542b\u76f8\u4f3c\u5ea6\u5206\u6570",
+          "passed": true,
+          "evidence": "result.md \u5305\u542b A-risk-003 \u7684\u5173\u952e\u8bcd\u4e0e Risk \u5168\u6587\uff0c\u8f93\u51fa\u6ca1\u6709\u76f8\u4f3c\u5ea6\u5206\u6570\u3002"
+        },
+        {
+          "text": "\u6700\u7ec8\u8f93\u51fa\u4f7f\u7528\u53ec\u56de\u6b63\u6587\u68c0\u67e5\u5e8f\u5217\u8fde\u7eed\u6027\u548c\u72b6\u6001\u8f6c\u6362\u8bed\u4e49",
+          "passed": true,
+          "evidence": "result.md \u4f7f\u7528\u547d\u4e2d\u5185\u5bb9\u8865\u5145\u5e8f\u5217\u8fde\u7eed\u6027\u548c\u72b6\u6001\u8f6c\u6362\u9a8c\u6536\u6761\u4ef6\u3002"
+        }
+      ],
+      "notes": [
+        "baseline \u641c\u7d22\u610f\u5916\u66b4\u9732\u76ee\u6807 skill \u7684\u5c11\u91cf\u5143\u6570\u636e\uff0c\u672c\u7ed3\u679c\u7981\u6b62\u8fdb\u5165\u6709\u6548\u5bf9\u6bd4\u7ed3\u8bba",
+        "\u4f7f\u7528\u5df2\u6709 x-adversarial-risk \u68c0\u7d22\u811a\u672c"
+      ]
+    },
+    {
+      "eval_id": 1,
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.75,
+        "passed": 3,
+        "failed": 1,
+        "total": 4,
+        "time_seconds": 0.0,
+        "tokens": 0,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "\u6267\u884c\u8bb0\u5f55\u5305\u542b\u5bf9 x-dev-rag-call/scripts/rag_retrieve.py \u7684\u771f\u5b9e\u8c03\u7528",
+          "passed": false,
+          "evidence": "baseline \u8c03\u7528\u4e86 x-adversarial-risk/scripts/risk_retrieve.py\u3002"
+        },
+        {
+          "text": "\u8c03\u7528\u53c2\u6570\u5305\u542b\u660e\u786e\u6307\u5b9a\u7684 source\u3001LLM \u63d0\u70bc\u7684 query \u548c top-n 1",
+          "passed": true,
+          "evidence": "transcript.md \u8bb0\u5f55\u4e86\u6307\u5b9a\u8bed\u6599\u3001\u63d0\u70bc\u540e\u7684\u5e42\u7b49\u67e5\u8be2\u548c TopN=1\u3002"
+        },
+        {
+          "text": "\u8fd4\u56de\u7ed3\u679c\u5305\u542b A-risk-004 \u7684\u5b8c\u6574\u6b63\u6587\u4e14\u4e0d\u5305\u542b\u76f8\u4f3c\u5ea6\u5206\u6570",
+          "passed": true,
+          "evidence": "result.md \u5305\u542b A-risk-004 \u7684\u5173\u952e\u8bcd\u4e0e Risk \u5168\u6587\uff0c\u8f93\u51fa\u6ca1\u6709\u76f8\u4f3c\u5ea6\u5206\u6570\u3002"
+        },
+        {
+          "text": "\u6700\u7ec8\u8f93\u51fa\u8bf4\u660e A-risk-004 \u5bf9\u5f53\u524d Spec \u98ce\u9669\u68c0\u67e5\u7684\u5177\u4f53\u5f71\u54cd",
+          "passed": true,
+          "evidence": "result.md \u4f7f\u7528\u547d\u4e2d\u5185\u5bb9\u68c0\u67e5\u5360\u4f4d\u65f6\u673a\u3001\u5408\u6cd5\u91cd\u8bd5\u548c\u552f\u4e00\u526f\u4f5c\u7528\u3002"
+        }
+      ],
+      "notes": [
+        "baseline \u641c\u7d22\u610f\u5916\u66b4\u9732\u76ee\u6807 skill \u7684\u5c11\u91cf\u5143\u6570\u636e\uff0c\u672c\u7ed3\u679c\u7981\u6b62\u8fdb\u5165\u6709\u6548\u5bf9\u6bd4\u7ed3\u8bba",
+        "\u4f7f\u7528\u5df2\u6709 x-adversarial-risk \u68c0\u7d22\u811a\u672c"
+      ]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "tokens": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.75,
+        "stddev": 0.0,
+        "min": 0.75,
+        "max": 0.75
+      },
+      "time_seconds": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0.0,
+        "max": 0.0
+      },
+      "tokens": {
+        "mean": 0.0,
+        "stddev": 0.0,
+        "min": 0,
+        "max": 0
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.25",
+      "time_seconds": "+0.0",
+      "tokens": "+0"
+    }
+  },
+  "notes": [
+    "两条 with-skill 用例都真实调用 x-dev-rag-call/scripts/rag_retrieve.py，并分别命中 A-risk-004 与 A-risk-003。",
+    "without-skill 执行使用已有 x-adversarial-risk 检索器，说明仓库已有领域专用能力；它缺少指定任意文件或目录的通用调用契约。",
+    "baseline 搜索意外暴露目标 skill 的少量元数据，因此 75% 与 25 个百分点差值只用于展示，禁止作为有效 A/B 因果结论。",
+    "执行通知未提供可持久化的 token 与 duration 数据，本轮保留为 0，禁止解读为真实成本。"
+  ]
+}
