@@ -1,0 +1,4 @@
+interface:
+  display_name: "Adversarial Spec Risk"
+  short_description: "Run one bounded adversarial Spec review"
+  default_prompt: "Use $x-adversarial-risk to challenge the highest-risk Spec assumptions in one bounded review."

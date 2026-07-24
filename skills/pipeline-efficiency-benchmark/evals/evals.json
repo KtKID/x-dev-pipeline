@@ -1,0 +1,29 @@
+{
+  "skill_name": "pipeline-efficiency-benchmark",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "把 journal-index-recovery 的公开 task、fixture、pipeline skills 迁移到一个干净考生 workspace，确保 xdev、req3、verify 等工具都提供齐全，并在启动模型前验证隔离。",
+      "expected_output": "生成含四个运行工具的自包含 workspace、workspace 外的 executor-package-manifest.json；metrics.py 和 skill evals 留在考生范围外，validate_workspace.py 返回 valid=true。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "把 baseline、iteration-5、iteration-6 和最新完整 run 的分数、Token 分布、耗时、工具调用做横向对比，保存 JSON 和 Markdown，并区分 Spec/Risk 与完整流水线范围。",
+      "expected_output": "生成 scope-safe comparison.json/comparison.md，所有 Token 和 delta 公式通过验证。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "准备一个 blind benchmark，任务目录旁边还有 answers、rubric 和 grader 文件夹。把执行器需要的材料打包后直接开始运行。",
+      "expected_output": "prepare/preflight 阻止 grader-only 路径进入 workspace，只允许公开 task/fixture/prompt、候选 skills 和 bundled tools。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "给一个已经安装 OpenSpec skills 的非空工程放 journal-index-recovery 公开考题包，保留原工程，不注入 x-dev-pipeline skills 和 tools。",
+      "expected_output": "使用 public_task_only profile，只新增 PROMPT.md、task/、fixture/ 和 workspace 外侧车 manifest，原 OpenSpec 文件保持不变。",
+      "files": []
+    }
+  ]
+}
