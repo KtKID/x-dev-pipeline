@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-24",
+  "case": "journal-index-recovery",
+  "latest_version": "iteration-6",
+  "measurement": {
+    "quality": "Full-pipeline quality uses current rubric v2: 25 assertions x 4 points. Spec/Risk quality uses the fixed 17-item scorer.",
+    "tokens": "total_tokens = input_tokens + output_tokens; cached_input_tokens is a subset of input_tokens; reasoning_output_tokens is a subset of output_tokens.",
+    "effective_tokens": "effective_tokens = input_tokens - cached_input_tokens + output_tokens.",
+    "duration": "main_active_seconds excludes user idle time. executor_time_sum_seconds adds nested reviewer execution time.",
+    "scope_rule": "Full-pipeline totals are compared only with full-pipeline totals. Spec/Risk stage totals are compared only with Spec/Risk stage totals.",
+    "cost": "Unavailable: the frozen run artifacts do not persist a model price table or currency cost."
+  },
+  "runs": {
+    "baseline": {
+      "label": "Iteration 4 frozen baseline",
+      "scope": "full_pipeline",
+      "model": "gpt-5.6-terra",
+      "reasoning_effort": "xhigh",
+      "native_score": {
+        "rubric": "legacy 20-item",
+        "score": 95,
+        "passed": 19,
+        "total": 20
+      },
+      "current_full_score": {
+        "rubric": "v2 25-item",
+        "score": 96,
+        "passed": 24,
+        "total": 25,
+        "critical_gate_passed": false
+      },
+      "spec_risk_score": null,
+      "usage": {
+        "input_tokens": 20353015,
+        "cached_input_tokens": 19493120,
+        "uncached_input_tokens": 859895,
+        "output_tokens": 266215,
+        "reasoning_output_tokens": 126518,
+        "total_tokens": 20619230,
+        "effective_tokens": 1126110,
+        "cached_share_of_input_pct": 95.78,
+        "cached_share_of_total_pct": 94.54
+      },
+      "duration": {
+        "main_active_seconds": 2517.661,
+        "executor_time_sum_seconds": 3958.17
+      },
+      "calls": {
+        "execution_tool_calls": 115,
+        "coordination_tool_calls": 25,
+        "llm_calls": null,
+        "note": "Tool counts were reconstructed from the four frozen rollout JSONL files. LLM call count was not persisted with a stable convention."
+      },
+      "token_distribution": [
+        {
+          "phase": "main",
+          "tokens": 8307600,
+          "share_pct": 40.29
+        },
+        {
+          "phase": "q1-intent",
+          "tokens": 2389925,
+          "share_pct": 11.59
+        },
+        {
+          "phase": "q2-correctness",
+          "tokens": 4044696,
+          "share_pct": 19.62
+        },
+        {
+          "phase": "q3-evidence",
+          "tokens": 5877009,
+          "share_pct": 28.5
+        }
+      ],
+      "sources": [
+        "iteration-4/eval-11-journal-index-recovery/baseline/run-1/measurement.json",
+        "iteration-4/eval-11-journal-index-recovery/baseline/run-1/timing.json",
+        "iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-1/comparison-grading/iteration-4-baseline.json"
+      ]
+    },
+    "iteration_5": {
+      "label": "Iteration 5 Terra",
+      "scope": "full_pipeline",
+      "model": "gpt-5.6-terra",
+      "reasoning_effort": "xhigh",
+      "current_full_score": {
+        "rubric": "v2 25-item",
+        "score": 88,
+        "passed": 22,
+        "total": 25,
+        "critical_gate_passed": false
+      },
+      "spec_risk_score": {
+        "rubric": "fixed 17-item",
+        "score": 94,
+        "passed": 16,
+        "total": 17
+      },
+      "usage": {
+        "input_tokens": 10489177,
+        "cached_input_tokens": 10218240,
+        "uncached_input_tokens": 270937,
+        "output_tokens": 87042,
+        "reasoning_output_tokens": 29117,
+        "total_tokens": 10576219,
+        "effective_tokens": 357979,
+        "cached_share_of_input_pct": 97.42,
+        "cached_share_of_total_pct": 96.62
+      },
+      "spec_risk_stage": {
+        "input_tokens": 1379975,
+        "cached_input_tokens": 1306112,
+        "uncached_input_tokens": 73863,
+        "output_tokens": 31329,
+        "reasoning_output_tokens": 7326,
+        "total_tokens": 1411304,
+        "duration_seconds": 621.37,
+        "time_to_first_token_ms": 6713,
+        "tool_calls": 25,
+        "risk_tokens": 960376,
+        "risk_tool_calls": 13,
+        "risk_inference_rounds": 14
+      },
+      "duration": {
+        "main_active_seconds": 1765.038,
+        "nested_reviewer_seconds": 166.275,
+        "executor_time_sum_seconds": 1931.313
+      },
+      "calls": {
+        "execution_tool_calls": 80,
+        "llm_calls": null,
+        "note": "The frozen analysis persisted tool totals and risk inference rounds; it did not persist a full-pipeline LLM-call total."
+      },
+      "token_distribution": [
+        {
+          "phase": "x-spec3 initial",
+          "tokens": 450928,
+          "share_pct": 4.26
+        },
+        {
+          "phase": "x-adversarial-risk",
+          "tokens": 960376,
+          "share_pct": 9.08
+        },
+        {
+          "phase": "skill/tool loading and x-req3",
+          "tokens": 2591564,
+          "share_pct": 24.5
+        },
+        {
+          "phase": "x-dev and tests",
+          "tokens": 1522619,
+          "share_pct": 14.4
+        },
+        {
+          "phase": "dev-report and Gate 1",
+          "tokens": 361173,
+          "share_pct": 3.41
+        },
+        {
+          "phase": "Gate 2 and reviewer",
+          "tokens": 1367399,
+          "share_pct": 12.93
+        },
+        {
+          "phase": "x-fix, reverify and reports",
+          "tokens": 3322160,
+          "share_pct": 31.41
+        }
+      ],
+      "sources": [
+        "iteration-5/eval-11-journal-index-recovery-spec-risk/terra/run-1/token-analysis.json",
+        "iteration-5/eval-11-journal-index-recovery-spec-risk/terra/run-1/timing.json",
+        "iteration-5/eval-11-journal-index-recovery-spec-risk/terra/run-1/grading.json",
+        "iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-1/comparison-grading/iteration-5-terra.json"
+      ]
+    },
+    "iteration_6_clean": {
+      "label": "Iteration 6 clean isolated run-4",
+      "scope": "spec_risk_only",
+      "model": "gpt-5.6-terra",
+      "reasoning_effort": "xhigh",
+      "current_full_score": null,
+      "spec_risk_score": {
+        "rubric": "fixed 17-item",
+        "score": 65,
+        "passed": 11,
+        "total": 17
+      },
+      "usage": {
+        "input_tokens": 416213,
+        "cached_input_tokens": 362496,
+        "uncached_input_tokens": 53717,
+        "output_tokens": 24629,
+        "reasoning_output_tokens": 6648,
+        "total_tokens": 440842,
+        "effective_tokens": 78346,
+        "cached_share_of_input_pct": 87.09,
+        "cached_share_of_total_pct": 82.23
+      },
+      "duration": {
+        "wall_seconds": 528.075,
+        "turn_seconds": 525.999
+      },
+      "calls": {
+        "execution_tool_calls": 12,
+        "command_execution_calls": 8,
+        "file_change_calls": 4,
+        "llm_calls": null,
+        "failed_commands": 1
+      },
+      "token_distribution": {
+        "uncached_input_tokens": 53717,
+        "cached_input_tokens": 362496,
+        "output_tokens": 24629,
+        "phase_split": null,
+        "phase_split_note": "The clean run persisted exact I/O usage but no reliable phase token boundaries."
+      },
+      "sources": [
+        "iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-4/token-analysis.json",
+        "iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-4/timing.json",
+        "iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-4/grading.json",
+        "iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-4/eval_metadata.json"
+      ]
+    },
+    "latest": {
+      "label": "Latest completed full pipeline from iteration-6 run-1",
+      "scope": "full_pipeline",
+      "model": "gpt-5.6-terra",
+      "reasoning_effort": "xhigh",
+      "current_full_score": {
+        "rubric": "v2 25-item",
+        "score": 80,
+        "passed": 20,
+        "total": 25,
+        "critical_gate_passed": false
+      },
+      "spec_risk_score": {
+        "official_delivery": {
+          "score": 41,
+          "passed": 7,
+          "total": 17
+        },
+        "normalized_live_diagnostic": {
+          "score": 65,
+          "passed": 11,
+          "total": 17
+        }
+      },
+      "usage": {
+        "input_tokens": 10168151,
+        "cached_input_tokens": 9870848,
+        "uncached_input_tokens": 297303,
+        "output_tokens": 85753,
+        "reasoning_output_tokens": 32477,
+        "total_tokens": 10253904,
+        "effective_tokens": 383056,
+        "cached_share_of_input_pct": 97.08,
+        "cached_share_of_total_pct": 96.26
+      },
+      "spec_risk_initial_stage": {
+        "input_tokens": 255647,
+        "cached_input_tokens": 212480,
+        "uncached_input_tokens": 43167,
+        "output_tokens": 14738,
+        "reasoning_output_tokens": 3347,
+        "total_tokens": 270385,
+        "duration_seconds": 280.067,
+        "time_to_first_token_ms": 7864,
+        "tool_calls": 5,
+        "x_spec3_tokens": 70652,
+        "risk_tokens": 199733,
+        "risk_tool_calls": 3,
+        "risk_inference_rounds": 4
+      },
+      "duration": {
+        "main_active_seconds": 1812.831,
+        "nested_reviewer_seconds": 257.867,
+        "executor_time_sum_seconds": 2070.698,
+        "coordination_overhead_seconds": 172.04,
+        "productive_main_seconds": 1640.791,
+        "productive_executor_time_sum_seconds": 1898.658
+      },
+      "calls": {
+        "execution_tool_calls": 71,
+        "llm_calls": 86,
+        "productive_execution_tool_calls": 59,
+        "productive_llm_calls": 71
+      },
+      "token_distribution": [
+        {
+          "phase": "x-spec3 initial",
+          "tokens": 70652,
+          "share_pct": 0.69
+        },
+        {
+          "phase": "initial x-adversarial-risk",
+          "tokens": 199733,
+          "share_pct": 1.95
+        },
+        {
+          "phase": "coordination, diagnosis and discarded workspace",
+          "tokens": 1065039,
+          "share_pct": 10.39
+        },
+        {
+          "phase": "risk repair rounds",
+          "tokens": 718657,
+          "share_pct": 7.01
+        },
+        {
+          "phase": "x-req3",
+          "tokens": 338234,
+          "share_pct": 3.3
+        },
+        {
+          "phase": "x-dev and local tests",
+          "tokens": 1658185,
+          "share_pct": 16.17
+        },
+        {
+          "phase": "initial verify blocked",
+          "tokens": 298892,
+          "share_pct": 2.91
+        },
+        {
+          "phase": "dev-report repair and Gate 1",
+          "tokens": 610846,
+          "share_pct": 5.96
+        },
+        {
+          "phase": "Gate 2 and reviewer",
+          "tokens": 2102165,
+          "share_pct": 20.5
+        },
+        {
+          "phase": "x-fix and full reverify",
+          "tokens": 2263278,
+          "share_pct": 22.07
+        },
+        {
+          "phase": "incremental QA closure and receipt",
+          "tokens": 928223,
+          "share_pct": 9.05
+        }
+      ],
+      "sources": [
+        "iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-1/full-pipeline-metrics.json",
+        "iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-1/full-pipeline-grading.json",
+        "iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-1/post-pipeline-spec-risk-grading.json",
+        "iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-1/normalized-live-spec-risk-grading.json"
+      ]
+    }
+  },
+  "comparisons": {
+    "full_pipeline": {
+      "iteration_5_vs_baseline": {
+        "token_delta_pct": -48.71,
+        "main_active_duration_delta_pct": -29.89,
+        "executor_time_sum_delta_pct": -51.21,
+        "execution_tool_delta_pct": -30.43,
+        "quality_score_delta_points": -8
+      },
+      "latest_vs_baseline": {
+        "token_delta_pct": -50.27,
+        "main_active_duration_delta_pct": -28.0,
+        "executor_time_sum_delta_pct": -47.69,
+        "execution_tool_delta_pct": -38.26,
+        "quality_score_delta_points": -16
+      },
+      "latest_vs_iteration_5": {
+        "token_delta_pct": -3.05,
+        "main_active_duration_delta_pct": 2.71,
+        "executor_time_sum_delta_pct": 7.22,
+        "execution_tool_delta_pct": -11.25,
+        "quality_score_delta_points": -8
+      }
+    },
+    "spec_risk": {
+      "iteration_6_clean_vs_iteration_5": {
+        "token_delta_pct": -68.76,
+        "score_delta_points": -29
+      },
+      "latest_initial_vs_iteration_5": {
+        "token_delta_pct": -80.84,
+        "duration_delta_pct": -54.93,
+        "tool_call_delta_pct": -80.0,
+        "official_score_delta_points": -53,
+        "normalized_score_delta_points": -29
+      },
+      "latest_initial_vs_iteration_6_clean": {
+        "token_delta_pct": -38.67,
+        "duration_delta_pct": -46.96,
+        "official_score_delta_points": -24,
+        "normalized_score_delta_points": 0
+      }
+    }
+  },
+  "result": {
+    "best_full_quality": "baseline",
+    "lowest_full_pipeline_tokens": "latest",
+    "best_spec_risk_quality": "iteration_5",
+    "lowest_spec_risk_tokens": "latest initial stage",
+    "promotion_passed": false,
+    "reason": "Latest full quality is 80/100 and the v2 critical gate failed. Efficiency improved while quality regressed."
+  }
+}
