@@ -9,8 +9,8 @@
     },
     {
       "id": 2,
-      "prompt": "把 baseline、iteration-5、iteration-6 和最新完整 run 的分数、Token 分布、耗时、工具调用做横向对比，保存 JSON 和 Markdown，并区分 Spec/Risk 与完整流水线范围。",
-      "expected_output": "生成 scope-safe comparison.json/comparison.md，所有 Token 和 delta 公式通过验证。",
+      "prompt": "把 baseline、iteration-5、iteration-6 和最新完整 run 的分数、Token 分布、耗时、工具调用和金额做横向对比，保存 JSON 和 Markdown，并区分 Spec/Risk 与完整流水线范围。价格按各 run 执行日期的官方单价冻结，API 等价成本、实际现金增量和套餐额度分开。",
+      "expected_output": "生成 scope-safe comparison.json/comparison.md；报告固定包含价格来源、查询日期、API 等价成本、cache-write 上界、无缓存成本、缓存节省、实际现金增量和套餐额度，所有 Token、金额和 delta 公式通过验证。",
       "files": []
     },
     {

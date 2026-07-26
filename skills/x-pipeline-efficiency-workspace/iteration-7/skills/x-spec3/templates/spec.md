@@ -71,9 +71,9 @@
 
 | Review | 预算 | 风险来源 | 查询 | 召回 ID | 复用 Scenario | 新增 Scenario | CLI |
 |---|---|---|---|---|---|---|---|
-| ARV-pending / ARV-1 | <standard / deep / full> | 待审查 / RAG:<risk-id> / assumption:<短说明> | 待审查 / 无 | <risk-id> / 无 | <SC_NN / 无> | <SC_NN / 无> | <exit 与 matches> |
+| ARV-pending / ARV-1 | <standard / deep / full> | 待审查 / RAG:AR-NNN / assumption:<短说明> | 待审查 / 无 | <AR-NNN> / 无 | <SC_NN / 无> | <SC_NN / 无> | <exit 与 matches> |
 
-## Scenarios
+## Scenarios 模板
 
 ### Scenario SC_01: <可判定行为名称>
 

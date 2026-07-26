@@ -32,7 +32,7 @@ verify exit 0 后进入质量审查。读取 task `dev-checklist.md` 头部的 `
 
 1. 用户原始请求、已确认 spec、既有公开契约。
 2. 真实调用方、schema/数据约束、改动前测试契约。
-3. spec2 的 Requirement/Scenario、系统不变量、modules/design；或 spec3 的目标、影响边界与不变量、判断依据、建模覆盖和直接 Scenarios。
+3. spec3 的目标、影响边界与不变量、判断依据、建模覆盖和直接 Scenarios。
 4. dev-report verify 块、verify JSON 或失败报告、当前 diff。
 
 ## 输入裁剪
@@ -51,8 +51,8 @@ verify exit 0 后进入质量审查。读取 task `dev-checklist.md` 头部的 `
 
 reviewer 调度的等待轮次会重复计入主 agent 的完整上下文。按以下规则保持审查独立性并限制 token：
 
-1. 启动 reviewer 前一次性组装完整 prompt，包含任务边界、输入路径、按需 diff 命令和输出格式。
-2. reviewer 只创建一次且只运行一个 turn。收到首个 FINAL_ANSWER 后永久结束；修复完成后禁止 `send_message`、`followup_task`、重新唤醒或同角色重复派发。
+1. 启动 reviewer 前一次性组装完整 prompt，包含任务边界、输入路径、按需 diff 命令和输出格式；reviewer 只凭该 prompt 与工作区事实源完成审查。
+2. 使用 `fork_turns: "none"` 创建 reviewer，隔离主 agent 的历史对话。reviewer 只创建一次且只运行一个 turn；收到首个 FINAL_ANSWER 后永久结束，修复完成后禁止 `send_message`、`followup_task`、重新唤醒或同角色重复派发。
 3. 等待使用 `wait_agent(timeout_ms=60000)`。超时后先给用户一条短状态，再继续等待；省略 `list_agents` 轮询。
 4. reviewer 完成后直接消费 FINAL_ANSWER。主 agent 复核候选问题的定位和严重度，复用 reviewer 已给出的证据；修复关闭以聚焦反例和完整 verify 为准。
 5. Q3 reviewer 先独立完成三个 lens 的候选清单，再合并同根因问题；一个 lens 的判断不得替代另两个 lens 的检查。

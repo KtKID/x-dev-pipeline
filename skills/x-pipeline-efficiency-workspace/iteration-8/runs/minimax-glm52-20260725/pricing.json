@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "currency": "USD",
+  "model": "GLM-5.2",
+  "source_url": "https://docs.z.ai/guides/overview/pricing",
+  "queried_at": "2026-07-26",
+  "rates_per_million_tokens": {
+    "uncached_input": 1.4,
+    "cached_input": 0.26,
+    "cache_write_input": null,
+    "output": 4.4
+  },
+  "cached_input_storage": "limited_time_free",
+  "telemetry": {
+    "cache_write_tokens": null
+  },
+  "billing": {
+    "mode": "subscription_quota",
+    "actual_cash_increment": 0.0,
+    "quota_multiplier": 3.0,
+    "note": "Supported-tool Coding Plan call during the recorded 14:00-18:00 peak window."
+  }
+}

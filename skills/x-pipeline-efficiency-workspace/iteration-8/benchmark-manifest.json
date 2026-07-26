@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "iteration": "8",
+  "case_id": "journal-index-recovery",
+  "created_at": "2026-07-25",
+  "purpose": "post-hoc acceptance of the completed MiniMax ZCode full-pipeline task",
+  "candidate_run_id": "minimax-glm52-20260725",
+  "candidate_workspace": "/Volumes/machub_app/proj/x-dev-world/minimax/journal-index-recovery",
+  "scope": "full_pipeline",
+  "telemetry": {
+    "source": "/Users/kid/.zcode/cli/db/db.sqlite",
+    "root_session_id": "sess_6625cddf-684e-42f4-8605-06bc47508a8b",
+    "child_session_ids": [
+      "sess_subagent_agent_835967fc-f86c-467f-941b-1f06e642f376"
+    ],
+    "excluded_session_ids": [
+      "sess_f71adcaa-4e99-44cc-ae55-e2230b173546"
+    ]
+  },
+  "grader": {
+    "rubric": "evals/answers/journal-index-recovery/rubric.md",
+    "script": "evals/answers/journal-index-recovery/evaluate.py",
+    "rubric_version": 3,
+    "executed_after_candidate_completion": true,
+    "exposed_to_candidate": false
+  },
+  "historical_reference": {
+    "run_id": "iteration-4-terra-baseline",
+    "source": "skills/x-pipeline-efficiency-workspace/iteration-6/reports/journal-index-recovery-horizontal-comparison.json",
+    "directly_comparable": false,
+    "reason": "provider, model, reasoning setting, and rubric version differ"
+  },
+  "artifacts": {
+    "candidate_run": "runs/minimax-glm52-20260725/benchmark-run.json",
+    "candidate_pricing": "runs/minimax-glm52-20260725/pricing.json",
+    "baseline_pricing": "runs/iteration-4-terra-baseline/pricing.json",
+    "grading": "runs/minimax-glm52-20260725/grading.json",
+    "metrics": "runs/minimax-glm52-20260725/full-pipeline-metrics.json",
+    "timing": "runs/minimax-glm52-20260725/timing.json",
+    "preflight": "runs/minimax-glm52-20260725/preflight-audit.json",
+    "acceptance_report": "runs/minimax-glm52-20260725/acceptance-report.md",
+    "comparison_json": "comparison.json",
+    "comparison_report": "comparison.md"
+  },
+  "acceptance_passed": false,
+  "promotion_passed": false
+}

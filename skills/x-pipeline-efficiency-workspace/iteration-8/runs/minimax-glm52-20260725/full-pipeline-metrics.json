@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "run": {
+    "run_id": "minimax-glm52-20260725",
+    "model": "GLM-5.2",
+    "reasoning_effort": "max",
+    "scope": "full_pipeline"
+  },
+  "usage": {
+    "agent_tree_all_in": {
+      "input_tokens": 12357980,
+      "cached_input_tokens": 12167104,
+      "output_tokens": 88941,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 12446921,
+      "tool_calls": 187,
+      "llm_calls": 164
+    },
+    "root_session": {
+      "input_tokens": 10246537,
+      "cached_input_tokens": 10114304,
+      "uncached_input_tokens": 132233,
+      "output_tokens": 69387,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 10315924,
+      "effective_tokens": 201620,
+      "share_pct": 82.88
+    },
+    "q3_reviewer": {
+      "input_tokens": 2111443,
+      "cached_input_tokens": 2052800,
+      "uncached_input_tokens": 58643,
+      "output_tokens": 19554,
+      "reasoning_output_tokens": 0,
+      "total_tokens": 2130997,
+      "effective_tokens": 78197,
+      "share_pct": 17.12
+    },
+    "title_overhead": {
+      "input_tokens": 147,
+      "cached_input_tokens": 64,
+      "output_tokens": 13,
+      "total_tokens": 160
+    }
+  },
+  "duration": {
+    "main_active_total_ms": 1954928,
+    "q3_reviewer_nested_ms": 424420,
+    "executor_time_sum_ms": 2379348
+  },
+  "calls": {
+    "llm_calls": 164,
+    "tool_calls": 187,
+    "completed_tool_calls": 185,
+    "failed_tool_calls": 2
+  },
+  "phases": [
+    {
+      "phase": "bootstrap + x-spec3 + risk",
+      "requests": 43,
+      "input_tokens": 1960901,
+      "cached_input_tokens": 1898496,
+      "uncached_input_tokens": 62405,
+      "output_tokens": 20030,
+      "total_tokens": 1980931,
+      "effective_tokens": 82435,
+      "share_pct": 15.92,
+      "tool_calls": 62
+    },
+    {
+      "phase": "x-req3",
+      "requests": 9,
+      "input_tokens": 650364,
+      "cached_input_tokens": 645056,
+      "uncached_input_tokens": 5308,
+      "output_tokens": 2992,
+      "total_tokens": 653356,
+      "effective_tokens": 8300,
+      "share_pct": 5.25,
+      "tool_calls": 9
+    },
+    {
+      "phase": "x-dev + tests + dev-report",
+      "requests": 38,
+      "input_tokens": 3778707,
+      "cached_input_tokens": 3734080,
+      "uncached_input_tokens": 44627,
+      "output_tokens": 35177,
+      "total_tokens": 3813884,
+      "effective_tokens": 79804,
+      "share_pct": 30.64,
+      "tool_calls": 38
+    },
+    {
+      "phase": "Gate 1 verify",
+      "requests": 5,
+      "input_tokens": 594647,
+      "cached_input_tokens": 592384,
+      "uncached_input_tokens": 2263,
+      "output_tokens": 951,
+      "total_tokens": 595598,
+      "effective_tokens": 3214,
+      "share_pct": 4.79,
+      "tool_calls": 5
+    },
+    {
+      "phase": "Gate 2 orchestration",
+      "requests": 2,
+      "input_tokens": 245042,
+      "cached_input_tokens": 240128,
+      "uncached_input_tokens": 4914,
+      "output_tokens": 1666,
+      "total_tokens": 246708,
+      "effective_tokens": 6580,
+      "share_pct": 1.98,
+      "tool_calls": 2
+    },
+    {
+      "phase": "Gate 2 reviewer",
+      "requests": 44,
+      "input_tokens": 2111443,
+      "cached_input_tokens": 2052800,
+      "uncached_input_tokens": 58643,
+      "output_tokens": 19554,
+      "total_tokens": 2130997,
+      "effective_tokens": 78197,
+      "share_pct": 17.12,
+      "tool_calls": 49
+    },
+    {
+      "phase": "x-fix + reverify + closeout",
+      "requests": 23,
+      "input_tokens": 3016876,
+      "cached_input_tokens": 3004160,
+      "uncached_input_tokens": 12716,
+      "output_tokens": 8571,
+      "total_tokens": 3025447,
+      "effective_tokens": 21287,
+      "share_pct": 24.31,
+      "tool_calls": 22
+    }
+  ],
+  "phase_boundary_note": "Boundaries use the root-session phase handoffs recorded in message/part timestamps; the child reviewer is an independent phase. The phase totals sum exactly to the agent-tree all-in totals."
+}

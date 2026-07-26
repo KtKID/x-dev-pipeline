@@ -1,0 +1,628 @@
+{
+  "schema_version": 2,
+  "baseline_run_id": "iteration-4-terra-baseline",
+  "candidate_run_id": "minimax-glm52-20260725",
+  "runs": [
+    {
+      "schema_version": 2,
+      "run_id": "iteration-4-terra-baseline",
+      "label": "Iteration 4 frozen Terra baseline",
+      "iteration": "4",
+      "scope": "full_pipeline",
+      "model": "gpt-5.6-terra",
+      "reasoning_effort": "xhigh",
+      "usage": {
+        "convention": "cached_input_is_subset_of_input",
+        "input_tokens": 20353015,
+        "cached_input_tokens": 19493120,
+        "uncached_input_tokens": 859895,
+        "output_tokens": 266215,
+        "reasoning_output_tokens": 126518,
+        "total_tokens": 20619230,
+        "effective_tokens": 1126110,
+        "cached_share_of_input_pct": 95.78
+      },
+      "cost": {
+        "status": "priced",
+        "currency": "USD",
+        "pricing": {
+          "model": "gpt-5.6-terra",
+          "source_url": "https://developers.openai.com/api/docs/models/compare",
+          "queried_at": "2026-07-26",
+          "rates_per_million_tokens": {
+            "uncached_input": 2.5,
+            "cached_input": 0.25,
+            "cache_write_input": 3.125,
+            "output": 15.0
+          },
+          "cached_input_storage": "provider_cache",
+          "cache_write_tokens": null
+        },
+        "calculation": {
+          "uncached_input": 2.1497375,
+          "cached_input": 4.87328,
+          "cache_write_input": null,
+          "output": 3.993225,
+          "api_equivalent": 11.0162425,
+          "cache_write_upper_bound": 11.553676875,
+          "no_cache_api_equivalent": 54.8757625,
+          "cache_savings": 43.85952,
+          "cache_savings_pct": 79.93
+        },
+        "billing": {
+          "mode": "unknown",
+          "actual_cash_increment": null,
+          "quota_multiplier": null,
+          "quota_equivalent": null,
+          "note": "Historical run has no persisted account-billing or subscription evidence."
+        },
+        "unknown_reason": null
+      },
+      "duration": {
+        "main_active_seconds": 2517.661,
+        "nested_reviewer_seconds": 1440.509,
+        "executor_time_sum_seconds": 3958.17
+      },
+      "calls": {
+        "tool_calls": 115,
+        "llm_calls": null,
+        "failed_commands": null
+      },
+      "scores": {
+        "full": {
+          "score": 96,
+          "passed": 24,
+          "total": 25,
+          "critical_gate_passed": false,
+          "rubric_version": 2
+        },
+        "spec_risk": null
+      },
+      "phases": []
+    },
+    {
+      "schema_version": 2,
+      "run_id": "minimax-glm52-20260725",
+      "label": "MiniMax ZCode GLM-5.2 full pipeline",
+      "iteration": "8",
+      "scope": "full_pipeline",
+      "model": "GLM-5.2",
+      "reasoning_effort": "max",
+      "usage": {
+        "convention": "cached_input_is_subset_of_input",
+        "input_tokens": 12357980,
+        "cached_input_tokens": 12167104,
+        "uncached_input_tokens": 190876,
+        "output_tokens": 88941,
+        "reasoning_output_tokens": 0,
+        "total_tokens": 12446921,
+        "effective_tokens": 279817,
+        "cached_share_of_input_pct": 98.46
+      },
+      "cost": {
+        "status": "priced",
+        "currency": "USD",
+        "pricing": {
+          "model": "GLM-5.2",
+          "source_url": "https://docs.z.ai/guides/overview/pricing",
+          "queried_at": "2026-07-26",
+          "rates_per_million_tokens": {
+            "uncached_input": 1.4,
+            "cached_input": 0.26,
+            "cache_write_input": null,
+            "output": 4.4
+          },
+          "cached_input_storage": "limited_time_free",
+          "cache_write_tokens": null
+        },
+        "calculation": {
+          "uncached_input": 0.2672264,
+          "cached_input": 3.16344704,
+          "cache_write_input": null,
+          "output": 0.3913404,
+          "api_equivalent": 3.82201384,
+          "cache_write_upper_bound": 3.82201384,
+          "no_cache_api_equivalent": 17.6925124,
+          "cache_savings": 13.87049856,
+          "cache_savings_pct": 78.4
+        },
+        "billing": {
+          "mode": "subscription_quota",
+          "actual_cash_increment": 0.0,
+          "quota_multiplier": 3.0,
+          "quota_equivalent": 11.46604152,
+          "note": "Supported-tool Coding Plan call during the recorded 14:00-18:00 peak window."
+        },
+        "unknown_reason": null
+      },
+      "duration": {
+        "main_active_seconds": 1954.928,
+        "nested_reviewer_seconds": 424.42,
+        "executor_time_sum_seconds": 2379.348
+      },
+      "calls": {
+        "tool_calls": 187,
+        "llm_calls": 164,
+        "failed_commands": 2
+      },
+      "scores": {
+        "full": {
+          "score": 96,
+          "passed": 24,
+          "total": 25,
+          "critical_gate_passed": false,
+          "rubric_version": 3
+        },
+        "spec_risk": null
+      },
+      "phases": [
+        {
+          "phase": "bootstrap + x-spec3 + risk",
+          "total_tokens": 1980931,
+          "share_pct": 15.92
+        },
+        {
+          "phase": "x-req3",
+          "total_tokens": 653356,
+          "share_pct": 5.25
+        },
+        {
+          "phase": "x-dev + tests + dev-report",
+          "total_tokens": 3813884,
+          "share_pct": 30.64
+        },
+        {
+          "phase": "Gate 1 verify",
+          "total_tokens": 595598,
+          "share_pct": 4.79
+        },
+        {
+          "phase": "Gate 2 orchestration",
+          "total_tokens": 246708,
+          "share_pct": 1.98
+        },
+        {
+          "phase": "Gate 2 reviewer",
+          "total_tokens": 2130997,
+          "share_pct": 17.12
+        },
+        {
+          "phase": "x-fix + reverify + closeout",
+          "total_tokens": 3025447,
+          "share_pct": 24.31
+        }
+      ]
+    }
+  ],
+  "comparisons": {
+    "minimax-glm52-20260725": {
+      "comparable": false,
+      "reason": "provider_model_reasoning_and_rubric_mismatch",
+      "metrics": {
+        "total_tokens": {
+          "baseline": 20619230,
+          "current": 12446921,
+          "delta_pct": null
+        },
+        "effective_tokens": {
+          "baseline": 1126110,
+          "current": 279817,
+          "delta_pct": null
+        },
+        "main_active_seconds": {
+          "baseline": 2517.661,
+          "current": 1954.928,
+          "delta_pct": null
+        },
+        "executor_time_sum_seconds": {
+          "baseline": 3958.17,
+          "current": 2379.348,
+          "delta_pct": null
+        },
+        "tool_calls": {
+          "baseline": 115,
+          "current": 187,
+          "delta_pct": null
+        },
+        "llm_calls": {
+          "baseline": null,
+          "current": 164,
+          "delta_pct": null
+        },
+        "api_equivalent_cost": {
+          "baseline": 11.0162425,
+          "current": 3.82201384,
+          "delta_pct": -65.31,
+          "currency": "USD",
+          "qualification": "cross_model_or_reasoning_arithmetic_context"
+        }
+      },
+      "cost": {
+        "comparable": true,
+        "reason": null,
+        "currency": "USD",
+        "baseline": 11.0162425,
+        "current": 3.82201384,
+        "delta": -7.19422866,
+        "delta_pct": -65.31,
+        "qualification": "cross_model_or_reasoning_arithmetic_context"
+      },
+      "score_delta_points": {
+        "full": null,
+        "spec_risk": null
+      },
+      "reference_only_arithmetic": {
+        "total_tokens_delta_pct": -39.63,
+        "note": "Displayed as arithmetic context only; excluded from promotion."
+      }
+    }
+  },
+  "promotion": {
+    "passed": false,
+    "checks": [
+      {
+        "name": "same_scope_and_token_convention",
+        "passed": true,
+        "evidence": "both runs are full_pipeline with cached_input_is_subset_of_input"
+      },
+      {
+        "name": "same_provider_model_reasoning",
+        "passed": false,
+        "evidence": "baseline=gpt-5.6-terra/xhigh; candidate=GLM-5.2/max"
+      },
+      {
+        "name": "same_current_rubric",
+        "passed": false,
+        "evidence": "baseline frozen score uses rubric v2; candidate uses rubric v3"
+      },
+      {
+        "name": "full_quality",
+        "passed": false,
+        "evidence": "score=96, required=100"
+      },
+      {
+        "name": "critical_gate",
+        "passed": false,
+        "evidence": "critical_gate_passed=false"
+      },
+      {
+        "name": "token_reduction",
+        "passed": false,
+        "evidence": "direct token delta unavailable under model/reasoning mismatch; reference-only arithmetic=-39.63%"
+      },
+      {
+        "name": "workspace_preflight",
+        "passed": false,
+        "evidence": "candidate-specific pre-execution preflight artifact is absent and the trace used an external embedding-model path"
+      },
+      {
+        "name": "grader_isolation",
+        "passed": true,
+        "evidence": "grader-only paths are absent from the workspace and candidate trace"
+      }
+    ],
+    "min_quality": 100,
+    "min_token_reduction_pct": 10
+  },
+  "cost_comparison": {
+    "generated_at": "2026-07-26",
+    "currency": "USD",
+    "metric": "api_equivalent_cost",
+    "pricing_per_million_tokens": {
+      "gpt-5.6-sol": {
+        "uncached_input": 5.0,
+        "cached_input_read": 0.5,
+        "output": 30.0,
+        "cache_write_multiplier": 1.25,
+        "source": "https://developers.openai.com/api/docs/models/compare"
+      },
+      "gpt-5.6-terra": {
+        "uncached_input": 2.5,
+        "cached_input_read": 0.25,
+        "output": 15.0,
+        "cache_write_multiplier": 1.25,
+        "source": "https://developers.openai.com/api/docs/models/compare"
+      },
+      "GLM-5.2": {
+        "uncached_input": 1.4,
+        "cached_input_read": 0.26,
+        "output": 4.4,
+        "cached_input_storage": "limited_time_free",
+        "source": "https://docs.z.ai/guides/overview/pricing"
+      }
+    },
+    "method": {
+      "base": "(uncached_input_tokens * uncached_input_rate + cached_input_tokens * cached_input_read_rate + output_tokens * output_rate) / 1000000",
+      "no_cache": "(input_tokens * uncached_input_rate + output_tokens * output_rate) / 1000000",
+      "gpt_cache_write_upper_bound": "base + uncached_input_tokens * uncached_input_rate * 0.25 / 1000000",
+      "qualification": "Frozen GPT telemetry does not split cache-write tokens from ordinary uncached input. The base amount treats all uncached input at the standard rate; the upper bound treats all uncached input as cache writes."
+    },
+    "full_pipeline_runs": [
+      {
+        "run_id": "iteration-3-sol-run-1",
+        "iteration": 3,
+        "model": "gpt-5.6-sol",
+        "scope": "full_pipeline",
+        "quality": {
+          "rubric": "legacy-v1",
+          "score": 100
+        },
+        "usage": {
+          "input_tokens": 6500553,
+          "cached_input_tokens": 6175488,
+          "uncached_input_tokens": 325065,
+          "output_tokens": 106146,
+          "total_tokens": 6606699,
+          "effective_tokens": 431211
+        },
+        "cost": {
+          "api_equivalent_usd": 7.897449,
+          "cache_write_upper_bound_usd": 8.30378025,
+          "no_cache_usd": 35.687145,
+          "cache_savings_usd": 27.789696,
+          "cache_savings_pct": 77.87,
+          "actual_cash_increment_usd": null
+        },
+        "source": "iteration-3/eval-11-journal-index-recovery/with_skill/run-1/measurement.json"
+      },
+      {
+        "run_id": "iteration-3-sol-run-2",
+        "iteration": 3,
+        "model": "gpt-5.6-sol",
+        "scope": "full_pipeline",
+        "quality": {
+          "rubric": "legacy-v1",
+          "score": 100
+        },
+        "usage": {
+          "input_tokens": 9304267,
+          "cached_input_tokens": 8951040,
+          "uncached_input_tokens": 353227,
+          "output_tokens": 123237,
+          "total_tokens": 9427504,
+          "effective_tokens": 476464
+        },
+        "cost": {
+          "api_equivalent_usd": 9.938765,
+          "cache_write_upper_bound_usd": 10.38029875,
+          "no_cache_usd": 50.218445,
+          "cache_savings_usd": 40.27968,
+          "cache_savings_pct": 80.21,
+          "actual_cash_increment_usd": null
+        },
+        "source": "iteration-3/eval-11-journal-index-recovery/with_skill/run-2/measurement.json"
+      },
+      {
+        "run_id": "iteration-4-terra-baseline",
+        "iteration": 4,
+        "model": "gpt-5.6-terra",
+        "scope": "full_pipeline",
+        "quality": {
+          "rubric": "v2",
+          "score": 96
+        },
+        "usage": {
+          "input_tokens": 20353015,
+          "cached_input_tokens": 19493120,
+          "uncached_input_tokens": 859895,
+          "output_tokens": 266215,
+          "total_tokens": 20619230,
+          "effective_tokens": 1126110
+        },
+        "cost": {
+          "api_equivalent_usd": 11.0162425,
+          "cache_write_upper_bound_usd": 11.553676875,
+          "no_cache_usd": 54.8757625,
+          "cache_savings_usd": 43.85952,
+          "cache_savings_pct": 79.93,
+          "actual_cash_increment_usd": null
+        },
+        "source": "iteration-4/eval-11-journal-index-recovery/baseline/run-1/measurement.json"
+      },
+      {
+        "run_id": "iteration-5-terra-full",
+        "iteration": 5,
+        "model": "gpt-5.6-terra",
+        "scope": "full_pipeline",
+        "quality": {
+          "rubric": "v2",
+          "score": 88
+        },
+        "usage": {
+          "input_tokens": 10489177,
+          "cached_input_tokens": 10218240,
+          "uncached_input_tokens": 270937,
+          "output_tokens": 87042,
+          "total_tokens": 10576219,
+          "effective_tokens": 357979
+        },
+        "cost": {
+          "api_equivalent_usd": 4.5375325,
+          "cache_write_upper_bound_usd": 4.706868125,
+          "no_cache_usd": 27.5285725,
+          "cache_savings_usd": 22.99104,
+          "cache_savings_pct": 83.52,
+          "actual_cash_increment_usd": null
+        },
+        "source": "iteration-6/reports/journal-index-recovery-horizontal-comparison.json"
+      },
+      {
+        "run_id": "iteration-6-terra-full",
+        "iteration": 6,
+        "model": "gpt-5.6-terra",
+        "scope": "full_pipeline",
+        "quality": {
+          "rubric": "v2",
+          "score": 80
+        },
+        "usage": {
+          "input_tokens": 10168151,
+          "cached_input_tokens": 9870848,
+          "uncached_input_tokens": 297303,
+          "output_tokens": 85753,
+          "total_tokens": 10253904,
+          "effective_tokens": 383056
+        },
+        "cost": {
+          "api_equivalent_usd": 4.4972645,
+          "cache_write_upper_bound_usd": 4.683078875,
+          "no_cache_usd": 26.7066725,
+          "cache_savings_usd": 22.209408,
+          "cache_savings_pct": 83.16,
+          "actual_cash_increment_usd": null
+        },
+        "source": "iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-1/full-pipeline-metrics.json"
+      },
+      {
+        "run_id": "minimax-glm52-20260725",
+        "iteration": 8,
+        "model": "GLM-5.2",
+        "scope": "full_pipeline",
+        "quality": {
+          "rubric": "v3",
+          "score": 96
+        },
+        "usage": {
+          "input_tokens": 12357980,
+          "cached_input_tokens": 12167104,
+          "uncached_input_tokens": 190876,
+          "output_tokens": 88941,
+          "total_tokens": 12446921,
+          "effective_tokens": 279817
+        },
+        "cost": {
+          "api_equivalent_usd": 3.82201384,
+          "cache_write_upper_bound_usd": 3.82201384,
+          "no_cache_usd": 17.6925124,
+          "cache_savings_usd": 13.87049856,
+          "cache_savings_pct": 78.4,
+          "actual_cash_increment_usd": 0.0,
+          "coding_plan_peak_quota_multiplier": 3,
+          "peak_quota_api_equivalent_usd": 11.46604152
+        },
+        "source": "iteration-8/runs/minimax-glm52-20260725/full-pipeline-metrics.json"
+      }
+    ],
+    "partial_scope_runs": [
+      {
+        "run_id": "iteration-6-terra-clean-run-4",
+        "iteration": 6,
+        "model": "gpt-5.6-terra",
+        "scope": "spec_risk_only",
+        "usage": {
+          "input_tokens": 416213,
+          "cached_input_tokens": 362496,
+          "uncached_input_tokens": 53717,
+          "output_tokens": 24629,
+          "total_tokens": 440842,
+          "effective_tokens": 78346
+        },
+        "cost": {
+          "api_equivalent_usd": 0.5943515,
+          "cache_write_upper_bound_usd": 0.627924625
+        },
+        "source": "iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-4/token-analysis.json"
+      },
+      {
+        "run_id": "iteration-6-terra-run-1-initial",
+        "iteration": 6,
+        "model": "gpt-5.6-terra",
+        "scope": "spec_risk_initial_stage",
+        "usage": {
+          "input_tokens": 255647,
+          "cached_input_tokens": 212480,
+          "uncached_input_tokens": 43167,
+          "output_tokens": 14738,
+          "total_tokens": 270385,
+          "effective_tokens": 57905
+        },
+        "cost": {
+          "api_equivalent_usd": 0.3821075,
+          "cache_write_upper_bound_usd": 0.409086875
+        },
+        "source": "iteration-6/reports/journal-index-recovery-horizontal-comparison.json"
+      },
+      {
+        "run_id": "iteration-7-terra-top1",
+        "iteration": 7,
+        "model": "gpt-5.6-terra",
+        "scope": "spec_risk_only",
+        "usage": null,
+        "cost": null,
+        "qualification": "Execution artifacts are present; token telemetry was not persisted.",
+        "source": "iteration-7/eval-11-journal-index-recovery-spec-risk/llm/run-1/workspace/artifacts/run-summary.json"
+      },
+      {
+        "run_id": "iteration-7-terra-top5-replay",
+        "iteration": 7,
+        "model": "gpt-5.6-terra",
+        "scope": "current_long_session_replay_slice",
+        "usage": {
+          "input_tokens": 759100,
+          "cached_input_tokens": 744448,
+          "uncached_input_tokens": 14652,
+          "output_tokens": 2313,
+          "total_tokens": 761413,
+          "effective_tokens": 16965
+        },
+        "cost": {
+          "api_equivalent_usd": 0.257437,
+          "cache_write_upper_bound_usd": 0.2665945
+        },
+        "qualification": "A 53.188-second delta from an existing long Codex session; suitable for incremental cost magnitude, excluded from isolated promotion comparison.",
+        "source": "iteration-7/eval-11-journal-index-recovery-spec-risk/top5/run-1/workspace/artifacts/run-summary.json"
+      }
+    ],
+    "deltas": [
+      {
+        "comparison": "iteration-3-sol-run-2_vs_run-1",
+        "delta_usd": 2.041316,
+        "delta_pct": 25.85,
+        "comparability": "same_model_prompt_and_quality"
+      },
+      {
+        "comparison": "iteration-5-terra-full_vs_iteration-4-terra-baseline",
+        "delta_usd": -6.47871,
+        "delta_pct": -58.81,
+        "comparability": "same_model_and_reasoning_quality_changed"
+      },
+      {
+        "comparison": "iteration-6-terra-full_vs_iteration-4-terra-baseline",
+        "delta_usd": -6.518978,
+        "delta_pct": -59.18,
+        "comparability": "same_model_and_reasoning_quality_changed"
+      },
+      {
+        "comparison": "iteration-6-terra-full_vs_iteration-5-terra-full",
+        "delta_usd": -0.040268,
+        "delta_pct": -0.89,
+        "comparability": "same_model_and_reasoning_quality_changed"
+      },
+      {
+        "comparison": "iteration-8-glm-full_vs_iteration-3-sol-mean",
+        "baseline_mean_usd": 8.918107,
+        "delta_usd": -5.09609316,
+        "delta_pct": -57.14,
+        "comparability": "cross_provider_model_and_rubric_arithmetic_context"
+      },
+      {
+        "comparison": "iteration-8-glm-full_vs_iteration-6-terra-full",
+        "delta_usd": -0.67525066,
+        "delta_pct": -15.01,
+        "comparability": "cross_provider_model_and_rubric_arithmetic_context"
+      },
+      {
+        "comparison": "iteration-7-top5-slice_vs_iteration-6-run-1-initial",
+        "delta_usd": -0.1246705,
+        "delta_pct": -32.63,
+        "comparability": "different_execution_isolation_arithmetic_context"
+      },
+      {
+        "comparison": "iteration-7-top5-slice_vs_iteration-6-clean-run-4",
+        "delta_usd": -0.3369145,
+        "delta_pct": -56.69,
+        "comparability": "different_execution_isolation_arithmetic_context"
+      }
+    ]
+  }
+}

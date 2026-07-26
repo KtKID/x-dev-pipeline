@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate x-adversarial-risk Spec metadata and mistake-corpus entries."""
+"""Validate the bounded x-adversarial-risk Spec contract."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ import re
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Sequence
+from typing import Sequence
 
 
 METADATA_FIELDS = (
@@ -20,27 +20,29 @@ METADATA_FIELDS = (
     "review_budget",
     "adversarial_review",
 )
+HEADER_FIELDS = ("spec_version", *METADATA_FIELDS)
 VALID_BUDGETS = {"standard", "deep", "full"}
 VALID_STATUSES = {"pending", "skipped-standard", "complete"}
+CURRENT_VERSION = "3"
 SCENARIO_RE = re.compile(r"^###\s+Scenario\s+(SC_\d{2,}):\s*(.+?)\s*$")
 SOURCE_RE = re.compile(r"^-\s*来源[：:]\s*(.+?)\s*$")
-ISSUE_HEADING_RE = re.compile(r"^##\s+(AR-\d{3}):\s*(.+?)\s*$")
-CORPUS_FIELD_RE = re.compile(r"^-\s*([^：:]+)[：:]\s*(.*?)\s*$")
+RISK_ID_PATTERN = r"AR-\d{3}"
+RISK_ID_RE = re.compile(rf"^{RISK_ID_PATTERN}$")
 ADVERSARIAL_SOURCE_RE = re.compile(
-    r"^adversarial-review\s*\((?:"
-    r"AR-\d{3}(?:\s*,\s*AR-\d{3})*"
-    r"|assumption:[^)]+"
-    r")\)$"
+    r"^adversarial-review\s*\("
+    r"(?:"
+    rf"rag:(?P<risk_id>{RISK_ID_PATTERN})"
+    r"|assumption:(?P<assumption>[^)]+)"
+    r")"
+    r"\)$"
 )
-REQUIRED_CORPUS_FIELDS = (
-    "确认状态",
-    "动作维度",
-    "数据维度",
-    "场景维度",
-    "被破坏不变量",
-    "最小反例",
-    "应补 Scenario",
+CATALOG_HEADING_RE = re.compile(r"^##\s+(.+?)\s*$")
+CATALOG_FIELD_RE = re.compile(r"^(关键词|Risk)[：:]\s*(.*?)\s*$")
+REQUIRED_CATALOG_FIELDS = ("关键词", "Risk")
+FORBIDDEN_CATALOG_MARKERS = (
     "来源证据",
+    "/Volumes/",
+    "skills/x-pipeline-efficiency-workspace/",
 )
 
 
@@ -52,6 +54,17 @@ class Issue:
 
     def as_dict(self) -> dict[str, object]:
         return {"code": self.code, "line": self.line, "message": self.message}
+
+
+@dataclass(frozen=True)
+class RiskCard:
+    id: str
+    keywords: str
+    risk: str
+
+    @property
+    def text(self) -> str:
+        return f"关键词：{self.keywords}\nRisk：{self.risk}"
 
 
 def expected_budget(complexity: int, importance: int) -> str:
@@ -96,12 +109,31 @@ def validate_spec(text: str) -> list[Issue]:
     lines = text.splitlines()
     metadata, issues = _metadata(lines)
 
-    if metadata.get("adversarial_risk_version") != "1":
+    for index, key in enumerate(HEADER_FIELDS):
+        if index >= len(lines) or not re.match(rf"^>\s*{key}:\s*\S.*$", lines[index]):
+            issues.append(
+                Issue(
+                    "SPEC_HEADER_FORMAT",
+                    index + 1,
+                    f"第 {index + 1} 行必须使用 > {key}: <值>",
+                )
+            )
+    if len(lines) > len(HEADER_FIELDS) and lines[len(HEADER_FIELDS)] != "":
+        issues.append(
+            Issue(
+                "SPEC_HEADER_FORMAT",
+                len(HEADER_FIELDS) + 1,
+                "七个元数据字段后必须保留一个空行",
+            )
+        )
+
+    version = metadata.get("adversarial_risk_version", "")
+    if version != CURRENT_VERSION:
         issues.append(
             Issue(
                 "SPEC_VERSION",
                 _line_number(lines, "adversarial_risk_version"),
-                "adversarial_risk_version 必须为 1",
+                "adversarial_risk_version 必须为 3",
             )
         )
 
@@ -262,65 +294,145 @@ def validate_spec(text: str) -> list[Issue]:
                 Issue(
                     "SPEC_SCENARIO_SOURCE",
                     source_line,
-                    f"{scenario_id} 的对抗性来源必须引用 AR-nnn 或 assumption:<说明>",
+                    f"{scenario_id} 的 RAG 来源必须使用 "
+                    "adversarial-review (rag:AR-NNN)；"
+                    "独立假设使用 assumption:<说明>",
                 )
             )
 
     return issues
 
 
-def validate_corpus(text: str) -> list[Issue]:
+def parse_catalog(text: str) -> tuple[list[RiskCard], list[Issue]]:
     lines = text.splitlines()
     starts: list[tuple[int, str]] = []
-    issues: list[Issue] = []
     for index, line in enumerate(lines):
-        match = ISSUE_HEADING_RE.match(line)
+        match = CATALOG_HEADING_RE.match(line)
         if match:
             starts.append((index, match.group(1)))
 
+    issues: list[Issue] = []
     if not starts:
-        return [Issue("CORPUS_EMPTY", 0, "错题集缺少 AR-nnn issue")]
+        return [], [Issue("CATALOG_EMPTY", 0, "错题集缺少风险条目")]
 
+    cards: list[RiskCard] = []
     seen_ids: set[str] = set()
-    for position, (start, issue_id) in enumerate(starts):
-        if issue_id in seen_ids:
-            issues.append(
-                Issue("CORPUS_DUPLICATE_ID", start + 1, f"issue ID 重复：{issue_id}")
-            )
-        seen_ids.add(issue_id)
-
+    for position, (start, risk_id) in enumerate(starts):
+        heading_line = start + 1
         end = starts[position + 1][0] if position + 1 < len(starts) else len(lines)
-        fields: dict[str, tuple[str, int]] = {}
-        for offset in range(start + 1, end):
-            match = CORPUS_FIELD_RE.match(lines[offset])
-            if not match:
-                continue
-            key, value = match.groups()
-            key = key.strip()
-            if key in REQUIRED_CORPUS_FIELDS and key not in fields:
-                fields[key] = (value.strip(), offset + 1)
+        fields: dict[str, tuple[int, str]] = {}
 
-        for field in REQUIRED_CORPUS_FIELDS:
-            value, line_number = fields.get(field, ("", start + 1))
-            if not value:
+        valid_id = bool(RISK_ID_RE.fullmatch(risk_id))
+        if not valid_id:
+            issues.append(
+                Issue(
+                    "CATALOG_ID",
+                    heading_line,
+                    f"错题 ID 必须匹配 AR-NNN：{risk_id}",
+                )
+            )
+        elif risk_id in seen_ids:
+            issues.append(
+                Issue("CATALOG_DUPLICATE_ID", heading_line, f"错题 ID 重复：{risk_id}")
+            )
+        else:
+            seen_ids.add(risk_id)
+
+        for offset in range(start + 1, end):
+            line = lines[offset]
+            if not line.strip():
+                continue
+            match = CATALOG_FIELD_RE.fullmatch(line)
+            if not match:
                 issues.append(
                     Issue(
-                        "CORPUS_MISSING_FIELD",
-                        line_number,
-                        f"{issue_id} 缺少字段：{field}",
+                        "CATALOG_UNKNOWN_CONTENT",
+                        offset + 1,
+                        f"{risk_id} 只允许关键词和 Risk 字段",
+                    )
+                )
+                continue
+            field, value = match.groups()
+            if field in fields:
+                issues.append(
+                    Issue(
+                        "CATALOG_DUPLICATE_FIELD",
+                        offset + 1,
+                        f"{risk_id} 字段重复：{field}",
+                    )
+                )
+                continue
+            fields[field] = (offset + 1, value.strip())
+
+        for field in REQUIRED_CATALOG_FIELDS:
+            if field not in fields or not fields[field][1]:
+                issues.append(
+                    Issue(
+                        "CATALOG_MISSING_FIELD",
+                        heading_line,
+                        f"{risk_id} 缺少非空字段：{field}",
                     )
                 )
 
-        status = fields.get("确认状态", ("", start + 1))[0]
-        if status and status != "confirmed":
-            issues.append(
-                Issue(
-                    "CORPUS_STATUS",
-                    fields["确认状态"][1],
-                    f"{issue_id} 只有 confirmed issue 可以进入错题集",
+        if valid_id and all(
+            field in fields and fields[field][1] for field in REQUIRED_CATALOG_FIELDS
+        ):
+            cards.append(
+                RiskCard(
+                    id=risk_id,
+                    keywords=fields["关键词"][1],
+                    risk=fields["Risk"][1],
                 )
             )
 
+    return cards, issues
+
+
+def validate_corpus(text: str) -> list[Issue]:
+    lines = text.splitlines()
+    _, issues = parse_catalog(text)
+
+    for number, line in enumerate(lines, start=1):
+        for marker in FORBIDDEN_CATALOG_MARKERS:
+            if marker in line:
+                issues.append(
+                    Issue(
+                        "CATALOG_EVIDENCE_PATH",
+                        number,
+                        f"错题集包含发布环境外的证据标记：{marker}",
+                    )
+                )
+
+    return issues
+
+
+def validate_traceability(spec_text: str, catalog_text: str) -> list[Issue]:
+    lines = spec_text.splitlines()
+    metadata, _ = _metadata(lines)
+    version = metadata.get("adversarial_risk_version")
+    if version != CURRENT_VERSION:
+        return []
+
+    cards, _ = parse_catalog(catalog_text)
+    catalog_ids = {card.id for card in cards}
+    issues: list[Issue] = []
+    for number, line in enumerate(lines, start=1):
+        source_match = SOURCE_RE.match(line)
+        if not source_match:
+            continue
+        source = source_match.group(1)
+        match = ADVERSARIAL_SOURCE_RE.fullmatch(source)
+        if not match or not match.group("risk_id"):
+            continue
+        risk_id = match.group("risk_id")
+        if risk_id not in catalog_ids:
+            issues.append(
+                Issue(
+                    "SPEC_SOURCE_CATALOG",
+                    number,
+                    f"来源引用的 {risk_id} 不在错题集中",
+                )
+            )
     return issues
 
 
@@ -355,26 +467,46 @@ def _emit(command: str, target: str, issues: Sequence[Issue], as_json: bool) -> 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
-    for command in ("validate-spec", "validate-corpus"):
-        subparser = subparsers.add_parser(command)
-        subparser.add_argument("target")
-        subparser.add_argument("--json", action="store_true", dest="as_json")
+    spec_parser = subparsers.add_parser("validate-spec")
+    spec_parser.add_argument("target")
+    spec_parser.add_argument("--json", action="store_true", dest="as_json")
+    corpus_parser = subparsers.add_parser("validate-corpus")
+    corpus_parser.add_argument("target")
+    corpus_parser.add_argument("--json", action="store_true", dest="as_json")
+    review_parser = subparsers.add_parser("validate-review")
+    review_parser.add_argument("target")
+    review_parser.add_argument("--catalog", required=True)
+    review_parser.add_argument("--json", action="store_true", dest="as_json")
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
-    text, io_issue = _read_target(args.target)
-    if io_issue is not None:
-        _emit(args.command, args.target, [io_issue], args.as_json)
+    target_text, target_io_issue = _read_target(args.target)
+    if target_io_issue is not None:
+        _emit(args.command, args.target, [target_io_issue], args.as_json)
         return 2
 
-    validators: dict[str, Callable[[str], list[Issue]]] = {
-        "validate-spec": validate_spec,
-        "validate-corpus": validate_corpus,
-    }
-    issues = validators[args.command](text or "")
-    _emit(args.command, args.target, issues, args.as_json)
+    if args.command == "validate-spec":
+        issues = validate_spec(target_text or "")
+        output_target = args.target
+    elif args.command == "validate-corpus":
+        issues = validate_corpus(target_text or "")
+        output_target = args.target
+    else:
+        catalog_text, catalog_io_issue = _read_target(args.catalog)
+        if catalog_io_issue is not None:
+            output_target = f"{args.target} + {args.catalog}"
+            _emit(args.command, output_target, [catalog_io_issue], args.as_json)
+            return 2
+        issues = [
+            *validate_spec(target_text or ""),
+            *validate_corpus(catalog_text or ""),
+            *validate_traceability(target_text or "", catalog_text or ""),
+        ]
+        output_target = f"{args.target} + {args.catalog}"
+
+    _emit(args.command, output_target, issues, args.as_json)
     return 1 if issues else 0
 
 

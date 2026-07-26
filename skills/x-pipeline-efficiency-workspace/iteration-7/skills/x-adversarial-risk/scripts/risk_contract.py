@@ -23,32 +23,16 @@ METADATA_FIELDS = (
 HEADER_FIELDS = ("spec_version", *METADATA_FIELDS)
 VALID_BUDGETS = {"standard", "deep", "full"}
 VALID_STATUSES = {"pending", "skipped-standard", "complete"}
-SUPPORTED_VERSIONS = {"1", "2", "3"}
+CURRENT_VERSION = "3"
 SCENARIO_RE = re.compile(r"^###\s+Scenario\s+(SC_\d{2,}):\s*(.+?)\s*$")
 SOURCE_RE = re.compile(r"^-\s*来源[：:]\s*(.+?)\s*$")
-V1_ADVERSARIAL_SOURCE_RE = re.compile(
-    r"^adversarial-review\s*\((?:"
-    r"AR-\d{3}(?:\s*,\s*AR-\d{3})*"
-    r"|assumption:[^)]+"
-    r")\)$"
-)
-NAMESPACED_RISK_ID_PATTERN = r"[A-Za-z][A-Za-z0-9]*-risk-\d{3}"
-NAMESPACED_RISK_ID_RE = re.compile(rf"^{NAMESPACED_RISK_ID_PATTERN}$")
-V2_ADVERSARIAL_SOURCE_RE = re.compile(
+RISK_ID_PATTERN = r"AR-\d{3}"
+RISK_ID_RE = re.compile(rf"^{RISK_ID_PATTERN}$")
+ADVERSARIAL_SOURCE_RE = re.compile(
     r"^adversarial-review\s*\("
     r"(?:"
-    r"(?P<legacy_risk_id>AR-\d{3});\s*"
-    r"pattern:(?P<pattern>[a-z0-9][a-z0-9-]*)"
-    rf"|(?P<risk_id>{NAMESPACED_RISK_ID_PATTERN})"
-    r"|assumption:[^)]+"
-    r")"
-    r"\)$"
-)
-V3_ADVERSARIAL_SOURCE_RE = re.compile(
-    r"^adversarial-review\s*\("
-    r"(?:"
-    rf"rag:(?P<risk_id>{NAMESPACED_RISK_ID_PATTERN})"
-    r"|assumption:[^)]+"
+    rf"rag:(?P<risk_id>{RISK_ID_PATTERN})"
+    r"|assumption:(?P<assumption>[^)]+)"
     r")"
     r"\)$"
 )
@@ -144,12 +128,12 @@ def validate_spec(text: str) -> list[Issue]:
         )
 
     version = metadata.get("adversarial_risk_version", "")
-    if version not in SUPPORTED_VERSIONS:
+    if version != CURRENT_VERSION:
         issues.append(
             Issue(
                 "SPEC_VERSION",
                 _line_number(lines, "adversarial_risk_version"),
-                "adversarial_risk_version 必须为 1、2 或 3",
+                "adversarial_risk_version 必须为 3",
             )
         )
 
@@ -305,31 +289,13 @@ def validate_spec(text: str) -> list[Issue]:
             )
         elif source_value == "initial-spec":
             continue
-        elif version == "1" and not V1_ADVERSARIAL_SOURCE_RE.fullmatch(source_value):
+        elif not ADVERSARIAL_SOURCE_RE.fullmatch(source_value):
             issues.append(
                 Issue(
                     "SPEC_SCENARIO_SOURCE",
                     source_line,
-                    f"{scenario_id} 的 v1 对抗性来源必须引用 AR-nnn 或 assumption:<说明>",
-                )
-            )
-        elif version == "2" and not V2_ADVERSARIAL_SOURCE_RE.fullmatch(source_value):
-            issues.append(
-                Issue(
-                    "SPEC_SCENARIO_SOURCE",
-                    source_line,
-                    f"{scenario_id} 的 v2 对抗性来源必须使用 "
-                    "命名空间化风险 ID、历史 AR-nnn; pattern:<标签> "
-                    "或 assumption:<说明>",
-                )
-            )
-        elif version == "3" and not V3_ADVERSARIAL_SOURCE_RE.fullmatch(source_value):
-            issues.append(
-                Issue(
-                    "SPEC_SCENARIO_SOURCE",
-                    source_line,
-                    f"{scenario_id} 的 v3 RAG 来源必须使用 "
-                    "adversarial-review (rag:<命名空间化风险 ID>)；"
+                    f"{scenario_id} 的 RAG 来源必须使用 "
+                    "adversarial-review (rag:AR-NNN)；"
                     "独立假设使用 assumption:<说明>",
                 )
             )
@@ -356,13 +322,13 @@ def parse_catalog(text: str) -> tuple[list[RiskCard], list[Issue]]:
         end = starts[position + 1][0] if position + 1 < len(starts) else len(lines)
         fields: dict[str, tuple[int, str]] = {}
 
-        valid_id = bool(NAMESPACED_RISK_ID_RE.fullmatch(risk_id))
+        valid_id = bool(RISK_ID_RE.fullmatch(risk_id))
         if not valid_id:
             issues.append(
                 Issue(
                     "CATALOG_ID",
                     heading_line,
-                    f"错题 ID 必须匹配 <namespace>-risk-<三位序号>：{risk_id}",
+                    f"错题 ID 必须匹配 AR-NNN：{risk_id}",
                 )
             )
         elif risk_id in seen_ids:
@@ -419,15 +385,6 @@ def parse_catalog(text: str) -> tuple[list[RiskCard], list[Issue]]:
                 )
             )
 
-    if starts[0][1] != "A-risk-001":
-        issues.append(
-            Issue(
-                "CATALOG_FIRST_ID",
-                starts[0][0] + 1,
-                "首条错题 ID 必须为 A-risk-001",
-            )
-        )
-
     return cards, issues
 
 
@@ -453,7 +410,7 @@ def validate_traceability(spec_text: str, catalog_text: str) -> list[Issue]:
     lines = spec_text.splitlines()
     metadata, _ = _metadata(lines)
     version = metadata.get("adversarial_risk_version")
-    if version not in {"2", "3"}:
+    if version != CURRENT_VERSION:
         return []
 
     cards, _ = parse_catalog(catalog_text)
@@ -464,12 +421,7 @@ def validate_traceability(spec_text: str, catalog_text: str) -> list[Issue]:
         if not source_match:
             continue
         source = source_match.group(1)
-        source_re = (
-            V3_ADVERSARIAL_SOURCE_RE
-            if version == "3"
-            else V2_ADVERSARIAL_SOURCE_RE
-        )
-        match = source_re.fullmatch(source)
+        match = ADVERSARIAL_SOURCE_RE.fullmatch(source)
         if not match or not match.group("risk_id"):
             continue
         risk_id = match.group("risk_id")

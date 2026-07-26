@@ -23,7 +23,7 @@ x-spec3 产出最小完整开发契约。每段内容都服务于实现决策、
 7. 验收清单：单元测试、Smoke 测试、按需 E2E 测试及其判定依据。
 8. 测试驱动开发顺序。
 9. 可执行的 GIVEN/WHEN/THEN Scenarios，每项标记 `initial-spec` 来源。
-10. 对抗性审查记录；standard 由 x-spec3 完成，deep/full 由 x-adversarial-risk 完成。
+10. 风险召回与对抗性审查记录；风险语料可用时所有预算执行一次 Top5 召回。缺少语料路径时暂停并询问用户，用户确认跳过 RAG 后按分数路由对抗性检验。
 
 ## 工作流
 
@@ -78,7 +78,11 @@ x-spec3 产出最小完整开发契约。每段内容都服务于实现决策、
 - 平均分低于 3 为 `standard`，3 到低于 4 为 `deep`，4 及以上为 `full`。
 - 任一维度为 4 时预算至少为 `deep`；任一维度为 5 时预算为 `full`。
 
-把评分理由写入“风险评分依据”。`standard` 在同一次 Spec 写入中设置 `adversarial_review: skipped-standard`，写入 ARV-1 且保持 Scenario 集合不扩张。`deep/full` 设置 `adversarial_review: pending`，交给 x-adversarial-risk。
+把评分理由写入“风险评分依据”。召回前确认调用方提供的风险语料路径。当前上下文缺少路径时，停下当前工作并向用户询问：“请提供 RAG 风险经验集的本地文件或目录路径。如果当前没有 RAG 经验集，请确认跳过 RAG 召回；后续将只根据 Spec 的风险分数执行有上限的独立对抗性检验。”
+
+风险语料可用时，所有预算都执行一次 Top5 召回。`standard` 在同一次 Spec 写入中生成“功能关键词 + Risk”查询，调用 `x-dev-rag-call`，把查询、最多五条召回 ID、CLI 结果和“无 Scenario 扩张”写入 ARV-1，同时设置 `adversarial_review: skipped-standard`；召回失败时记录 exit、error 和 message，仍保持 standard 直接交接。`deep/full` 设置 `adversarial_review: pending`，由 x-adversarial-risk 执行 Top5 召回并继续对抗分析。
+
+用户确认没有 RAG 经验集或确认跳过后，省略 RAG 召回并记录 `CLI=skipped:no-corpus`。`standard` 保持零对抗性 Scenario 扩张并直接交接；`deep` 交给 x-adversarial-risk 执行 1 个独立故障假设；`full` 交给 x-adversarial-risk 执行最多 2 个不同故障轴的独立假设。评分公式与预算映射保持不变。
 
 建模覆盖声明逐项给出当前文档锚点。某项确实不适用时写出与本任务相关的具体理由。
 
@@ -104,7 +108,7 @@ x-spec3 产出最小完整开发契约。每段内容都服务于实现决策、
 - **THEN**：可观察结果、错误、状态或副作用。
 - 测试层：`unit`、`smoke` 或 `e2e`。
 - 依据：相关 J-ID；直接任务契约可写“用户任务”。
-- 来源：第一版统一写 `initial-spec`。x-adversarial-risk 使用 RAG 错题生成或收紧的场景写 `adversarial-review (rag:<risk-id>)`；LLM 独立推导的场景写 `adversarial-review (assumption:<短说明>)`。显式标注让 Spec 的风险来源可审计。
+- 来源：第一版统一写 `initial-spec`。x-adversarial-risk 使用 RAG 错题生成或收紧的场景写 `adversarial-review (rag:AR-NNN)`；LLM 独立推导的场景写 `adversarial-review (assumption:<短说明>)`。显式标注让 Spec 的风险来源可审计。
 
 场景集合优先覆盖高损失边界：递归/嵌套输入、空值与删除、并发交错、重复/乱序、超时/失败、所有权与不可变性、确定性、容量和性能阈值。每项只在与任务相关时出现。
 
@@ -119,10 +123,10 @@ x-spec3 产出最小完整开发契约。每段内容都服务于实现决策、
 - 每个边界不变量都有可观察验证。
 - Scenario ID 均为 `SC_01` 格式，按顺序递增且没有重复；新增或修改场景保持已有 ID 稳定。
 - 复杂度、重要性、平均分和预算满足映射，评分依据能定位到当前任务事实。
-- 第一版每个 Scenario 都标记 `来源：initial-spec`；RAG 风险场景显式标记 `来源：adversarial-review (rag:<risk-id>)`；独立假设场景标记 `assumption`；`standard` 写入 `skipped-standard` 与 ARV-1，`deep/full` 在交接对抗审查前保持 `pending`。
+- 第一版每个 Scenario 都标记 `来源：initial-spec`；RAG 风险场景显式标记 `来源：adversarial-review (rag:AR-NNN)`；独立假设场景标记 `assumption`。风险语料可用时，`standard` 写入 Top5 查询结果、`skipped-standard` 与 ARV-1；用户确认跳过 RAG 时写入 `skipped:no-corpus`。两条 standard 路径都保持 Scenario 集合不扩张；`deep/full` 在交接对抗审查前保持 `pending`。
 - 每个 Scenario 能直接转成测试，THEN 避免“正确处理”等不可判定措辞。
 - 单元、Smoke、E2E 的职责清晰，E2E 决策有依据。
 - 判断依据有消费者，建模覆盖没有空洞锚点。
 - 重复说明已经合并，背景材料没有进入执行上下文。
 
-交接时报告 spec 路径、契约一致性检查结果、待确认判断、双评分、预算、测试层选择和最高风险 Scenario。存在待确认项时明确报告“spec 草案，阻断风险审查与 x-req3”。`standard` 完成本阶段后直接交接。`deep/full` 进入 x-adversarial-risk：批量读取该 skill 与目标 `spec.md`，从 Spec 生成“功能关键词 + Risk”，调用 `x-dev-rag-call` 从错题集路径完成 Top1 向量召回，再执行一次集中 patch、一次 `validate-review` 和一次回执。`adversarial_review` 达到 `skipped-standard` 或 `complete` 且机械门禁通过后，x-req3 依据该单文档拆解开发任务，verify 依据 Scenario 测试层复跑事实证据。
+交接时报告 spec 路径、契约一致性检查结果、待确认判断、双评分、预算、测试层选择和最高风险 Scenario。存在待确认项时明确报告“spec 草案，阻断风险审查与 x-req3”。风险语料可用时，所有预算都从 Spec 生成“功能关键词 + Risk”，并调用 `x-dev-rag-call` 完成 Top5 向量召回；`standard` 只记录召回与适用性结果并直接交接，`deep/full` 使用 Top5 正文执行集中对抗分析。用户确认跳过 RAG 时，`standard` 直接交接，`deep/full` 分别按 1 个和最多 2 个独立假设执行对抗分析。所有路径都保持一次集中 patch、一次匹配当前路径的机械验证和一次回执。`adversarial_review` 达到 `skipped-standard` 或 `complete` 且机械门禁通过后，x-req3 依据该单文档拆解开发任务，verify 依据 Scenario 测试层复跑事实证据。

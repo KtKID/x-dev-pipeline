@@ -18,6 +18,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 
+import flag as flag_engine  # noqa: E402
 import xdev  # noqa: E402
 
 
@@ -70,7 +71,7 @@ class FlagTestCase(unittest.TestCase):
 
 class TestFlagInputValidation(FlagTestCase):
     def test_normalizes_valid_parameters_and_preserves_pipe(self):
-        values = xdev.normalize_flag_inputs(
+        values = flag_engine.normalize_flag_inputs(
             " T2,T3 ", "p1", "src/a.py:10", " 第一行 | A\r\n第二行 "
         )
         self.assertEqual(values, (["T2", "T3"], "P1", "src/a.py:10", "第一行 | A 第二行"))
@@ -89,8 +90,8 @@ class TestFlagInputValidation(FlagTestCase):
             ("T2", "P0", "a.py:1", "tab\there"),
         ]
         for values in cases:
-            with self.subTest(values=values), self.assertRaises(xdev.FlagError):
-                xdev.normalize_flag_inputs(*values)
+            with self.subTest(values=values), self.assertRaises(flag_engine.FlagError):
+                flag_engine.normalize_flag_inputs(*values)
 
     def test_validation_errors_leave_all_files_unchanged(self):
         cases = [
@@ -132,7 +133,7 @@ summary issue-400
  - issue-300 | P0 | T1 | a.py:1 | indented
 - issue-2 | P2 | T2 | b.py:2 | ok
 """
-        self.assertEqual(xdev.next_issue_id(report), "issue-3")
+        self.assertEqual(flag_engine.next_issue_id(report), "issue-3")
 
     def test_same_second_rounds_use_numeric_suffixes(self):
         reports = self.root / "reports"
@@ -141,7 +142,7 @@ summary issue-400
         base = reports / "qa-gate-report-20260718-153045.md"
         base.write_text("base", encoding="utf-8")
         (reports / "qa-gate-report-20260718-153045-01.md").write_text("one", encoding="utf-8")
-        path, text, before_hash = xdev.resolve_current_report(reports, True, now=fixed)
+        path, text, before_hash = flag_engine.resolve_current_report(reports, True, now=fixed)
         self.assertEqual(path.name, "qa-gate-report-20260718-153045-02.md")
         self.assertIn("## Issues", text)
         self.assertIsNone(before_hash)
@@ -152,10 +153,10 @@ summary issue-400
         for suffix in ("-02", "-10", ""):
             path = reports / f"qa-gate-report-20260718-153045{suffix}.md"
             path.write_text(suffix or "base", encoding="utf-8")
-        path, text, before_hash = xdev.resolve_current_report(reports, False)
+        path, text, before_hash = flag_engine.resolve_current_report(reports, False)
         self.assertEqual(path.name, "qa-gate-report-20260718-153045-10.md")
         self.assertEqual(text, "-10")
-        self.assertEqual(before_hash, xdev._sha256_bytes(b"-10"))
+        self.assertEqual(before_hash, flag_engine._sha256_bytes(b"-10"))
 
     def test_first_p0_flag_generates_issue_and_only_status_cells(self):
         task = self.make_task()
@@ -205,7 +206,7 @@ summary issue-400
         task = self.make_task()
         args = ["--task", "T3", "--severity", "P2", "--loc", "c.py:3", "--msg", "note", "--new-round", "--json"]
         fixed = datetime(2026, 7, 18, 15, 30, 45)
-        with patch.object(xdev, "datetime") as mocked_datetime:
+        with patch.object(flag_engine, "datetime") as mocked_datetime:
             mocked_datetime.now.return_value = fixed
             outputs = [json.loads(capture_flag(task, *args)[1]) for _ in range(3)]
         self.assertEqual([item["issue"] for item in outputs], ["issue-1"] * 3)
@@ -223,8 +224,9 @@ summary issue-400
         args = ["--task", "T2", "--severity", "P0", "--loc", "a.py:1", "--msg", "broken"]
         code, _stdout, stderr = capture_flag(task, *args)
         self.assertEqual(code, 0, stderr)
-        tasks, _issues = xdev.resolve_task_list(task)
-        self.assertEqual(tasks[0]["status"], xdev.BLOCKED)
+        updated = (task / "dev-checklist.md").read_text(encoding="utf-8")
+        self.assertIn("| T2 | legacy | a.py | — | [!] 🔴 | keep |", updated)
+        self.assertEqual(flag_engine.task_engine_status("[!] 🔴"), flag_engine.BLOCKED)
 
 
 class TestFlagTransactionRecovery(FlagTestCase):
@@ -239,14 +241,14 @@ class TestFlagTransactionRecovery(FlagTestCase):
                 raise OSError("simulated interruption")
             return real_replace(source, target)
 
-        with patch.object(xdev.os, "replace", side_effect=flaky_replace):
+        with patch.object(flag_engine.os, "replace", side_effect=flaky_replace):
             return capture_flag(task, *default_args("--json"))
 
     def test_interrupted_transaction_rolls_forward_before_new_issue(self):
         task = self.make_task()
         first = self.interrupt_after_first_replace(task)
         self.assertEqual(first[0], 2)
-        marker = task / "reports" / "qa-gate" / xdev.FLAG_MARKER_NAME
+        marker = task / "reports" / "qa-gate" / flag_engine.FLAG_MARKER_NAME
         self.assertTrue(marker.exists())
         self.assertIn("[!] 🔴", (task / "dev-checklist.md").read_text(encoding="utf-8"))
 
@@ -264,7 +266,7 @@ class TestFlagTransactionRecovery(FlagTestCase):
     def test_recovery_precedes_value_validation(self):
         task = self.make_task()
         self.assertEqual(self.interrupt_after_first_replace(task)[0], 2)
-        marker = task / "reports" / "qa-gate" / xdev.FLAG_MARKER_NAME
+        marker = task / "reports" / "qa-gate" / flag_engine.FLAG_MARKER_NAME
         self.assertTrue(marker.exists())
 
         bad_args = ["--task", "T0", "--severity", "P1", "--loc", "x.py:1", "--msg", "bad", "--json"]
@@ -280,7 +282,7 @@ class TestFlagTransactionRecovery(FlagTestCase):
     def test_missing_recovery_temp_keeps_marker_and_returns_two(self):
         task = self.make_task()
         self.assertEqual(self.interrupt_after_first_replace(task)[0], 2)
-        marker_path = task / "reports" / "qa-gate" / xdev.FLAG_MARKER_NAME
+        marker_path = task / "reports" / "qa-gate" / flag_engine.FLAG_MARKER_NAME
         marker = json.loads(marker_path.read_text(encoding="utf-8"))
         report_entry = next(item for item in marker["targets"] if "qa-gate-report" in item["target"])
         (task / report_entry["temp"]).unlink()
@@ -295,8 +297,8 @@ class TestFlagTransactionRecovery(FlagTestCase):
         report_path = task / "reports" / "qa-gate" / "qa-gate-report-20260718-153045.md"
         report_path.parent.mkdir(parents=True)
         winner_checklist = checklist("| T1 | winner | a.py | — | [!] 🔴 | keep |")
-        winner_report = xdev.append_issue_line(
-            xdev.render_issue_report(report_path),
+        winner_report = flag_engine.append_issue_line(
+            flag_engine.render_issue_report(report_path),
             {"issue": "issue-7", "tasks": ["T1"], "severity": "P0", "loc": "a.py:7", "msg": "winner"},
         )
         winner_result = {
@@ -313,22 +315,22 @@ class TestFlagTransactionRecovery(FlagTestCase):
             targets = []
             for target, data in target_data:
                 temp = target.parent / f".{target.name}.{transaction}.tmp"
-                xdev._write_durable_temp(temp, data)
+                flag_engine._write_durable_temp(temp, data)
                 targets.append({
-                    "target": xdev._relative_transaction_path(task, target),
-                    "temp": xdev._relative_transaction_path(task, temp),
-                    "sha256": xdev._sha256_bytes(data),
-                    "before_sha256": xdev._sha256_file(target),
+                    "target": flag_engine._relative_transaction_path(task, target),
+                    "temp": flag_engine._relative_transaction_path(task, temp),
+                    "sha256": flag_engine._sha256_bytes(data),
+                    "before_sha256": flag_engine._sha256_file(target),
                 })
             winner_marker_temp = report_path.parent / ".winner-marker.tmp"
             marker = {
-                "version": xdev.FLAG_MARKER_VERSION,
+                "version": flag_engine.FLAG_MARKER_VERSION,
                 "transaction": transaction,
-                "marker_temp": xdev._relative_transaction_path(task, winner_marker_temp),
+                "marker_temp": flag_engine._relative_transaction_path(task, winner_marker_temp),
                 "targets": targets,
                 "result": winner_result,
             }
-            xdev._write_durable_temp(
+            flag_engine._write_durable_temp(
                 winner_marker_temp,
                 json.dumps(marker, ensure_ascii=False, separators=(",", ":")).encode(),
             )
@@ -338,22 +340,22 @@ class TestFlagTransactionRecovery(FlagTestCase):
         ours = {
             "issue": "issue-1", "downgraded": [], "report": report_path.name, "recovered": False,
         }
-        with patch.object(xdev.os, "link", side_effect=publish_winner):
-            result = xdev.commit_flag_transaction(
+        with patch.object(flag_engine.os, "link", side_effect=publish_winner):
+            result = flag_engine.commit_flag_transaction(
                 task,
                 checklist_path,
                 checklist_path.read_text(encoding="utf-8"),
                 report_path,
-                xdev.render_issue_report(report_path),
+                flag_engine.render_issue_report(report_path),
                 ours,
-                xdev._sha256_file(checklist_path),
+                flag_engine._sha256_file(checklist_path),
                 None,
             )
         self.assertEqual(result["issue"], "issue-7")
         self.assertTrue(result["recovered"])
         self.assertEqual(checklist_path.read_text(encoding="utf-8"), winner_checklist)
         self.assertEqual(report_path.read_text(encoding="utf-8"), winner_report)
-        self.assertFalse((report_path.parent / xdev.FLAG_MARKER_NAME).exists())
+        self.assertFalse((report_path.parent / flag_engine.FLAG_MARKER_NAME).exists())
 
     def test_stale_new_round_cannot_overwrite_completed_round(self):
         task = self.make_task()
@@ -365,27 +367,27 @@ class TestFlagTransactionRecovery(FlagTestCase):
         result = {
             "issue": "issue-1", "downgraded": [], "report": report_path.name, "recovered": False,
         }
-        with self.assertRaises(xdev.FlagError) as ctx:
-            xdev.commit_flag_transaction(
+        with self.assertRaises(flag_engine.FlagError) as ctx:
+            flag_engine.commit_flag_transaction(
                 task,
                 checklist_path,
                 checklist_path.read_text(encoding="utf-8"),
                 report_path,
                 "# stale slower transaction\n",
                 result,
-                xdev._sha256_file(checklist_path),
+                flag_engine._sha256_file(checklist_path),
                 None,
             )
         self.assertIn("目标发生变化", str(ctx.exception))
         self.assertEqual(report_path.read_text(encoding="utf-8"), completed)
-        self.assertFalse((report_path.parent / xdev.FLAG_MARKER_NAME).exists())
+        self.assertFalse((report_path.parent / flag_engine.FLAG_MARKER_NAME).exists())
 
     def test_marker_rejects_path_escape(self):
         task = self.make_task()
         reports = task / "reports" / "qa-gate"
         reports.mkdir(parents=True)
         marker = {
-            "version": xdev.FLAG_MARKER_VERSION,
+            "version": flag_engine.FLAG_MARKER_VERSION,
             "targets": [
                 {"target": "../outside", "temp": "tmp-a", "sha256": "0" * 64},
                 {
@@ -397,7 +399,7 @@ class TestFlagTransactionRecovery(FlagTestCase):
             ],
             "result": {"issue": "issue-1", "downgraded": [], "report": "x.md", "recovered": False},
         }
-        marker_path = reports / xdev.FLAG_MARKER_NAME
+        marker_path = reports / flag_engine.FLAG_MARKER_NAME
         marker_path.write_text(json.dumps(marker), encoding="utf-8")
         code, _stdout, stderr = capture_flag(task, *default_args())
         self.assertEqual(code, 2)

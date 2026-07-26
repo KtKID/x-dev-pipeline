@@ -109,7 +109,9 @@ expect_contains: passed
 
 ## 确定性引擎
 
-`tools/xdev.py` 承担机械规则：
+`tools/xdev.py` 是机械规则的薄 CLI 入口；包校验由 `tools/validator.py` 负责，spec3 task
+规划由 `tools/req3.py` 负责，验证由 `tools/verify.py` 负责，QA issue 事务由
+`tools/flag.py` 负责：
 
 ```text
 validate [pkg...]                 校验 spec、change、task 契约
@@ -121,7 +123,8 @@ verify <task-dir> [--json]        执行证据并对账 Scenario
 flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-round] [--json]
 ```
 
-task 校验覆盖 V8–V12：必需文件、checklist 契约、可选图一致性、README risk 与必需章节、Requirement/Scenario 结构。
+task 命令只接收 `docs/spec/<spec-name>/tasks/<task-name>/`。历史
+`dev-pipeline/tasks/` 目录继续作为可读档案保留，不再获得运行时校验或编排支持。
 
 ## x-spec2 pilot 计量
 

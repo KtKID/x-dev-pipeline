@@ -14,10 +14,9 @@ SKILL = ROOT / "skills" / "x-dev-rag-call"
 SCRIPT_DIR = SKILL / "scripts"
 CATALOG = (
     ROOT
-    / "skills"
-    / "x-adversarial-risk"
-    / "references"
-    / "risk-mistakes.md"
+    / "tests"
+    / "fixtures"
+    / "risk-catalog.md"
 )
 
 sys.path.insert(0, str(SCRIPT_DIR))
@@ -51,14 +50,14 @@ class RagRetrieveTest(unittest.TestCase):
         self.assertEqual(
             [chunk.id for chunk in chunks],
             [
-                "A-risk-001",
-                "A-risk-002",
-                "A-risk-003",
-                "A-risk-004",
-                "A-risk-005",
+                "AR-001",
+                "AR-002",
+                "AR-003",
+                "AR-004",
+                "AR-005",
             ],
         )
-        self.assertTrue(all(chunk.text.startswith("## A-risk-") for chunk in chunks))
+        self.assertTrue(all(chunk.text.startswith("## AR-") for chunk in chunks))
 
     def test_directory_reads_markdown_and_text(self):
         with tempfile.TemporaryDirectory() as raw:
@@ -102,7 +101,7 @@ class RagRetrieveTest(unittest.TestCase):
         )
         self.assertEqual(code, 0)
         self.assertEqual(len(payload["matches"]), 1)
-        self.assertEqual(payload["matches"][0]["id"], "A-risk-004")
+        self.assertEqual(payload["matches"][0]["id"], "AR-004")
         self.assertEqual(
             set(payload["matches"][0]),
             {"id", "source", "text"},

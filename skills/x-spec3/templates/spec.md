@@ -1,10 +1,10 @@
 > spec_version: 3
-> adversarial_risk_version: 1
+> adversarial_risk_version: 3
 > complexity: <1..5>
 > importance: <1..5>
 > risk_average: <1.0..5.0>
 > review_budget: <standard|deep|full>
-> adversarial_review: pending
+> adversarial_review: <pending|skipped-standard>
 
 # <spec-name>
 
@@ -69,11 +69,11 @@
 
 ## 对抗性审查记录
 
-| Review | 预算 | 匹配 issue | 被推翻假设 | 新增 Scenario |
-|---|---|---|---|---|
-| ARV-pending | <standard / deep / full> | 待审查 | 待审查 | 待审查 |
+| Review | 预算 | 风险来源 | 查询 | 召回 ID | 复用 Scenario | 新增 Scenario | CLI |
+|---|---|---|---|---|---|---|---|
+| ARV-pending / ARV-1 | <standard / deep / full> | 待审查 / RAG:AR-NNN / assumption:<短说明> | 待审查 / 无 | <AR-NNN> / 无 | <SC_NN / 无> | <SC_NN / 无> | <exit 与 matches> |
 
-## Scenarios
+## Scenarios 模板
 
 ### Scenario SC_01: <可判定行为名称>
 

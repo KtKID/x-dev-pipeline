@@ -1,0 +1,4 @@
+interface:
+  display_name: "Spec 对抗性风险审查"
+  short_description: "执行一次有边界的 Spec 对抗性审查"
+  default_prompt: "使用 $x-adversarial-risk，在一次有边界的审查中挑战 Spec 中风险最高的假设。"

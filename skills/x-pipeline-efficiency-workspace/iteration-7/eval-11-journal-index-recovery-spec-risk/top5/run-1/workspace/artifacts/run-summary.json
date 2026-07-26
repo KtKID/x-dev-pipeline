@@ -1,0 +1,145 @@
+{
+  "spec_name": "journal-index-recovery",
+  "execution_mode": "current-session-frozen-initial-replay",
+  "skills_read": [
+    ".agents/skills/x-spec3/SKILL.md",
+    ".agents/skills/x-adversarial-risk/SKILL.md",
+    ".agents/skills/x-dev-rag-call/SKILL.md"
+  ],
+  "inputs": {
+    "initial_spec": "iteration-7/eval-11-journal-index-recovery-spec-risk/llm/run-1/workspace/artifacts/spec.initial.md",
+    "risk_catalog": ".agents/skills/x-adversarial-risk/references/risk-mistakes.md"
+  },
+  "outputs": {
+    "spec": "docs/spec/journal-index-recovery/spec.md",
+    "initial_spec": "artifacts/spec.initial.md",
+    "final_spec": "artifacts/spec.final.md",
+    "transcript": "artifacts/transcript.md"
+  },
+  "risk": {
+    "complexity": 5,
+    "importance": 1,
+    "risk_average": 3.0,
+    "review_budget": "full",
+    "adversarial_review": "complete",
+    "scoring_policy_changed": false
+  },
+  "rag": {
+    "query": "功能关键词：journal、snapshot、compact、events.log、崩溃恢复、旧日志前缀、序列单调\nRisk：snapshot 已发布但 journal 清空尚未稳定提交时发生崩溃，重启可能重复应用已被 snapshot 覆盖的 mutation 或丢失提交状态。",
+    "top_n": 5,
+    "exit_code": 0,
+    "match_count": 5,
+    "cold_wall_seconds": 9.8,
+    "match_ids": [
+      "A-risk-003",
+      "A-risk-002",
+      "A-risk-001",
+      "A-risk-004",
+      "A-risk-005"
+    ],
+    "payload": {
+      "top1_utf8_bytes": 471,
+      "top5_utf8_bytes": 2176,
+      "delta_utf8_bytes": 1705,
+      "top1_chars": 305,
+      "top5_chars": 1440,
+      "delta_chars": 1135
+    },
+    "applicability": [
+      {
+        "id": "A-risk-003",
+        "decision": "reused",
+        "scenario_ids": [
+          "SC_11"
+        ],
+        "reason": "初稿已经把物理完整但语义非法的尾部 record 定义为 CORRUPT_LOG，并覆盖只读失败。"
+      },
+      {
+        "id": "A-risk-002",
+        "decision": "reused",
+        "scenario_ids": [
+          "SC_19"
+        ],
+        "reason": "初稿已经要求 snapshot 语义可由合法状态历史产生。"
+      },
+      {
+        "id": "A-risk-001",
+        "decision": "reused",
+        "scenario_ids": [
+          "SC_15"
+        ],
+        "reason": "初稿已经覆盖 snapshot 发布后旧 journal 尚未清空的重复前缀崩溃窗口。"
+      },
+      {
+        "id": "A-risk-004",
+        "decision": "reused",
+        "scenario_ids": [
+          "SC_03",
+          "SC_05"
+        ],
+        "reason": "初稿已经覆盖失败请求不占用 request_id 和成功请求重试回放首次结果。"
+      },
+      {
+        "id": "A-risk-005",
+        "decision": "reused",
+        "scenario_ids": [
+          "SC_08"
+        ],
+        "reason": "初稿已经验证完整失败 JSON 字段、message 类型和 code/exit 映射。"
+      }
+    ]
+  },
+  "independent_assumption": {
+    "id": "compact-log-replace-dir-fsync-window",
+    "decision": "added",
+    "scenario_ids": [
+      "SC_20"
+    ],
+    "reason": "full 预算规则保留一个 Spec 独立故障假设；该崩溃窗口来自上一版 full 审查并继续成立。"
+  },
+  "scenario_counts": {
+    "initial_spec": 19,
+    "rag_risks_reused": 5,
+    "rag_scenarios_reused": 6,
+    "rag_added": 0,
+    "assumption_added": 1,
+    "final": 20
+  },
+  "validation": {
+    "iteration_7_tests": {
+      "exit_code": 0,
+      "tests": 46
+    },
+    "final_validate_review": {
+      "exit_code": 0,
+      "valid": true,
+      "issues": []
+    }
+  },
+  "cost_slice": {
+    "scope": "current long Codex session from Top5 replay baseline through final validate-review",
+    "started_at": "2026-07-24T15:58:16.651Z",
+    "ended_at": "2026-07-24T15:59:09.839Z",
+    "wall_seconds": 53.188,
+    "input_tokens": 759100,
+    "cached_input_tokens": 744448,
+    "uncached_input_tokens": 14652,
+    "output_tokens": 2313,
+    "reasoning_output_tokens": 442,
+    "input_plus_output_tokens": 761413,
+    "formulas": {
+      "input_tokens": "7277337 - 6518237",
+      "cached_input_tokens": "7055104 - 6310656",
+      "uncached_input_tokens": "759100 - 744448",
+      "output_tokens": "36342 - 34029",
+      "reasoning_output_tokens": "14871 - 14429",
+      "input_plus_output_tokens": "759100 + 2313"
+    },
+    "qualification": "该切片包含长会话的重复缓存输入，适合观察当前运行增量；独立新 turn 成本需要另行授权后测量。"
+  },
+  "external_isolated_run": {
+    "status": "policy_blocked",
+    "reason": "本机策略要求用户在知晓 workspace 内容会发送到另一条模型任务后明确授权。"
+  },
+  "handoff": "ready-for-x-req3"
+}

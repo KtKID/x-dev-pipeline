@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "case_id": "journal-index-recovery",
+  "run_id": "minimax-glm52-20260725",
+  "label": "MiniMax ZCode GLM-5.2 full pipeline",
+  "scope": "full_pipeline",
+  "workspace": "/Volumes/machub_app/proj/x-dev-world/minimax/journal-index-recovery",
+  "provider": "builtin:bigmodel-coding-plan",
+  "model": "GLM-5.2",
+  "reasoning_effort": "max",
+  "agent": "zcode-agent",
+  "root_session_id": "sess_6625cddf-684e-42f4-8605-06bc47508a8b",
+  "child_sessions": [
+    {
+      "session_id": "sess_subagent_agent_835967fc-f86c-467f-941b-1f06e642f376",
+      "role": "Q3 tri-lens reviewer",
+      "agent": "zcode-general-purpose"
+    }
+  ],
+  "execution": {
+    "llm_calls": 164,
+    "tool_calls": 187,
+    "failed_commands": 2,
+    "root_session_created_at": "2026-07-25 14:25:37 +0800",
+    "root_session_completed_at": "2026-07-25 15:03:55 +0800"
+  },
+  "telemetry_source": {
+    "database": "/Users/kid/.zcode/cli/db/db.sqlite",
+    "tables": [
+      "session",
+      "model_usage",
+      "turn_usage",
+      "tool_usage",
+      "message",
+      "part"
+    ],
+    "token_rule": "sum completed model_usage rows for the root task session and its direct reviewer child",
+    "excluded_followup_session": "sess_f71adcaa-4e99-44cc-ae55-e2230b173546"
+  },
+  "grader": {
+    "rubric_version": 3,
+    "script": "evals/answers/journal-index-recovery/evaluate.py",
+    "executed_post_run": true
+  }
+}

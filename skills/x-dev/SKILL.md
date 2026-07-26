@@ -11,30 +11,24 @@ description: |
 
 **x-dev 的作用域是单个 task**：目标目录 `docs/spec/<spec-name>/tasks/<task-name>/` 必须有 `dev-checklist.md`。一个 spec 下可以有多个 task，x-dev 只实现指定 task，不扫描或编排同级 task。
 
-checklist 头部 `risk:` 定路由、`spec:` 定归属；任务行定顺序、状态、文件范围和验收范围。按归属 spec 版本读取：
+checklist 头部 `risk:` 定路由、`spec:` 定归属；任务行定顺序、状态、文件范围和验收范围。当前只读取 spec3：
 
 | Profile | task 回指 | 实现边界 | verify 责任 |
 |---|---|---|---|
-| spec2/req2 | `Requirement` | spec.md Requirement/Scenario + modules.md + 按需 design.md | `验证:auto` 写 auto 块，manual 写步骤块 |
 | spec3/req3 | `Scenario` | spec.md 目标、影响边界与不变量、判断依据、建模声明及被引用 Scenario | unit/smoke 写 auto 块；e2e 写 auto 或 manual 块 |
 
 dev-report 记录改动和 verify 证据。x-dev 消费 task，保持 spec 包原样。
 
 ## 执行
 
-### 高能力模型的批次纪律
+高能力模型在以下步骤内采用批次执行：独立读取、测试与静态检查放入同一工具批次；文件只在内容变化后重读；状态更新只携带新证据或阻塞，完成回执复用 dev-report 与 verify 结果。
 
-1. 首个取证批次同时读取 checklist、引用的 spec 章节、原始契约样本、涉及的实现与测试文件，建立一次性的“Scenario → 代码 → 反例 → verify”矩阵。文件内容变化后才重读。
-2. 按依赖批次集中修改实现、独立测试、dev-report 与 checklist 状态。每个失败根因一次修完全部关联位置，随后运行一个聚焦反例。
-3. 验证采用一条递增链：聚焦测试 → 当前 task 完整测试 → `xdev verify`。每层绿灯只执行一次；失败时消费完整输出并批量修复，省略逐文件探测和绿灯后的重复证明。
-4. 独立读取、测试与静态检查放入同一工具批次。状态更新只携带新证据或阻塞；完成回执复用 dev-report 与 verify 结果。
-
-1. 读 checklist 头部和任务行，识别 spec2 或 spec3 profile，收集本 task 的 Requirement/Scenario 与涉及文件；只加载归属 spec 中实现这些行为所需的边界、判断和模型。同时记录任务提供的可执行契约样本：示例配置的原始字段集、CLI 调用、fixture 输入、wire/schema 和落盘布局。
-2. 运行 `python3 tools/xdev.py status <task-dir> --json` 与 `graph <task-dir> --json`。同优先级、无依赖、无同文件写冲突的 ready task 可并行；有依赖的 task 按拓扑序推进。
-3. 将当前 checklist 项更新为进行中，保持公开契约、不变量、失败路径和输入所有权；改动落在“涉及文件”范围内。扩展配置或输入 schema 时保留原始样本可运行：新增字段使用兼容默认值，除非 spec 明确要求迁移并提供迁移验收。
-4. 为 task 承接的每个 Scenario 写 fenced `verify` 块，`scenario:` 精确回指场景名。spec2 遵循场景的验证标记；spec3 的 unit/smoke 使用 auto，e2e 使用 auto 或 manual。dev-report 用字面标签 `unit`、`smoke`、`e2e` 标明实际采用的证据层。涉及配置、CLI、协议或文件布局时，至少一个 auto 块使用任务原始样本或其最小字段集启动真实入口并完成一条端到端链路。
-5. 实现完成后更新 checklist 为待测试，运行全部 verify 块声明的命令；通过后更新为测试通过。
-6. 运行 `python3 tools/xdev.py verify <task-dir> --json`：exit 2 修正 dev-report 格式；exit 1 将 fail 与 uncovered 一次交给 x-fix；exit 0 继续 risk 路由。
+1. 首个取证批次同时读取 checklist、引用的 spec3 章节、原始契约样本、涉及的实现与测试文件，收集本 task 的 Scenario、涉及文件、所需边界、判断和模型，建立一次性的“Scenario → 代码 → 反例 → verify”矩阵。同时记录示例配置的原始字段集、CLI 调用、fixture 输入、wire/schema 和落盘布局。
+2. 在取证批次运行 `python3 tools/xdev.py status <task-dir> --json` 与 `graph <task-dir> --json`。同优先级、无依赖、无同文件写冲突的 ready task 可并行；有依赖的 task 按拓扑序推进。
+3. 将当前 checklist 项更新为进行中，按依赖批次集中修改实现、独立测试、dev-report 与 checklist 状态；每个失败根因一次修完全部关联位置。保持公开契约、不变量、失败路径和输入所有权，改动落在“涉及文件”范围内。扩展配置或输入 schema 时保留原始样本可运行：新增字段使用兼容默认值，除非 spec 明确要求迁移并提供迁移验收。
+4. 为 task 承接的每个 Scenario 写 fenced `verify` 块，`scenario:` 精确回指 Scenario ID。unit/smoke 使用 auto，e2e 使用 auto 或 manual。dev-report 用字面标签 `unit`、`smoke`、`e2e` 标明实际采用的证据层。涉及配置、CLI、协议或文件布局时，至少一个 auto 块使用任务原始样本或其最小字段集启动真实入口并完成一条端到端链路。
+5. 实现完成后更新 checklist 为待测试，先运行一个聚焦反例，再一次运行全部 verify 块声明的命令作为当前 task 完整测试；通过后更新为测试通过。每层绿灯只执行一次；失败时消费完整输出并按根因批量修复。
+6. 运行一次 `python3 tools/xdev.py verify <task-dir> --json` 完成递增验证链：exit 2 修正 dev-report 格式；exit 1 将 fail 与 uncovered 一次交给 x-fix；exit 0 继续 risk 路由。
 7. 按 checklist 头部 `risk:` 路由：Q0/Q1 输出完成回执及定级依据；Q2 调 x-qa-gate RC；Q3 调 x-qa-gate tri-lens reviewer。Gate ② 全部通过后把 checklist 标为 `[x] ✅`。
 
 ## 状态与记录

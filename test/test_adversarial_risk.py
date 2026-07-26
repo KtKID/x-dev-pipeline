@@ -20,7 +20,7 @@ def valid_spec(
     source: str = "initial-spec",
 ) -> str:
     return f"""> spec_version: 3
-> adversarial_risk_version: 1
+> adversarial_risk_version: 3
 > complexity: {complexity}
 > importance: {importance}
 > risk_average: {average}
@@ -56,16 +56,10 @@ def valid_spec(
 def valid_corpus() -> str:
     return """# 风险错题集
 
-## AR-001: compact 替换窗口
+## AR-001
 
-- 确认状态：confirmed
-- 动作维度：先替换 snapshot，再替换 journal
-- 数据维度：持久化状态与请求历史
-- 场景维度：compact 中途崩溃后重启
-- 被破坏不变量：恢复结果保持一致
-- 最小反例：新 snapshot 与旧 journal 同时存在
-- 应补 Scenario：重启应识别旧 journal 前缀
-- 来源证据：eval-11 baseline Q1
+关键词：持久化替换、崩溃恢复
+Risk：分阶段替换中途崩溃可能留下部分完成状态。
 """
 
 
@@ -140,12 +134,12 @@ class RiskContractCliTest(unittest.TestCase):
             self.assertEqual(result.returncode, 1)
             self.assertIn("SC_01 缺少来源字段", result.stdout)
 
-    def test_adversarial_source_requires_issue_or_assumption(self):
+    def test_adversarial_source_requires_rag_or_assumption(self):
         with tempfile.TemporaryDirectory() as raw:
             path = self.write(
                 Path(raw),
                 "spec.md",
-                valid_spec(source="adversarial-review (AR-001, AR-002)"),
+                valid_spec(source="adversarial-review (rag:AR-001)"),
             )
             result = self.run_cli("validate-spec", path)
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
@@ -157,15 +151,39 @@ class RiskContractCliTest(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertTrue(json.loads(result.stdout)["valid"])
 
-    def test_corpus_rejects_duplicate_id_and_missing_dimension(self):
+    def test_corpus_rejects_duplicate_id_and_missing_field(self):
         with tempfile.TemporaryDirectory() as raw:
-            broken = valid_corpus().replace("- 数据维度：持久化状态与请求历史\n", "")
+            broken = valid_corpus().replace("关键词：持久化替换、崩溃恢复\n", "")
             broken += valid_corpus().replace("# 风险错题集\n\n", "")
             path = self.write(Path(raw), "risk-mistakes.md", broken)
             result = self.run_cli("validate-corpus", path)
             self.assertEqual(result.returncode, 1)
-            self.assertIn("issue ID 重复：AR-001", result.stdout)
-            self.assertIn("AR-001 缺少字段：数据维度", result.stdout)
+            self.assertIn("错题 ID 重复：AR-001", result.stdout)
+            self.assertIn("AR-001 缺少非空字段：关键词", result.stdout)
+
+    def test_namespaced_id_is_rejected(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = self.write(
+                Path(raw),
+                "risk-mistakes.md",
+                valid_corpus().replace("AR-001", "A-risk-001"),
+            )
+            result = self.run_cli("validate-corpus", path)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("错题 ID 必须匹配 AR-NNN", result.stdout)
+
+    def test_root_and_iteration7_contracts_are_identical(self):
+        latest = (
+            ROOT
+            / "skills"
+            / "x-pipeline-efficiency-workspace"
+            / "iteration-7"
+            / "skills"
+            / "x-adversarial-risk"
+            / "scripts"
+            / "risk_contract.py"
+        )
+        self.assertEqual(SCRIPT.read_bytes(), latest.read_bytes())
 
     def test_missing_file_exits_two(self):
         with tempfile.TemporaryDirectory() as raw:

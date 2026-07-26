@@ -19,7 +19,16 @@ import zlib
 
 REPO_ROOT = pathlib.Path(__file__).resolve().parents[3]
 ORACLE_CASE = REPO_ROOT / "cases" / "journal-index-recovery"
+PUBLIC_PROMPT = REPO_ROOT / "evals" / "problems" / "journal-index-recovery" / "PROMPT.md"
 RECORD_FIELDS = {"seq", "op", "key", "value", "request_id", "expected_version", "crc32"}
+ERROR_EXITS = {
+    "NOT_FOUND": 3,
+    "VERSION_CONFLICT": 4,
+    "IDEMPOTENCY_CONFLICT": 5,
+    "RECOVERY_REQUIRED": 6,
+    "CORRUPT_LOG": 7,
+    "CORRUPT_SNAPSHOT": 8,
+}
 
 
 def canonical_body(record: dict[str, object], *, ensure_ascii: bool = False) -> bytes:
@@ -93,6 +102,21 @@ def error(value: dict[str, object]) -> str:
     code = detail.get("code")
     assert isinstance(code, str), value
     return code
+
+
+def assert_error_envelope(value: dict[str, object]) -> dict[str, object]:
+    assert set(value) == {"ok", "error"} and value["ok"] is False, value
+    detail = value["error"]
+    assert isinstance(detail, dict) and set(detail) == {"code", "message"}, value
+    assert isinstance(detail["code"], str) and detail["code"], value
+    assert isinstance(detail["message"], str), value
+    return detail
+
+
+def assert_public_error(rc: int, value: dict[str, object], code: str) -> None:
+    assert rc == ERROR_EXITS[code], (rc, value)
+    detail = assert_error_envelope(value)
+    assert detail["code"] == code, value
 
 
 class Checks:
@@ -280,6 +304,167 @@ class Checks:
             assert rc == 8 and error(value) == "CORRUPT_SNAPSHOT"
         return "stale snapshot.tmp was ignored and malformed committed snapshot was rejected"
 
+    def compact_replace_window(self) -> str:
+        with Harness(self.fixture) as h:
+            args = ("put", "--key", "a", "--value", "A", "--request-id", "r1", "--expected-version", "0")
+            rc, first = h.command(*args)
+            assert rc == 0 and first["seq"] == 1
+            old_log = (h.state / "events.log").read_bytes()
+            assert h.command("compact")[0] == 0
+            snapshot = (h.state / "snapshot.json").read_bytes()
+
+            # Crash model: snapshot is published, while the old journal still
+            # contains the prefix already represented by that snapshot.
+            (h.state / "events.log").write_bytes(old_log)
+            rc, replay = h.command(*args)
+            assert rc == 0 and replay["seq"] == 1 and replay["replayed"] is True
+            assert (h.state / "events.log").read_bytes() == old_log
+            assert (h.state / "snapshot.json").read_bytes() == snapshot
+
+            rc, committed = h.command(
+                "put", "--key", "b", "--value", "B",
+                "--request-id", "r2", "--expected-version", "0",
+            )
+            assert rc == 0 and committed["seq"] == 2
+            assert h.command("get", "--key", "a")[1]["value"] == "A"
+            assert h.command("get", "--key", "b")[1]["value"] == "B"
+        return "snapshot-covered journal prefix was deduplicated across the compact replace window"
+
+    def semantic_snapshot(self) -> str:
+        with Harness(self.fixture) as h:
+            h.state.mkdir(parents=True)
+            payload = {
+                "last_seq": 2,
+                "keys": {"a": {"value": "B", "tombstone": False, "version": 2}},
+                "requests": {
+                    "r1": {
+                        "fingerprint": {
+                            "op": "put", "key": "a", "value": "A", "expected_version": 5,
+                        },
+                        "result": {
+                            "ok": True, "seq": 1, "key": "a", "version": 1, "replayed": False,
+                        },
+                    },
+                    "r2": {
+                        "fingerprint": {
+                            "op": "put", "key": "a", "value": "B", "expected_version": 1,
+                        },
+                        "result": {
+                            "ok": True, "seq": 2, "key": "a", "version": 2, "replayed": False,
+                        },
+                    },
+                },
+            }
+            snapshot = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+            (h.state / "snapshot.json").write_bytes(snapshot)
+            (h.state / "events.log").write_bytes(b"")
+            commands = (
+                ("get", "--key", "a"),
+                ("list",),
+                ("put", "--key", "b", "--value", "B", "--request-id", "r3", "--expected-version", "0"),
+                ("compact",),
+                ("recover",),
+            )
+            for command in commands:
+                rc, value = h.command(*command)
+                assert_public_error(rc, value, "CORRUPT_SNAPSHOT")
+                assert (h.state / "snapshot.json").read_bytes() == snapshot
+                assert (h.state / "events.log").read_bytes() == b""
+        return "structurally valid but semantically impossible snapshot was rejected read-only"
+
+    def semantic_tail(self) -> str:
+        with Harness(self.fixture) as h:
+            h.command("put", "--key", "a", "--value", "A", "--request-id", "r1", "--expected-version", "0")
+            log = h.state / "events.log"
+            invalid = make_record(
+                seq=2, op="put", key="a", value="B",
+                request_id="r2", expected_version=0,
+            )
+            with log.open("ab") as handle:
+                handle.write(invalid)
+            frozen = log.read_bytes()
+            commands = (
+                ("get", "--key", "a"),
+                ("put", "--key", "b", "--value", "B", "--request-id", "r3", "--expected-version", "0"),
+                ("compact",),
+                ("recover",),
+            )
+            for command in commands:
+                rc, value = h.command(*command)
+                assert_public_error(rc, value, "CORRUPT_LOG")
+                assert log.read_bytes() == frozen
+        return "physically valid but semantically invalid final record remained read-only CORRUPT_LOG"
+
+    def failed_request_reuse(self) -> str:
+        with Harness(self.fixture) as h:
+            rc, value = h.command(
+                "delete", "--key", "missing", "--request-id", "reuse-missing", "--expected-version", "0",
+            )
+            assert_public_error(rc, value, "NOT_FOUND")
+            rc, created = h.command(
+                "put", "--key", "missing", "--value", "M",
+                "--request-id", "reuse-missing", "--expected-version", "0",
+            )
+            assert rc == 0 and created["seq"] == 1 and created["replayed"] is False
+
+            rc, value = h.command(
+                "put", "--key", "missing", "--value", "M2",
+                "--request-id", "reuse-stale", "--expected-version", "0",
+            )
+            assert_public_error(rc, value, "VERSION_CONFLICT")
+            rc, updated = h.command(
+                "put", "--key", "missing", "--value", "M2",
+                "--request-id", "reuse-stale", "--expected-version", "1",
+            )
+            assert rc == 0 and updated["seq"] == 2 and updated["replayed"] is False
+            assert (h.state / "events.log").read_bytes().count(b"\n") == 2
+        return "failed missing-delete and stale-version request ids remained available for valid commits"
+
+    def complete_error_contract(self) -> str:
+        with Harness(self.fixture) as h:
+            rc, value = h.command("get")
+            assert rc == 2, (rc, value)
+            argument_code = assert_error_envelope(value)["code"]
+            rc, value = h.command("put")
+            assert rc == 2 and assert_error_envelope(value)["code"] == argument_code, (rc, value)
+            rc, value = h.command("get", "--key", "missing")
+            assert_public_error(rc, value, "NOT_FOUND")
+            h.command("put", "--key", "a", "--value", "A", "--request-id", "r1", "--expected-version", "0")
+            rc, value = h.command(
+                "put", "--key", "a", "--value", "B", "--request-id", "r2", "--expected-version", "0",
+            )
+            assert_public_error(rc, value, "VERSION_CONFLICT")
+            rc, value = h.command(
+                "put", "--key", "b", "--value", "B", "--request-id", "r1", "--expected-version", "0",
+            )
+            assert_public_error(rc, value, "IDEMPOTENCY_CONFLICT")
+
+        with Harness(self.fixture) as h:
+            h.command("put", "--key", "a", "--value", "A", "--request-id", "r1", "--expected-version", "0")
+            with (h.state / "events.log").open("ab") as handle:
+                handle.write(b'{"partial"')
+            rc, value = h.command("list")
+            assert_public_error(rc, value, "RECOVERY_REQUIRED")
+
+        with Harness(self.fixture) as h:
+            h.command("put", "--key", "a", "--value", "A", "--request-id", "r1", "--expected-version", "0")
+            invalid = make_record(
+                seq=2, op="put", key="a", value="B",
+                request_id="r2", expected_version=0,
+            )
+            with (h.state / "events.log").open("ab") as handle:
+                handle.write(invalid)
+            rc, value = h.command("list")
+            assert_public_error(rc, value, "CORRUPT_LOG")
+
+        with Harness(self.fixture) as h:
+            h.command("put", "--key", "a", "--value", "A", "--request-id", "r1", "--expected-version", "0")
+            h.command("compact")
+            (h.state / "snapshot.json").write_text("{broken", encoding="utf-8")
+            rc, value = h.command("get", "--key", "a")
+            assert_public_error(rc, value, "CORRUPT_SNAPSHOT")
+        return "all seven public errors preserved exact JSON envelopes, string messages, codes, and exits"
+
     def concurrent_writers(self) -> str:
         with Harness(self.fixture) as h:
             processes = [h.process("put", "--key", f"k{i:02}", "--value", str(i), "--request-id", f"r{i:02}", "--expected-version", "0") for i in range(20)]
@@ -336,68 +521,82 @@ class Checks:
         assert not external, sorted(external)
         return "backend imports resolve to Python stdlib or local modules"
 
-    def spec_document(self) -> str:
-        spec_path = self.workspace / "docs" / "spec" / "journal-index-recovery" / "spec.md"
-        assert spec_path.is_file(), "spec.md missing"
-        body = spec_path.read_text(encoding="utf-8")
-        assert "> spec_version: 3" in body
-        assert "待确认" not in body or "待确认：无" in body
-        for token in ("影响边界", "判断依据", "建模覆盖", "验收清单", "SC_01", "RECOVERY_REQUIRED", "CORRUPT_LOG"):
-            assert token in body, token
-        for module in ("cli.py", "record.py", "store.py", "locking.py"):
-            assert module in body, module
-        tool = self.workspace / "tools" / "xdev.py"
-        result = subprocess.run([sys.executable, str(tool), "validate", str(spec_path.parent), "--json"], cwd=self.workspace, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=30)
-        assert result.returncode == 0, result.stdout.decode(errors="replace")[-3000:]
-        return f"{spec_path} validates with stable scenarios and all four implementation modules"
+    def success_contract(self) -> str:
+        with Harness(self.fixture) as h:
+            args = ("put", "--key", "a", "--value", "A", "--request-id", "r1", "--expected-version", "0")
+            rc, first = h.command(*args)
+            assert rc == 0 and first == {
+                "ok": True,
+                "seq": 1,
+                "key": "a",
+                "version": 1,
+                "replayed": False,
+            }, first
+            rc, replayed = h.command(*args)
+            assert rc == 0 and replayed == {
+                "ok": True,
+                "seq": 1,
+                "key": "a",
+                "version": 1,
+                "replayed": True,
+            }, replayed
+            rc, deleted = h.command(
+                "delete",
+                "--key",
+                "a",
+                "--request-id",
+                "r2",
+                "--expected-version",
+                "1",
+            )
+            assert rc == 0 and deleted == {
+                "ok": True,
+                "seq": 2,
+                "key": "a",
+                "version": 2,
+                "replayed": False,
+            }, deleted
+            assert h.command("list") == (0, {"ok": True, "items": []})
+            assert h.command("compact") == (0, {"ok": True, "snapshot_seq": 2})
+            assert h.command("recover") == (0, {"ok": True, "truncated_bytes": 0})
+        return "all success responses exposed the exact public fields and values"
 
-    def req_checklist(self) -> str:
-        root = self.workspace / "docs" / "spec" / "journal-index-recovery"
-        spec = root / "spec.md"
-        checklists = sorted(root.glob("tasks/*/dev-checklist.md"))
-        assert checklists, "dev-checklist.md missing"
-        import re
-        spec_refs = set(re.findall(r"Scenario (SC_\d{2})", spec.read_text(encoding="utf-8")))
-        task_refs: set[str] = set()
-        tool = self.workspace / "tools" / "xdev.py"
-        for path in checklists:
-            body = path.read_text(encoding="utf-8")
-            assert "risk:" in body and "Scenario IDs" in body
-            task_refs.update(re.findall(r"SC_\d{2}", body))
-            result = subprocess.run([sys.executable, str(tool), "validate", str(path.parent), "--json"], cwd=self.workspace, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=30)
-            assert result.returncode == 0, result.stdout.decode(errors="replace")[-3000:]
-        assert spec_refs and spec_refs <= task_refs, (sorted(spec_refs), sorted(task_refs))
-        return f"{len(checklists)} checklist(s) cover all {len(spec_refs)} scenarios and validate"
+    def healthy_recover(self) -> str:
+        with Harness(self.fixture) as h:
+            h.command("put", "--key", "a", "--value", "A", "--request-id", "r1", "--expected-version", "0")
+            log = h.state / "events.log"
+            before = log.read_bytes()
+            for _ in range(2):
+                rc, value = h.command("recover")
+                assert rc == 0 and value == {"ok": True, "truncated_bytes": 0}, value
+                assert log.read_bytes() == before
+                assert h.command("get", "--key", "a")[1]["value"] == "A"
+        return "healthy recover repeated twice without changing journal bytes or state"
 
-    def verify_evidence(self) -> str:
-        root = self.workspace / "docs" / "spec" / "journal-index-recovery"
-        reports = sorted(root.glob("tasks/*/dev-report*.md"))
-        assert reports, "dev-report missing"
-        body = "\n".join(path.read_text(encoding="utf-8") for path in reports)
-        assert body.count("```verify") >= 3 and "mode: auto" in body
-        assert "unit" in body.lower() and "smoke" in body.lower() and "e2e" in body.lower()
-        tool = self.workspace / "tools" / "xdev.py"
-        for task_dir in sorted({path.parent for path in reports}):
-            result = subprocess.run([sys.executable, str(tool), "verify", str(task_dir), "--json"], cwd=self.workspace, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=180)
-            assert result.returncode == 0, result.stdout.decode(errors="replace")[-5000:]
-        return f"{len(reports)} dev-report file(s) replayed unit, smoke, and e2e evidence"
+    def storage_layout(self) -> str:
+        with Harness(self.fixture) as h:
+            h.command("put", "--key", "a", "--value", "A", "--request-id", "r1", "--expected-version", "0")
+            h.command("compact")
+            h.command("recover")
+            names = {path.name for path in h.state.iterdir()}
+            assert names <= {"events.log", "snapshot.json", "writer.lock"}, sorted(names)
+            assert {"events.log", "snapshot.json", "writer.lock"} <= names, sorted(names)
+            assert (h.state / "events.log").read_bytes() == b""
+            snapshot = json.loads((h.state / "snapshot.json").read_text(encoding="utf-8"))
+            assert isinstance(snapshot, dict) and snapshot
+        return "state directory contained only committed journal, snapshot, and lock files"
 
     def hygiene(self) -> str:
         assert not (self.workspace / ".git").exists()
-        for relative in ("task", "fixture/README.md"):
+        for relative in ("fixture/README.md",):
             candidate = self.workspace / relative
             oracle = ORACLE_CASE / relative
-            if candidate.is_file():
-                assert candidate.read_bytes() == oracle.read_bytes(), relative
-            else:
-                candidate_files = sorted(path.relative_to(candidate) for path in candidate.rglob("*") if path.is_file())
-                oracle_files = sorted(path.relative_to(oracle) for path in oracle.rglob("*") if path.is_file())
-                assert candidate_files == oracle_files, relative
-                for item in oracle_files:
-                    assert (candidate / item).read_bytes() == (oracle / item).read_bytes(), f"{relative}/{item}"
+            assert candidate.is_file() and candidate.read_bytes() == oracle.read_bytes(), relative
+        prompt = self.workspace / "PROMPT.md"
+        assert prompt.is_file() and prompt.read_bytes() == PUBLIC_PROMPT.read_bytes(), "PROMPT.md"
         for path in self.workspace.rglob("*.pid"):
             raise AssertionError(f"pid leftover: {path}")
-        return "task and fixture README remained byte-identical; no nested git or pid state"
+        return "public prompt and fixture README remained unchanged; no nested git or pid state"
 
 
 EXPECTATIONS = [
@@ -417,9 +616,14 @@ EXPECTATIONS = [
     ("多进程并发写不同 key 无丢失且 seq 唯一。", "concurrent_writers"),
     ("同 key 同 expected_version 并发更新只有一个成功。", "concurrent_conflict"),
     ("backend 运行时代码只依赖 Python 标准库与本地模块。", "stdlib_only"),
-    ("spec3 覆盖持久化状态机、损坏分类、并发不变量与稳定 Scenario。", "spec_document"),
-    ("req3 checklist 完整覆盖 Scenario 且通过机械校验。", "req_checklist"),
-    ("dev-report 提供可复跑的 unit、smoke、e2e 证据。", "verify_evidence"),
+    ("成功响应的 JSON 字段和值符合公开契约。", "success_contract"),
+    ("健康日志 recover 可重复执行且无副作用。", "healthy_recover"),
+    ("compact/recover 后状态目录符合固定布局且无临时文件。", "storage_layout"),
+    ("compact snapshot/journal 替换窗口重启时重叠前缀只计入一次。", "compact_replace_window"),
+    ("结构合法但语义不可能的 snapshot 被只读拒绝。", "semantic_snapshot"),
+    ("物理完整但逻辑非法的最后记录被判为 CORRUPT_LOG。", "semantic_tail"),
+    ("失败 mutation 不占用 request_id，修正后可复用提交。", "failed_request_reuse"),
+    ("七类公开错误保持完整 JSON 契约与稳定退出码。", "complete_error_contract"),
     ("运行产物保持在声明范围且输入未被改写。", "hygiene"),
 ]
 
@@ -437,14 +641,16 @@ def main() -> int:
         passed, evidence = checks.details[method]
         expectations.append({"text": text, "passed": passed, "evidence": evidence})
     passed = sum(1 for item in expectations if item["passed"])
-    critical_passed = all(checks.details[method][0] for _text, method in EXPECTATIONS[:19])
+    critical_passed = all(checks.details[method][0] for _text, method in EXPECTATIONS[:24])
     result = {
+        "rubric_version": 3,
+        "assertion_points": 4,
         "expectations": expectations,
         "summary": {"passed": passed, "failed": len(expectations) - passed, "total": len(expectations), "pass_rate": passed / len(expectations)},
-        "quality_score": passed * 5,
+        "quality_score": passed * 4,
         "critical_gate_passed": critical_passed,
         "execution_metrics": {"total_tool_calls": 0, "errors_encountered": len(expectations) - passed},
-        "eval_feedback": {"suggestions": [], "overall": "Deterministic local CLI, corruption, compaction, process-concurrency, and pipeline checks."},
+        "eval_feedback": {"suggestions": [], "overall": "Deterministic local CLI, corruption, compaction, idempotency, storage-layout, and process-concurrency checks."},
     }
     rendered = json.dumps(result, ensure_ascii=False, indent=2) + "\n"
     if args.output:
@@ -452,7 +658,7 @@ def main() -> int:
         args.output.write_text(rendered, encoding="utf-8")
     else:
         print(rendered, end="")
-    return 0 if passed == 20 and critical_passed else 1
+    return 0 if passed == 25 and critical_passed else 1
 
 
 if __name__ == "__main__":

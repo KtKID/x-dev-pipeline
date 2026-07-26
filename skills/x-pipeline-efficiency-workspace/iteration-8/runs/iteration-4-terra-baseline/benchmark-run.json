@@ -1,0 +1,83 @@
+{
+  "schema_version": 2,
+  "run_id": "iteration-4-terra-baseline",
+  "label": "Iteration 4 frozen Terra baseline",
+  "iteration": "4",
+  "scope": "full_pipeline",
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "usage": {
+    "convention": "cached_input_is_subset_of_input",
+    "input_tokens": 20353015,
+    "cached_input_tokens": 19493120,
+    "uncached_input_tokens": 859895,
+    "output_tokens": 266215,
+    "reasoning_output_tokens": 126518,
+    "total_tokens": 20619230,
+    "effective_tokens": 1126110,
+    "cached_share_of_input_pct": 95.78
+  },
+  "cost": {
+    "status": "priced",
+    "currency": "USD",
+    "pricing": {
+      "model": "gpt-5.6-terra",
+      "source_url": "https://developers.openai.com/api/docs/models/compare",
+      "queried_at": "2026-07-26",
+      "rates_per_million_tokens": {
+        "uncached_input": 2.5,
+        "cached_input": 0.25,
+        "cache_write_input": 3.125,
+        "output": 15.0
+      },
+      "cached_input_storage": "provider_cache",
+      "cache_write_tokens": null
+    },
+    "calculation": {
+      "uncached_input": 2.1497375,
+      "cached_input": 4.87328,
+      "cache_write_input": null,
+      "output": 3.993225,
+      "api_equivalent": 11.0162425,
+      "cache_write_upper_bound": 11.553676875,
+      "no_cache_api_equivalent": 54.8757625,
+      "cache_savings": 43.85952,
+      "cache_savings_pct": 79.93
+    },
+    "billing": {
+      "mode": "unknown",
+      "actual_cash_increment": null,
+      "quota_multiplier": null,
+      "quota_equivalent": null,
+      "note": "Historical run has no persisted account-billing or subscription evidence."
+    },
+    "unknown_reason": null
+  },
+  "duration": {
+    "main_active_seconds": 2517.661,
+    "nested_reviewer_seconds": 1440.509,
+    "executor_time_sum_seconds": 3958.17
+  },
+  "calls": {
+    "tool_calls": 115,
+    "llm_calls": null,
+    "failed_commands": null
+  },
+  "scores": {
+    "full": {
+      "score": 96,
+      "passed": 24,
+      "total": 25,
+      "critical_gate_passed": false,
+      "rubric_version": 2,
+      "source": "skills/x-pipeline-efficiency-workspace/iteration-6/reports/journal-index-recovery-horizontal-comparison.json"
+    },
+    "spec_risk": null
+  },
+  "phases": [],
+  "measurement": {
+    "source": "frozen historical reference",
+    "directly_comparable_to_candidate": false,
+    "pricing_source": "pricing.json"
+  }
+}

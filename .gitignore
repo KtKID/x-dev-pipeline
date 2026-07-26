@@ -10,3 +10,6 @@ skills/x-spec2-workspace
 skills/x-spec3-workspace
 .xcodeatlas
 docs/spec/codex-session-metrics/tasks/
+skills/x-pipeline-efficiency-workspace/iteration-2/eval-10-voice-chain-end-to-end/with_skill/run-1/workspace/tools/__pycache__
+.*/__pycache__
+*.pyc

@@ -1,7 +1,7 @@
 ---
 name: x-req3
 description: |
-  x-spec3 的任务拆解 skill。读取 `docs/spec/{spec-name}/spec.md` 的目标、边界与不变量、判断依据、验收清单和直接 GWT Scenarios，生成 `docs/spec/{spec-name}/tasks/{task-name}/dev-checklist.md`，并以 Scenario ID 精确回指实现范围。用户提到 x-req3、要求把 spec3 拆成开发任务，或目标规格含 `spec_version: 3` 时使用。spec2 包继续使用 x-req2。
+  x-spec3 的任务拆解 skill。读取 `docs/spec/{spec-name}/spec.md` 的目标、边界与不变量、判断依据、验收清单和直接 GWT Scenarios，生成 `docs/spec/{spec-name}/tasks/{task-name}/dev-checklist.md`，并以 Scenario ID 精确回指实现范围。用户提到 x-req3、要求把 spec3 拆成开发任务，或目标规格含 `spec_version: 3` 时使用。
 ---
 
 # x-req3 — spec3 场景驱动任务拆解
@@ -22,11 +22,11 @@ x-req3 把 spec3 的行为契约压缩成可执行 checklist。spec.md 保留目
 拆解前确认：
 
 1. `python3 tools/xdev.py validate <spec-dir> --json` 对 spec3 返回零 issue；该检查会把任一待确认 J-ID 判为未就绪。
-2. spec 含 `> adversarial_risk_version: 1`、`2` 或 `3` 时，运行 `python3 skills/x-adversarial-risk/scripts/risk_contract.py validate-spec <spec.md> --json`。退出码必须为 0；`pending`、评分/预算不一致、审查记录或 Scenario 来源缺失都会停止 scaffold 和 task 写入。v3 要求 RAG 召回场景显式使用 `adversarial-review (rag:<risk-id>)`。退出码为 1 时停止写入，把完整聚合 issue 作为下一次显式 `$x-adversarial-risk` 修正调用的输入；该修正调用执行当前 x-adversarial-risk 定义的五轮契约。
+2. spec 必须含 `> adversarial_risk_version: 3`，并运行 `python3 skills/x-adversarial-risk/scripts/risk_contract.py validate-spec <spec.md> --json`。退出码必须为 0；版本错误、`pending`、评分/预算不一致、审查记录或 Scenario 来源缺失都会停止 scaffold 和 task 写入。RAG 召回场景统一使用 `adversarial-review (rag:AR-NNN)`。退出码为 1 时停止写入，把完整聚合 issue 作为下一次显式 `$x-adversarial-risk` 修正调用的输入；该修正调用执行当前 x-adversarial-risk 定义的五轮契约。
 3. spec3 的 J-ID 状态全部为“已确认”。x-spec3 只保存会改变实现或验收的判断，因此任一“待确认”都会停止 scaffold 和 task 写入。
 4. Scenario ID 符合 `SC_01` 两位格式、顺序递增且唯一，GIVEN/WHEN/THEN 可直接转成测试，测试层为 unit、smoke 或 e2e。
 
-执行环境缺少命令工具时，直接读取判断依据表、风险元数据、审查记录和 Scenario 来源并执行同一门禁；“待确认”或 `pending` 始终是阻断状态，不能解释为可在开发中处理。未带 adversarial risk 版本标记的存量 spec3 沿用原门禁。
+执行环境缺少命令工具时，直接读取判断依据表、风险元数据、审查记录和 Scenario 来源并执行同一门禁；缺少 `adversarial_risk_version: 3`、“待确认”或 `pending` 都是阻断状态。
 
 ## 拆解规则
 
@@ -72,7 +72,7 @@ x-req3 把 spec3 的行为契约压缩成可执行 checklist。spec.md 保留目
 
 - checklist 中每个非 `None` Scenario ID 都精确存在于 spec3。
 - spec 下全部 task 合并后覆盖所有 Scenario。
-- 带 adversarial risk v1、v2 或 v3 标记的 spec 已通过风险契约门禁，审查状态为 `skipped-standard` 或 `complete`。
+- adversarial risk v3 spec 已通过风险契约门禁，审查状态为 `skipped-standard` 或 `complete`。
 - 高损失边界、失败、并发和资源 Scenario 已落到实现或验证任务。
 - 每行文件范围足够执行，依赖图无悬空和环。
 - task 文档没有复述 spec 正文。

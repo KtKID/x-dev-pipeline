@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "source": "turn.completed usage in outputs/terra-events.jsonl",
+  "thread_id": "019f9005-7563-7632-9204-dfe735703132",
+  "input_tokens": 416213,
+  "cached_input_tokens": 362496,
+  "uncached_input_tokens": 53717,
+  "cache_ratio": 0.870939,
+  "output_tokens": 24629,
+  "reasoning_output_tokens": 6648,
+  "non_reasoning_output_tokens": 17981,
+  "input_plus_output_tokens": 440842,
+  "formulas": {
+    "uncached_input_tokens": "416213 - 362496",
+    "cache_ratio": "362496 / 416213",
+    "non_reasoning_output_tokens": "24629 - 6648",
+    "input_plus_output_tokens": "416213 + 24629"
+  },
+  "scope": "full isolated Terra turn"
+}

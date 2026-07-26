@@ -1,4 +1,4 @@
-"""Cross-process state-directory locking. Implement from task contract."""
+"""Cross-process state-directory locking. Implement from the public contract."""
 
 from __future__ import annotations
 
@@ -13,4 +13,3 @@ class StateLock:
 
     def __exit__(self, exc_type, exc, tb) -> None:
         raise NotImplementedError
-

@@ -1,4 +1,4 @@
-"""Crash-consistent journal store. Implement from task contract."""
+"""Crash-consistent journal store. Implement from the public contract."""
 
 from __future__ import annotations
 
@@ -30,4 +30,3 @@ class JournalStore:
 
     def recover(self):
         raise NotImplementedError
-

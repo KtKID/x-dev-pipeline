@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "case_id": "journal-index-recovery",
+  "evaluation_kind": "spec-risk-top5",
+  "run_id": "top5/run-1",
+  "status": "completed_local_replay",
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "workspace": "skills/x-pipeline-efficiency-workspace/iteration-7/eval-11-journal-index-recovery-spec-risk/top5/run-1/workspace",
+  "prompt_path": "skills/x-pipeline-efficiency-workspace/iteration-7/eval-11-journal-index-recovery-spec-risk/top5/run-1/terra-prompt.txt",
+  "risk_policy": "保持 iteration-7 评分规则；deep/full 调用 x-dev-rag-call Top5",
+  "external_isolated_run": "policy_blocked_pending_explicit_user_authorization",
+  "fallback_execution": "current-session-frozen-initial-replay"
+}

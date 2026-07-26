@@ -19,14 +19,17 @@ iteration-7 以 iteration-6 的七个 skills 为冻结基线。本轮只优化�
 ```text
 读取 Spec
 → 生成“功能关键词 + Risk”
-→ 本地 Embedding 向量召回 Top1
-→ 使用返回的 id + text 做对抗分析
-→ 集中修改
+→ 检查调用方是否提供风险语料路径
+→ 有路径：本地 Embedding 向量召回 Top5
+→ 缺路径：暂停并询问；用户确认无经验集后跳过 RAG
+→ standard：记录命中与适用性，零 Scenario 扩张
+→ deep：使用召回正文或 1 个独立假设做对抗分析
+→ full：使用召回正文加独立假设，或执行最多 2 个独立假设
 → 契约验证
 → 回执
 ```
 
-错题集保持为一个 Markdown 文件，每条记录只有稳定 ID、关键词和 Risk。`x-adversarial-risk` 调用 `x-dev-rag-call` 从指定错题集路径召回，agent 直接接收 TopN 正文。RAG 产生的 Scenario 使用 `adversarial-review (rag:<risk-id>)` 显式记录来源。
+风险语料由调用方以本地纯文本文件或目录提供，每条记录使用稳定 ID、关键词和 Risk。共享 skill 只保存召回与审查流程。缺少路径时 agent 停下工作并向用户询问；用户确认没有 RAG 经验集后跳过召回，评分继续决定 standard、deep、full 的分析深度。RAG 产生的 Scenario 使用 `adversarial-review (rag:<risk-id>)`，独立假设使用 `adversarial-review (assumption:<短说明>)`。
 
 ## Embedding 运行条件
 
@@ -36,31 +39,32 @@ iteration-7 以 iteration-6 的七个 skills 为冻结基线。本轮只优化�
 - 模型加载：`local_files_only=True`
 - 可选模型：查询命令增加 `--model <本地路径或本地模型名>`
 
-查询使用 Qwen3 官方 `query` 提示模板，错题正文按普通文档编码；两侧向量都归一化。离线单元测试使用假 Embedding 后端，运行时代码只读取本地模型。
+查询使用 Qwen3 官方 `query` 提示模板，风险语料正文按普通文档编码；两侧向量都归一化。离线单元测试使用假 Embedding 后端，运行时代码只读取本地模型。
 
-真实模型 Smoke 使用下方查询，验收 Top1 为 `A-risk-003`。
+真实模型 Smoke 使用调用方准备的风险语料。下方命令是跨功能调用示例，验收目标由该语料的预期命中 ID 决定。
 
-依赖准备命令：
-
-```bash
-python3 -m pip install "sentence-transformers>=2.7.0" "transformers>=4.51.0"
-```
+当前仓库使用已有 uv 离线环境加载依赖，无需向 base Python 安装包。
 
 查询命令：
 
 ```bash
-python3 skills/x-dev-rag-call/scripts/rag_retrieve.py \
-  --source skills/x-adversarial-risk/references/risk-mistakes.md \
-  --query "功能关键词：日志恢复、状态迁移、完整性校验
-Risk：校验和正确的末条记录违反状态转换规则" \
+uv run --offline --isolated \
+  --python /opt/homebrew/Caskroom/miniforge/base/bin/python3 \
+  --with "sentence-transformers>=2.7.0" \
+  --with "transformers>=4.51.0,<5" \
+  python skills/x-dev-rag-call/scripts/rag_retrieve.py \
+  --source /absolute/path/to/risk-corpus.md \
+  --query "功能关键词：目标模块、关键状态、核心动作
+Risk：关键不变量在失败窗口中被破坏" \
   --top-n 1 \
+  --model "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-7/models/Qwen3-Embedding-0.6B" \
   --json
 ```
 
 成功输出只有：
 
 ```json
-{"matches":[{"id":"A-risk-003","source":".../risk-mistakes.md","text":"## A-risk-003\n..."}]}
+{"matches":[{"id":"<risk-id>","source":"/absolute/path/to/risk-corpus.md","text":"## <risk-id>\n..."}]}
 ```
 
 真实 eval 的运行时验收读取 session JSONL，并核对：

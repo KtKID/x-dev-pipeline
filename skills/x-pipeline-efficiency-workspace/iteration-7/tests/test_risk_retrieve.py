@@ -16,10 +16,9 @@ SCRIPTS = ROOT / "skills" / "x-adversarial-risk" / "scripts"
 SCRIPT = SCRIPTS / "risk_retrieve.py"
 CATALOG = (
     ROOT
-    / "skills"
-    / "x-adversarial-risk"
-    / "references"
-    / "risk-mistakes.md"
+    / "tests"
+    / "fixtures"
+    / "risk-catalog.md"
 )
 
 sys.path.insert(0, str(SCRIPTS))
@@ -99,7 +98,7 @@ class RiskRetrieveTest(unittest.TestCase):
         )
         self.assertEqual(code, 0)
         self.assertEqual(len(payload["matches"]), 1)
-        self.assertEqual(payload["matches"][0]["id"], "A-risk-003")
+        self.assertEqual(payload["matches"][0]["id"], "AR-003")
         self.assertEqual(set(payload["matches"][0]), {"id", "text"})
 
     def test_top_n_larger_than_catalog_returns_all_cards(self):
@@ -115,8 +114,8 @@ class RiskRetrieveTest(unittest.TestCase):
 
     def test_equal_scores_use_id_order(self):
         cards = [
-            RiskCard("B-risk-002", "b", "b-risk"),
-            RiskCard("A-risk-001", "a", "a-risk"),
+            RiskCard("AR-002", "b", "b-risk"),
+            RiskCard("AR-001", "a", "a-risk"),
         ]
         matches = risk_retrieve.retrieve(
             cards,
@@ -127,7 +126,7 @@ class RiskRetrieveTest(unittest.TestCase):
         )
         self.assertEqual(
             [card.id for card in matches],
-            ["A-risk-001", "B-risk-002"],
+            ["AR-001", "AR-002"],
         )
 
     def test_invalid_top_n_returns_minimal_error(self):
@@ -247,7 +246,7 @@ class RiskRetrieveTest(unittest.TestCase):
     def test_invalid_catalog_exits_one_before_model_load(self):
         with tempfile.TemporaryDirectory() as raw:
             path = Path(raw) / "catalog.md"
-            path.write_text("## A-risk-001\n\n关键词：日志\n", encoding="utf-8")
+            path.write_text("## AR-001\n\n关键词：日志\n", encoding="utf-8")
 
             def fail_if_called(_model):
                 raise AssertionError("格式失败时不应加载模型")

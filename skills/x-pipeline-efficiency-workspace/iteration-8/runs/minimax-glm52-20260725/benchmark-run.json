@@ -1,0 +1,170 @@
+{
+  "schema_version": 2,
+  "run_id": "minimax-glm52-20260725",
+  "label": "MiniMax ZCode GLM-5.2 full pipeline",
+  "iteration": "8",
+  "scope": "full_pipeline",
+  "model": "GLM-5.2",
+  "reasoning_effort": "max",
+  "usage": {
+    "convention": "cached_input_is_subset_of_input",
+    "input_tokens": 12357980,
+    "cached_input_tokens": 12167104,
+    "uncached_input_tokens": 190876,
+    "output_tokens": 88941,
+    "reasoning_output_tokens": 0,
+    "total_tokens": 12446921,
+    "effective_tokens": 279817,
+    "cached_share_of_input_pct": 98.46
+  },
+  "cost": {
+    "status": "priced",
+    "currency": "USD",
+    "pricing": {
+      "model": "GLM-5.2",
+      "source_url": "https://docs.z.ai/guides/overview/pricing",
+      "queried_at": "2026-07-26",
+      "rates_per_million_tokens": {
+        "uncached_input": 1.4,
+        "cached_input": 0.26,
+        "cache_write_input": null,
+        "output": 4.4
+      },
+      "cached_input_storage": "limited_time_free",
+      "cache_write_tokens": null
+    },
+    "calculation": {
+      "uncached_input": 0.2672264,
+      "cached_input": 3.16344704,
+      "cache_write_input": null,
+      "output": 0.3913404,
+      "api_equivalent": 3.82201384,
+      "cache_write_upper_bound": 3.82201384,
+      "no_cache_api_equivalent": 17.6925124,
+      "cache_savings": 13.87049856,
+      "cache_savings_pct": 78.4
+    },
+    "billing": {
+      "mode": "subscription_quota",
+      "actual_cash_increment": 0.0,
+      "quota_multiplier": 3.0,
+      "quota_equivalent": 11.46604152,
+      "note": "Supported-tool Coding Plan call during the recorded 14:00-18:00 peak window."
+    },
+    "unknown_reason": null
+  },
+  "duration": {
+    "main_active_seconds": 1954.928,
+    "nested_reviewer_seconds": 424.42,
+    "executor_time_sum_seconds": 2379.348
+  },
+  "calls": {
+    "tool_calls": 187,
+    "llm_calls": 164,
+    "failed_commands": 2
+  },
+  "scores": {
+    "full": {
+      "score": 96.0,
+      "passed": 24,
+      "total": 25,
+      "critical_gate_passed": false,
+      "rubric_version": 3,
+      "source": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-8/runs/minimax-glm52-20260725/grading.json"
+    },
+    "spec_risk": null
+  },
+  "phases": [
+    {
+      "phase": "bootstrap + x-spec3 + risk",
+      "requests": 43,
+      "input_tokens": 1960901,
+      "cached_input_tokens": 1898496,
+      "uncached_input_tokens": 62405,
+      "output_tokens": 20030,
+      "total_tokens": 1980931,
+      "effective_tokens": 82435,
+      "share_pct": 15.92,
+      "tool_calls": 62
+    },
+    {
+      "phase": "x-req3",
+      "requests": 9,
+      "input_tokens": 650364,
+      "cached_input_tokens": 645056,
+      "uncached_input_tokens": 5308,
+      "output_tokens": 2992,
+      "total_tokens": 653356,
+      "effective_tokens": 8300,
+      "share_pct": 5.25,
+      "tool_calls": 9
+    },
+    {
+      "phase": "x-dev + tests + dev-report",
+      "requests": 38,
+      "input_tokens": 3778707,
+      "cached_input_tokens": 3734080,
+      "uncached_input_tokens": 44627,
+      "output_tokens": 35177,
+      "total_tokens": 3813884,
+      "effective_tokens": 79804,
+      "share_pct": 30.64,
+      "tool_calls": 38
+    },
+    {
+      "phase": "Gate 1 verify",
+      "requests": 5,
+      "input_tokens": 594647,
+      "cached_input_tokens": 592384,
+      "uncached_input_tokens": 2263,
+      "output_tokens": 951,
+      "total_tokens": 595598,
+      "effective_tokens": 3214,
+      "share_pct": 4.79,
+      "tool_calls": 5
+    },
+    {
+      "phase": "Gate 2 orchestration",
+      "requests": 2,
+      "input_tokens": 245042,
+      "cached_input_tokens": 240128,
+      "uncached_input_tokens": 4914,
+      "output_tokens": 1666,
+      "total_tokens": 246708,
+      "effective_tokens": 6580,
+      "share_pct": 1.98,
+      "tool_calls": 2
+    },
+    {
+      "phase": "Gate 2 reviewer",
+      "requests": 44,
+      "input_tokens": 2111443,
+      "cached_input_tokens": 2052800,
+      "uncached_input_tokens": 58643,
+      "output_tokens": 19554,
+      "total_tokens": 2130997,
+      "effective_tokens": 78197,
+      "share_pct": 17.12,
+      "tool_calls": 49
+    },
+    {
+      "phase": "x-fix + reverify + closeout",
+      "requests": 23,
+      "input_tokens": 3016876,
+      "cached_input_tokens": 3004160,
+      "uncached_input_tokens": 12716,
+      "output_tokens": 8571,
+      "total_tokens": 3025447,
+      "effective_tokens": 21287,
+      "share_pct": 24.31,
+      "tool_calls": 22
+    }
+  ],
+  "measurement": {
+    "metrics_schema": "full-pipeline-metrics",
+    "metrics_source": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-8/runs/minimax-glm52-20260725/full-pipeline-metrics.json",
+    "timing_source": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-8/runs/minimax-glm52-20260725/timing.json",
+    "metadata_source": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-8/runs/minimax-glm52-20260725/eval_metadata.json",
+    "pricing_source": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-8/runs/minimax-glm52-20260725/pricing.json"
+  }
+}

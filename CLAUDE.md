@@ -7,7 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 这不是应用代码仓库，而是一个 **AI 开发工作流 skill 集合**——为 Claude Code / Codex 提供 `/x-*` 系列 slash command 的 plugin。仓库本身**不包含可运行代码、没有 build、没有测试套件**，所有"产物"都是 markdown skill 文件。
 
 **方案讲解要通俗**: 不要自己乱造词汇，用大白话和用户套路方案，用户偏好费曼学习法，要多使用。
-⚠️ **命名陷阱**：仓库叫 `x-dev-pipeline`，仓库内部有一个子目录叫 `dev-pipeline/`（无 `x-` 前缀），它是 task 工件的输出目录。两者不是同一个东西。
+⚠️ **命名陷阱**：仓库叫 `x-dev-pipeline`；仓库内部的 `dev-pipeline/tasks/` 保存历史 task
+档案。当前 task 统一位于 `docs/spec/<spec-name>/tasks/<task-name>/`。
 
 ## 仓库布局
 
@@ -15,14 +16,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 x-dev-pipeline/
 ├── skills/<name>/SKILL.md            # skill 定义（YAML frontmatter + 正文）
 │   └── references/, templates/        # reviewer prompt、报告模板
-├── dev-pipeline/tasks/<task>/         # 用 skill 时产出的 task 工件
-│   ├── README.md, changelog.md, dev-report.md              # qdev 轻量任务
-│   ├── dev-checklist.md, diagram.md                        # 完整任务按需存在
-│   └── reports/                       # gate 报告（全部在 task 目录下）
+├── docs/spec/<spec>/tasks/<task>/     # 当前 task 工件
+│   ├── dev-checklist.md, diagram.md, dev-report.md
+│   └── reports/                       # gate / fix / audit 报告
 │       ├── .fix-counter               # 批量修轮数（verify 创建，fix 按轮递增，qa-gate 重置）
 │       ├── verify/*.md, qa-gate/*.md  # Gate ①② 报告
 │       ├── fix/*.md                   # 修复报告（按触发节点分类）
 │       └── audit/*.md                 # 独立巡检报告
+├── dev-pipeline/tasks/                # 历史 task 档案；工具不再识别、校验或编排
+├── tools/xdev.py                      # 薄 CLI 路由器
+├── tools/validator.py, flag.py        # 包校验与 QA issue 事务引擎
 ├── .claude-plugin/                    # Claude Code marketplace 注册
 ├── .codex-plugin/, .agents/           # Codex 注册
 └── examples/, install.sh, install-codex.ps1
@@ -40,6 +43,7 @@ x-spec3 ─→ x-adversarial-risk ─→ x-req3 ─→ x-dev ─→ x-verify ─
 - x-spec3 产出 `docs/spec/<spec-name>/spec.md` 第一版，记录复杂度/重要性、预算和 `initial-spec` Scenario
 - x-adversarial-risk 按预算检查第一版；standard 不读错题集，deep/full 才读取自身独立错题集并补 `adversarial-review` Scenario
 - x-req3 只接收风险状态为 `skipped-standard` 或 `complete` 的新风险契约，产出 `docs/spec/<spec-name>/tasks/<task>/`
+- `tools/xdev.py` 只做 CLI 分流；package、task、verify、flag 逻辑分别归各自引擎
 - x-plan 已废弃，功能合并到 x-req
 
 独立巡检（不在主流程）：`x-audit-perf` / `x-audit-style` / `x-audit-arch`，由用户手动触发或里程碑后跑。`x-audit-arch` 聚焦架构一致性 + 单一事实源（结构性视角），与 `x-audit-style`（表层规范）、`x-qa-gate` R1（spec 正确性）不重叠，边界见 `skills/x-audit-arch/SKILL.md`。
@@ -48,8 +52,8 @@ x-spec3 ─→ x-adversarial-risk ─→ x-req3 ─→ x-dev ─→ x-verify ─
 
 | 契约 | 内容 |
 |------|------|
-| Spec 风险门禁 | x-spec3 写 `adversarial_risk_version: 1`、复杂度/重要性/平均分/预算、`pending` 状态和 `initial-spec` 来源；x-adversarial-risk 完成对抗检查并写审查记录；x-req3 复跑 `risk_contract.py validate-spec` 后才拆解 |
-| 风险错题集边界 | `skills/x-adversarial-risk/references/risk-mistakes.md` 只由 x-adversarial-risk 在 deep/full 审查或录入已确认缺口时读取；每项包含动作、数据、场景、不变量、最小反例、应补 Scenario 和证据 |
+| Spec 风险门禁 | x-spec3 写 `adversarial_risk_version: 3`、复杂度/重要性/平均分/预算、`pending` 状态和 `initial-spec` 来源；x-adversarial-risk 完成对抗检查并写审查记录；x-req3 复跑 `risk_contract.py validate-spec` 后才拆解 |
+| 风险错题集边界 | `skills/x-adversarial-risk/references/risk-mistakes.md` 只由 x-adversarial-risk 在 deep/full 审查或录入已确认缺口时读取；每项使用唯一 `AR-NNN`，并只保存关键词与 Risk |
 | spec 需求包目录 | x-spec 产出 `docs/spec/<spec-name>/`，`docs/spec/README.md` 汇总 spec 导航。x-req 的 README `spec:` 字段指向 `docs/spec/<spec-name>`，一个 task 只归属一个 spec |
 | `dev-report.md` schema | x-dev 使用 `skills/x-dev/templates/dev-report-template.md`（含 `risk: default/high` 字段，Gate ② 路由依据）；x-verify 的必跑清单 = dev-report 命令表 + task README Smoke/E2E 用例（manual 用例列入待人工验收）；x-qdev 默认使用 `skills/x-qdev/templates/dev-report.md`，用户指定完整门禁时改用 x-dev schema |
 | 测试分层契约 | x-spec 写验证策略；x-req README 显式列 smoke/e2e 验收用例；单元/契约/边界测试由 x-dev 按实际改动补齐，并写入 `dev-report.md` 验证命令清单 |

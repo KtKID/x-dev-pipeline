@@ -2,7 +2,6 @@
 name: x-dev-rag-call
 description: |
   从需求、Spec、代码调查、故障描述或计划中提炼关键内容，调用本地 Embedding 模型，从调用方明确指定的 Markdown 或纯文本文件/目录进行语义 TopN 召回，并把命中的原文交回当前 LLM。用户提到“从这个路径召回”“查 RAG”“匹配错题集”“根据 Spec 找相关经验”“取 TopN”时使用；其他 skill 需要从指定本地知识路径获取相关内容时也使用。
-compatibility: Requires Python 3, sentence-transformers, and a local embedding model. Default model is iteration-7/models/Qwen3-Embedding-0.6B.
 ---
 
 # x-dev-rag-call
@@ -60,20 +59,25 @@ Risk：<具体失败机制>
 运行：
 
 ```bash
-python3 <skill-dir>/scripts/rag_retrieve.py \
+uv run --offline --isolated \
+  --python /opt/homebrew/Caskroom/miniforge/base/bin/python3 \
+  --with "sentence-transformers>=2.7.0" \
+  --with "transformers>=4.51.0,<5" \
+  python <skill-dir>/scripts/rag_retrieve.py \
   --source "<指定文件或目录>" \
   --query "<key_content>" \
   --top-n <N> \
+  --model "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-7/models/Qwen3-Embedding-0.6B" \
   --json
 ```
 
-默认模型位于 `iteration-7/models/Qwen3-Embedding-0.6B/`。调用方明确指定另一个本地模型时增加：
+当前工作区模型位于 `/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-7/models/Qwen3-Embedding-0.6B`。调用方明确指定另一个本地模型时替换：
 
 ```bash
 --model "<本地模型路径>"
 ```
 
-脚本使用本地文件加载模型。查询向量使用 Qwen 的 `query` 提示模板，文档向量使用普通文档编码，两侧向量均归一化。
+命令复用当前仓库已有的 uv 离线缓存环境。脚本使用本地文件加载模型；查询向量使用 Qwen 的 `query` 提示模板，文档向量使用普通文档编码，两侧向量均归一化。
 
 ### 3. 使用召回结果
 
@@ -83,9 +87,9 @@ python3 <skill-dir>/scripts/rag_retrieve.py \
 {
   "matches": [
     {
-      "id": "A-risk-001",
+      "id": "AR-001",
       "source": "/absolute/path/risk-mistakes.md",
-      "text": "## A-risk-001\n..."
+      "text": "## AR-001\n..."
     }
   ]
 }

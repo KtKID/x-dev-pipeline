@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "profile": "pipeline_candidate_posthoc_snapshot",
+  "created_at": "2026-07-25",
+  "prepared_by": "acceptance-audit",
+  "workspace": "/Volumes/machub_app/proj/x-dev-world/minimax/journal-index-recovery",
+  "pre_execution_manifest_available": false,
+  "public_inputs": [
+    {
+      "path": "PROMPT.md",
+      "sha256": "64ded372c462c0c3294eafc128cfe2ca88458cc179007e83129ae9a49bd9a7d9"
+    },
+    {
+      "path": "fixture/README.md",
+      "sha256": "65c23a65e3dd7b244cd739ad3f5eb04a96242e63c36a5988a99d32792d6c942a"
+    }
+  ],
+  "required_skills": [
+    "x-spec3",
+    "x-adversarial-risk",
+    "x-req3",
+    "x-dev",
+    "x-verify",
+    "x-qa-gate",
+    "x-fix"
+  ],
+  "shared_skills": [
+    "x-dev-rag-call"
+  ],
+  "runtime_tools": {
+    "tools/xdev.py": "sha256:009fa46d63dfe2e73d03804e79efc4129b341a6df32f98e5bf4ce3384f0adb98",
+    "tools/validator.py": "sha256:6e59fa9890523506e1b14bb2bb0234cd4e7469259b285e66cfa2edbfaad2a851",
+    "tools/flag.py": "sha256:62aabc88a0a5a38388460115f0877506cadc12426f9b3d40449a458de98e68a3",
+    "tools/req3.py": "sha256:04943f1b216b4ff453c64a86c5c0eccae3f6cc07b9d538ff2e1260e2b69004af",
+    "tools/spec.py": "sha256:e87e3a179430c78f2e4c76c6aa1a10c7d087ad583f24adf0a156451a079090a9",
+    "tools/verify.py": "sha256:b1718f12d8dc974cb269b5597eacf90c9cc6029bafcc06d64845dee815e8b0c0"
+  },
+  "bundled_tool_sha_match": true,
+  "grader_material_exposed": false,
+  "snapshot_note": "Hashes describe the post-execution workspace and cannot prove the pre-execution package state."
+}

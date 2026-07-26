@@ -104,7 +104,7 @@ rg -n '^## AR-|^- (动作维度|数据维度|场景维度)[：:]' \
 错题回放新增 Scenario 使用：
 
 ```text
-- 来源：adversarial-review (AR-001)
+- 来源：adversarial-review (rag:AR-001)
 ```
 
 同一 Scenario 可引用多个 issue。独立假设推翻使用：
@@ -121,7 +121,7 @@ rg -n '^## AR-|^- (动作维度|数据维度|场景维度)[：:]' \
 
 | Review | 预算 | 匹配 issue | 被推翻假设 | 新增 Scenario |
 |---|---|---|---|---|
-| ARV-1 | deep / full / standard | AR-nnn / 无 | <结论或无> | SC_NN / 无 |
+| ARV-1 | deep / full / standard | RAG:AR-NNN / 无 | <结论或无> | SC_NN / 无 |
 
 重复执行时先检查既有记录和 Scenario 来源。相同输入、评分和错题集产生相同 Scenario 集合；无新增风险时记录“无适用新增”，不复制已有内容。
 
@@ -145,22 +145,15 @@ python3 skills/x-adversarial-risk/scripts/risk_contract.py \
 
 ## 6. 录入已确认错题
 
-只录入同时具备可定位证据和可复现最小反例的问题。先检索相同动作、数据、场景和根因；相同根因更新原 issue。
+只录入同时具备可定位证据和可复现最小反例的问题。证据保存在 QA 或 fix 报告，错题集只保存检索所需内容。先检索相同动作、数据、场景和根因；相同根因更新原条目。
 
-新 issue 使用下列字段：
+新条目使用下列字段：
 
 ```text
-## AR-nnn: <标题>
+## AR-NNN
 
-- 确认状态：confirmed
-- 类型：implementation-defect / evidence-gap
-- 动作维度：<做了什么危险的事>
-- 数据维度：<处理了什么敏感或关键数据>
-- 场景维度：<发生在哪个业务时刻>
-- 被破坏不变量：<持续成立的规则>
-- 最小反例：<可复现输入、状态和动作>
-- 应补 Scenario：<可观察的测试要求>
-- 来源证据：<文件、行号或稳定报告锚点>
+关键词：<功能、模块、状态、动作>
+Risk：<触发条件、失败机制和影响>
 ```
 
 录入后运行 `validate-corpus`。风险猜测继续留在 QA/fix 证据中，直到证据与反例完整。

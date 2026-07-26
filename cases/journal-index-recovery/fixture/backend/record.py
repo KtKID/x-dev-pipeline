@@ -1,4 +1,4 @@
-"""Canonical journal record codec. Implement from task contract."""
+"""Canonical journal record codec. Implement from the public contract."""
 
 from __future__ import annotations
 
@@ -13,4 +13,3 @@ def encode_record(record: dict[str, object]) -> bytes:
 
 def decode_record(raw: bytes) -> dict[str, object]:
     raise NotImplementedError
-

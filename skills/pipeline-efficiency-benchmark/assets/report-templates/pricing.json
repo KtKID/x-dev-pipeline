@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "currency": "USD",
+  "model": "待填写",
+  "source_url": "待填写",
+  "queried_at": "待填写",
+  "rates_per_million_tokens": {
+    "uncached_input": 0.0,
+    "cached_input": 0.0,
+    "cache_write_input": null,
+    "output": 0.0
+  },
+  "cached_input_storage": "unknown",
+  "telemetry": {
+    "cache_write_tokens": null
+  },
+  "billing": {
+    "mode": "unknown",
+    "actual_cash_increment": null,
+    "quota_multiplier": null,
+    "note": "待填写账单、套餐额度或未知原因"
+  }
+}

@@ -24,14 +24,13 @@
 
 ```verify
 id: S1
-scenario: <req2 场景名或 req3 单个 Scenario ID，例如 SC_01>
+scenario: <单个 Scenario ID，例如 SC_01>
 cmd: <可复跑命令>
 expect_exit: 0
 expect_contains: <关键输出>
 ```
 
 - auto 块执行命令；manual 块只记录 `steps`。
-- req2 的 `scenario:` 填写归属 Requirement 下的准确场景名。
 - req3 的 `scenario:` 只填写单个 Scenario ID 并精确匹配；verify 块按 ID 分别保存证据。
 - `python3 tools/xdev.py verify <task-dir> --json` 返回 0、1、2；1 的全部 failure 与 uncovered 同轮进入 x-fix，2 回到 dev-report 编辑。
 

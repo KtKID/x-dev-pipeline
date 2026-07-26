@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """xdev verify 的确定性执行引擎。
 
-承接 ``docs/spec/<spec>/tasks/<task>/`` 结构。req2 按 Requirement 限定验收
-Scenario；req3 直接按 checklist 的 Scenario 限定范围。
+承接父 spec 声明 ``spec_version: 3`` 的
+``docs/spec/<spec>/tasks/<task>/``，按 checklist 的 Scenario 限定验收范围。
 
 公开 CLI 仍由 ``tools/xdev.py`` 提供；本模块负责 verify block 解析、命令执行、
 验收覆盖对账和退出码。
@@ -16,16 +16,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-import req
 import req3
 
 
-REQ_RE = re.compile(r"^###\s+Requirement:\s*(.*)$")
-SCEN_RE = re.compile(r"^####\s+Scenario:\s*(.*)$")
-H2_RE = re.compile(r"^##\s+")
-H3_RE = re.compile(r"^###\s+")
-H4_RE = re.compile(r"^####\s+")
-VALIDATION_RE = re.compile(r"^\s*[-*+]?\s*验证\s*[：:]\s*(auto|manual)\s*$", re.IGNORECASE)
 VERIFY_FENCE_RE = re.compile(r"^\s*```verify\s*$", re.IGNORECASE)
 FENCE_END_RE = re.compile(r"^\s*```\s*$")
 
@@ -36,18 +29,6 @@ VERIFY_KEYS = {
 
 def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
-
-
-def section_bounds(lines: list[str], prefix: str) -> tuple[int | None, int]:
-    """返回指定 H2 的起始与结束索引；缺失时起始为 None。"""
-    start = next(
-        (index for index, line in enumerate(lines) if H2_RE.match(line) and line[3:].strip().startswith(prefix)),
-        None,
-    )
-    if start is None:
-        return None, len(lines)
-    end = next((index for index in range(start + 1, len(lines)) if H2_RE.match(lines[index])), len(lines))
-    return start, end
 
 
 def latest_dev_report(task_dir: Path) -> Path:
@@ -139,88 +120,8 @@ def parse_verify_blocks(report: Path) -> list[dict]:
     return blocks
 
 
-def acceptance_scenarios(spec_md: Path) -> list[dict]:
-    """读取 req2 spec.md「验收」节的 Scenario、父 Requirement 和验证标记。"""
-    if not spec_md.exists():
-        raise FileNotFoundError(f"缺少 spec.md：{spec_md.parent}")
-    lines = read_text(spec_md).splitlines()
-    start, end = section_bounds(lines, "验收")
-    if start is None:
-        return []
-    scenarios: list[dict] = []
-    requirement = ""
-    current: tuple[str, list[str]] | None = None
-
-    def close_current() -> None:
-        nonlocal current
-        if current is None:
-            return
-        name, body = current
-        marker = next((match.group(1).lower() for line in body if (match := VALIDATION_RE.match(line))), None)
-        scenarios.append({"requirement": requirement, "name": name, "mode": marker})
-        current = None
-
-    for index in range(start + 1, end):
-        line = lines[index]
-        if (requirement_match := REQ_RE.match(line)):
-            close_current()
-            requirement = requirement_match.group(1).strip()
-            continue
-        if (scenario_match := SCEN_RE.match(line)):
-            close_current()
-            current = (scenario_match.group(1).strip(), [])
-            continue
-        if H3_RE.match(line) or H4_RE.match(line):
-            close_current()
-            if H3_RE.match(line):
-                requirement = ""
-            continue
-        if current is not None:
-            current[1].append(line)
-    close_current()
-    return scenarios
-
-
-def acceptance_defects(spec_md: Path, scope: list[str] | None = None) -> list[str]:
-    """返回让 req2 验收对账无法进行的 spec 标注缺陷。"""
-    scenarios = acceptance_scenarios(spec_md)
-
-    def concerns_task(item: dict) -> bool:
-        return scope is None or not item["requirement"] or item["requirement"] in scope
-
-    orphans = dict.fromkeys(
-        item["name"] for item in scenarios
-        if item["mode"] == "auto" and not item["requirement"]
-    )
-    unmarked = dict.fromkeys(
-        item["name"] for item in scenarios
-        if item["mode"] is None and concerns_task(item)
-    )
-    return (
-        [f"场景「{name}」缺少父 ### Requirement:" for name in orphans]
-        + [f"场景「{name}」缺少合法的「验证: auto|manual」标记" for name in unmarked]
-    )
-
-
-def task_requirements(task_dir: Path) -> list[str]:
-    """按声明顺序去重返回 req2 task checklist 承接的 Requirement 名。"""
-    names: list[str] = []
-    for row in req.parse_checklist(task_dir):
-        value = row["requirement"]
-        if value is None:
-            raise ValueError(f"dev-checklist.md 表头缺 Requirement 列：{task_dir}")
-        if not value:
-            raise ValueError(
-                f"dev-checklist.md 第 {row['line']} 行 {row['id']} 的 Requirement 为空；"
-                "纯技术行须显式写 None"
-            )
-        if value != "None":
-            names.append(value)
-    return list(dict.fromkeys(names))
-
-
 def project_root_of_task_dir(task_dir: Path) -> Path | None:
-    """从 req2 task 实际位置推出项目根（``docs/`` 的上一级）。"""
+    """从 req3 task 实际位置推出项目根（``docs/`` 的上一级）。"""
     parents = task_dir.resolve().parents
     return parents[4] if len(parents) >= 5 else None
 
@@ -313,64 +214,12 @@ def emit_payload(payload: dict, as_json: bool, requirements: list[str] | None = 
     return 0 if not payload["fail"] and not payload["uncovered"] else 1
 
 
-def verify_req2(task_dir: Path, as_json: bool, only: str | None) -> int:
-    """验证 req2 task，并把场景对账限定在本 task 承接的 Requirement 内。"""
-    try:
-        if not task_dir.is_dir():
-            raise FileNotFoundError(f"不是目录：{task_dir}")
-        spec_path = req.spec_of_task_dir(task_dir)
-        if spec_path is None:
-            raise ValueError(f"{task_dir} 不在 docs/spec/<spec-name>/tasks/<task-name>/ 结构下")
-        spec_dir = req.resolve_spec_dir(task_dir)
-        if spec_dir is None:
-            raise ValueError(f"{task_dir} 的上级不是合法 spec 包（缺 spec.md/modules.md）")
-        spec_md = spec_dir / "spec.md"
-        scope = task_requirements(task_dir)
-        known = set(req.spec_requirements(spec_md))
-        if (dangling := [name for name in scope if name not in known]):
-            raise ValueError(
-                f"checklist 承接的 Requirement 在 {spec_md} 验收中不存在：{'、'.join(dangling)}"
-            )
-        if (defects := acceptance_defects(spec_md, scope)):
-            raise ValueError(
-                f"{spec_md} 的验收标注不足以判定本 task 的范围：" + "；".join(defects)
-            )
-        project_root = project_root_of_task_dir(task_dir)
-        if project_root is None:
-            raise ValueError(f"无法从 {task_dir} 推出项目根")
-        report = latest_dev_report(task_dir)
-        blocks = parse_verify_blocks(report)
-        pass_items, fail_items, manual, declared_auto = execute_verify_blocks(
-            blocks, only, project_root, "项目",
-        )
-        expected_auto = list(dict.fromkeys(
-            item["name"] for item in acceptance_scenarios(spec_md)
-            if item["mode"] == "auto" and item["requirement"] in scope
-        ))
-        uncovered = [name for name in expected_auto if name.strip() not in declared_auto]
-        payload = {
-            "task": task_dir.name,
-            "spec": spec_path,
-            "dev_report": str(report),
-            "requirements": scope,
-            "expected_auto": expected_auto,
-            "pass": pass_items,
-            "fail": fail_items,
-            "manual": manual,
-            "uncovered": uncovered,
-        }
-    except (FileNotFoundError, OSError, ValueError) as exc:
-        print(f"错误：{exc}", file=sys.stderr)
-        return 2
-    return emit_payload(payload, as_json, scope)
-
-
 def verify_req3(task_dir: Path, as_json: bool, only: str | None) -> int:
     """验证 req3 task；unit/smoke 必须 auto，e2e 必须声明 auto 或 manual。"""
     try:
         if not task_dir.is_dir():
             raise FileNotFoundError(f"不是目录：{task_dir}")
-        spec_path = req.spec_of_task_dir(task_dir)
+        spec_path = req3.spec_of_task_dir(task_dir)
         if spec_path is None:
             raise ValueError(f"{task_dir} 不在 docs/spec/<spec-name>/tasks/<task-name>/ 结构下")
         spec_dir = req3.resolve_spec_dir(task_dir)
@@ -440,7 +289,5 @@ def verify_req3(task_dir: Path, as_json: bool, only: str | None) -> int:
 
 
 def verify(task_dir: Path, as_json: bool, only: str | None) -> int:
-    """验证 ``docs/spec/<spec>/tasks/<task>`` 结构。"""
-    if req3.resolve_spec_dir(task_dir) is not None:
-        return verify_req3(task_dir, as_json, only)
-    return verify_req2(task_dir, as_json, only)
+    """验证父 spec 声明 spec_version: 3 的 task。"""
+    return verify_req3(task_dir, as_json, only)

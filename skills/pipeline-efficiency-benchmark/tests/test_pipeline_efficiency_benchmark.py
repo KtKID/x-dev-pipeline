@@ -35,7 +35,15 @@ class PipelineEfficiencyBenchmarkTests(unittest.TestCase):
         entries = {entry["name"]: entry["sha256"] for entry in manifest["tools"]}
         self.assertEqual(
             set(entries),
-            {"xdev.py", "req.py", "req3.py", "verify.py", "metrics.py"},
+            {
+                "xdev.py",
+                "validator.py",
+                "flag.py",
+                "req3.py",
+                "spec.py",
+                "verify.py",
+                "metrics.py",
+            },
         )
         for name, expected in entries.items():
             self.assertEqual(sha256(bundle / name), expected)
@@ -63,7 +71,7 @@ class PipelineEfficiencyBenchmarkTests(unittest.TestCase):
             payload = json.loads(prepared.stdout)
             self.assertTrue(payload["valid"])
             self.assertEqual(len(payload["skills"]), 7)
-            self.assertEqual(len(payload["tools"]), 4)
+            self.assertEqual(len(payload["tools"]), 6)
             manifest = Path(payload["manifest"])
             self.assertEqual(manifest, (root / "executor-package-manifest.json").resolve())
             self.assertFalse((workspace / "executor-package-manifest.json").exists())
@@ -104,8 +112,11 @@ class PipelineEfficiencyBenchmarkTests(unittest.TestCase):
             candidate_grading = root / "candidate-grading.json"
             baseline_run = root / "baseline.json"
             candidate_run = root / "candidate.json"
+            baseline_pricing = root / "baseline-pricing.json"
+            candidate_pricing = root / "candidate-pricing.json"
             comparison = root / "comparison.json"
             report = root / "comparison.md"
+            acceptance_report = root / "acceptance-report.md"
 
             baseline_metrics.write_text(
                 json.dumps(
@@ -153,10 +164,46 @@ class PipelineEfficiencyBenchmarkTests(unittest.TestCase):
                 ),
                 encoding="utf-8",
             )
+            pricing_payload = {
+                "schema_version": 1,
+                "currency": "USD",
+                "model": "test-model",
+                "source_url": "https://example.com/official-pricing",
+                "queried_at": "2026-07-26",
+                "rates_per_million_tokens": {
+                    "uncached_input": 2.0,
+                    "cached_input": 0.2,
+                    "cache_write_input": 2.5,
+                    "output": 10.0,
+                },
+                "telemetry": {"cache_write_tokens": None},
+                "billing": {
+                    "mode": "subscription_quota",
+                    "actual_cash_increment": 0.0,
+                    "quota_multiplier": 3.0,
+                    "note": "fixture",
+                },
+            }
+            baseline_pricing.write_text(json.dumps(pricing_payload), encoding="utf-8")
+            candidate_pricing.write_text(json.dumps(pricing_payload), encoding="utf-8")
 
-            for run_id, label, metrics, grading, output in (
-                ("baseline", "Baseline", baseline_metrics, baseline_grading, baseline_run),
-                ("latest", "Latest", candidate_metrics, candidate_grading, candidate_run),
+            for run_id, label, metrics, grading, pricing, output in (
+                (
+                    "baseline",
+                    "Baseline",
+                    baseline_metrics,
+                    baseline_grading,
+                    baseline_pricing,
+                    baseline_run,
+                ),
+                (
+                    "latest",
+                    "Latest",
+                    candidate_metrics,
+                    candidate_grading,
+                    candidate_pricing,
+                    candidate_run,
+                ),
             ):
                 normalized = run_script(
                     "normalize_run.py",
@@ -168,6 +215,8 @@ class PipelineEfficiencyBenchmarkTests(unittest.TestCase):
                     "full_pipeline",
                     "--metrics",
                     str(metrics),
+                    "--pricing",
+                    str(pricing),
                     "--full-grading",
                     str(grading),
                     "--output",
@@ -197,7 +246,142 @@ class PipelineEfficiencyBenchmarkTests(unittest.TestCase):
                 comparison_payload["comparisons"]["latest"]["metrics"]["total_tokens"]["delta_pct"],
                 -20.0,
             )
+            baseline_cost = comparison_payload["runs"][0]["cost"]
+            candidate_cost = comparison_payload["runs"][1]["cost"]
+            self.assertEqual(baseline_cost["status"], "priced")
+            self.assertAlmostEqual(
+                baseline_cost["calculation"]["api_equivalent"],
+                0.0019,
+            )
+            self.assertAlmostEqual(
+                baseline_cost["calculation"]["cache_write_upper_bound"],
+                0.0021,
+            )
+            self.assertAlmostEqual(
+                candidate_cost["calculation"]["api_equivalent"],
+                0.00168,
+            )
+            self.assertAlmostEqual(
+                candidate_cost["billing"]["quota_equivalent"],
+                0.00504,
+            )
+            amount_delta = comparison_payload["comparisons"]["latest"]["cost"]
+            self.assertTrue(amount_delta["comparable"])
+            self.assertAlmostEqual(amount_delta["delta"], -0.00022)
+            self.assertEqual(amount_delta["delta_pct"], -11.58)
+            report_text = report.read_text(encoding="utf-8")
+            self.assertIn("## 金额", report_text)
+            self.assertIn("API 等价成本", report_text)
+            self.assertIn("$0.001900", report_text)
+            self.assertIn("https://example.com/official-pricing", report_text)
+            acceptance_report.write_text(
+                "\n".join(
+                    [
+                        "# Acceptance",
+                        "",
+                        "## 金额",
+                        "",
+                        "- 价格来源：https://example.com/official-pricing",
+                        "- API 等价成本：$0.001680",
+                        "- 实际现金增量：$0.000000",
+                        "- 套餐额度：3× / $0.005040",
+                        "",
+                    ]
+                ),
+                encoding="utf-8",
+            )
 
+            validated = run_script(
+                "validate_comparison.py",
+                str(comparison),
+                "--report",
+                str(report),
+                "--acceptance-report",
+                str(acceptance_report),
+                "--json",
+            )
+            self.assertEqual(validated.returncode, 0, validated.stdout + validated.stderr)
+            self.assertTrue(json.loads(validated.stdout)["valid"])
+
+    def test_missing_pricing_is_explicit_in_report(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            metrics = root / "metrics.json"
+            grading = root / "grading.json"
+            run_path = root / "run.json"
+            latest_path = root / "latest.json"
+            comparison = root / "comparison.json"
+            report = root / "comparison.md"
+            metrics.write_text(
+                json.dumps(
+                    {
+                        "input_tokens": 90,
+                        "cached_input_tokens": 50,
+                        "output_tokens": 10,
+                        "reasoning_output_tokens": 2,
+                        "total_tokens": 100,
+                        "duration_ms": 100,
+                    }
+                ),
+                encoding="utf-8",
+            )
+            grading.write_text(
+                json.dumps(
+                    {
+                        "quality_score": 100,
+                        "critical_gate_passed": True,
+                        "summary": {"passed": 1, "total": 1},
+                    }
+                ),
+                encoding="utf-8",
+            )
+            normalized = run_script(
+                "normalize_run.py",
+                "--run-id",
+                "only",
+                "--label",
+                "Only",
+                "--scope",
+                "full_pipeline",
+                "--metrics",
+                str(metrics),
+                "--full-grading",
+                str(grading),
+                "--output",
+                str(run_path),
+            )
+            self.assertEqual(normalized.returncode, 0, normalized.stderr)
+            run_payload = json.loads(run_path.read_text(encoding="utf-8"))
+            self.assertEqual(run_payload["cost"]["status"], "unknown")
+            self.assertEqual(
+                run_payload["cost"]["unknown_reason"],
+                "pricing_not_provided",
+            )
+            latest_payload = json.loads(json.dumps(run_payload))
+            latest_payload["run_id"] = "latest"
+            latest_payload["label"] = "Latest"
+            latest_path.write_text(json.dumps(latest_payload), encoding="utf-8")
+
+            compared = run_script(
+                "compare_runs.py",
+                "--run",
+                str(run_path),
+                "--run",
+                str(latest_path),
+                "--baseline",
+                "only",
+                "--candidate",
+                "latest",
+                "--output-json",
+                str(comparison),
+                "--output-md",
+                str(report),
+            )
+            self.assertEqual(compared.returncode, 0, compared.stderr)
+            report_text = report.read_text(encoding="utf-8")
+            self.assertIn("## 金额", report_text)
+            self.assertIn("pricing_not_provided", report_text)
+            self.assertIn("unknown", report_text)
             validated = run_script(
                 "validate_comparison.py",
                 str(comparison),
@@ -206,7 +390,19 @@ class PipelineEfficiencyBenchmarkTests(unittest.TestCase):
                 "--json",
             )
             self.assertEqual(validated.returncode, 0, validated.stdout + validated.stderr)
-            self.assertTrue(json.loads(validated.stdout)["valid"])
+
+    def test_report_templates_require_amount_fields(self) -> None:
+        templates = SKILL_ROOT / "assets" / "report-templates"
+        acceptance = (templates / "acceptance-report.md").read_text(encoding="utf-8")
+        comparison = (templates / "comparison-report.md").read_text(encoding="utf-8")
+        pricing = json.loads((templates / "pricing.json").read_text(encoding="utf-8"))
+        for text in (acceptance, comparison):
+            self.assertIn("## 金额", text)
+            self.assertIn("API 等价成本", text)
+            self.assertIn("实际现金增量", text)
+            self.assertIn("套餐额度", text)
+        self.assertIn("rates_per_million_tokens", pricing)
+        self.assertIn("billing", pricing)
 
     def test_public_task_only_preserves_existing_framework(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

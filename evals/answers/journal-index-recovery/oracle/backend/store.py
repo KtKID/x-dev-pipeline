@@ -109,15 +109,13 @@ class JournalStore:
                 raise StoreError("CORRUPT_LOG", "unterminated middle record")
             try:
                 record = decode_record(line[:-1])
-                seq = int(record["seq"])
-                if seq > int(state["last_seq"]):
-                    self._apply(state, record)
-            except (RecordError, StoreError, ValueError, TypeError) as exc:
+            except (RecordError, ValueError, TypeError) as exc:
                 if final:
                     break
-                if isinstance(exc, StoreError):
-                    raise
                 raise StoreError("CORRUPT_LOG", f"invalid middle record: {exc}") from exc
+            seq = int(record["seq"])
+            if seq > int(state["last_seq"]):
+                self._apply(state, record)
             offset += len(line)
             valid_offset = offset
         tail_bytes = len(raw) - valid_offset
@@ -209,4 +207,3 @@ class JournalStore:
                     handle.flush()
                     os.fsync(handle.fileno())
             return {"ok": True, "truncated_bytes": tail_bytes}
-

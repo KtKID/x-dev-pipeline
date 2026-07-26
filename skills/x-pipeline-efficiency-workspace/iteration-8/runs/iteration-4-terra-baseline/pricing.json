@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "currency": "USD",
+  "model": "gpt-5.6-terra",
+  "source_url": "https://developers.openai.com/api/docs/models/compare",
+  "queried_at": "2026-07-26",
+  "rates_per_million_tokens": {
+    "uncached_input": 2.5,
+    "cached_input": 0.25,
+    "cache_write_input": 3.125,
+    "output": 15.0
+  },
+  "cached_input_storage": "provider_cache",
+  "telemetry": {
+    "cache_write_tokens": null
+  },
+  "billing": {
+    "mode": "unknown",
+    "actual_cash_increment": null,
+    "quota_multiplier": null,
+    "note": "Historical run has no persisted account-billing or subscription evidence."
+  }
+}

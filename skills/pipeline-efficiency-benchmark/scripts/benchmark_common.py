@@ -23,8 +23,10 @@ REQUIRED_SKILLS = (
 
 EXECUTOR_TOOLS = (
     "xdev.py",
-    "req.py",
+    "validator.py",
+    "flag.py",
     "req3.py",
+    "spec.py",
     "verify.py",
 )
 

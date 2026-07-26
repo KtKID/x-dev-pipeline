@@ -109,8 +109,9 @@ expect_contains: passed
 
 ## Deterministic engine
 
-`tools/xdev.py` provides the unified CLI for mechanical rules outside skill prose. Verify parsing,
-execution, and Scenario reconciliation are owned by `tools/verify.py`:
+`tools/xdev.py` is the thin unified CLI for mechanical rules outside skill prose. Package validation
+is owned by `tools/validator.py`, spec3 task planning by `tools/req3.py`, verification by
+`tools/verify.py`, and QA issue transactions by `tools/flag.py`:
 
 ```text
 validate [pkg...]                 validate specs, changes, and task contracts
@@ -122,7 +123,9 @@ verify <task-dir> [--json]        execute evidence and reconcile Scenarios
 flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-round] [--json]
 ```
 
-Task validation covers V8–V12: required files, checklist contract, optional diagram consistency, README risk and required sections, and Requirement/Scenario structure.
+Task commands only accept `docs/spec/<spec-name>/tasks/<task-name>/`. Historical
+`dev-pipeline/tasks/` directories remain readable artifacts and have no runtime validation or
+orchestration support.
 
 ## x-spec2 pilot metrics
 

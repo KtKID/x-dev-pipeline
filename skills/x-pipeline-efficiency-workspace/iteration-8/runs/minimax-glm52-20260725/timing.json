@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "duration": {
+    "main_active_total_ms": 1954928,
+    "q3_reviewer_nested_ms": 424420,
+    "executor_time_sum_ms": 2379348,
+    "root_session_wall_ms": 2298000
+  },
+  "turns": [
+    {
+      "session_id": "sess_6625cddf-684e-42f4-8605-06bc47508a8b",
+      "status": "cancelled",
+      "started_at": "2026-07-25 14:25:37 +0800",
+      "completed_at": "2026-07-25 14:31:22 +0800",
+      "duration_ms": 345010
+    },
+    {
+      "session_id": "sess_6625cddf-684e-42f4-8605-06bc47508a8b",
+      "status": "completed",
+      "started_at": "2026-07-25 14:37:05 +0800",
+      "completed_at": "2026-07-25 15:03:55 +0800",
+      "duration_ms": 1609918
+    },
+    {
+      "session_id": "sess_subagent_agent_835967fc-f86c-467f-941b-1f06e642f376",
+      "status": "completed",
+      "started_at": "2026-07-25 14:53:35 +0800",
+      "completed_at": "2026-07-25 15:00:40 +0800",
+      "duration_ms": 424420
+    }
+  ],
+  "measurement_note": "Main active time sums the root turn_usage durations, including the user-interrupted first turn. Executor sum adds the nested reviewer duration. Root wall time includes the 14:31-14:37 user pause."
+}

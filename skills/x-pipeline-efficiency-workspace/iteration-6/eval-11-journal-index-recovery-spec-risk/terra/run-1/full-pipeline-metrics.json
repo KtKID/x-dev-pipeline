@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-07-24T11:37:24+08:00",
+  "run": {
+    "iteration": 6,
+    "case": "journal-index-recovery-spec-risk",
+    "executor": "terra",
+    "run": 1,
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "xhigh",
+    "main_thread_id": "019f8fab-99eb-7f51-badc-9f44be54ee81",
+    "qa_reviewer_thread_id": "019f9208-7665-72c1-9478-11f800ce8553"
+  },
+  "measurement": {
+    "token_method": "Take the last cumulative token_count before each task_complete, difference consecutive main turns, and add the isolated QA reviewer once.",
+    "token_total_formula": "input_tokens + output_tokens; cached_input_tokens is a subset of input_tokens; reasoning_output_tokens is a subset of output_tokens.",
+    "duration_method": "Sum completed main-turn durations and exclude user idle time. QA reviewer duration is nested in the final main turn and is shown separately.",
+    "phase_boundary_method": "Use commentary timestamps and the nearest following cumulative token_count boundary.",
+    "source_sessions": [
+      "/Users/kid/.codex/sessions/2026/07/23/rollout-2026-07-23T23-50-15-019f8fab-99eb-7f51-badc-9f44be54ee81.jsonl",
+      "/Users/kid/.codex/sessions/2026/07/24/rollout-2026-07-24T10-50-55-019f9208-7665-72c1-9478-11f800ce8553.jsonl"
+    ]
+  },
+  "usage": {
+    "main": {
+      "input_tokens": 9826634,
+      "cached_input_tokens": 9581568,
+      "output_tokens": 72213,
+      "reasoning_output_tokens": 21098,
+      "total_tokens": 9898847,
+      "tool_calls": 64,
+      "llm_calls": 78
+    },
+    "qa_reviewer": {
+      "input_tokens": 341517,
+      "cached_input_tokens": 289280,
+      "output_tokens": 13540,
+      "reasoning_output_tokens": 11379,
+      "total_tokens": 355057,
+      "tool_calls": 7,
+      "llm_calls": 8
+    },
+    "agent_tree_all_in": {
+      "input_tokens": 10168151,
+      "cached_input_tokens": 9870848,
+      "uncached_input_tokens": 297303,
+      "output_tokens": 85753,
+      "reasoning_output_tokens": 32477,
+      "non_reasoning_output_tokens": 53276,
+      "total_tokens": 10253904,
+      "tokens_excluding_cached_reads": 383056,
+      "cached_share_of_input_pct": 97.08,
+      "cached_share_of_total_pct": 96.26,
+      "tool_calls": 71,
+      "llm_calls": 86
+    },
+    "productive_excluding_coordination_overhead": {
+      "total_tokens": 9188865,
+      "tool_calls": 59,
+      "llm_calls": 71
+    }
+  },
+  "main_turns": [
+    {
+      "turn_id": "019f8fab-9b4e-7bc3-8001-716635ae937c",
+      "label": "x-spec3 and initial x-adversarial-risk",
+      "duration_seconds": 280.025,
+      "total_tokens": 270385,
+      "tool_calls": 5,
+      "llm_calls": 6
+    },
+    {
+      "turn_id": "019f91e1-0c37-7ae1-a5a3-c4ae32fa2d85",
+      "label": "gate diagnosis",
+      "duration_seconds": 34.931,
+      "total_tokens": 121579,
+      "tool_calls": 1,
+      "llm_calls": 2
+    },
+    {
+      "turn_id": "019f91e2-749a-7e03-b955-fc51d81190f9",
+      "label": "repair-rule explanation",
+      "duration_seconds": 16.799,
+      "total_tokens": 64075,
+      "tool_calls": 0,
+      "llm_calls": 1
+    },
+    {
+      "turn_id": "019f91e5-9352-7c01-a2aa-77a17448b093",
+      "label": "discarded wrong-workspace continuation",
+      "duration_seconds": 120.31,
+      "total_tokens": 879385,
+      "tool_calls": 11,
+      "llm_calls": 12
+    },
+    {
+      "turn_id": "019f91e7-e7e4-7ce1-adc4-e024a42d387a",
+      "label": "risk repair round",
+      "duration_seconds": 92.655,
+      "total_tokens": 403666,
+      "tool_calls": 3,
+      "llm_calls": 4
+    },
+    {
+      "turn_id": "019f91ef-4888-7771-b7db-0ca4995e00c8",
+      "label": "risk source repair and x-req3",
+      "duration_seconds": 120.296,
+      "total_tokens": 653225,
+      "tool_calls": 5,
+      "llm_calls": 6
+    },
+    {
+      "turn_id": "019f91f4-2e97-7a92-a75b-5d7e53ab3bb2",
+      "label": "x-dev and blocked initial verify",
+      "duration_seconds": 464.053,
+      "total_tokens": 1957077,
+      "tool_calls": 13,
+      "llm_calls": 14
+    },
+    {
+      "turn_id": "019f9207-57da-7c00-a79d-a57c5e9fe158",
+      "label": "Gate 1, Gate 2, x-fix, reverify and closure",
+      "duration_seconds": 683.762,
+      "total_tokens": 5549455,
+      "tool_calls": 26,
+      "llm_calls": 33
+    }
+  ],
+  "phases": [
+    {
+      "phase": "x-spec3 initial",
+      "total_tokens": 70652,
+      "share_pct": 0.69
+    },
+    {
+      "phase": "x-adversarial-risk initial four rounds",
+      "total_tokens": 199733,
+      "share_pct": 1.95
+    },
+    {
+      "phase": "coordination, diagnosis and discarded workspace",
+      "total_tokens": 1065039,
+      "share_pct": 10.39
+    },
+    {
+      "phase": "x-adversarial-risk repair rounds",
+      "total_tokens": 718657,
+      "share_pct": 7.01
+    },
+    {
+      "phase": "x-req3",
+      "total_tokens": 338234,
+      "share_pct": 3.3
+    },
+    {
+      "phase": "x-dev and local tests",
+      "total_tokens": 1658185,
+      "share_pct": 16.17
+    },
+    {
+      "phase": "initial verify blocked by missing engine",
+      "total_tokens": 298892,
+      "share_pct": 2.91
+    },
+    {
+      "phase": "dev-report format repair and Gate 1",
+      "total_tokens": 610846,
+      "share_pct": 5.96
+    },
+    {
+      "phase": "Gate 2 orchestration and isolated reviewer",
+      "main_tokens": 1747108,
+      "reviewer_tokens": 355057,
+      "total_tokens": 2102165,
+      "share_pct": 20.5
+    },
+    {
+      "phase": "x-fix and full reverify",
+      "total_tokens": 2263278,
+      "share_pct": 22.07
+    },
+    {
+      "phase": "incremental QA closure and final receipt",
+      "total_tokens": 928223,
+      "share_pct": 9.05
+    }
+  ],
+  "duration": {
+    "main_active_seconds": 1812.831,
+    "main_active_display": "30m12.831s",
+    "qa_reviewer_nested_seconds": 257.867,
+    "executor_time_sum_seconds": 2070.698,
+    "executor_time_sum_display": "34m30.698s",
+    "coordination_overhead_seconds": 172.04,
+    "productive_main_seconds": 1640.791,
+    "productive_executor_sum_seconds": 1898.658
+  },
+  "risk_efficiency": {
+    "iteration_5_risk_tokens": 960376,
+    "iteration_6_initial_risk_tokens": 199733,
+    "initial_delta_pct": -79.2,
+    "iteration_6_risk_repairs_tokens": 718657,
+    "iteration_6_risk_to_pass_tokens": 918390,
+    "risk_to_pass_delta_pct": -4.37,
+    "risk_to_pass_including_diagnosis_tokens": 1104044,
+    "risk_to_pass_including_diagnosis_delta_pct": 14.96,
+    "iteration_5_risk_tool_calls": 13,
+    "iteration_6_initial_risk_tool_calls": 3,
+    "iteration_5_risk_llm_calls": 14,
+    "iteration_6_initial_risk_llm_calls": 4,
+    "iteration_6_risk_to_pass_llm_calls": 11
+  },
+  "comparisons": {
+    "iteration_5_full_pipeline": {
+      "previous_total_tokens": 10576219,
+      "current_total_tokens": 10253904,
+      "delta_tokens": -322315,
+      "delta_pct": -3.05,
+      "previous_main_active_seconds": 1765.038,
+      "current_main_active_seconds": 1812.831,
+      "main_active_delta_pct": 2.71,
+      "previous_executor_time_sum_seconds": 1931.313,
+      "current_executor_time_sum_seconds": 2070.698,
+      "executor_time_sum_delta_pct": 7.22,
+      "previous_tool_calls": 80,
+      "current_tool_calls": 71,
+      "tool_call_delta_pct": -11.25
+    },
+    "iteration_5_full_pipeline_productive_view": {
+      "previous_total_tokens": 10576219,
+      "current_tokens_excluding_coordination_overhead": 9188865,
+      "delta_pct": -13.12,
+      "previous_executor_time_sum_seconds": 1931.313,
+      "current_executor_time_sum_excluding_coordination_seconds": 1898.658,
+      "executor_time_sum_delta_pct": -1.69,
+      "previous_tool_calls": 80,
+      "current_tool_calls_excluding_coordination": 59,
+      "tool_call_delta_pct": -26.25
+    },
+    "iteration_5_spec_risk": {
+      "previous_tokens": 1411304,
+      "current_initial_turn_tokens": 270385,
+      "delta_pct": -80.84,
+      "previous_duration_seconds": 621.37,
+      "current_duration_seconds": 280.067,
+      "duration_delta_pct": -54.93,
+      "previous_score": 94,
+      "current_initial_score": 41
+    },
+    "iteration_6_clean_run_4_spec_risk": {
+      "previous_tokens": 440842,
+      "current_initial_turn_tokens": 270385,
+      "delta_pct": -38.67,
+      "previous_duration_seconds": 528.075,
+      "current_duration_seconds": 280.067,
+      "duration_delta_pct": -46.96,
+      "previous_score": 65,
+      "current_initial_score": 41
+    },
+    "current_rubric_full_implementation_scores": {
+      "iteration_3_with_skill": 92,
+      "iteration_4_baseline": 96,
+      "iteration_4_with_skill": 88,
+      "iteration_5_terra": 88,
+      "iteration_6_current": 80
+    }
+  },
+  "result": {
+    "internal_pipeline": "passed",
+    "hidden_full_implementation": {
+      "rubric_version": 2,
+      "quality_score": 80,
+      "passed": 20,
+      "failed": 5,
+      "total": 25,
+      "critical_gate_passed": false,
+      "failed_expectations": [
+        "req3 checklist pointer and mechanical validation",
+        "dev-report literal unit/smoke/e2e evidence labels",
+        "semantic snapshot rejection",
+        "semantic tail CORRUPT_LOG classification",
+        "complete seven-error contract"
+      ]
+    },
+    "spec_risk_delivery_score": {
+      "score": 41,
+      "passed": 7,
+      "total": 17,
+      "reason": "artifacts/spec.final.md remained the original YAML version after live Spec repairs"
+    },
+    "spec_risk_normalized_live_diagnostic": {
+      "score": 65,
+      "passed": 11,
+      "total": 17,
+      "note": "diagnostic only; live Spec copied to final artifact in an isolated grading workspace"
+    },
+    "unit_tests": 11,
+    "gate_1": {
+      "pass": 16,
+      "fail": 0,
+      "manual": 0,
+      "uncovered": 0
+    },
+    "gate_2": {
+      "initial_p1": 5,
+      "fix_rounds": 1,
+      "final_p0": 0,
+      "final_p1": 0
+    },
+    "remaining_blockers": 0,
+    "hidden_regrade_after_repairs": "completed",
+    "historical_initial_hidden_score": 41
+  }
+}

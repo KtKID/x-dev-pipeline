@@ -1,0 +1,1 @@
+完整读取 task/ 下的五份任务文档，使用 workspace 中 $x-spec3 产出 docs/spec/journal-index-recovery/spec.md，遵循提供的 skill 工作流，并保存 artifacts/spec.initial.md、artifacts/spec.final.md、artifacts/run-summary.json。完整执行 Top5 风险召回，并在 run-summary.json 记录实际查询、命中顺序、每条命中的适用性判断、复用与新增 Scenario。

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "run_id": "minimax-glm52-20260725",
+  "audit_type": "post_hoc_preflight_evidence_audit",
+  "preflight_passed": false,
+  "status": "unproven",
+  "checks": [
+    {
+      "name": "required_seven_skills_present",
+      "passed": true,
+      "evidence": "x-spec3, x-adversarial-risk, x-req3, x-dev, x-verify, x-qa-gate, and x-fix exist in workspace/skills"
+    },
+    {
+      "name": "six_runtime_tools_present",
+      "passed": true,
+      "evidence": "xdev.py, validator.py, flag.py, req3.py, spec.py, and verify.py exist in workspace/tools"
+    },
+    {
+      "name": "runtime_tools_match_current_bundled_sha",
+      "passed": true,
+      "evidence": "all six SHA-256 values match skills/pipeline-efficiency-benchmark/assets/executor-tools"
+    },
+    {
+      "name": "xdev_cli_startable",
+      "passed": true,
+      "evidence": "xdev validate/verify/graph commands started and completed during acceptance"
+    },
+    {
+      "name": "grader_material_absent_from_workspace",
+      "passed": true,
+      "evidence": "no oracle, rubric, grader, or answer path exists in the candidate workspace"
+    },
+    {
+      "name": "grader_material_absent_from_candidate_trace",
+      "passed": true,
+      "evidence": "zero candidate part rows matched oracle, rubric, grader, or evals/answers"
+    },
+    {
+      "name": "pre_execution_package_manifest_preserved",
+      "passed": false,
+      "evidence": "no candidate-specific executor-package-manifest.json or preflight output was preserved before execution"
+    },
+    {
+      "name": "workspace_only_read_scope",
+      "passed": false,
+      "evidence": "candidate trace read an embedding model from /Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-7/models/Qwen3-Embedding-0.6B"
+    }
+  ],
+  "note": "Grader isolation passed. Strict pipeline preflight and workspace-only provenance cannot be promoted from post-execution evidence."
+}
