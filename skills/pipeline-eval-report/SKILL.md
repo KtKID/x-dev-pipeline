@@ -40,7 +40,7 @@ metadata:
 
 - 生产任务、评测任务、修复任务或回放任务触发了一个或多个 pipeline phase。
 - 外部 Agent 已经生成 spec、req、代码或验证产物，当前工作负责追认、评审或补齐遥测。
-- 同一用户目标由 `x-spec3 → x-req3` 等多个 skill 连续完成；它们属于一个 run 内的多个 phase。
+- 同一用户目标由 `x-spec → x-req` 等多个 skill 连续完成；它们属于一个 run 内的多个 phase。
 
 身份规则：
 

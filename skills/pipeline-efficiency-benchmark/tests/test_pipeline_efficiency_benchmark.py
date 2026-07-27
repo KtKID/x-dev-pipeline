@@ -39,7 +39,7 @@ class PipelineEfficiencyBenchmarkTests(unittest.TestCase):
                 "xdev.py",
                 "validator.py",
                 "flag.py",
-                "req3.py",
+                "req.py",
                 "spec.py",
                 "verify.py",
                 "metrics.py",

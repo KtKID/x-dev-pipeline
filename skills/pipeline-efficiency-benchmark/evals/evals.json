@@ -3,7 +3,7 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "把 journal-index-recovery 的公开 task、fixture、pipeline skills 迁移到一个干净考生 workspace，确保 xdev、req3、verify 等工具都提供齐全，并在启动模型前验证隔离。",
+      "prompt": "把 journal-index-recovery 的公开 task、fixture、pipeline skills 迁移到一个干净考生 workspace，确保 xdev、req、verify 等工具都提供齐全，并在启动模型前验证隔离。",
       "expected_output": "生成含四个运行工具的自包含 workspace、workspace 外的 executor-package-manifest.json；metrics.py 和 skill evals 留在考生范围外，validate_workspace.py 返回 valid=true。",
       "files": []
     },

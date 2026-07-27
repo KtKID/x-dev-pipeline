@@ -12,9 +12,9 @@ from typing import Any, Iterable
 
 
 PIPELINE_STAGES = (
-    "x-spec3",
+    "x-spec",
     "x-adversarial-risk",
-    "x-req3",
+    "x-req",
     "x-dev",
     "x-verify",
     "x-qa-gate",
@@ -29,7 +29,7 @@ EXECUTOR_TOOLS = (
     "xdev.py",
     "validator.py",
     "flag.py",
-    "req3.py",
+    "req.py",
     "spec.py",
     "verify.py",
 )

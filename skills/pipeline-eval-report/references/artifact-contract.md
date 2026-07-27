@@ -29,10 +29,10 @@
   "repository": {"sha": "...", "branch": "..."},
   "executor": {
     "model": "provider/model",
-    "skills": [{"name": "x-spec3", "sha256": "..."}]
+    "skills": [{"name": "x-spec", "sha256": "..."}]
   },
   "pipeline": {
-    "phases": ["x-spec3.spec", "x-req3.task", "spec_quality_review"]
+    "phases": ["x-spec.spec", "x-req.task", "spec_quality_review"]
   },
   "started_at": "ISO-8601",
   "status_source": "events.jsonl"
@@ -52,7 +52,7 @@
   "pipeline_run_id": "prun-uuid-001",
   "timestamp": "ISO-8601",
   "type": "stage_attempt_started",
-  "stage": "x-spec3.spec",
+  "stage": "x-spec.spec",
   "attempt": 1
 }
 ```

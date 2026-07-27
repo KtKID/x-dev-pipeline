@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""spec3/spec7/change/capability 包的确定性校验引擎。
+"""spec/spec7/change/capability 包的确定性校验引擎。
 
 本模块拥有包类型识别、Markdown 机械解析、V1-V7 与 V13-V20 规则聚合。
-当前 task 校验由 req3.py 拥有，统一 CLI 位于 xdev.py。
+当前 task 校验由 req.py 拥有，统一 CLI 位于 xdev.py。
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-import req3
+import req
 import spec as spec_engine
 
 
@@ -165,8 +165,8 @@ def scenario_contract_issues(lines: list[tuple[int, str]], rel: str, profile: st
 
 
 def detect_type(pkg: Path) -> str:
-    if spec_engine.looks_like_spec3(pkg):
-        return "spec3"
+    if spec_engine.looks_like_spec(pkg):
+        return "spec"
     spec_md = pkg / "spec.md"
     if spec_md.is_file() and any(
         DEPRECATED_SPEC2_MARKER_RE.match(line)
@@ -238,7 +238,7 @@ def check_link_rules(pkg: Path, ptype: str):
 
 
 def check_req_scenario(pkg: Path, ptype: str):
-    if ptype == "spec3":
+    if ptype == "spec":
         return
     for f in md_files(pkg):
         if not f.exists():
@@ -262,8 +262,8 @@ def check_req_scenario(pkg: Path, ptype: str):
         )
 
 
-def check_spec3_contract(pkg: Path, ptype: str):
-    if ptype != "spec3":
+def check_spec_contract(pkg: Path, ptype: str):
+    if ptype != "spec":
         return
     yield from spec_engine.validate_issues(pkg)
 
@@ -345,7 +345,7 @@ CHECKS = [
     check_files_complete,
     check_link_rules,
     check_req_scenario,
-    check_spec3_contract,
+    check_spec_contract,
     check_delta_markers,
     check_task_backrefs,
     check_module_consistency,
@@ -376,9 +376,9 @@ def validate_pkg(pkg: Path, include_legacy: bool) -> dict:
             result["issues"].extend(check(pkg, ptype))
         except Exception as e:  # 单条规则崩溃不拖垮整体
             result["issues"].append(issue("(package)", 0, "V0", f"{check.__name__} 执行失败：{e}"))
-    if ptype == "spec3" and (pkg / "tasks").is_dir():
+    if ptype == "spec" and (pkg / "tasks").is_dir():
         try:
-            result["issues"].extend(req3.spec_scenario_coverage(pkg))
+            result["issues"].extend(req.spec_scenario_coverage(pkg))
         except Exception as e:
             result["issues"].append(issue("(package)", 0, "V0", f"spec_scenario_coverage 执行失败：{e}"))
     return result

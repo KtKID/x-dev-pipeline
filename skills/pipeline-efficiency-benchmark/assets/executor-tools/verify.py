@@ -16,7 +16,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-import req3
+import req
 
 
 VERIFY_FENCE_RE = re.compile(r"^\s*```verify\s*$", re.IGNORECASE)
@@ -121,7 +121,7 @@ def parse_verify_blocks(report: Path) -> list[dict]:
 
 
 def project_root_of_task_dir(task_dir: Path) -> Path | None:
-    """从 req3 task 实际位置推出项目根（``docs/`` 的上一级）。"""
+    """从 req task 实际位置推出项目根（``docs/`` 的上一级）。"""
     parents = task_dir.resolve().parents
     return parents[4] if len(parents) >= 5 else None
 
@@ -214,20 +214,20 @@ def emit_payload(payload: dict, as_json: bool, requirements: list[str] | None = 
     return 0 if not payload["fail"] and not payload["uncovered"] else 1
 
 
-def verify_req3(task_dir: Path, as_json: bool, only: str | None) -> int:
-    """验证 req3 task；unit/smoke 必须 auto，e2e 必须声明 auto 或 manual。"""
+def verify_req(task_dir: Path, as_json: bool, only: str | None) -> int:
+    """验证 req task；unit/smoke 必须 auto，e2e 必须声明 auto 或 manual。"""
     try:
         if not task_dir.is_dir():
             raise FileNotFoundError(f"不是目录：{task_dir}")
-        spec_path = req3.spec_of_task_dir(task_dir)
+        spec_path = req.spec_of_task_dir(task_dir)
         if spec_path is None:
             raise ValueError(f"{task_dir} 不在 docs/spec/<spec-name>/tasks/<task-name>/ 结构下")
-        spec_dir = req3.resolve_spec_dir(task_dir)
+        spec_dir = req.resolve_spec_dir(task_dir)
         if spec_dir is None:
             raise ValueError(f"{task_dir} 的上级不是合法 spec_version: 3 包")
         spec_md = spec_dir / "spec.md"
-        scope = req3.task_scenarios(task_dir)
-        scenarios = req3.spec_scenarios(spec_md)
+        scope = req.task_scenarios(task_dir)
+        scenarios = req.spec_scenarios(spec_md)
         by_id = {item["id"]: item for item in scenarios}
         if dangling := [scenario_id for scenario_id in scope if scenario_id not in by_id]:
             raise ValueError(
@@ -269,7 +269,7 @@ def verify_req3(task_dir: Path, as_json: bool, only: str | None) -> int:
         payload = {
             "task": task_dir.name,
             "spec": spec_path,
-            "profile": "req3",
+            "profile": "req",
             "dev_report": str(report),
             "scenarios": scope,
             "scenario_layers": {
@@ -290,4 +290,4 @@ def verify_req3(task_dir: Path, as_json: bool, only: str | None) -> int:
 
 def verify(task_dir: Path, as_json: bool, only: str | None) -> int:
     """验证父 spec 声明 spec_version: 3 的 task。"""
-    return verify_req3(task_dir, as_json, only)
+    return verify_req(task_dir, as_json, only)

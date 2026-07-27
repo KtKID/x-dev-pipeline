@@ -78,10 +78,10 @@ Token accounting uses the last cumulative Codex `token_count` for the active exe
 
 ```bash
 python3 -m unittest test.test_metrics
-python3 tools/metrics.py aggregate-spec2 skills/x-pipeline-efficiency-workspace/iteration-2
+python3 tools/metrics.py aggregate-spec2 evals/x-pipeline-efficiency-workspace/iteration-2
 python3 evals/answers/voice-chain-end-to-end/evaluate.py \
-  skills/x-pipeline-efficiency-workspace/iteration-2/eval-10-voice-chain-end-to-end/with_skill/run-1/workspace \
-  --output skills/x-pipeline-efficiency-workspace/iteration-2/eval-10-voice-chain-end-to-end/with_skill/run-1/grading.json
+  evals/x-pipeline-efficiency-workspace/iteration-2/eval-10-voice-chain-end-to-end/with_skill/run-1/workspace \
+  --output evals/x-pipeline-efficiency-workspace/iteration-2/eval-10-voice-chain-end-to-end/with_skill/run-1/grading.json
 git diff --check
 ```
 
@@ -89,7 +89,7 @@ The evaluator command needs permission to bind temporary loopback ports.
 
 ## Audit artifacts
 
-- Protocol and artifact index: `skills/x-pipeline-efficiency-workspace/README.md`
+- Protocol and artifact index: `evals/x-pipeline-efficiency-workspace/README.md`
 - Iteration 1 hypothesis and findings: `iteration-1/hypothesis.md`, `iteration-1/findings.md`
 - Iteration 2 hypothesis and findings: `iteration-2/hypothesis.md`, `iteration-2/findings.md`
 - Machine-readable benchmark: `iteration-2/benchmark.json`

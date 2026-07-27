@@ -3,11 +3,11 @@
   "evals": [
     {
       "id": 1,
-      "prompt": "一个外部 Mavis Agent 已经根据 ConfigResolver 题目运行 x-spec3 和 x-req3，产物在候选工作区。请判断这是不是一次 pipeline run，读取 ~/.mavis/sqlite.db 的真实 Token 和耗时，按 evaluator-only rubric 评分，并把报告、事件和扣分知识保存到当前 x-dev-pipeline 项目。",
-      "expected_output": "识别为一个包含 x-spec3、x-req3 和 review phase 的 evaluation run；生成统一 pipeline_run_id、五类 run 产物和知识条目；正确区分执行完成与质量门禁；Token 使用 provider 真源。",
+      "prompt": "一个外部 Mavis Agent 已经根据 ConfigResolver 题目运行 x-spec 和 x-req，产物在候选工作区。请判断这是不是一次 pipeline run，读取 ~/.mavis/sqlite.db 的真实 Token 和耗时，按 evaluator-only rubric 评分，并把报告、事件和扣分知识保存到当前 x-dev-pipeline 项目。",
+      "expected_output": "识别为一个包含 x-spec、x-req 和 review phase 的 evaluation run；生成统一 pipeline_run_id、五类 run 产物和知识条目；正确区分执行完成与质量门禁；Token 使用 provider 真源。",
       "files": [],
       "expectations": [
-        "同一用户任务只生成一个 pipeline_run_id，x-spec3 与 x-req3 记录为 phase",
+        "同一用户任务只生成一个 pipeline_run_id，x-spec 与 x-req 记录为 phase",
         "Mavis Session ID 作为 source_session_id 保存，且通过 workspace、时间和产物写入交叉匹配",
         "报告同时包含五个 Token 分桶、total_with_cache、prompt_to_final_seconds 和 phase 切分依据",
         "rubric 逐条评分，矛盾 Scenario 不能因出现关键词而得分",

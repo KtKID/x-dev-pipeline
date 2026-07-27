@@ -1,7 +1,7 @@
 ---
 name: pipeline-efficiency-benchmark
 description: |
-  把 x-dev-pipeline 的 skill 优化做成可重复 benchmark：迁移公开任务包到隔离 workspace，完整打包候选 skills 与 tools 脚本，预检考生输入，执行 baseline/candidate，归一化 Token、耗时、工具调用、评分和金额，生成跨 iteration 横向对比并判断晋级。用户提到 pipeline efficiency、任务包迁移、干净上下文评测、baseline/iteration 对比、Token/费用优化、计费金额、横向报告或 skills/x-pipeline-efficiency-workspace 时使用。
+  把 x-dev-pipeline 的 skill 优化做成可重复 benchmark：迁移公开任务包到隔离 workspace，完整打包候选 skills 与 tools 脚本，预检考生输入，执行 baseline/candidate，归一化 Token、耗时、工具调用、评分和金额，生成跨 iteration 横向对比并判断晋级。用户提到 pipeline efficiency、任务包迁移、干净上下文评测、baseline/iteration 对比、Token/费用优化、计费金额、横向报告或 evals/x-pipeline-efficiency-workspace 时使用。
 metadata:
   compatibility: Requires Python 3.10+ and local readable task, skill, tool, run telemetry, and grader artifacts.
 ---
@@ -12,7 +12,7 @@ metadata:
 
 ## 适用边界
 
-用于优化和评测 pipeline skill，不用于普通产品开发任务。一个独立模型运行对应一个 run；同一 run 的后续 Req3、Dev、Verify、QA、Fix 延续原 run 身份。独立重放创建新 run。
+用于优化和评测 pipeline skill，不用于普通产品开发任务。一个独立模型运行对应一个 run；同一 run 的后续 req、Dev、Verify、QA、Fix 延续原 run 身份。独立重放创建新 run。
 
 ## 固定产物
 
@@ -76,9 +76,9 @@ python3 skills/pipeline-efficiency-benchmark/scripts/prepare_workspace.py \
 
 `--skills-root` 目录必须包含：
 
-- `x-spec3`
+- `x-spec`
 - `x-adversarial-risk`
-- `x-req3`
+- `x-req`
 - `x-dev`
 - `x-verify`
 - `x-qa-gate`
@@ -93,7 +93,7 @@ skill 包的 `assets/executor-tools/` 包含七个工具。prepare 向考生 wor
 - `xdev.py`
 - `validator.py`
 - `flag.py`
-- `req3.py`
+- `req.py`
 - `spec.py`
 - `verify.py`
 
@@ -135,9 +135,9 @@ exit 0 才能启动执行器。exit 1 保持阻断并修复打包问题。
 运行链：
 
 ```text
-x-spec3
+x-spec
   → 按风险预算调用 x-adversarial-risk
-  → x-req3
+  → x-req
   → x-dev
   → x-verify
   → x-qa-gate

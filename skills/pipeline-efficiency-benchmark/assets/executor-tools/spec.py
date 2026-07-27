@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""iteration-7 x-spec3 的确定性文档校验引擎。
+"""iteration-7 x-spec 的确定性文档校验引擎。
 
 核心职责：
 1. 解析 ``docs/spec/<name>/spec.md`` 的元数据、章节、表格和 Scenario。
-2. 校验风险评分、审查预算、RAG/no-corpus 路径及 x-req3 就绪状态。
-3. 向 ``xdev.py``、``req3.py`` 和独立命令行提供统一的 issue 列表。
+2. 校验风险评分、审查预算、RAG/no-corpus 路径及 x-req 就绪状态。
+3. 向 ``xdev.py``、``req.py`` 和独立命令行提供统一的 issue 列表。
 
 职责边界：本模块只读，不生成或修改 spec/task 文件。task 拆解、覆盖关系、
-状态和文件 scaffold 由 ``req3.py`` 负责，统一 CLI 分发由 ``xdev.py`` 负责。
+状态和文件 scaffold 由 ``req.py`` 负责，统一 CLI 分发由 ``xdev.py`` 负责。
 """
 
 # 设计说明：公开函数提供包识别、Scenario/边界读取和完整校验；以下划线开头
 # 的函数负责 Markdown 解析及各子契约。所有 issue 保留原始行号，V19 表示
-# spec3 文档/风险契约问题，V20 表示 Scenario 契约问题。
+# spec 文档/风险契约问题，V20 表示 Scenario 契约问题。
 
 from __future__ import annotations
 
@@ -64,7 +64,7 @@ REVIEW_HEADER = (
     "CLI",
 )
 
-SPEC3_MARKER_RE = re.compile(r"^>\s*spec_version:\s*3\s*$", re.IGNORECASE)
+SPEC_MARKER_RE = re.compile(r"^>\s*spec_version:\s*3\s*$", re.IGNORECASE)
 FIELD_RE = re.compile(r"^>\s*([a-z_]+):\s*(.*?)\s*$")
 H1_RE = re.compile(r"^#\s+(.+?)\s*$")
 H2_RE = re.compile(r"^##\s+(.+?)\s*$")
@@ -102,7 +102,7 @@ def issue(file: str, line: int, rule: str, msg: str) -> dict:
 
 
 def normalize_module_name(value: str) -> str:
-    """归一化 Markdown/Mermaid 模块标签，供 spec3 边界图做词法比对。"""
+    """归一化 Markdown/Mermaid 模块标签，供 spec 边界图做词法比对。"""
     value = re.sub(r"<br\s*/?>.*$", "", value, flags=re.IGNORECASE)
     value = value.split("·", 1)[0]
     value = re.split(r"[：:]", value, maxsplit=1)[0]
@@ -142,23 +142,23 @@ def expected_budget(complexity: int, importance: int) -> str:
     return "standard"
 
 
-def has_spec3_marker(spec_dir: Path) -> bool:
+def has_spec_marker(spec_dir: Path) -> bool:
     """判断目录中的 spec.md 是否包含代码围栏外的 spec_version: 3 标记。"""
     spec_md = spec_dir / "spec.md"
     if not spec_md.is_file():
         return False
     lines = _outside_fences(read_text(spec_md).splitlines())
-    return any(SPEC3_MARKER_RE.match(line.strip()) for line in lines)
+    return any(SPEC_MARKER_RE.match(line.strip()) for line in lines)
 
 
-def looks_like_spec3(spec_dir: Path) -> bool:
-    """识别 marker 完整或正在填写 iteration-7 风险头部的 spec3 包。"""
+def looks_like_spec(spec_dir: Path) -> bool:
+    """识别 marker 完整或正在填写 iteration-7 风险头部的 spec 包。"""
     spec_md = spec_dir / "spec.md"
     if not spec_md.is_file():
         return False
     lines = _outside_fences(read_text(spec_md).splitlines())
     return any(
-        SPEC3_MARKER_RE.match(line.strip())
+        SPEC_MARKER_RE.match(line.strip())
         or re.match(r"^>\s*adversarial_risk_version\s*:", line)
         for line in lines[:8]
     )
@@ -327,7 +327,7 @@ def _metadata_issues(lines: list[str], require_ready: bool) -> tuple[dict[str, s
         ))
     elif status == "pending" and require_ready:
         issues.append(issue(
-            "spec.md", 7, "V19", "对抗性风险审查仍为 pending，阻断 x-req3",
+            "spec.md", 7, "V19", "对抗性风险审查仍为 pending，阻断 x-req",
         ))
     return metadata, issues
 
@@ -430,7 +430,7 @@ def boundary_module_names(spec_dir: Path) -> dict[str, str]:
 
 
 def _package_issues(spec_dir: Path) -> list[dict]:
-    """检查 spec3 根目录保持单文件结构，只允许 spec.md、隐藏项和 tasks/。"""
+    """检查 spec 根目录保持单文件结构，只允许 spec.md、隐藏项和 tasks/。"""
     issues: list[dict] = []
     try:
         entries = list(spec_dir.iterdir())
@@ -445,7 +445,7 @@ def _package_issues(spec_dir: Path) -> list[dict]:
             entry.name,
             0,
             "V19",
-            f"spec3 单文件包根目录只允许 spec.md 和后续 tasks/：{entry.name}",
+            f"spec 单文件包根目录只允许 spec.md 和后续 tasks/：{entry.name}",
         ))
     return issues
 
@@ -563,7 +563,7 @@ def _table_issues(lines: list[str], require_ready: bool) -> list[dict]:
             elif status == "待确认" and require_ready:
                 issues.append(issue(
                     "spec.md", number, "V19",
-                    f"判断 {judgment_id} 仍为待确认，spec3 不可交接 x-req3",
+                    f"判断 {judgment_id} 仍为待确认，spec 不可交接 x-req",
                 ))
         for judgment_id, count in ids.items():
             if judgment_id and count > 1:
@@ -915,10 +915,10 @@ def _scenario_issues(
 
 
 def validate_issues(spec_dir: Path, *, require_ready: bool = True) -> list[dict]:
-    """聚合全部 iteration-7 spec3 机械校验；默认同时执行 x-req3 就绪门禁。"""
+    """聚合全部 iteration-7 spec 机械校验；默认同时执行 x-req 就绪门禁。"""
     spec_md = spec_dir / "spec.md"
     if not spec_md.is_file():
-        return [issue("(package)", 0, "V19", "spec3 包缺少 spec.md")]
+        return [issue("(package)", 0, "V19", "spec 包缺少 spec.md")]
     lines = _outside_fences(read_text(spec_md).splitlines())
     metadata, issues = _metadata_issues(lines, require_ready)
     issues.extend(_package_issues(spec_dir))
@@ -938,18 +938,18 @@ def validate_command(spec_dir: Path, *, as_json: bool, require_ready: bool) -> i
     try:
         issues = validate_issues(spec_dir, require_ready=require_ready)
     except OSError as exc:
-        print(f"错误：读取 spec3 失败：{exc}", file=sys.stderr)
+        print(f"错误：读取 spec 失败：{exc}", file=sys.stderr)
         return 2
     payload = {
         "path": str(spec_dir),
-        "type": "spec3",
+        "type": "spec",
         "require_ready": require_ready,
         "issues": issues,
     }
     if as_json:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
-        print(f"== {spec_dir}  [spec3]")
+        print(f"== {spec_dir}  [spec]")
         if not issues:
             print("   ok")
         for item in issues:
@@ -962,9 +962,9 @@ def validate_command(spec_dir: Path, *, as_json: bool, require_ready: bool) -> i
 
 def main(argv: list[str] | None = None) -> int:
     """解析独立 CLI 的 validate 子命令和 --json/--allow-pending 参数。"""
-    parser = argparse.ArgumentParser(description="iteration-7 x-spec3 确定性校验")
+    parser = argparse.ArgumentParser(description="iteration-7 x-spec 确定性校验")
     subparsers = parser.add_subparsers(dest="command", required=True)
-    validate_parser = subparsers.add_parser("validate", help="校验 spec3 单文件包")
+    validate_parser = subparsers.add_parser("validate", help="校验 spec 单文件包")
     validate_parser.add_argument("spec_dir", type=Path)
     validate_parser.add_argument("--json", action="store_true")
     validate_parser.add_argument(
