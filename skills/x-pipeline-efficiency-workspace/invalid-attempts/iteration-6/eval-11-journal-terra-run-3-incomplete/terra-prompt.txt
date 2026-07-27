@@ -1,0 +1,1 @@
+完整读取 task/ 下的五份任务文档，使用 workspace 中 $x-spec3 产出 docs/spec/journal-index-recovery/spec.md，遵循提供的 skill 工作流，并保存 artifacts/spec.initial.md、artifacts/spec.final.md、artifacts/run-summary.json。

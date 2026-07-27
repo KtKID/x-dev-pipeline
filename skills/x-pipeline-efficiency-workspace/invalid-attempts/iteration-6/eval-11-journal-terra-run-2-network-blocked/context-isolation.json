@@ -1,0 +1,55 @@
+{
+  "run_status": "blocked_pending_explicit_egress_approval",
+  "run_path": "skills/x-pipeline-efficiency-workspace/iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-2",
+  "workspace": "skills/x-pipeline-efficiency-workspace/iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-2/workspace",
+  "requested_model": "gpt-5.6-terra",
+  "requested_reasoning_effort": "xhigh",
+  "inherited_turns": 0,
+  "effective_thread_id": null,
+  "failed_startup_threads": [
+    {
+      "thread_id": "019f8ff8-1c57-7103-b8b9-1da4bf44a8dd",
+      "reason": "sandbox blocked chatgpt.com websocket and HTTP access before any model event",
+      "model_events": 0,
+      "tool_calls": 0,
+      "token_usage": 0,
+      "log": "session.failed-network.jsonl",
+      "stderr": "stderr.failed-network.log"
+    }
+  ],
+  "initial_user_prompt": "完整读取 task 下五份任务文档，使用 workspace 中 $x-spec3 产出 docs/spec/journal-index-recovery/spec.md，遵循所提供 skill 工作流，并保存 artifacts/spec.initial.md、artifacts/spec.final.md、artifacts/run-summary.json。",
+  "task_inputs": [
+    "task/00-overview.md",
+    "task/01-record-and-state.md",
+    "task/02-recovery-and-compaction.md",
+    "task/03-cli-and-concurrency.md",
+    "task/specs/storage-layout.md"
+  ],
+  "available_skills": [
+    "skills/x-spec3",
+    "skills/x-adversarial-risk"
+  ],
+  "isolation_controls": {
+    "clean_codex_home": true,
+    "ignore_user_config": true,
+    "ignore_project_rules": true,
+    "memories_disabled": true,
+    "plugins_disabled": true,
+    "apps_disabled": true,
+    "remote_plugins_disabled": true,
+    "workspace_write_scope": "new run-2/workspace only",
+    "old_run_content_access": "only the five explicitly allowed public task files were mechanically copied",
+    "hidden_grading_access": "none",
+    "iteration_5_access": "none",
+    "credential_copy_removed_from_run_artifacts": true
+  },
+  "input_copy_verification": {
+    "task_files_sha256_match_source": true,
+    "candidate_skill_files_sha256_match_iteration_6_source": true
+  },
+  "blocker": {
+    "type": "tenant_egress_approval",
+    "detail": "The tenant reviewer requires explicit user approval after disclosure that the five public task files and the two iteration-6 candidate skills will be sent to the ChatGPT Terra backend.",
+    "safe_resume": "Create another fresh gpt-5.6-terra thread with xhigh reasoning and inherited_turns=0 after explicit approval."
+  }
+}
