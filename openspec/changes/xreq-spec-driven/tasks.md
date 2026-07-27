@@ -21,10 +21,10 @@
 
 ### 1.2 `tools/xdev.py` 分流与清理
 
-- [ ] 1.2.1 遇 `docs/spec/*/tasks/` 委托 req.py；**删除旧结构 README 检测、V8-V12 旧分支与 V11/V12 README 契约校验**
+- [x] 1.2.1 遇 `docs/spec/*/tasks/` 委托 req.py；**删除旧结构 README 检测、V8-V12 旧分支与 V11/V12 README 契约校验**（由 `xdev-orchestrator-slimdown` 完成）
 - [x] 1.2.2 路径发现：显式 validate/status/graph/verify/flag 支持 `docs/spec/*/tasks/`；自动发现继续不扫 task；validate/status/graph 委托 req.py，verify 委托 verify.py；`flag` 不需要委托——其表格定位按关键词找 "#"/"状态" 列，不关心中间列数，对新旧表头原生兼容，已用 req2 checklist 实测验证（T3 正确降级 + ledger 正确生成）
 - [x] 1.2.3 spec / change 规则零改动；xdev.py 不内嵌任何新表头解析
-- [ ] 1.2.4 修 `check_req_scenario`：校验 change delta 时跳过 `## REMOVED Requirements` 段的 Requirement（当前对 REMOVED 的 Requirement 误报 V3 缺 Scenario，与官方 openspec CLI 豁免行为不一致）
+- [x] 1.2.4 修 `check_req_scenario`：校验 change delta 时跳过 `## REMOVED Requirements` 段的 Requirement，保留 ADDED/MODIFIED 的完整 Scenario 门禁
 - [x] 1.2.5 修复 `instructions` 命令的产物模板路径指向已搬迁的旧目录 `skills/x-req/`：`ba2ea44` 把旧结构 `skills/x-req` 整体归档到 `deprecated/x-req/`（非改名到 `x-req2`——`x-req2` 是表头/流程都不同的全新精简结构，无 README 模板），`xdev.py` 的 `ARTIFACTS` 注册表（readme/dev-checklist/diagram 三个模板路径）未同步，导致 `instructions` 命令三个 artifact 全部读模板失败（`FileNotFoundError`，标准库测试 `test_xdev_artifacts.py::TestInstructions` 首次跑全量测试时暴露）。旧结构 `instructions`/V8-V12 校验按 1.2.1（未做）仍存活，故模板须指向表头兼容的旧版本：改为 `deprecated/x-req/templates/...`（曾误改成 `skills/x-req2/templates/...`，因表头不兼容且缺 README 模板已改正）
 
 ### 1.3 测试夹具（`test/`）

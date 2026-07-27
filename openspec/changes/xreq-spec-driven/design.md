@@ -68,7 +68,7 @@
 | change 包 | — | — | 校验原样 |
 | checklist 表头解析 | 唯一实现（供 status/graph/verify 复用） | 调用 req.py，不自造 | 需要时 import req.py，不自造 |
 | flag / issue ledger | — | — | 原样 |
-| 旧结构 task（dev-pipeline/tasks/） | 不支持 | 迁移期间保留 legacy verify | 旧校验分支按 1.2.1 后续删除 |
+| 旧结构 task（dev-pipeline/tasks/） | 不支持 | 不支持 | 旧校验与编排分支已由 `xdev-orchestrator-slimdown` 删除 |
 
 衔接（已决 A）：命令入口统一 `python3 tools/xdev.py <cmd>`；scaffold/validate/status/graph 委托 `req.py`，verify 委托 `verify.py`。两个模块都作为被 import 的引擎模块，不单独作主 CLI 入口——下游 x-dev/x-verify/x-qa-gate 的命令零变化。
 

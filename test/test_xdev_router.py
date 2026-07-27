@@ -57,6 +57,40 @@ class TestModuleOwnership(unittest.TestCase):
         self.assertTrue(hasattr(flag_engine, "recover_flag_transaction"))
 
 
+class TestChangeValidation(unittest.TestCase):
+    def test_removed_requirement_does_not_require_scenario(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            change = Path(tmp) / "change"
+            delta = change / "specs" / "demo"
+            delta.mkdir(parents=True)
+            (change / "proposal.md").write_text("# Proposal\n", encoding="utf-8")
+            (change / "tasks.md").write_text("# Tasks\n", encoding="utf-8")
+            (delta / "spec.md").write_text(
+                """## ADDED Requirements
+
+### Requirement: Active
+
+#### Scenario: Valid
+
+- **GIVEN** active input
+- **WHEN** validation runs
+- **THEN** the scenario passes
+
+## REMOVED Requirements
+
+### Requirement: Historical
+
+**Reason**: retired
+""",
+                encoding="utf-8",
+            )
+
+            result = validator.validate_pkg(change, include_legacy=False)
+
+        self.assertEqual(result["type"], "change")
+        self.assertEqual(result["issues"], [])
+
+
 class TestCurrentTaskRouting(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()

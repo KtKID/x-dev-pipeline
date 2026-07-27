@@ -244,8 +244,21 @@ def check_req_scenario(pkg: Path, ptype: str):
         if not f.exists():
             continue
         rel = str(f.relative_to(pkg))
+        lines = list(lines_outside_fences(read_text(f)))
+        if ptype == "change":
+            active_lines: list[tuple[int, str]] = []
+            in_removed = False
+            for line_number, value in lines:
+                if H2_RE.match(value):
+                    delta = DELTA_HEAD_RE.match(value)
+                    in_removed = bool(delta and delta.group(1) == "REMOVED")
+                    if in_removed:
+                        continue
+                if not in_removed:
+                    active_lines.append((line_number, value))
+            lines = active_lines
         yield from scenario_contract_issues(
-            list(lines_outside_fences(read_text(f))), rel, "legacy",
+            lines, rel, "legacy",
         )
 
 

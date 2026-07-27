@@ -1,0 +1,3 @@
+schema: spec-driven
+created: 2026-07-25
+goal: 将 xdev.py 收敛为薄 CLI 编排器并保持当前 spec2/spec3/task/verify/flag 契约
