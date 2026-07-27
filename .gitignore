@@ -13,3 +13,20 @@ docs/spec/codex-session-metrics/tasks/
 skills/x-pipeline-efficiency-workspace/iteration-2/eval-10-voice-chain-end-to-end/with_skill/run-1/workspace/tools/__pycache__
 .*/__pycache__
 *.pyc
+
+# Local configuration backups and packaged skill archives
+/.claude/settings.local.json.*
+/skills/*.skill
+
+# Atomic task-state scratch files
+**/.dev-checklist.md.flag-*.tmp
+
+# Benchmark runner sandboxes and local runtime state
+skills/x-pipeline-efficiency-workspace/**/run-*/workspace/
+skills/x-pipeline-efficiency-workspace/**/full-pipeline-run-*/workspace/
+skills/x-pipeline-efficiency-workspace/invalid-attempts/**/workspace/
+skills/x-pipeline-efficiency-workspace/**/codex-home/
+skills/x-pipeline-efficiency-workspace/**/grader-workspace/
+
+# Generated reviewer input snapshots; the review reports are canonical
+**/reports/qa-gate/context/
