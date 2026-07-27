@@ -1,0 +1,12 @@
+transaction_id,type,amount,status,created_at
+T001,credit,100.00,posted,2026-07-01T09:00:00Z
+T002,debit,25.50,posted,2026-07-01T10:00:00Z
+T003,credit,10.00,reversed,2026-07-01T11:00:00Z
+T002,debit,5.00,posted,2026-07-01T12:00:00Z
+T004,debit,-3.00,posted,2026-07-01T13:00:00Z
+T005,credit,12.345,posted,2026-07-01T14:00:00Z
+T006,credit,abc,posted,2026-07-01T15:00:00Z
+T007,refund,8.00,posted,2026-07-01T16:00:00Z
+T008,credit,20.00,pending,2026-07-01T17:00:00Z
+T009,credit,30.00,posted,bad-date
+T010,debit,4.50,posted,2026-07-02T09:00:00Z
