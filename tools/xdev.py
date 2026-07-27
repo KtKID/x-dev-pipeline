@@ -3,8 +3,8 @@
 
 本文件只负责参数解析、目标发现和引擎分流：
 
-- validator.py：spec3/spec7/change/capability 包校验
-- req3.py：spec3 task 的 scaffold/validate/instructions/status/graph
+- validator.py：spec/spec7/change/capability 包校验
+- req.py：spec task 的 scaffold/validate/instructions/status/graph
 - verify.py：Gate ① 事实验证
 - flag.py：QA Gate issue ledger 与状态降级事务
 
@@ -29,7 +29,7 @@ import sys
 from pathlib import Path
 
 import flag as flag_engine
-import req3
+import req
 import validator
 import verify as verify_engine
 
@@ -50,9 +50,9 @@ def discover(root: Path) -> list[Path]:
 
 
 def validate_target(target: Path, include_legacy: bool) -> dict:
-    """按 spec3 task 或 package 类型委托对应校验引擎。"""
-    if req3.spec_of_task_dir(target) is not None:
-        if req3.resolve_spec_dir(target) is None:
+    """按 spec task 或 package 类型委托对应校验引擎。"""
+    if req.spec_of_task_dir(target) is not None:
+        if req.resolve_spec_dir(target) is None:
             return {
                 "path": str(target),
                 "type": "unsupported-task",
@@ -66,19 +66,19 @@ def validate_target(target: Path, include_legacy: bool) -> dict:
             }
         return {
             "path": str(target),
-            "type": "req3-task",
+            "type": "req-task",
             "skipped": False,
-            "issues": req3.validate_issues(target),
+            "issues": req.validate_issues(target),
         }
     return validator.validate_pkg(target, include_legacy)
 
 
 def task_engine(task_dir: Path):
-    """仅为父 spec 声明 spec_version: 3 的 task 返回 req3 引擎。"""
-    if req3.spec_of_task_dir(task_dir) is None:
+    """仅为父 spec 声明 spec_version: 3 的 task 返回 req 引擎。"""
+    if req.spec_of_task_dir(task_dir) is None:
         return None
-    if req3.resolve_spec_dir(task_dir) is not None:
-        return req3
+    if req.resolve_spec_dir(task_dir) is not None:
+        return req
     return None
 
 

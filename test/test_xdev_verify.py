@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""req3 verify 块解析、执行边界和模块所有权测试。"""
+"""req verify 块解析、执行边界和模块所有权测试。"""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ import sys
 
 sys.path.insert(0, str(ROOT / "tools"))
 
-import req3  # noqa: E402
+import req  # noqa: E402
 import verify as verify_engine  # noqa: E402
 import xdev  # noqa: E402
 
@@ -107,13 +107,13 @@ class TestVerifyOwnership(unittest.TestCase):
             "project_root_of_task_dir",
             "verify_cwd",
             "execute_verify_block",
-            "verify_req3",
+            "verify_req",
             "verify",
         }
         for name in owned_names:
             self.assertTrue(hasattr(verify_engine, name), name)
             self.assertFalse(hasattr(xdev, name), f"xdev.{name}")
-            self.assertFalse(hasattr(req3, name), f"req3.{name}")
+            self.assertFalse(hasattr(req, name), f"req.{name}")
         for removed_name in {
             "acceptance_scenarios",
             "acceptance_defects",

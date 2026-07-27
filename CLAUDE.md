@@ -34,15 +34,15 @@ x-dev-pipeline/
 ## 核心管线
 
 ```
-x-spec3 ─→ x-adversarial-risk ─→ x-req3 ─→ x-dev ─→ x-verify ─→ x-qa-gate ─→ x-fix
+x-spec ─→ x-adversarial-risk ─→ x-req ─→ x-dev ─→ x-verify ─→ x-qa-gate ─→ x-fix
 (docs/spec/)   双评分+对抗 Scenario    (task/)       验证是否符合spec.md      批量修+增量复审
                                                    命令+smoke/e2e 风险路由：默认 RC 综合 / 高危 R1→R2→R3
 
 ```
 
-- x-spec3 产出 `docs/spec/<spec-name>/spec.md` 第一版，记录复杂度/重要性、预算和 `initial-spec` Scenario
+- x-spec 产出 `docs/spec/<spec-name>/spec.md` 第一版，记录复杂度/重要性、预算和 `initial-spec` Scenario
 - x-adversarial-risk 按预算检查第一版；standard 不读错题集，deep/full 才读取自身独立错题集并补 `adversarial-review` Scenario
-- x-req3 只接收风险状态为 `skipped-standard` 或 `complete` 的新风险契约，产出 `docs/spec/<spec-name>/tasks/<task>/`
+- x-req 只接收风险状态为 `skipped-standard` 或 `complete` 的新风险契约，产出 `docs/spec/<spec-name>/tasks/<task>/`
 - `tools/xdev.py` 只做 CLI 分流；package、task、verify、flag 逻辑分别归各自引擎
 - x-plan 已废弃，功能合并到 x-req
 
@@ -52,7 +52,7 @@ x-spec3 ─→ x-adversarial-risk ─→ x-req3 ─→ x-dev ─→ x-verify ─
 
 | 契约 | 内容 |
 |------|------|
-| Spec 风险门禁 | x-spec3 写 `adversarial_risk_version: 3`、复杂度/重要性/平均分/预算、`pending` 状态和 `initial-spec` 来源；x-adversarial-risk 完成对抗检查并写审查记录；x-req3 复跑 `risk_contract.py validate-spec` 后才拆解 |
+| Spec 风险门禁 | x-spec 写 `adversarial_risk_version: 3`、复杂度/重要性/平均分/预算、`pending` 状态和 `initial-spec` 来源；x-adversarial-risk 完成对抗检查并写审查记录；x-req 复跑 `risk_contract.py validate-spec` 后才拆解 |
 | 风险错题集边界 | `skills/x-adversarial-risk/references/risk-mistakes.md` 只由 x-adversarial-risk 在 deep/full 审查或录入已确认缺口时读取；每项使用唯一 `AR-NNN`，并只保存关键词与 Risk |
 | spec 需求包目录 | x-spec 产出 `docs/spec/<spec-name>/`，`docs/spec/README.md` 汇总 spec 导航。x-req 的 README `spec:` 字段指向 `docs/spec/<spec-name>`，一个 task 只归属一个 spec |
 | `dev-report.md` schema | x-dev 使用 `skills/x-dev/templates/dev-report-template.md`（含 `risk: default/high` 字段，Gate ② 路由依据）；x-verify 的必跑清单 = dev-report 命令表 + task README Smoke/E2E 用例（manual 用例列入待人工验收）；x-qdev 默认使用 `skills/x-qdev/templates/dev-report.md`，用户指定完整门禁时改用 x-dev schema |

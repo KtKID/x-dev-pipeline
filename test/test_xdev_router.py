@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 
 import flag as flag_engine  # noqa: E402
-import req3  # noqa: E402
+import req  # noqa: E402
 import validator  # noqa: E402
 import verify as verify_engine  # noqa: E402
 import xdev  # noqa: E402
@@ -42,13 +42,13 @@ class TestModuleOwnership(unittest.TestCase):
             "topo_sort",
             "flag_command",
             "FlagError",
-            "has_spec3_marker",
+            "has_spec_marker",
         }:
             self.assertFalse(hasattr(xdev, removed_name), removed_name)
         self.assertIs(xdev.validator, validator)
         self.assertIs(xdev.flag_engine, flag_engine)
         self.assertIs(xdev.verify_engine, verify_engine)
-        self.assertIs(xdev.req3, req3)
+        self.assertIs(xdev.req, req)
 
     def test_engines_own_moved_functions(self):
         self.assertTrue(hasattr(validator, "detect_type"))
@@ -106,7 +106,7 @@ class TestCurrentTaskRouting(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def test_req3_instructions_uses_current_registry(self):
+    def test_req_instructions_uses_current_registry(self):
         code, output, error = capture(
             "instructions",
             "dev-checklist",
@@ -116,7 +116,7 @@ class TestCurrentTaskRouting(unittest.TestCase):
         )
         self.assertEqual(code, 0, error)
         payload = json.loads(output)
-        self.assertEqual(payload["profile"], "req3")
+        self.assertEqual(payload["profile"], "req")
         self.assertEqual(payload["artifact"], "dev-checklist")
         self.assertEqual(payload["requires"], [])
         self.assertIn("Scenario IDs", payload["template"])

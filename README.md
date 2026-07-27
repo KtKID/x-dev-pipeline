@@ -57,11 +57,11 @@ The user can explicitly set the risk. Q0/Q1 prepare and execute directly; Q2/Q3 
 Spec3 packages use a risk gate before task decomposition:
 
 ```text
-user request → x-spec3 → x-adversarial-risk → x-req3 → x-dev
+user request → x-spec → x-adversarial-risk → x-req → x-dev
                     score + initial tests   adversarial tests
 ```
 
-x-spec3 records 1–5 complexity and importance scores and marks first-draft Scenarios as `initial-spec`. x-adversarial-risk selects a standard, deep, or full budget; deep/full runs load its private mistake corpus and append only applicable counterexample Scenarios with `adversarial-review` provenance. x-req3 blocks a versioned Spec while its adversarial review is pending.
+x-spec records 1–5 complexity and importance scores and marks first-draft Scenarios as `initial-spec`. x-adversarial-risk selects a standard, deep, or full budget; deep/full runs load its private mistake corpus and append only applicable counterexample Scenarios with `adversarial-review` provenance. x-req blocks a versioned Spec while its adversarial review is pending.
 
 ## Acceptance and evidence
 
@@ -110,7 +110,7 @@ expect_contains: passed
 ## Deterministic engine
 
 `tools/xdev.py` is the thin unified CLI for mechanical rules outside skill prose. Package validation
-is owned by `tools/validator.py`, spec3 task planning by `tools/req3.py`, verification by
+is owned by `tools/validator.py`, spec task planning by `tools/req.py`, verification by
 `tools/verify.py`, and QA issue transactions by `tools/flag.py`:
 
 ```text

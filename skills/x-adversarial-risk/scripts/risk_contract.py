@@ -210,7 +210,7 @@ def validate_spec(text: str) -> list[Issue]:
             Issue(
                 "SPEC_PENDING",
                 _line_number(lines, "adversarial_review:"),
-                "对抗性风险审查仍为 pending，阻断 x-req3",
+                "对抗性风险审查仍为 pending，阻断 x-req",
             )
         )
     elif status == "skipped-standard" and budget != "standard":

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""iteration-7 spec3 独立校验引擎测试。"""
+"""iteration-7 spec 独立校验引擎测试。"""
 
 from __future__ import annotations
 
@@ -15,7 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 
-import req3  # noqa: E402
+import req  # noqa: E402
 import spec as spec_engine  # noqa: E402
 import validator  # noqa: E402
 import xdev  # noqa: E402
@@ -152,8 +152,8 @@ class TestCurrentSpec3Contract(SpecEngineTestCase):
     def test_standard_no_corpus_contract_is_valid_through_all_entrypoints(self):
         spec_dir = self.write_spec(standard_spec())
         self.assertEqual(spec_engine.validate_issues(spec_dir), [])
-        self.assertEqual(req3.spec3_contract_issues(spec_dir), [])
-        self.assertEqual(validator.detect_type(spec_dir), "spec3")
+        self.assertEqual(req.spec_contract_issues(spec_dir), [])
+        self.assertEqual(validator.detect_type(spec_dir), "spec")
         self.assertEqual(validator.validate_pkg(spec_dir, include_legacy=False)["issues"], [])
 
     def test_standalone_cli_returns_machine_readable_result(self):
@@ -163,7 +163,7 @@ class TestCurrentSpec3Contract(SpecEngineTestCase):
             code = spec_engine.main(["validate", str(spec_dir), "--json"])
         self.assertEqual(code, 0)
         payload = json.loads(stdout.getvalue())
-        self.assertEqual(payload["type"], "spec3")
+        self.assertEqual(payload["type"], "spec")
         self.assertEqual(payload["issues"], [])
 
     def test_completed_full_top5_and_rag_source_are_valid(self):
@@ -202,14 +202,14 @@ class TestCurrentSpec3Contract(SpecEngineTestCase):
         self.assertIn("risk_average 应为 2.0", messages)
         self.assertIn("review_budget 应为 standard", messages)
 
-    def test_pending_is_structurally_valid_but_blocks_req3_readiness(self):
+    def test_pending_is_structurally_valid_but_blocks_req_readiness(self):
         text = full_top5_spec().replace(
             "> adversarial_review: complete", "> adversarial_review: pending",
         )
         spec_dir = self.write_spec(text)
-        self.assertIn("阻断 x-req3", self.messages(spec_dir))
+        self.assertIn("阻断 x-req", self.messages(spec_dir))
         structural = spec_engine.validate_issues(spec_dir, require_ready=False)
-        self.assertNotIn("阻断 x-req3", " ".join(item["msg"] for item in structural))
+        self.assertNotIn("阻断 x-req", " ".join(item["msg"] for item in structural))
 
     def test_tables_model_and_e2e_decision_are_checked(self):
         text = standard_spec().replace(

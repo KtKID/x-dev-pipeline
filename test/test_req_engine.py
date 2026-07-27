@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""x-req3 单文件 spec3 → task → verify 契约测试。"""
+"""x-req 单文件 spec → task → verify 契约测试。"""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "tools"))
 
-import req3  # noqa: E402
+import req  # noqa: E402
 import validator  # noqa: E402
 import verify as verify_engine  # noqa: E402
 import xdev  # noqa: E402
@@ -40,7 +40,7 @@ class Req3EngineTestCase(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
         self.addCleanup(self.tmp.cleanup)
-        patcher = patch.object(req3, "PLUGIN_ROOT", ROOT)
+        patcher = patch.object(req, "PLUGIN_ROOT", ROOT)
         patcher.start()
         self.addCleanup(patcher.stop)
 
@@ -141,15 +141,15 @@ class Req3EngineTestCase(unittest.TestCase):
 
 
 class TestSpec3Profile(Req3EngineTestCase):
-    def test_spec3_is_detected_and_contract_is_valid(self):
+    def test_spec_is_detected_and_contract_is_valid(self):
         spec_dir = self.make_spec()
-        self.assertEqual(validator.detect_type(spec_dir), "spec3")
-        self.assertEqual(req3.spec3_contract_issues(spec_dir), [])
+        self.assertEqual(validator.detect_type(spec_dir), "spec")
+        self.assertEqual(req.spec_contract_issues(spec_dir), [])
         result = validator.validate_pkg(spec_dir, include_legacy=False)
-        self.assertEqual(result["type"], "spec3")
+        self.assertEqual(result["type"], "spec")
         self.assertEqual(result["issues"], [])
 
-    def test_spec3_requires_nonempty_module_risk(self):
+    def test_spec_requires_nonempty_module_risk(self):
         spec_dir = self.make_spec()
         spec_path = spec_dir / "spec.md"
         spec_path.write_text(
@@ -158,11 +158,11 @@ class TestSpec3Profile(Req3EngineTestCase):
             ),
             encoding="utf-8",
         )
-        issues = req3.spec3_contract_issues(spec_dir)
+        issues = req.spec_contract_issues(spec_dir)
         self.assertIn("V19", [item["rule"] for item in issues])
         self.assertIn("主要风险为空", " ".join(item["msg"] for item in issues))
 
-    def test_pending_judgment_blocks_spec3_readiness(self):
+    def test_pending_judgment_blocks_spec_readiness(self):
         spec_dir = self.make_spec()
         spec_path = spec_dir / "spec.md"
         spec_path.write_text(
@@ -172,12 +172,12 @@ class TestSpec3Profile(Req3EngineTestCase):
             ),
             encoding="utf-8",
         )
-        issues = req3.spec3_contract_issues(spec_dir)
+        issues = req.spec_contract_issues(spec_dir)
         self.assertIn("判断 J1 仍为待确认", " ".join(item["msg"] for item in issues))
 
     def test_scenario_parser_uses_stable_id_name_and_layer(self):
         spec_dir = self.make_spec()
-        scenarios = req3.spec_scenarios(spec_dir / "spec.md")
+        scenarios = req.spec_scenarios(spec_dir / "spec.md")
         self.assertEqual(
             [(item["id"], item["name"], item["layer"]) for item in scenarios],
             [("SC_01", "标量覆盖", "unit"), ("SC_02", "真实链路", "e2e")],
@@ -192,7 +192,7 @@ class TestSpec3Profile(Req3EngineTestCase):
             ),
             encoding="utf-8",
         )
-        issues = req3.spec3_contract_issues(spec_dir)
+        issues = req.spec_contract_issues(spec_dir)
         self.assertIn("Scenario ID 重复：SC_01", " ".join(item["msg"] for item in issues))
 
     def test_scenario_id_requires_two_digit_format(self):
@@ -202,7 +202,7 @@ class TestSpec3Profile(Req3EngineTestCase):
             spec_path.read_text(encoding="utf-8").replace("SC_01", "SC_1"),
             encoding="utf-8",
         )
-        issues = req3.spec3_contract_issues(spec_dir)
+        issues = req.spec_contract_issues(spec_dir)
         self.assertIn(
             "Scenario 标题必须为 `### Scenario SC_01: <可判定行为名称>`",
             " ".join(item["msg"] for item in issues),
@@ -215,7 +215,7 @@ class TestSpec3Profile(Req3EngineTestCase):
         text = text.replace("Scenario SC_01", "Scenario SC_02", 1)
         text = text.replace("Scenario SC_02: 真实链路", "Scenario SC_01: 真实链路", 1)
         spec_path.write_text(text, encoding="utf-8")
-        issues = req3.spec3_contract_issues(spec_dir)
+        issues = req.spec_contract_issues(spec_dir)
         self.assertIn(
             "Scenario ID 必须从 SC_01 开始按文档顺序连续递增",
             " ".join(item["msg"] for item in issues),
@@ -228,7 +228,7 @@ class TestSpec3Profile(Req3EngineTestCase):
             spec_path.read_text(encoding="utf-8").replace("SC_02", "SC_03"),
             encoding="utf-8",
         )
-        issues = req3.spec3_contract_issues(spec_dir)
+        issues = req.spec_contract_issues(spec_dir)
         self.assertIn(
             "Scenario ID 必须从 SC_01 开始按文档顺序连续递增",
             " ".join(item["msg"] for item in issues),
@@ -236,13 +236,13 @@ class TestSpec3Profile(Req3EngineTestCase):
 
 
 class TestReq3Task(Req3EngineTestCase):
-    def test_scaffold_dispatches_req3_template(self):
+    def test_scaffold_dispatches_req_template(self):
         self.make_spec()
         task_dir = self.root / "docs" / "spec" / "demo" / "tasks" / "resolver"
         code, output, error = capture(xdev.main, ["scaffold", str(task_dir), "--json"])
         self.assertEqual(code, 0, error)
         payload = json.loads(output)
-        self.assertEqual(payload["profile"], "req3")
+        self.assertEqual(payload["profile"], "req")
         checklist = (task_dir / "dev-checklist.md").read_text(encoding="utf-8")
         self.assertIn("| Scenario IDs |", checklist)
         self.assertNotIn("| Requirement |", checklist)
@@ -260,7 +260,7 @@ class TestReq3Task(Req3EngineTestCase):
         task_dir = spec_dir / "tasks" / "resolver"
         code, _output, error = capture(xdev.main, ["scaffold", str(task_dir), "--json"])
         self.assertEqual(code, 2)
-        self.assertIn("spec3 未通过就绪门禁", error)
+        self.assertIn("spec 未通过就绪门禁", error)
         self.assertFalse((task_dir / "dev-checklist.md").exists())
 
     def test_validate_existing_task_rejects_pending_judgment(self):
@@ -274,7 +274,7 @@ class TestReq3Task(Req3EngineTestCase):
             ),
             encoding="utf-8",
         )
-        issues = req3.validate_issues(task_dir)
+        issues = req.validate_issues(task_dir)
         self.assertIn("R3Q10", [item["rule"] for item in issues])
         self.assertIn("判断 J1 仍为待确认", " ".join(item["msg"] for item in issues))
 
@@ -307,17 +307,17 @@ class TestReq3Task(Req3EngineTestCase):
             encoding="utf-8",
         )
         task_dir = self.make_task()
-        issues = req3.validate_issues(task_dir)
+        issues = req.validate_issues(task_dir)
         self.assertIn("R3Q9", [item["rule"] for item in issues])
         self.assertIn("缺少必需的 diagram.md", " ".join(item["msg"] for item in issues))
 
     def test_validate_and_spec_coverage_accept_complete_task(self):
         spec_dir = self.make_spec()
         task_dir = self.make_task()
-        self.assertEqual(req3.validate_issues(task_dir), [])
-        self.assertEqual(req3.spec_scenario_coverage(spec_dir), [])
+        self.assertEqual(req.validate_issues(task_dir), [])
+        self.assertEqual(req.spec_scenario_coverage(spec_dir), [])
         result = xdev.validate_target(task_dir, include_legacy=False)
-        self.assertEqual(result["type"], "req3-task")
+        self.assertEqual(result["type"], "req-task")
         self.assertEqual(result["issues"], [])
 
     def test_dangling_scenario_is_rejected(self):
@@ -328,7 +328,7 @@ class TestReq3Task(Req3EngineTestCase):
             path.read_text(encoding="utf-8").replace("SC_01 | J1", "SC_99 | J1"),
             encoding="utf-8",
         )
-        issues = req3.validate_issues(task_dir)
+        issues = req.validate_issues(task_dir)
         self.assertIn("R3Q5", [item["rule"] for item in issues])
         self.assertIn("Scenario ID 悬空", " ".join(item["msg"] for item in issues))
 
@@ -340,14 +340,14 @@ class TestReq3Task(Req3EngineTestCase):
         text = text.replace("SC_01 | J1", "SC_01, SC_02 | J1")
         text = "\n".join(line for line in text.splitlines() if "| T2 |" not in line) + "\n"
         path.write_text(text, encoding="utf-8")
-        self.assertEqual(req3.validate_issues(task_dir), [])
-        self.assertEqual(req3.task_scenarios(task_dir), ["SC_01", "SC_02"])
-        self.assertEqual(req3.spec_scenario_coverage(spec_dir), [])
+        self.assertEqual(req.validate_issues(task_dir), [])
+        self.assertEqual(req.task_scenarios(task_dir), ["SC_01", "SC_02"])
+        self.assertEqual(req.spec_scenario_coverage(spec_dir), [])
 
-    def test_status_uses_req3_checklist_parser(self):
+    def test_status_uses_req_checklist_parser(self):
         self.make_spec()
         task_dir = self.make_task()
-        code, output, error = capture(req3.status, task_dir, True)
+        code, output, error = capture(req.status, task_dir, True)
         self.assertEqual(code, 0, error)
         payload = json.loads(output)
         self.assertEqual(payload["progress"], {
@@ -358,10 +358,10 @@ class TestReq3Task(Req3EngineTestCase):
         })
         self.assertEqual([item["id"] for item in payload["tasks"]], ["T1", "T2"])
 
-    def test_graph_uses_req3_dependencies(self):
+    def test_graph_uses_req_dependencies(self):
         self.make_spec()
         task_dir = self.make_task()
-        code, output, error = capture(req3.graph, task_dir, True)
+        code, output, error = capture(req.graph, task_dir, True)
         self.assertEqual(code, 0, error)
         payload = json.loads(output)
         self.assertEqual(payload["order"], ["T1", "T2"])
@@ -377,7 +377,7 @@ class TestReq3Verify(Req3EngineTestCase):
         code, output, error = capture(verify_engine.verify, task_dir, True, None)
         self.assertEqual(code, 0, error)
         payload = json.loads(output)
-        self.assertEqual(payload["profile"], "req3")
+        self.assertEqual(payload["profile"], "req")
         self.assertEqual(payload["expected_auto"], ["SC_01"])
         self.assertEqual(payload["expected_declared"], ["SC_02"])
         self.assertEqual(payload["uncovered"], [])

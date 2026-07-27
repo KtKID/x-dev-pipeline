@@ -1,12 +1,12 @@
 ---
 name: x-adversarial-risk
 description: |
-  对 x-spec3 产出的 Spec 做一次有轮次上限的风险复核：读取 Spec、生成“功能关键词 + Risk”查询，从调用方提供的风险语料召回 Top5；用户确认没有 RAG 经验集时，按 Spec 分数执行有上限的独立对抗性检验。用于 review_budget 为 deep/full 且 adversarial_review 为 pending、上一次验证返回聚合 issue，或用户显式要求推翻 Spec 假设、补充高价值风险 Scenario 的场景。
+  对 x-spec 产出的 Spec 做一次有轮次上限的风险复核：读取 Spec、生成“功能关键词 + Risk”查询，从调用方提供的风险语料召回 Top5；用户确认没有 RAG 经验集时，按 Spec 分数执行有上限的独立对抗性检验。用于 review_budget 为 deep/full 且 adversarial_review 为 pending、上一次验证返回聚合 issue，或用户显式要求推翻 Spec 假设、补充高价值风险 Scenario 的场景。
 ---
 
 # x-adversarial-risk
 
-在 `x-spec3 → x-req3` 之间执行一次增量审查。风险语料可用时召回相关度最高的最多五条经验；用户确认跳过 RAG 时直接从 Spec 推导故障假设。两条路径都构造能区分正确实现与常见错误实现的最小反例。
+在 `x-spec → x-req` 之间执行一次增量审查。风险语料可用时召回相关度最高的最多五条经验；用户确认跳过 RAG 时直接从 Spec 推导故障假设。两条路径都构造能区分正确实现与常见错误实现的最小反例。
 
 ## 输入与边界
 
@@ -57,7 +57,7 @@ Spec 是事实输入。Spec 证据不足以支持新行为时保留现有契约�
 
 用户确认跳过 RAG 时，预算直接控制独立对抗性检验：
 
-- `standard`：保持零对抗性 Scenario 扩张，由 x-spec3 直接交接。
+- `standard`：保持零对抗性 Scenario 扩张，由 x-spec 直接交接。
 - `deep`：从 Spec 选择最高风险不变量，执行 1 个独立故障假设。
 - `full`：从 Spec 选择两个不同故障轴，执行最多 2 个独立故障假设。
 
@@ -99,7 +99,7 @@ Risk：<具体失败机制>" \
 
 成功输出包含最多五条 `matches[].id`、`matches[].source` 和 `matches[].text`。默认从本地模型缓存加载 `Qwen/Qwen3-Embedding-0.6B`，并通过 `local_files_only=True` 禁止联网下载。查询使用官方 `query` 提示模板，风险语料正文按普通文档编码，两侧向量都归一化。需要指定其他本地模型时增加 `--model <本地路径或本地模型名>`。
 
-召回成功后按命中顺序使用全部正文完成适用性判断、最小反例构造、Scenario 去重和最终修改集合设计，并在 Spec 审查记录中写明实际采用的 `RAG:AR-NNN`。调用方未提供语料路径或召回失败时保持 `adversarial_review: pending`，记录退出码、`error` 和 `message`，并阻断 x-req3。
+召回成功后按命中顺序使用全部正文完成适用性判断、最小反例构造、Scenario 去重和最终修改集合设计，并在 Spec 审查记录中写明实际采用的 `RAG:AR-NNN`。调用方未提供语料路径或召回失败时保持 `adversarial_review: pending`，记录退出码、`error` 和 `message`，并阻断 x-req。
 
 用户确认跳过 RAG 后，本轮省略召回命令，按 `deep` 或 `full` 上限完成独立假设，并在审查记录中写入 `CLI=skipped:no-corpus`。该确认只替代 RAG 召回，评分和对抗性预算继续生效。
 
@@ -158,7 +158,7 @@ python3 skills/x-adversarial-risk/scripts/risk_contract.py \
 - RAG 路径返回 CLI 退出码、召回 ID 和召回数量；无 RAG 路径返回 `skipped:no-corpus`。
 - 复用与新增 Scenario ID。
 - 读取、召回、修改和验证结果。
-- x-req3 交接状态或阻断 issue。
+- x-req 交接状态或阻断 issue。
 
 回执后结束本轮。
 

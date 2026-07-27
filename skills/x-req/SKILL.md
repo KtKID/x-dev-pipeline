@@ -1,12 +1,12 @@
 ---
-name: x-req3
+name: x-req
 description: |
-  x-spec3 的任务拆解 skill。读取 `docs/spec/{spec-name}/spec.md` 的目标、边界与不变量、判断依据、验收清单和直接 GWT Scenarios，生成 `docs/spec/{spec-name}/tasks/{task-name}/dev-checklist.md`，并以 Scenario ID 精确回指实现范围。用户提到 x-req3、要求把 spec3 拆成开发任务，或目标规格含 `spec_version: 3` 时使用。
+  x-spec 的任务拆解 skill。读取 `docs/spec/{spec-name}/spec.md` 的目标、边界与不变量、判断依据、验收清单和直接 GWT Scenarios，生成 `docs/spec/{spec-name}/tasks/{task-name}/dev-checklist.md`，并以 Scenario ID 精确回指实现范围。用户提到 x-req、要求把 spec 拆成开发任务，或目标规格含 `spec_version: 3` 时使用。
 ---
 
-# x-req3 — spec3 场景驱动任务拆解
+# x-req — spec 场景驱动任务拆解
 
-x-req3 把 spec3 的行为契约压缩成可执行 checklist。spec.md 保留目标、边界、不变量和验收真源；task 只保存执行拓扑、文件范围、风险依据和 Scenario 回指。
+x-req 把 spec 的行为契约压缩成可执行 checklist。spec.md 保留目标、边界、不变量和验收真源；task 只保存执行拓扑、文件范围、风险依据和 Scenario 回指。
 
 ## 输入与产物
 
@@ -21,9 +21,9 @@ x-req3 把 spec3 的行为契约压缩成可执行 checklist。spec.md 保留目
 
 拆解前确认：
 
-1. `python3 tools/xdev.py validate <spec-dir> --json` 对 spec3 返回零 issue；该检查会把任一待确认 J-ID 判为未就绪。
+1. `python3 tools/xdev.py validate <spec-dir> --json` 对 spec 返回零 issue；该检查会把任一待确认 J-ID 判为未就绪。
 2. spec 必须含 `> adversarial_risk_version: 3`，并运行 `python3 skills/x-adversarial-risk/scripts/risk_contract.py validate-spec <spec.md> --json`。退出码必须为 0；版本错误、`pending`、评分/预算不一致、审查记录或 Scenario 来源缺失都会停止 scaffold 和 task 写入。RAG 召回场景统一使用 `adversarial-review (rag:AR-NNN)`。退出码为 1 时停止写入，把完整聚合 issue 作为下一次显式 `$x-adversarial-risk` 修正调用的输入；该修正调用执行当前 x-adversarial-risk 定义的五轮契约。
-3. spec3 的 J-ID 状态全部为“已确认”。x-spec3 只保存会改变实现或验收的判断，因此任一“待确认”都会停止 scaffold 和 task 写入。
+3. spec 的 J-ID 状态全部为“已确认”。x-spec 只保存会改变实现或验收的判断，因此任一“待确认”都会停止 scaffold 和 task 写入。
 4. Scenario ID 符合 `SC_01` 两位格式、顺序递增且唯一，GIVEN/WHEN/THEN 可直接转成测试，测试层为 unit、smoke 或 e2e。
 
 执行环境缺少命令工具时，直接读取判断依据表、风险元数据、审查记录和 Scenario 来源并执行同一门禁；缺少 `adversarial_risk_version: 3`、“待确认”或 `pending` 都是阻断状态。
@@ -40,14 +40,14 @@ x-req3 把 spec3 的行为契约压缩成可执行 checklist。spec.md 保留目
 
 按 task 触及的最高风险信号定级，并在任务行“风险”列写出 Scenario、模块不变量或 J-ID 依据：
 
-| 等级 | spec3 信号 | 下游路由 |
+| 等级 | spec 信号 | 下游路由 |
 |---|---|---|
 | Q3 | 改动公开契约或关键不变量；安全、持久化/迁移、并发/竞态、不可逆副作用 | x-dev → verify → R1→R2→R3 |
 | Q2 | 跨模块集成、失败恢复、资源生命周期、真实 E2E 链路 | x-dev → verify → RC |
 | Q1 | 局部功能行为，主要由 unit/smoke 覆盖 | x-dev → verify → 交付 |
 | Q0 | 纯机械、文档或内部整理，Scenario 为 `None` | x-dev → verify → 交付 |
 
-用户显式指定的等级优先。风险依据来自 spec3 已记录的边界、不变量、判断和 Scenario；发现缺失信号时回到 x-spec3 补充事实。
+用户显式指定的等级优先。风险依据来自 spec 已记录的边界、不变量、判断和 Scenario；发现缺失信号时回到 x-spec 补充事实。
 
 ## 验证契约
 
@@ -70,7 +70,7 @@ x-req3 把 spec3 的行为契约压缩成可执行 checklist。spec.md 保留目
 
 ## 自审
 
-- checklist 中每个非 `None` Scenario ID 都精确存在于 spec3。
+- checklist 中每个非 `None` Scenario ID 都精确存在于 spec。
 - spec 下全部 task 合并后覆盖所有 Scenario。
 - adversarial risk v3 spec 已通过风险契约门禁，审查状态为 `skipped-standard` 或 `complete`。
 - 高损失边界、失败、并发和资源 Scenario 已落到实现或验证任务。

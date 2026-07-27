@@ -3,7 +3,7 @@
 <!--
 填写后删除本注释和占位行。
 - spec 指向含 `> spec_version: 3` 的单文件规格包。
-- risk 按本 task 触及的最高 spec3 风险信号填写 Q0/Q1/Q2/Q3。
+- risk 按本 task 触及的最高 spec 风险信号填写 Q0/Q1/Q2/Q3。
 - Scenario IDs 只填 spec.md 中存在的 ID；单个写 `SC_01`，多个写 `SC_01, SC_02`，纯技术行写 None。
 - 风险列写紧凑证据：模块不变量、J-ID 或 Scenario；无功能风险写 None。
 - 每行只保留任务执行信息，不复制 GIVEN/WHEN/THEN 或验收清单。

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""x-req3 的自包含确定性 task 引擎。
+"""x-req 的自包含确定性 task 引擎。
 
-输入是 ``docs/spec/<spec>/spec.md`` 单文件 spec3 包，task 位于
+输入是 ``docs/spec/<spec>/spec.md`` 单文件 spec 包，task 位于
 ``docs/spec/<spec>/tasks/<task>/``。本模块负责 scaffold、Scenario 追踪、
 spec 级覆盖、可选边界图一致性、任务状态与依赖图。
 """
@@ -21,12 +21,12 @@ PLUGIN_ROOT = Path(__file__).resolve().parent.parent
 ARTIFACTS = {
     "dev-checklist": {
         "generates": "dev-checklist.md",
-        "template": "skills/x-req3/templates/dev-checklist.md",
-        "instruction": "按 spec3 Scenario 拆任务；只保存执行信息、风险证据和精确回指。",
+        "template": "skills/x-req/templates/dev-checklist.md",
+        "instruction": "按 spec Scenario 拆任务；只保存执行信息、风险证据和精确回指。",
     },
     "diagram": {
         "generates": "diagram.md",
-        "template": "skills/x-req3/templates/diagram.md",
+        "template": "skills/x-req/templates/diagram.md",
         "instruction": "把影响边界表投影为模块图，每个声明模块恰好一个节点。",
     },
 }
@@ -182,17 +182,17 @@ def read_text(path: Path) -> str:
     return path.read_text(encoding="utf-8", errors="replace")
 
 
-def has_spec3_marker(spec_dir: Path) -> bool:
-    return spec_engine.has_spec3_marker(spec_dir)
+def has_spec_marker(spec_dir: Path) -> bool:
+    return spec_engine.has_spec_marker(spec_dir)
 
 
 def resolve_spec_dir(task_dir: Path) -> Path | None:
-    """返回 task 所属 spec3 包；结构或版本不匹配时返回 None。"""
+    """返回 task 所属 spec 包；结构或版本不匹配时返回 None。"""
     parents = task_dir.resolve().parents
     if len(parents) < 2:
         return None
     candidate = parents[1]
-    if has_spec3_marker(candidate):
+    if has_spec_marker(candidate):
         return candidate
     return None
 
@@ -211,23 +211,23 @@ def artifact_payload(artifact_id: str, task_dir: Path) -> dict:
         "instruction": entry["instruction"],
         "requires": [],
         "dependencies": [],
-        "profile": "req3",
+        "profile": "req",
     }
 
 
 def instructions(artifact_id: str, task_dir: Path, as_json: bool) -> int:
     if artifact_id not in ARTIFACTS:
-        print(f"错误：req3 不支持 artifact「{artifact_id}」", file=sys.stderr)
+        print(f"错误：req 不支持 artifact「{artifact_id}」", file=sys.stderr)
         return 2
     try:
         payload = artifact_payload(artifact_id, task_dir)
     except OSError as exc:
-        print(f"错误：读取 req3 模板失败：{exc}", file=sys.stderr)
+        print(f"错误：读取 req 模板失败：{exc}", file=sys.stderr)
         return 2
     if as_json:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
-        print(f"== {artifact_id} instructions [req3]\n")
+        print(f"== {artifact_id} instructions [req]\n")
         print(payload["template"])
         print(f"\n== instruction\n\n{payload['instruction']}")
     return 0
@@ -243,10 +243,10 @@ def scaffold(task_dir: Path, with_diagram: bool, as_json: bool) -> int:
         )
         return 2
 
-    readiness_issues = spec3_contract_issues(spec_dir)
+    readiness_issues = spec_contract_issues(spec_dir)
     if readiness_issues:
         details = "；".join(item["msg"] for item in readiness_issues)
-        print(f"错误：spec3 未通过就绪门禁：{details}", file=sys.stderr)
+        print(f"错误：spec 未通过就绪门禁：{details}", file=sys.stderr)
         return 2
 
     diagram_required = len(boundary_module_names(spec_dir)) >= 3
@@ -277,14 +277,14 @@ def scaffold(task_dir: Path, with_diagram: bool, as_json: bool) -> int:
     payload = {
         "task": str(task_dir),
         "spec": spec_path,
-        "profile": "req3",
+        "profile": "req",
         "created": created,
         "skipped": skipped,
     }
     if as_json:
         print(json.dumps(payload, ensure_ascii=False, indent=2))
     else:
-        print(f"== scaffold {task_dir} [req3]")
+        print(f"== scaffold {task_dir} [req]")
         for path in created:
             print(f"  created: {path}")
         for path in skipped:
@@ -317,8 +317,8 @@ def boundary_module_names(spec_dir: Path) -> dict[str, str]:
     return spec_engine.boundary_module_names(spec_dir)
 
 
-def spec3_contract_issues(spec_dir: Path) -> list[dict]:
-    """兼容 req3 调用面，spec3 文档契约由 spec 引擎统一实现。"""
+def spec_contract_issues(spec_dir: Path) -> list[dict]:
+    """兼容 req 调用面，spec 文档契约由 spec 引擎统一实现。"""
     return spec_engine.validate_issues(spec_dir)
 
 
@@ -435,10 +435,10 @@ def validate_issues(task_dir: Path) -> list[dict]:
         issues.append(issue(str(checklist), 0, "R3Q2", f"risk: 取值非法：{risk_value}"))
 
     if spec_dir is not None:
-        for spec_issue in spec3_contract_issues(spec_dir):
+        for spec_issue in spec_contract_issues(spec_dir):
             issues.append(issue(
                 str(checklist), 0, "R3Q10",
-                f"归属 spec3 未就绪：{spec_issue['msg']}",
+                f"归属 spec 未就绪：{spec_issue['msg']}",
             ))
 
     try:

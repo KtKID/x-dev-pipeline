@@ -54,14 +54,14 @@ dev-pipeline/tasks/<task-name>/
 
 ## Spec 对抗性风险门禁
 
-spec3 包在 task 拆解前经过独立风险门禁：
+spec 包在 task 拆解前经过独立风险门禁：
 
 ```text
-用户请求 → x-spec3 → x-adversarial-risk → x-req3 → x-dev
+用户请求 → x-spec → x-adversarial-risk → x-req → x-dev
                    双评分 + 初版测试       对抗性测试
 ```
 
-x-spec3 分别记录 1–5 的复杂度和重要性，并把第一版 Scenario 标记为 `initial-spec`。x-adversarial-risk 按评分选择 standard、deep 或 full 预算；deep/full 才读取本 skill 独占的错题集，并只追加适用于当前 Spec 的 `adversarial-review` 反例 Scenario。带风险版本标记的 Spec 审查状态仍为 pending 时，x-req3 阻断任务拆解。
+x-spec 分别记录 1–5 的复杂度和重要性，并把第一版 Scenario 标记为 `initial-spec`。x-adversarial-risk 按评分选择 standard、deep 或 full 预算；deep/full 才读取本 skill 独占的错题集，并只追加适用于当前 Spec 的 `adversarial-review` 反例 Scenario。带风险版本标记的 Spec 审查状态仍为 pending 时，x-req 阻断任务拆解。
 
 ## 验收与证据
 
@@ -109,8 +109,8 @@ expect_contains: passed
 
 ## 确定性引擎
 
-`tools/xdev.py` 是机械规则的薄 CLI 入口；包校验由 `tools/validator.py` 负责，spec3 task
-规划由 `tools/req3.py` 负责，验证由 `tools/verify.py` 负责，QA issue 事务由
+`tools/xdev.py` 是机械规则的薄 CLI 入口；包校验由 `tools/validator.py` 负责，spec task
+规划由 `tools/req.py` 负责，验证由 `tools/verify.py` 负责，QA issue 事务由
 `tools/flag.py` 负责：
 
 ```text

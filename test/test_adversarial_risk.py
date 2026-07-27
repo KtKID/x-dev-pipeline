@@ -121,7 +121,7 @@ class RiskContractCliTest(unittest.TestCase):
             )
             result = self.run_cli("validate-spec", path)
             self.assertEqual(result.returncode, 1)
-            self.assertIn("阻断 x-req3", result.stdout)
+            self.assertIn("阻断 x-req", result.stdout)
 
     def test_scenario_source_is_required(self):
         with tempfile.TemporaryDirectory() as raw:
@@ -171,19 +171,6 @@ class RiskContractCliTest(unittest.TestCase):
             result = self.run_cli("validate-corpus", path)
             self.assertEqual(result.returncode, 1)
             self.assertIn("错题 ID 必须匹配 AR-NNN", result.stdout)
-
-    def test_root_and_iteration7_contracts_are_identical(self):
-        latest = (
-            ROOT
-            / "skills"
-            / "x-pipeline-efficiency-workspace"
-            / "iteration-7"
-            / "skills"
-            / "x-adversarial-risk"
-            / "scripts"
-            / "risk_contract.py"
-        )
-        self.assertEqual(SCRIPT.read_bytes(), latest.read_bytes())
 
     def test_missing_file_exits_two(self):
         with tempfile.TemporaryDirectory() as raw:

@@ -32,7 +32,7 @@ verify exit 0 后进入质量审查。读取 task `dev-checklist.md` 头部的 `
 
 1. 用户原始请求、已确认 spec、既有公开契约。
 2. 真实调用方、schema/数据约束、改动前测试契约。
-3. spec3 的目标、影响边界与不变量、判断依据、建模覆盖和直接 Scenarios。
+3. spec 的目标、影响边界与不变量、判断依据、建模覆盖和直接 Scenarios。
 4. dev-report verify 块、verify JSON 或失败报告、当前 diff。
 
 ## 输入裁剪
