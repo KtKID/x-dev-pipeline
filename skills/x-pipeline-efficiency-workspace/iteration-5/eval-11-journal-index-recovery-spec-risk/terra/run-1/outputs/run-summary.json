@@ -1,0 +1,43 @@
+{
+  "complexity": 5,
+  "importance": 4,
+  "risk_average": 4.5,
+  "review_budget": "full",
+  "adversarial_review": "complete",
+  "skills_read": [
+    "skills/x-spec3/SKILL.md",
+    "skills/x-adversarial-risk/SKILL.md"
+  ],
+  "corpus_read_scope": {
+    "mode": "full",
+    "path": "skills/x-adversarial-risk/references/risk-mistakes.md",
+    "issues_read": ["AR-001", "AR-002", "AR-003", "AR-004", "AR-005"]
+  },
+  "initial_scenarios": {
+    "count": 28,
+    "ids": "SC_01..SC_28",
+    "source": "initial-spec"
+  },
+  "adversarial_scenarios": {
+    "count": 9,
+    "ids": ["SC_29", "SC_30", "SC_31", "SC_32", "SC_33", "SC_34", "SC_35", "SC_36", "SC_37"],
+    "sources": [
+      "adversarial-review (AR-001)",
+      "adversarial-review (AR-002)",
+      "adversarial-review (AR-003)",
+      "adversarial-review (AR-004)",
+      "adversarial-review (AR-005)",
+      "adversarial-review (assumption:first-result-marker)",
+      "adversarial-review (assumption:missing-read)",
+      "adversarial-review (assumption:concurrent-idempotency)",
+      "adversarial-review (assumption:read-during-publish)"
+    ]
+  },
+  "matched_issues": ["AR-001", "AR-002", "AR-003", "AR-004", "AR-005"],
+  "validation_commands": [
+    "python3 skills/x-adversarial-risk/scripts/risk_contract.py validate-spec docs/spec/journal-index-recovery/spec.md --json",
+    "python3 skills/x-adversarial-risk/scripts/risk_contract.py validate-corpus skills/x-adversarial-risk/references/risk-mistakes.md --json",
+    "cmp -s docs/spec/journal-index-recovery/spec.md artifacts/spec.final.md"
+  ],
+  "validation_exit_codes": [0, 0, 0]
+}

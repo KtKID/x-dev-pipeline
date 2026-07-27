@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "thread_id": "019f8f13-0d94-7272-bcc0-1e3e994ae5cc",
+  "turn_id": "019f8f13-0efe-7a11-90eb-dcd89022407c",
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "new_thread": true,
+  "inherited_completed_turns": 0,
+  "source_thread_pointer_only": true,
+  "allowed_root": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-5/eval-11-journal-index-recovery-spec-risk/terra/run-1/workspace",
+  "tool_calls": {
+    "total": 25,
+    "exec": 25,
+    "commands_with_exact_allowed_workdir": 20,
+    "patches_with_targets_under_allowed_root": 5,
+    "subagent_or_thread_calls": 0,
+    "external_tool_calls": 0
+  },
+  "forbidden_tool_read_hits": {
+    "baseline": 0,
+    "oracle": 0,
+    "rubric": 0,
+    "grader": 0,
+    "git": 0,
+    "session": 0,
+    "outside_allowed_root": 0
+  },
+  "result": "pass"
+}

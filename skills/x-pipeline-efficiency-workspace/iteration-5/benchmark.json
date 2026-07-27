@@ -1,0 +1,35 @@
+{
+  "metadata": {
+    "skill_name": "x-spec3 + x-adversarial-risk",
+    "skill_path": "skills/x-spec3,skills/x-adversarial-risk",
+    "executor_model": "gpt-5.6-terra",
+    "reasoning_effort": "xhigh",
+    "timestamp": "2026-07-23T13:14:00Z",
+    "evals_run": [11],
+    "runs_per_configuration": 1,
+    "sample_size_per_configuration": 1,
+    "paired_baseline": false
+  },
+  "runs": [
+    {
+      "eval_id": 11,
+      "eval_name": "journal-index-recovery-spec-risk",
+      "configuration": "current_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.9411764706,
+        "passed": 16,
+        "failed": 1,
+        "total": 17,
+        "time_seconds": 621.37,
+        "tokens": 1411304,
+        "tool_calls": 25,
+        "errors": 0
+      },
+      "notes": [
+        "Only failed assertion: importance was scored 4 without task evidence for an all-user core function.",
+        "All five confirmed baseline findings were converted into adversarial-review Scenarios."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "total_tokens": 1411304,
+  "input_tokens": 1379975,
+  "cached_input_tokens": 1306112,
+  "output_tokens": 31329,
+  "reasoning_output_tokens": 7326,
+  "duration_ms": 621370,
+  "total_duration_seconds": 621.37,
+  "time_to_first_token_ms": 6713
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "repo_commit": "adeaeeffab1ac833c1b37b1f812409d26bf0b309",
+  "runner": {
+    "thread_id": "019f8f13-0d94-7272-bcc0-1e3e994ae5cc",
+    "turn_id": "019f8f13-0efe-7a11-90eb-dcd89022407c",
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "xhigh",
+    "history_inheritance": "zero completed turns; independent thread",
+    "subagents_created": 0
+  },
+  "frozen_inputs": {
+    "x_spec3_skill_git_blob": "b03865ebbc9c51b20065aa1957139903ffacf635",
+    "x_adversarial_risk_skill_git_blob": "c83fb4d7e26a1b47993c0d52478bbe06ecd8b2db",
+    "risk_mistakes_git_blob": "f2d81e772076d1a6f0c78d2bf6775bd7635d961d",
+    "task_source": "iteration-4/eval-11-journal-index-recovery/with_skill/run-1/workspace/task"
+  },
+  "artifacts": {
+    "initial_spec_sha256": "c90c48fd61766acf3f0710e24cc17cabc4586562c109319fe15d2bdc9538a65a",
+    "final_spec_sha256": "11e6754341f5006a39a349c5394297fa73e8575e3a9d106d5041162ab0e70d67",
+    "grading_sha256": "1f260cd3ba64dfaede934c56e42b296c0d309e9646d13c29d6af747fbd9baa8f"
+  },
+  "session": {
+    "file": "rollout-2026-07-23T21-03-38-019f8f13-0d94-7272-bcc0-1e3e994ae5cc.jsonl",
+    "sha256": "490452e9dc0c7db73cfe5174f69ddf901e02f72cba53ad471344605f7f189ca7"
+  }
+}

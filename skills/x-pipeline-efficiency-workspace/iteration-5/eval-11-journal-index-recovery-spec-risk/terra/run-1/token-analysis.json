@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "sessions": {
+    "main": "019f8f13-0d94-7272-bcc0-1e3e994ae5cc",
+    "q3_reviewer": "019f8f43-bf38-7ab2-8063-f89f71871883"
+  },
+  "measurement_method": {
+    "main": "last cumulative token_count before each task_complete; phase totals are differences between frozen cumulative boundaries",
+    "reviewer": "last cumulative token_count before task_complete; added once to the main total",
+    "duration": "completed-turn duration_ms; reviewer duration is nested inside the second main turn"
+  },
+  "usage": {
+    "main_all_turns": {
+      "input_tokens": 10248347,
+      "cached_input_tokens": 10024192,
+      "output_tokens": 78566,
+      "reasoning_output_tokens": 22191,
+      "total_tokens": 10326913
+    },
+    "q3_reviewer": {
+      "input_tokens": 240830,
+      "cached_input_tokens": 194048,
+      "output_tokens": 8476,
+      "reasoning_output_tokens": 6926,
+      "total_tokens": 249306
+    },
+    "agent_tree": {
+      "input_tokens": 10489177,
+      "cached_input_tokens": 10218240,
+      "output_tokens": 87042,
+      "reasoning_output_tokens": 29117,
+      "total_tokens": 10576219,
+      "cached_share_of_input_pct": 97.42,
+      "cached_share_of_total_pct": 96.62
+    }
+  },
+  "phases": [
+    {
+      "phase": "x-spec3 initial spec",
+      "total_tokens": 450928,
+      "share_pct": 4.26
+    },
+    {
+      "phase": "x-adversarial-risk",
+      "total_tokens": 960376,
+      "share_pct": 9.08
+    },
+    {
+      "phase": "live skill/tool loading and x-req3",
+      "total_tokens": 2591564,
+      "share_pct": 24.50
+    },
+    {
+      "phase": "x-dev implementation and tests",
+      "total_tokens": 1522619,
+      "share_pct": 14.40
+    },
+    {
+      "phase": "dev-report and Gate 1 verify",
+      "total_tokens": 361173,
+      "share_pct": 3.41
+    },
+    {
+      "phase": "Gate 2 orchestration and isolated Q3 reviewer",
+      "main_tokens": 1118093,
+      "reviewer_tokens": 249306,
+      "total_tokens": 1367399,
+      "share_pct": 12.93
+    },
+    {
+      "phase": "x-fix, full reverify and final reports",
+      "total_tokens": 3322160,
+      "share_pct": 31.41
+    }
+  ],
+  "tool_calls": {
+    "main_spec_turn": 25,
+    "main_continuation_turn": 50,
+    "q3_reviewer": 5,
+    "agent_tree_total": 80
+  },
+  "duration": {
+    "spec_turn_ms": 621370,
+    "continuation_turn_ms": 1143668,
+    "main_active_total_ms": 1765038,
+    "q3_reviewer_nested_ms": 166275,
+    "executor_time_sum_ms": 1931313
+  },
+  "comparisons": {
+    "iteration_4_candidate": {
+      "total_tokens": 3369225,
+      "delta_tokens": 7206994,
+      "delta_pct": 213.91,
+      "ratio": 3.139
+    },
+    "iteration_4_frozen_baseline": {
+      "total_tokens": 20619230,
+      "delta_tokens": -10043011,
+      "delta_pct": -48.71,
+      "ratio": 0.513
+    }
+  }
+}

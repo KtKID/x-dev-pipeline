@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "eval_id": 11,
+  "eval_name": "journal-index-recovery-spec-risk-terra",
+  "prompt": "完成 task/ 定义的 Journal Index Recovery Spec 阶段，完整遵循 workspace 内 x-spec3 的全部交接前流程；保存第一版与最终版 Spec，不执行开发阶段。",
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "scope": "x-spec3 spec stage plus its required pre-handoff risk flow",
+  "context_isolation": {
+    "new_thread": true,
+    "inherited_turns": 0,
+    "allowed_root": "workspace",
+    "grader_material_exposed": false
+  },
+  "assertions": [
+    "The executor model is gpt-5.6-terra with xhigh reasoning.",
+    "All executor tool reads and writes stay inside the isolated workspace.",
+    "The initial and final Spec artifacts are both persisted.",
+    "Complexity and importance are independently scored with evidence and the budget mapping is mechanically correct.",
+    "The x-spec3 workflow itself decides whether to invoke the pre-handoff adversarial skill.",
+    "Initial and adversarial Scenarios retain distinct provenance labels.",
+    "The final Spec covers compact replace-window recovery, semantic snapshot consistency, and logically invalid complete journal records.",
+    "All required local contract validators pass."
+  ]
+}
