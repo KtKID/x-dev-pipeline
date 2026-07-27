@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "thread_id": "019f8fab-99eb-7f51-badc-9f44be54ee81",
+  "turn_id": "019f8fab-9b4e-7bc3-8001-716635ae937c",
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "new_thread": true,
+  "inherited_completed_turns": 0,
+  "source_thread_pointer_only": true,
+  "allowed_root": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-1/workspace",
+  "tool_calls": {
+    "total": 5,
+    "exec": 5,
+    "commands_with_exact_allowed_workdir": 3,
+    "patch_calls_with_targets_under_allowed_root": 2,
+    "subagent_or_thread_calls": 0,
+    "external_tool_calls": 0
+  },
+  "forbidden_tool_read_hits": {
+    "baseline": 0,
+    "oracle": 0,
+    "rubric": 0,
+    "grader": 0,
+    "git": 0,
+    "session": 0,
+    "outside_allowed_root": 0
+  },
+  "task_input_coverage": {
+    "required_documents": 5,
+    "read_documents": 4,
+    "missing": [
+      "task/specs/storage-layout.md"
+    ],
+    "cause": "the first read used task/* and did not expand the nested specs directory"
+  },
+  "result": "isolated_with_incomplete_task_input"
+}

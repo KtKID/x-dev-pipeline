@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "score": 65,
+  "passed": 11,
+  "total": 17,
+  "expectations": [
+    {
+      "text": "Initial, final, summary, and live Spec artifacts are persisted.",
+      "passed": true,
+      "evidence": "spec.initial.md=True, spec.final.md=True, run-summary.json=True, spec.md=True"
+    },
+    {
+      "text": "Complexity and importance produce the required average and dynamic budget.",
+      "passed": true,
+      "evidence": "complexity=5, importance=1, average=3.0/3.0, budget=full/full, review=complete"
+    },
+    {
+      "text": "Crash recovery, locking, idempotency, and concurrency are scored complexity 5.",
+      "passed": true,
+      "evidence": "complexity=5"
+    },
+    {
+      "text": "The local single-user CLI is scored importance 1 from the supplied task evidence.",
+      "passed": true,
+      "evidence": "importance=1"
+    },
+    {
+      "text": "A dimension score of 5 upgrades the review budget to full and completes review.",
+      "passed": true,
+      "evidence": "budget=full, adversarial_review=complete"
+    },
+    {
+      "text": "Every first-draft Scenario is labeled initial-spec.",
+      "passed": true,
+      "evidence": "{\"SC_01\": \"initial-spec\", \"SC_02\": \"initial-spec\", \"SC_03\": \"initial-spec\", \"SC_04\": \"initial-spec\", \"SC_05\": \"initial-spec\", \"SC_06\": \"initial-spec\", \"SC_07\": \"initial-spec\", \"SC_08\": \"initial-spec\", \"SC_09\": \"initial-spec\", \"SC_10\": \"initial-spec\", \"SC_11\": \"initial-spec\", \"SC_12\": \"initial-spec\"}"
+    },
+    {
+      "text": "The adversarial pass preserves all initial Scenario IDs and provenance.",
+      "passed": false,
+      "evidence": "initial=['SC_01', 'SC_02', 'SC_03', 'SC_04', 'SC_05', 'SC_06', 'SC_07', 'SC_08', 'SC_09', 'SC_10', 'SC_11', 'SC_12'], final=['SC_01', 'SC_02', 'SC_03', 'SC_04', 'SC_05', 'SC_06', 'SC_07', 'SC_08', 'SC_09', 'SC_10', 'SC_11', 'SC_12', 'SC_13', 'SC_14', 'SC_15', 'SC_16']"
+    },
+    {
+      "text": "The final Spec adds traceable adversarial-review Scenarios.",
+      "passed": true,
+      "evidence": "{\"SC_11\": \"adversarial-review (AR-005; pattern:error-contract)\", \"SC_13\": \"adversarial-review (AR-004; pattern:failed-idempotency)\", \"SC_14\": \"adversarial-review (AR-001; pattern:phased-commit)\", \"SC_15\": \"adversarial-review (AR-003; pattern:semantic-tail)\", \"SC_16\": \"adversarial-review (assumption:healthy-recover-idempotence)\"}"
+    },
+    {
+      "text": "AR-001 compact replace-window recovery is covered by an observable Scenario.",
+      "passed": false,
+      "evidence": "[]"
+    },
+    {
+      "text": "AR-002 semantic snapshot consistency is covered by an observable Scenario.",
+      "passed": false,
+      "evidence": "[]"
+    },
+    {
+      "text": "AR-003 logically invalid complete journal records are classified as CORRUPT_LOG.",
+      "passed": false,
+      "evidence": "[]"
+    },
+    {
+      "text": "AR-004 failed request IDs remain reusable for a later valid mutation.",
+      "passed": false,
+      "evidence": "[]"
+    },
+    {
+      "text": "AR-005 validates the complete public error response contract.",
+      "passed": false,
+      "evidence": "[]"
+    },
+    {
+      "text": "The run summary records x-spec3 and x-adversarial-risk as actually read.",
+      "passed": true,
+      "evidence": "[\"skills/x-spec3/SKILL.md\", \"skills/x-adversarial-risk/SKILL.md\"]"
+    },
+    {
+      "text": "The final artifact exactly matches the live Spec.",
+      "passed": true,
+      "evidence": "same_bytes=True"
+    },
+    {
+      "text": "No pending markers or template placeholders remain in the final Spec.",
+      "passed": true,
+      "evidence": "checked ARV-pending, <spec-name>, 待审查"
+    },
+    {
+      "text": "The Spec and corpus mechanical validators both pass.",
+      "passed": true,
+      "evidence": "[{\"command\": \"python3 skills/x-adversarial-risk/scripts/risk_contract.py validate-spec docs/spec/journal-index-recovery/spec.md --json\", \"exit_code\": 0, \"stdout\": \"{\\n  \\\"command\\\": \\\"validate-spec\\\",\\n  \\\"target\\\": \\\"docs/spec/journal-index-recovery/spec.md\\\",\\n  \\\"valid\\\": true,\\n  \\\"issues\\\": []\\n}\", \"stderr\": \"\"}, {\"command\": \"python3 skills/x-adversarial-risk/scripts/risk_contract.py validate-corpus skills/x-adversarial-risk/references/risk-mistakes.md --json\", \"exit_code\": 0, \"stdout\": \"{\\n  \\\"command\\\": \\\"validate-corpus\\\",\\n  \\\"target\\\": \\\"skills/x-adversarial-risk/references/risk-mistakes.md\\\",\\n  \\\"valid\\\": true,\\n  \\\"issues\\\": []\\n}\", \"stderr\": \"\"}]"
+    }
+  ],
+  "parsed": {
+    "complexity": 5,
+    "importance": 1,
+    "risk_average": 3.0,
+    "review_budget": "full",
+    "adversarial_review": "complete",
+    "initial_scenarios": [
+      "SC_01",
+      "SC_02",
+      "SC_03",
+      "SC_04",
+      "SC_05",
+      "SC_06",
+      "SC_07",
+      "SC_08",
+      "SC_09",
+      "SC_10",
+      "SC_11",
+      "SC_12"
+    ],
+    "adversarial_scenarios": [
+      "SC_11",
+      "SC_13",
+      "SC_14",
+      "SC_15",
+      "SC_16"
+    ],
+    "issue_hits": {
+      "AR-001": [],
+      "AR-002": [],
+      "AR-003": [],
+      "AR-004": [],
+      "AR-005": []
+    }
+  },
+  "validators": [
+    {
+      "command": "python3 skills/x-adversarial-risk/scripts/risk_contract.py validate-spec docs/spec/journal-index-recovery/spec.md --json",
+      "exit_code": 0,
+      "stdout": "{\n  \"command\": \"validate-spec\",\n  \"target\": \"docs/spec/journal-index-recovery/spec.md\",\n  \"valid\": true,\n  \"issues\": []\n}",
+      "stderr": ""
+    },
+    {
+      "command": "python3 skills/x-adversarial-risk/scripts/risk_contract.py validate-corpus skills/x-adversarial-risk/references/risk-mistakes.md --json",
+      "exit_code": 0,
+      "stdout": "{\n  \"command\": \"validate-corpus\",\n  \"target\": \"skills/x-adversarial-risk/references/risk-mistakes.md\",\n  \"valid\": true,\n  \"issues\": []\n}",
+      "stderr": ""
+    }
+  ]
+}

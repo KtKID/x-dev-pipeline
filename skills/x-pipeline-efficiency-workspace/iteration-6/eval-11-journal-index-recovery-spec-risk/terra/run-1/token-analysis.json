@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "measurement_method": "last cumulative token_count before task_complete; adversarial phase is the four last inference rounds beginning with the batch-read decision",
+  "usage": {
+    "full_session": {
+      "input_tokens": 255647,
+      "cached_input_tokens": 212480,
+      "output_tokens": 14738,
+      "reasoning_output_tokens": 3347,
+      "total_tokens": 270385
+    },
+    "x_spec3_initial": {
+      "total_tokens": 70652,
+      "inference_rounds": 2,
+      "tool_calls": 2
+    },
+    "x_adversarial_risk": {
+      "input_tokens": 195162,
+      "cached_input_tokens": 174592,
+      "output_tokens": 4571,
+      "reasoning_output_tokens": 2385,
+      "total_tokens": 199733,
+      "inference_rounds": 4,
+      "tool_calls": 3
+    }
+  },
+  "adversarial_rounds": [
+    {
+      "round": 1,
+      "action": "batch read skill, current Spec and adversarial examples",
+      "total_tokens": 42810
+    },
+    {
+      "round": 2,
+      "action": "single concentrated patch",
+      "total_tokens": 51580
+    },
+    {
+      "round": 3,
+      "action": "single validate-spec command",
+      "total_tokens": 51828
+    },
+    {
+      "round": 4,
+      "action": "final receipt",
+      "total_tokens": 53515
+    }
+  ],
+  "comparison_to_iteration_5": {
+    "full_spec_turn": {
+      "iteration_5_tokens": 1411304,
+      "iteration_6_tokens": 270385,
+      "delta_tokens": -1140919,
+      "delta_pct": -80.84,
+      "iteration_5_tool_calls": 25,
+      "iteration_6_tool_calls": 5,
+      "tool_call_delta_pct": -80.0
+    },
+    "x_adversarial_risk": {
+      "iteration_5_tokens": 960376,
+      "iteration_6_tokens": 199733,
+      "delta_tokens": -760643,
+      "delta_pct": -79.2,
+      "iteration_5_tool_calls": 13,
+      "iteration_6_tool_calls": 3,
+      "tool_call_delta_pct": -76.92,
+      "iteration_5_inference_rounds": 14,
+      "iteration_6_inference_rounds": 4,
+      "inference_round_delta_pct": -71.43
+    }
+  }
+}

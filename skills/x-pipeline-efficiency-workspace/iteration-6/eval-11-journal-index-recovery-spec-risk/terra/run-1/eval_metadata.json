@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "eval_id": 11,
+  "eval_name": "journal-index-recovery-spec-risk-iteration-6-terra",
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "scope": "x-spec3 spec stage plus risk-budget-selected x-adversarial-risk",
+  "thread_id": "019f8fab-99eb-7f51-badc-9f44be54ee81",
+  "turn_id": "019f8fab-9b4e-7bc3-8001-716635ae937c",
+  "hidden_score": 41,
+  "hidden_passed": 7,
+  "hidden_total": 17,
+  "result": "blocked",
+  "blocker": "risk metadata used YAML frontmatter while risk_contract.py requires blockquote metadata"
+}

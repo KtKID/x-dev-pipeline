@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "timezone": "UTC",
+  "task_started_at": "2026-07-23T17:28:24.836Z",
+  "user_message_at": "2026-07-23T17:28:26.912Z",
+  "initial_spec_created_at": "2026-07-23T17:33:27.535Z",
+  "initial_spec_scoring_correction_at": "2026-07-23T17:33:45.043Z",
+  "risk_read_at": "2026-07-23T17:33:51.177Z",
+  "risk_patch_completed_at": "2026-07-23T17:35:30.788Z",
+  "validator_completed_at": "2026-07-23T17:35:36.791Z",
+  "run_summary_completed_at": "2026-07-23T17:36:52.440Z",
+  "final_artifact_link_completed_at": "2026-07-23T17:37:03.441Z",
+  "task_completed_at": "2026-07-23T17:37:12.911Z",
+  "session_wall_seconds": 528.075,
+  "turn_wall_seconds": 525.999,
+  "source": "/private/tmp/xdev-terra-home.AvYTYz/sessions/2026/07/24/rollout-2026-07-24T01-28-24-019f9005-7563-7632-9204-dfe735703132.jsonl"
+}

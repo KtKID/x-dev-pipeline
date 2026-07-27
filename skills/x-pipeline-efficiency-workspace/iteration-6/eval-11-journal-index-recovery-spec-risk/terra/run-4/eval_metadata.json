@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "case_id": "journal-index-recovery",
+  "evaluation_kind": "spec-risk",
+  "run_id": "terra/run-4",
+  "status": "completed_scored",
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "thread_id": "019f9005-7563-7632-9204-dfe735703132",
+  "session_id": "019f9005-7563-7632-9204-dfe735703132",
+  "turn_id": "019f9005-75eb-77b2-a501-766a8ca9e5db",
+  "inherited_turns": 0,
+  "workspace": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-4/workspace",
+  "prompt_path": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-4/terra-prompt.txt",
+  "public_inputs": [
+    "task/00-overview.md",
+    "task/01-record-and-state.md",
+    "task/02-recovery-and-compaction.md",
+    "task/03-cli-and-concurrency.md",
+    "task/specs/storage-layout.md"
+  ],
+  "candidate_skills": [
+    ".agents/skills/x-spec3",
+    ".agents/skills/x-adversarial-risk"
+  ],
+  "x_spec3_used": true,
+  "x_adversarial_risk_self_triggered": true,
+  "x_adversarial_risk_evidence": "complexity=5 upgraded review_budget to full; item_12 read the risk skill, catalog, and Spec; item_14 applied the review patch; item_16 ran validate-review",
+  "execution": {
+    "tool_calls": 12,
+    "command_execution_calls": 8,
+    "file_change_calls": 4,
+    "reasoning_items": 24,
+    "agent_messages": 8,
+    "failed_commands": 1,
+    "transport_reconnect_messages": 4,
+    "transport_fallback_events": 1
+  },
+  "validator": {
+    "name": "iteration-6 risk_contract.py validate-review",
+    "exit_code": 0,
+    "valid": true,
+    "issues": 0
+  },
+  "fixed_grader": {
+    "path": "skills/x-pipeline-efficiency-workspace/iteration-5/evaluate_spec_risk.py",
+    "score": 65,
+    "passed": 11,
+    "total": 17,
+    "exit_code": 1
+  },
+  "prior_attempts": {
+    "run-3": {
+      "status": "invalid",
+      "reason": "Terra auto-read a global using-superpowers skill before the isolated run was rebuilt",
+      "scored": false
+    }
+  }
+}

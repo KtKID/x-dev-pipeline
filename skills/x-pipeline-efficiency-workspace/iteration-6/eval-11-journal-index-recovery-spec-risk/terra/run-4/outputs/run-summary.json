@@ -1,0 +1,51 @@
+{
+  "spec_name": "journal-index-recovery",
+  "task_documents_read": [
+    "task/00-overview.md",
+    "task/01-record-and-state.md",
+    "task/02-recovery-and-compaction.md",
+    "task/03-cli-and-concurrency.md",
+    "task/specs/storage-layout.md"
+  ],
+  "outputs": {
+    "spec": "docs/spec/journal-index-recovery/spec.md",
+    "initial_spec": "artifacts/spec.initial.md",
+    "final_spec": "artifacts/spec.final.md"
+  },
+  "risk": {
+    "complexity": 5,
+    "importance": 1,
+    "risk_average": 3.0,
+    "review_budget": "full",
+    "adversarial_review": "complete"
+  },
+  "contract_check": {
+    "status": "passed",
+    "notes": [
+      "所有任务硬约束均在目标、不变量或 Scenario 中有可定位落点。",
+      "已对尾部损坏、非尾部损坏、tombstone、request_id 重用、压缩崩溃窗口和并发竞争构造最小反例。",
+      "无待确认判断；可交接后续任务拆解。"
+    ]
+  },
+  "adversarial_review": {
+    "read_rounds": 1,
+    "patch_rounds": 1,
+    "validation_rounds": 1,
+    "candidates": {
+      "AR-001/phased-commit": "新增 SC_17",
+      "AR-002/semantic-snapshot": "不适用：任务未定义可验证的 snapshot 语义一致性规则",
+      "AR-003/semantic-tail": "新增 SC_18",
+      "AR-004/failed-idempotency": "新增 SC_19",
+      "AR-005/error-contract": "复用并收紧 SC_08",
+      "assumption/healthy-recover-idempotence": "新增 SC_20"
+    },
+    "added_scenarios": ["SC_17", "SC_18", "SC_19", "SC_20"],
+    "reused_scenarios": ["SC_08"]
+  },
+  "validation": {
+    "command": "python3 .agents/skills/x-adversarial-risk/scripts/risk_contract.py validate-review docs/spec/journal-index-recovery/spec.md --catalog .agents/skills/x-adversarial-risk/references/risk-mistakes.md --json",
+    "valid": true,
+    "issues": []
+  },
+  "handoff": "ready-for-x-req3"
+}

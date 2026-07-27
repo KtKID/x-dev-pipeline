@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "command": "python3 .agents/skills/x-adversarial-risk/scripts/risk_contract.py validate-review docs/spec/journal-index-recovery/spec.md --catalog .agents/skills/x-adversarial-risk/references/risk-mistakes.md --json",
+  "exit_code": 0,
+  "target": "docs/spec/journal-index-recovery/spec.md + .agents/skills/x-adversarial-risk/references/risk-mistakes.md",
+  "valid": true,
+  "issues": []
+}

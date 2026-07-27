@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "status": "pass_with_observation",
+  "thread_id": "019f9005-7563-7632-9204-dfe735703132",
+  "inherited_turns": 0,
+  "cwd": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-4/workspace",
+  "workspace_roots": [
+    "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-pipeline-efficiency-workspace/iteration-6/eval-11-journal-index-recovery-spec-risk/terra/run-4/workspace"
+  ],
+  "sandbox": "workspace-write",
+  "network_access": false,
+  "public_task_documents_read": [
+    "task/00-overview.md",
+    "task/01-record-and-state.md",
+    "task/02-recovery-and-compaction.md",
+    "task/03-cli-and-concurrency.md",
+    "task/specs/storage-layout.md"
+  ],
+  "candidate_skill_content_reads": [
+    ".agents/skills/x-spec3/SKILL.md",
+    ".agents/skills/x-spec3/templates/spec.md",
+    ".agents/skills/x-adversarial-risk/SKILL.md",
+    ".agents/skills/x-adversarial-risk/references/risk-mistakes.md"
+  ],
+  "external_skill_content_reads": [],
+  "external_skill_path_inventory_probe": {
+    "count": 1,
+    "command_item": "item_5",
+    "path": "/private/tmp/xdev-terra-home.AvYTYz/skills",
+    "effect": "File paths were enumerated while locating the Spec template; no external SKILL.md content was opened and no external skill was invoked."
+  },
+  "other_case_reads": [],
+  "hidden_grader_reads_before_turn_complete": [],
+  "run_1_non_public_reads_before_turn_complete": [],
+  "run_3": {
+    "status": "invalid",
+    "scored": false
+  },
+  "prompt_banned_disclosures": [],
+  "tools_used": [
+    "exec"
+  ],
+  "external_mcp_or_browser_tools_used": [],
+  "evidence": [
+    "session_meta source=exec created a new session id",
+    "turn_context records the single run-4 workspace root and gpt-5.6-terra/xhigh",
+    "outputs/terra-events.jsonl records all command and file-change events",
+    "task inventory and run-summary agree on all five public documents"
+  ]
+}

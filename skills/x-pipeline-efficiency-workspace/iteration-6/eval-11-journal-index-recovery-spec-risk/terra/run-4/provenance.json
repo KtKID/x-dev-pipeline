@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "thread_id": "019f9005-7563-7632-9204-dfe735703132",
+  "model": "gpt-5.6-terra",
+  "reasoning_effort": "xhigh",
+  "cli_version": "0.144.2",
+  "source": "exec",
+  "hash_algorithm": "sha256",
+  "prompt_sha256": "2d524467008564a9fd135cef393357909f92c5082171ff25f31b24d944651000",
+  "public_input_sha256": {
+    "task/00-overview.md": "46f16a8b635fa9e5cab6419169a47d0aa8740c724b7ec2089e75d1f0a6dc8d45",
+    "task/01-record-and-state.md": "3fc158b190b3a5166cd4e30b281c79aa0a1cad3ae748a5ca2da8315991fb83f3",
+    "task/02-recovery-and-compaction.md": "0f282b9bbb61f7a78c60e0962c2a059f2589dd9e41d1548d6a90b2f2ccdbcfab",
+    "task/03-cli-and-concurrency.md": "512e15c693404867be3536c9cd9b4e0c9e7bc6e8761394991db6d865a1558340",
+    "task/specs/storage-layout.md": "9ea51b5079937f270b71309b75d76372429c45009b0342a8b03c6ff50a2002f2"
+  },
+  "candidate_skill_tree_sha256": {
+    "x-spec3": "e3b9acac92cea141cdab4f9ff4dc72d260a8a48c232969d8104d41ee74e0e3c4",
+    "x-adversarial-risk": "29e952791063aec65238c4b54e86aeac9128c379669d6491ac5038faa76162c9"
+  },
+  "candidate_skill_copy_match": true,
+  "validator_sha256": "c9b64af0f98404911216d4976e857084ffbab8e52239a7ab8d35587052fc28b7",
+  "fixed_grader_sha256": "f9dcc3a306e84eb9bd295b56b5207a4ca25f9be79bed499fd0b95ba2bc1f14ad",
+  "events_sha256": "38bb7a08e4e237e921857e418c9a9f2cd45483e50079605311c28af71c2ae1be",
+  "rollout_sha256": "afc9aa05115dd222d503fbde0e7b588b34169c0542027a39d33304634fe9ba03",
+  "artifact_sha256": {
+    "spec.initial.md": "029aea1dc107af539b2fc59355d8a6e37e6dad04aea71f1143f36c5c97d43896",
+    "spec.final.md": "7c6e3c142dbfe3dc0ac37892d864bceb684368e177fa8eb73d71708cc04bb79e",
+    "run-summary.json": "264b583b0a148c4485f874a7b6e2bd5c3637d010b9423f17244dec08f88cb802"
+  },
+  "grader_execution_note": "The fixed grader hard-codes workspace/skills. Evaluation used a mechanical grader-workspace copy with .agents/skills mirrored to skills; the original Terra workspace remained unchanged."
+}

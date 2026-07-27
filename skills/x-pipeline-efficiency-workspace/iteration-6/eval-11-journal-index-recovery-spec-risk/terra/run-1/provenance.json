@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "runner": {
+    "thread_id": "019f8fab-99eb-7f51-badc-9f44be54ee81",
+    "turn_id": "019f8fab-9b4e-7bc3-8001-716635ae937c",
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "xhigh",
+    "history_inheritance": "zero completed turns; independent thread",
+    "subagents_created": 0
+  },
+  "frozen_inputs": {
+    "x_spec3_skill_sha256": "1dea6557ae9273397c5a03370b6b694465f481511873c6d23b89a8995be0ef13",
+    "x_adversarial_risk_skill_sha256": "e696bba9674a5ccc0faadeed3daed306c4f6f01df00dabf7565fb1e63afd28d1",
+    "adversarial_examples_sha256": "6ea932d4db109a9b6538c910915ffbe3e68982c633a35b5e94cc6dedd5cb78b4",
+    "task_source": "iteration-5 eval-11 workspace/task"
+  },
+  "artifacts": {
+    "initial_spec_sha256": "9ff892cc7d00645c44f7b82f0777ae7a005936da6f9c1526fcdff70fdc776271",
+    "final_spec_sha256": "bde95e80f0c52c908c63183b46e786de50eeade79b16a4ab2225a1ffb3ef9573"
+  },
+  "session": {
+    "file": "rollout-2026-07-23T23-50-15-019f8fab-99eb-7f51-badc-9f44be54ee81.jsonl",
+    "sha256": "d42851d9ec07252e8b1747eb2689f2427ad2d8a99467820337f3831edd898202"
+  }
+}

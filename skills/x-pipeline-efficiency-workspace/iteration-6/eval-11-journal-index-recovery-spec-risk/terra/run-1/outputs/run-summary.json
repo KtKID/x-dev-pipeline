@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "result": "blocked",
+  "hidden_score": 41,
+  "hidden_passed": 7,
+  "hidden_total": 17,
+  "complexity": 4,
+  "importance": 3,
+  "risk_average": 3.5,
+  "review_budget": "deep",
+  "adversarial_review": "complete",
+  "skills_read": [
+    "skills/x-spec3/SKILL.md",
+    "skills/x-adversarial-risk/SKILL.md"
+  ],
+  "references_read": [
+    "skills/x-spec3/templates/spec.md",
+    "skills/x-adversarial-risk/references/adversarial-examples.md"
+  ],
+  "task_documents_required": 5,
+  "task_documents_read": 4,
+  "task_document_missing": "task/specs/storage-layout.md",
+  "corpus_read_scope": "generic adversarial examples only; no historical corpus or evidence paths",
+  "initial_scenarios": 12,
+  "adversarial_scenarios": 2,
+  "final_scenarios": 14,
+  "reused_scenarios": [
+    "SC_03",
+    "SC_07",
+    "SC_08",
+    "SC_10"
+  ],
+  "added_scenarios": [
+    "SC_13",
+    "SC_14"
+  ],
+  "matched_issues": [
+    "failure-residue",
+    "phased-commit",
+    "tail-corruption",
+    "semantic-corruption"
+  ],
+  "hidden_issue_semantic_coverage": {
+    "covered": [
+      "AR-001 compact replace-window recovery",
+      "AR-004 failed request ID reuse"
+    ],
+    "missing": [
+      "AR-002 semantic snapshot consistency",
+      "AR-003 logically invalid complete journal records",
+      "AR-005 complete public error response contract"
+    ],
+    "scorer_traceability_hits": 0
+  },
+  "adversarial_tool_calls": 3,
+  "adversarial_inference_rounds": 4,
+  "validation_commands": [
+    "python3 skills/x-adversarial-risk/scripts/risk_contract.py validate-spec docs/spec/journal-index-recovery/spec.md --json"
+  ],
+  "validation_exit_codes": [
+    1
+  ],
+  "validation_issue_count": 12,
+  "validation_issue_codes": [
+    "SPEC_MISSING_FIELD",
+    "SPEC_VERSION",
+    "SPEC_SCORE",
+    "SPEC_AVERAGE",
+    "SPEC_BUDGET",
+    "SPEC_STATUS"
+  ],
+  "blocker": "Spec risk metadata was emitted as YAML frontmatter instead of the blockquote format required by the template and validator"
+}
