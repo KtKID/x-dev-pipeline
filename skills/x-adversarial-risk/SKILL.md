@@ -1,50 +1,51 @@
 ---
 name: x-adversarial-risk
 description: |
-  对 x-spec3 产出的 Spec 做独立风险评分复核和对抗性检验，并把适用风险补成带来源的可执行 Scenario。用于 Spec 含 adversarial_risk_version 且审查状态为 pending、用户要求检查 Spec 风险/推翻假设/补充风险测试，或需要把已有证据和最小反例的 QA 缺口录入风险错题集时。
+  对 x-spec3 产出的 Spec 做一次有轮次上限的风险复核：读取 Spec、生成“功能关键词 + Risk”查询，从调用方提供的风险语料召回 Top5；用户确认没有 RAG 经验集时，按 Spec 分数执行有上限的独立对抗性检验。用于 review_budget 为 deep/full 且 adversarial_review 为 pending、上一次验证返回聚合 issue，或用户显式要求推翻 Spec 假设、补充高价值风险 Scenario 的场景。
 ---
 
 # x-adversarial-risk
 
-在 `x-spec3 → x-req3` 之间运行。把第一版 Spec 当作待推翻假设，按风险预算增加最少且有区分力的反例；保持已有 Scenario ID 和需求语义稳定。
+在 `x-spec3 → x-req3` 之间执行一次增量审查。风险语料可用时召回相关度最高的最多五条经验；用户确认跳过 RAG 时直接从 Spec 推导故障假设。两条路径都构造能区分正确实现与常见错误实现的最小反例。
 
 ## 输入与边界
 
-接收一个 `docs/spec/<spec-name>/spec.md`。优先读取该文件一次；只有判断会改变评分或反例时，才读取它明确引用的任务或仓库事实。
+输入为一个 `docs/spec/<spec-name>/spec.md`。本轮只修改该文件。
 
-本 skill 独占读取 `references/risk-mistakes.md`。x-spec3、x-req3、x-dev、x-verify 和 x-qa-gate 均不读取该文件。
+Spec 是事实输入。Spec 证据不足以支持新行为时保留现有契约，并在回执中报告证据缺口。项目文件、任务原文、实现代码、QA 报告和脚本源码留给后续独立流程。
 
-执行期间只修改目标 `spec.md`；录入已确认 issue 时才修改错题集。保持 task、实现代码和 QA 报告原样。
+风险语料由调用方提供，路径可以位于当前项目或独立知识库。共享 skill 只保存审查流程、检索调用方式和机械校验脚本。`x-dev-rag-call` 读取指定路径并返回 TopN 的 `id + source + text`；当前 agent 直接使用返回正文，省去整库阅读、LLM 精排、经验改写和按 ID 二次读取。
 
-## 1. 复核双评分
+开始召回前必须取得明确的风险语料路径。当前上下文缺少路径时，停下当前工作并向用户询问：
 
-按实现难度评复杂度：
+> 请提供 RAG 风险经验集的本地文件或目录路径。如果当前没有 RAG 经验集，请确认跳过 RAG 召回；后续将只根据 Spec 的风险分数执行有上限的独立对抗性检验。
 
-| 分数 | 锚点 |
-|---|---|
-| 1 | 简单 CRUD；无复杂状态、事务或外部交互 |
-| 2 | 单体校验和简单业务规则 |
-| 3 | 状态流转、多条件分支或明显状态机 |
-| 4 | 支付、交易、权限等核心链路或高损失一致性 |
-| 5 | 多服务、锁、幂等、高并发、崩溃恢复或核心算法 |
+用户提供路径后进入 RAG 路径。用户明确确认没有经验集或确认跳过后进入无 RAG 路径。agent 不猜测路径，也不扫描工作区寻找候选语料。
 
-按影响评重要性：
+## 对抗性定义
 
-| 分数 | 锚点 |
-|---|---|
-| 1 | 内部工具或管理后台非核心功能 |
-| 2 | 面向内部用户的日常功能 |
-| 3 | 面向全部用户的非核心功能 |
-| 4 | 面向全部用户的核心功能 |
-| 5 | 资金、隐私或合规生命线 |
+1. 选择损失最高或最容易被错误实现破坏的不变量。
+2. 从 Spec 提炼一组功能关键词和一句具体 Risk。
+3. 使用“功能关键词 + Risk”做向量召回。
+4. 用召回正文破坏一个关键前提，构造最小输入、状态、时序或故障窗口。
+5. 比较正确实现与常见错误实现的可观察结果。
+6. 现有 Scenario 已能区分两者时复用；仍有区分缺口时新增最小 Scenario。
 
-把依据写入 `## 风险评分依据`。计算：
+候选按“影响 × 发生可能性 × 区分能力”排序。重点关注状态跳跃、崩溃窗口、重复或乱序、权限边界、敏感数据、并发交错、资源耗尽和部分失败。
 
-```text
-risk_average = (complexity + importance) / 2
-```
+## 风险预算
 
-平均分保留一位小数。预算映射：
+根据 Spec 已记录事实独立重算 complexity、importance、risk_average 和 review_budget：
+
+| 分数 | complexity 锚点 | importance 锚点 |
+|---:|---|---|
+| 1 | 单点数据改写或简单 CRUD | 本地、单用户、内部非核心工具 |
+| 2 | 单体校验或少量顺序分支 | 小范围内部日常能力 |
+| 3 | 状态机、复杂分支或外部交互 | 全用户可用的非核心能力 |
+| 4 | 核心高损失链路或多组件一致性 | 全用户核心链路 |
+| 5 | 锁、幂等、跨进程并发、崩溃恢复、多阶段持久化提交或核心算法任一项 | 资金、隐私、合规或生命线 |
+
+预算映射：
 
 - `average < 3` → `standard`
 - `3 <= average < 4` → `deep`
@@ -52,112 +53,122 @@ risk_average = (complexity + importance) / 2
 - 任一维度为 4 → 至少 `deep`
 - 任一维度为 5 → `full`
 
-更新顶部的 `complexity`、`importance`、`risk_average` 和 `review_budget`，保持字段单一。
+风险语料可用时，`deep` 和 `full` 都使用默认 Top5，并按返回的最多五条正文逐条完成适用性判断；`full` 在召回候选之外，再增加一个由当前 Spec 独立推导的故障假设。
 
-## 2. 按预算执行
+用户确认跳过 RAG 时，预算直接控制独立对抗性检验：
 
-### standard
+- `standard`：保持零对抗性 Scenario 扩张，由 x-spec3 直接交接。
+- `deep`：从 Spec 选择最高风险不变量，执行 1 个独立故障假设。
+- `full`：从 Spec 选择两个不同故障轴，执行最多 2 个独立故障假设。
 
-检查每项主要风险是否由不变量、验收项或 Scenario 承接，检查所有 Scenario 已标来源。保持错题集未读，保持 Scenario 集合不扩张。
+每个假设先与现有 Scenario 去重，只在存在区分缺口时新增或收紧 Scenario。
 
-在审查记录写一行 `ARV-n`，将状态改为 `skipped-standard`。
+## 五轮执行契约
 
-### deep
+### 第 1 轮：读取并生成查询
 
-从当前 Spec 提取动作、数据、场景关键词。先只读取错题索引：
+调用方使用一个批量工具调用完整读取：
+
+1. 本 `SKILL.md`。
+2. 目标 Spec。
+
+读取完成后：
+
+- 重算评分和预算。
+- 复核前七个 `> key: value` 元数据字段。
+- 检查现有 Scenario 覆盖。
+- 从功能、模块、状态和关键动作提炼一组关键词。
+- 把最高价值的具体失败机制写成一句 Risk。
+
+### 第 2 轮：向量召回
+
+确认调用方提供的风险语料路径。路径存在时调用相邻的 `x-dev-rag-call`：
 
 ```bash
-rg -n '^## AR-|^- (动作维度|数据维度|场景维度)[：:]' \
-  skills/x-adversarial-risk/references/risk-mistakes.md
+uv run --offline --isolated \
+  --python /opt/homebrew/Caskroom/miniforge/base/bin/python3 \
+  --with "sentence-transformers>=2.7.0" \
+  --with "transformers>=4.51.0,<5" \
+  python skills/x-dev-rag-call/scripts/rag_retrieve.py \
+  --source <调用方提供的风险语料路径> \
+  --query "功能关键词：<功能、模块、状态、动作>
+Risk：<具体失败机制>" \
+  --top-n 5 \
+  --json
 ```
 
-读取三个维度至少一个匹配的完整 issue 块。对每个匹配 issue：
+成功输出包含最多五条 `matches[].id`、`matches[].source` 和 `matches[].text`。默认从本地模型缓存加载 `Qwen/Qwen3-Embedding-0.6B`，并通过 `local_files_only=True` 禁止联网下载。查询使用官方 `query` 提示模板，风险语料正文按普通文档编码，两侧向量都归一化。需要指定其他本地模型时增加 `--model <本地路径或本地模型名>`。
 
-1. 映射到当前模块、数据和业务时刻。
-2. 构造破坏当前不变量的最小反例。
-3. 判断现有 Scenario 能否区分正确与错误实现。
-4. 为仍未覆盖且适用的风险追加一个 Scenario。
+召回成功后按命中顺序使用全部正文完成适用性判断、最小反例构造、Scenario 去重和最终修改集合设计，并在 Spec 审查记录中写明实际采用的 `RAG:AR-NNN`。调用方未提供语料路径或召回失败时保持 `adversarial_review: pending`，记录退出码、`error` 和 `message`，并阻断 x-req3。
 
-完成一轮后写审查记录，将状态改为 `complete`。
+用户确认跳过 RAG 后，本轮省略召回命令，按 `deep` 或 `full` 上限完成独立假设，并在审查记录中写入 `CLI=skipped:no-corpus`。该确认只替代 RAG 召回，评分和对抗性预算继续生效。
 
-### full
+### 第 3 轮：集中修改
 
-完整读取 `references/risk-mistakes.md`，先执行 deep 的 issue 回放，再执行一次假设推翻：
+使用一个 patch 完成全部变化，范围只包含：
 
-1. 列出 Spec 默认成立却缺少证据的假设。
-2. 依次尝试状态跳跃、崩溃窗口、重复/乱序、权限绕过、敏感数据泄露、并发交错、资源耗尽和部分失败。
-3. 为每个适用假设构造最小反例。
-4. 只把能改变实现或验收、且有可观察 THEN 的反例写入 Scenario。
+1. 评分字段及“风险评分依据”中的必要纠正。
+2. 新 Scenario 直接依赖的不变量或 J-ID。
+3. 对应验收项与测试驱动顺序。
+4. 对抗性审查记录和状态。
+5. 区分缺口要求的最小新增 Scenario 集合。
 
-默认由当前 agent 完成两轮判断。用户显式要求人工复核时，把假设清单保留为待确认，维持 `pending`。
-
-## 3. 写入可追溯 Scenario
-
-保留已有 `SC_NN`。从当前最大 ID 后连续追加；按行为和关联 issue 去重。
-
-每个第一版 Scenario 保持：
-
-```text
-- 来源：initial-spec
-```
-
-错题回放新增 Scenario 使用：
+每个新增 Scenario 包含 GIVEN、唯一 WHEN、可观察 THEN、测试层和依据。RAG 召回错题来源格式：
 
 ```text
 - 来源：adversarial-review (rag:AR-001)
 ```
 
-同一 Scenario 可引用多个 issue。独立假设推翻使用：
+无 RAG 路径的独立假设使用：
 
 ```text
-- 来源：adversarial-review (assumption:<简短说明>)
+- 来源：adversarial-review (assumption:<短说明>)
 ```
 
-每个新增 Scenario 同时补齐 GIVEN、唯一 WHEN、可观察 THEN、测试层和依据，并更新验收清单与测试驱动顺序。风险描述写成“触发条件 → 事故 → 影响”，明确对应不变量。
+### 第 4 轮：验证
 
-## 4. 记录审查增量
+RAG 路径运行：
 
-在 `## 对抗性审查记录` 中维护：
+```bash
+python3 skills/x-adversarial-risk/scripts/risk_contract.py \
+  validate-review docs/spec/<spec-name>/spec.md \
+  --catalog <调用方提供的风险语料路径> --json
+```
 
-| Review | 预算 | 匹配 issue | 被推翻假设 | 新增 Scenario |
-|---|---|---|---|---|
-| ARV-1 | deep / full / standard | RAG:AR-NNN / 无 | <结论或无> | SC_NN / 无 |
+验证命令聚合 Spec、风险语料格式和来源映射的全部机械问题。验证失败时保持阻断状态，并在回执中列出完整聚合 issue。
 
-重复执行时先检查既有记录和 Scenario 来源。相同输入、评分和错题集产生相同 Scenario 集合；无新增风险时记录“无适用新增”，不复制已有内容。
-
-## 5. 机械门禁
-
-修改完成后运行：
+用户确认跳过 RAG 时运行：
 
 ```bash
 python3 skills/x-adversarial-risk/scripts/risk_contract.py \
   validate-spec docs/spec/<spec-name>/spec.md --json
 ```
 
-deep/full 还要运行：
+该命令验证评分、审查状态和 `assumption` 来源。验证通过后把 `adversarial_review` 设置为 `complete`。
 
-```bash
-python3 skills/x-adversarial-risk/scripts/risk_contract.py \
-  validate-corpus skills/x-adversarial-risk/references/risk-mistakes.md --json
-```
+修正调用开始新的五轮执行：读取当前 Spec 和 skill，复用上一次 issue，重新召回或复用相同查询结果，一次修完、复验并回执。
 
-退出 1 时在同一编辑批次修完全部 issue，再整体复跑。退出 2 时修正参数、路径或 IO 问题。门禁通过后交接 x-req3。
+### 第 5 轮：回执
 
-## 6. 录入已确认错题
+直接返回：
 
-只录入同时具备可定位证据和可复现最小反例的问题。证据保存在 QA 或 fix 报告，错题集只保存检索所需内容。先检索相同动作、数据、场景和根因；相同根因更新原条目。
+- 目标 Spec。
+- complexity、importance、risk_average 和 review_budget。
+- 查询关键词和 Risk。
+- RAG 路径返回 CLI 退出码、召回 ID 和召回数量；无 RAG 路径返回 `skipped:no-corpus`。
+- 复用与新增 Scenario ID。
+- 读取、召回、修改和验证结果。
+- x-req3 交接状态或阻断 issue。
 
-新条目使用下列字段：
+回执后结束本轮。
 
-```text
-## AR-NNN
+## 审查记录
 
-关键词：<功能、模块、状态、动作>
-Risk：<触发条件、失败机制和影响>
-```
+在 `## 对抗性审查记录` 中维护：
 
-录入后运行 `validate-corpus`。风险猜测继续留在 QA/fix 证据中，直到证据与反例完整。
+| Review | 预算 | 风险来源 | 查询 | 召回 ID | 复用 Scenario | 新增 Scenario | CLI |
+|---|---|---|---|---|---|---|---|
+| ARV-1 | deep / full | RAG:AR-NNN / assumption:<短说明> | <关键词；Risk> | <AR-NNN, ...> | <SC_NN / 无> | <SC_NN / 无> | exit=0; matches=<1..5> |
+| ARV-1 | deep / full | assumption:<短说明> | 无 RAG 经验集 | 无 | <SC_NN / 无> | <SC_NN / 无> | skipped:no-corpus |
 
-## 回执
-
-返回目标 Spec、复杂度/重要性/平均分、预算、错题集读取范围、匹配 issue、被推翻假设、新增或复用的 Scenario ID、门禁结果和 x-req3 交接状态。
+重复调用依据查询、召回 ID、既有记录和 Scenario 来源判断增量。相同 Spec、查询、模型和风险语料产生相同 ID 顺序。

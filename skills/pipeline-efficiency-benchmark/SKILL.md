@@ -2,7 +2,8 @@
 name: pipeline-efficiency-benchmark
 description: |
   把 x-dev-pipeline 的 skill 优化做成可重复 benchmark：迁移公开任务包到隔离 workspace，完整打包候选 skills 与 tools 脚本，预检考生输入，执行 baseline/candidate，归一化 Token、耗时、工具调用、评分和金额，生成跨 iteration 横向对比并判断晋级。用户提到 pipeline efficiency、任务包迁移、干净上下文评测、baseline/iteration 对比、Token/费用优化、计费金额、横向报告或 skills/x-pipeline-efficiency-workspace 时使用。
-compatibility: Requires Python 3.10+ and local readable task, skill, tool, run telemetry, and grader artifacts.
+metadata:
+  compatibility: Requires Python 3.10+ and local readable task, skill, tool, run telemetry, and grader artifacts.
 ---
 
 # Pipeline Efficiency Benchmark
@@ -42,7 +43,7 @@ iteration-N/
 
 两种迁移 profile：
 
-- `pipeline_candidate`：创建全新 x-dev-pipeline 候选 workspace，复制公开考题、七个 skills 和七个运行 tools。
+- `pipeline_candidate`：创建全新 x-dev-pipeline 候选 workspace，复制公开考题、七个阶段 skills、共享 `x-dev-rag-call` 和六个运行 tools。
 - `public_task_only`：向已有的其他框架 workspace 只添加公开考题，保留其现有环境，不注入 x-dev skills/tools。
 
 创建全新 pipeline candidate：
@@ -83,6 +84,10 @@ python3 skills/pipeline-efficiency-benchmark/scripts/prepare_workspace.py \
 - `x-qa-gate`
 - `x-fix`
 
+共享 skill：
+
+- `x-dev-rag-call`
+
 skill 包的 `assets/executor-tools/` 包含七个工具。prepare 向考生 workspace 复制六个运行工具：
 
 - `xdev.py`
@@ -108,7 +113,7 @@ python3 skills/pipeline-efficiency-benchmark/scripts/validate_workspace.py \
 preflight 检查：
 
 1. 公开 task 和 workspace 外的 package manifest 均存在。
-2. `pipeline_candidate` 额外要求完整七 skill 和七个运行 tools；`public_task_only` 保持原框架环境。
+2. `pipeline_candidate` 额外要求完整七阶段 skill、共享 `x-dev-rag-call` 和六个运行 tools；`public_task_only` 保持原框架环境。
 3. pipeline candidate 的 tools 与 skill 内 bundled 版本 SHA 一致。
 4. `xdev.py` 的本地导入依赖齐全且 CLI 可启动。
 5. package manifest 中的所有文件保持原 hash。

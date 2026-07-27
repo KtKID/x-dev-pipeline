@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 
-REQUIRED_SKILLS = (
+PIPELINE_STAGES = (
     "x-spec3",
     "x-adversarial-risk",
     "x-req3",
@@ -20,6 +20,10 @@ REQUIRED_SKILLS = (
     "x-qa-gate",
     "x-fix",
 )
+
+SHARED_SKILLS = ("x-dev-rag-call",)
+
+REQUIRED_SKILLS = (*PIPELINE_STAGES, *SHARED_SKILLS)
 
 EXECUTOR_TOOLS = (
     "xdev.py",

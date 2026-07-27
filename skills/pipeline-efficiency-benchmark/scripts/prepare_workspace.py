@@ -11,8 +11,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from benchmark_common import (
-    REQUIRED_SKILLS,
     EXECUTOR_TOOLS,
+    PIPELINE_STAGES,
+    REQUIRED_SKILLS,
+    SHARED_SKILLS,
     BenchmarkError,
     is_forbidden_path,
     read_json,
@@ -119,8 +121,10 @@ def prepare(
         skills_readme = workspace / "skills" / "README.md"
         skills_readme.write_text(
             "# Local pipeline skill package\n\n"
-            "执行顺序：\n\n"
-            + "\n".join(f"{index}. `{name}`" for index, name in enumerate(REQUIRED_SKILLS, 1))
+            "阶段执行顺序：\n\n"
+            + "\n".join(f"{index}. `{name}`" for index, name in enumerate(PIPELINE_STAGES, 1))
+            + "\n\n共享 skills：\n\n"
+            + "\n".join(f"- `{name}`" for name in SHARED_SKILLS)
             + "\n\n`tools/` 随本地执行包提供并经 SHA 校验。\n",
             encoding="utf-8",
         )

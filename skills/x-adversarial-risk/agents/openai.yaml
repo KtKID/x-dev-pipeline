@@ -1,4 +1,0 @@
-interface:
-  display_name: "Adversarial Spec Risk"
-  short_description: "Score Spec risk and add adversarial test scenarios"
-  default_prompt: "Use $x-adversarial-risk to challenge this Spec risk model and add traceable adversarial scenarios."
