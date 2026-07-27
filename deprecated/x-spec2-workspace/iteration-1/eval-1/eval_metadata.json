@@ -1,0 +1,16 @@
+{
+  "eval_id": 1,
+  "eval_name": "stackchan-esp32s3-voice-link",
+  "skill_name": "x-spec2",
+  "iteration": 1,
+  "case_path": "skills/x-spec2/evals/stackchan-esp32s3-voice-link.md",
+  "prompt_source": "skills/x-spec2/evals/evals.json",
+  "configurations": [
+    "with_skill",
+    "without_skill"
+  ],
+  "runs": {
+    "with_skill": "eval-1/with_skill/run-1",
+    "without_skill": "eval-1/without_skill/run-1"
+  }
+}

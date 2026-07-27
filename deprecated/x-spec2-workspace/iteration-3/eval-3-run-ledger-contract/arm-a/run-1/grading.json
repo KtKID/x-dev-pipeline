@@ -1,0 +1,64 @@
+{
+  "expectations": [
+    {
+      "text": "一个用户任务对应一个 run，反馈返工使用同一 run 的新 attempt，并在任务创建时绑定 pipeline 版本。",
+      "passed": true,
+      "evidence": "第 1 节明确规定每个用户任务获得唯一 pipeline_run_id，反馈返工以新 stage_attempt 写入原 run；第 3.6 条进一步规定用户反馈返工属于原 run。5.4 与 CreateRun 规定创建事务同时写入不可变 pipeline_binding，AC10 可执行断言同一 run 创建 revision 2 和新 attempt，并沿用原 binding。"
+    },
+    {
+      "text": "重复 `event_id` 幂等，乱序事件可重建逻辑顺序，冲突终态被隔离。",
+      "passed": true,
+      "evidence": "I5、8.1 规定同 event_id 同 payload 返回原确认且不重复计数，同 ID 异 payload 写 integrity_conflict；I6、8.2 使用 producer_seq、因果边和 checkpoint 重建逻辑顺序。I7、8.3 规定终态 expected-status CAS，竞争失败事实进入冲突隔离。AC4、AC6、AC8 分别给出重复投递、1/4/5/3/2 乱序和 success/failure 并发终结的可执行断言。"
+    },
+    {
+      "text": "终态后的迟到证据通过修订关联，不能静默改写已发布结果。",
+      "passed": true,
+      "evidence": "I8 规定迟到证据以新事件引用原事件或终态，并保持已发布 digest、旧评分和旧终态；5.9 定义 supplements/corrects_interpretation revision link；AttachLateEvidence 只追加 supplements。AC9 断言 H1 与 accepted 事实保持不变，新证据通过 supplements link 可查。"
+    },
+    {
+      "text": "stage 中断或部分持久化后可以安全重放，避免重复提交，并记录缺失指标原因。",
+      "passed": false,
+      "evidence": "8.4 与 AC11 给出事务 outbox、原幂等身份重试、checkpoint 追平和从零重建，可覆盖部分持久化后的安全重放与去重。数据契约、恢复规则及 AC11 均缺少 missing_metrics 结构、缺失指标原因码和相应断言，因此该条的最后一项没有可实现或可验收证据。"
+    },
+    {
+      "text": "task contract 给出可实现的数据/状态所有者和清晰范围。",
+      "passed": true,
+      "evidence": "第 2 节逐项界定本次实现、接口边界和延后事项；第 7 节为 current pointer、run/binding、revision/attempt、ledger event、artifact、projection、runtime/grader 写域和冲突裁决指定唯一所有者、允许操作及禁止能力。"
+    },
+    {
+      "text": "验收用例包含可执行输入、动作、预期状态与证据。",
+      "passed": true,
+      "evidence": "AC1-AC15 均采用 GIVEN/WHEN/THEN，包含具体并发数、事件序列、状态码、digest、CAS 与查询断言；第 11 节给出 bash scripts/verify-run-ledger-contract.sh、退出码约束和 verification.json 证据 schema，可形成可复跑证据。"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 1,
+    "total": 6,
+    "pass_rate": 0.8333333333
+  },
+  "claims": [
+    {
+      "claim": "同一用户任务的反馈返工沿用原 run 与原 pipeline binding。",
+      "type": "factual",
+      "verified": true,
+      "evidence": "第 3.6 条、T5 与 AC10 一致规定反馈返工创建新 revision/stage attempt，并沿用原 run 和 binding。"
+    },
+    {
+      "claim": "重复事件与投影重放不会重复累计 Token、artifact 或状态。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "8.1 明确完全一致事件视为成功重放且 Token、artifact、状态均不重复生效；AC4 对十次重试断言只保留一份事实和一次 Token 汇总。"
+    },
+    {
+      "claim": "进程崩溃和派生视图落后具有确定恢复路径。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "8.4 规定同事务 outbox、提交后确认、原幂等键重试、ledger_seq checkpoint 与派生表从零重建；AC11 验证三个崩溃注入点。"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "六条 rubric 能区分身份、幂等/时序、终态修订、恢复、所有权和验收质量；第 4 条对缺失指标原因的要求成功识别了仅覆盖重放机制的契约缺口。"
+  }
+}

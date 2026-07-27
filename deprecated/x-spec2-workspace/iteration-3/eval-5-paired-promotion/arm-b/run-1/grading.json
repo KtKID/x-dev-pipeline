@@ -1,0 +1,70 @@
+{
+  "expectations": [
+    {
+      "text": "配对 manifest 固定任务、模型、repo、权限、预算和 grader 断言，任一不一致都会使样本失效。",
+      "passed": true,
+      "evidence": "第 3.1 节 manifest 固定 task snapshot、模型、repo SHA、权限、Token/时间/tool-call 预算和 assertion set/grader 摘要；第 4.2、6.1 节要求逐 pair 完全相等并将差异归为 INVALID。AC2 以表驱动测试覆盖任务、模型、权限、预算、断言和 seed。"
+    },
+    {
+      "text": "评测期间生产 baseline 漂移时保留原评测事实，并在晋级前触发重放或重新基准化。",
+      "passed": true,
+      "evidence": "第 5 节规定 baseline 被取代后已启动 run 按冻结快照完成、evaluation 保留、decision 进入 STALE，并以新生产版本创建新 manifest 配对回放。AC5 要求原 run/evaluation 可查询，旧生产 generation 保持生效。"
+    },
+    {
+      "text": "两个候选并发发布通过版本前置条件或 compare-and-set 保证唯一胜者。",
+      "passed": true,
+      "evidence": "第 4.5、8.3 节要求发布校验 expected baseline version 与 generation 后原子 CAS；第 8.4 节规定首个 CAS 成功、另一个进入 CONFLICT。AC11 要求恰好一个 APPLIED，最终 production pointer 等于胜者版本，并重复至少 100 次并发压力测试。"
+    },
+    {
+      "text": "正确性门槛先于 Token；成本更低但出现关键回归的候选必须被拒绝。",
+      "passed": true,
+      "evidence": "第 7.1 节固定顺序先检查目标修复、关键硬门槛、意图与技术正确性，再比较 Token；第 7.3 节明确 Token 改善无法抵消前述失败。AC8 直接验收 Token 改善 30% 且出现 P0 回归时 decision=REJECTED。"
+    },
+    {
+      "text": "候选不合格时稳定生产版本继续服务，拒绝依据与评测成本保持可查询。",
+      "passed": true,
+      "evidence": "第 7.2 节对 INVALID、REJECTED、DECLINED 明确规定当前生产版本继续服务，并保存阻断项或审批意见；第 6.4 节要求提前停止时记录拒绝依据、已完成层级及全部 evolution_eval_tokens。T9、AC14 和 AC16 要求按实体查询并导出可离线复核的拒绝与成本证据。"
+    },
+    {
+      "text": "决策包能够追溯知识、假设、逐案例结果、审批、发布版本和回滚目标。",
+      "passed": true,
+      "evidence": "第 2、3 节把 knowledge_entry_id、hypothesis_id、逐案例 pair/run/grading、decision digest、approval 和 promotion 连接为稳定身份链；第 7.1 节审计完整性门槛要求知识、假设、run、grading、决策和 rollback target 全部可定位。T9、AC16 与 12.3 节要求证据包双向查询生产版本、审批、发布和回滚目标。"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "配对样本只有在任务、模型、仓库、权限、预算和断言等上下文一致时才有效。",
+      "type": "factual",
+      "verified": true,
+      "evidence": "第 4.2 和 6.1 节列出完整相等条件，AC2 以表驱动测试覆盖核心漂移字段。"
+    },
+    {
+      "claim": "生产 baseline 漂移会保留冻结评测事实，并使旧决定失效后重新配对回放。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "第 5 节 baseline 变化行明确规定 run/evaluation 保留、decision=STALE 和新 manifest 配对回放；AC5 验收可查询性和旧生产指针稳定性。"
+    },
+    {
+      "claim": "Token 效率只有在正确性门槛通过后参与晋级。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "第 7.1 的顺序决策算法将 Token 放在正确性之后，第 7.3 和 AC8 明确关键回归时拒绝低 Token 候选。"
+    },
+    {
+      "claim": "发布和回滚记录可以从生产版本追溯到知识、假设、案例、审批与决定。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "T9、AC16 和第 12.3 节要求单一证据包、离线 digest 复核及从任一生产版本查询完整关联链。"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "六条断言均由明确字段、状态规则、拒绝顺序、CAS 前置条件和自动验收共同支撑，能够有效区分表面提及与可实现契约。"
+  }
+}

@@ -1,0 +1,144 @@
+{
+  "expectations": [
+    {
+      "text": "输出目录只包含非空的 spec.md、modules.md、design.md，且没有 task、checklist 或实现代码产物。",
+      "passed": true,
+      "evidence": "现场目录检查只发现 outputs/spec.md、outputs/modules.md、outputs/design.md，大小分别为 15956、13744、23236 bytes，三者均非空。spec.md:9 将产物限定为系统契约与可验收行为，spec.md:22 将固件源文件、部署脚本和开发任务清单列入范围外；目录中没有 task、checklist、README 或实现代码文件。"
+    },
+    {
+      "text": "输出通过 python3 tools/xdev.py validate <输出目录>，并被识别为 spec2。",
+      "passed": true,
+      "evidence": "评分时现场复跑 `python3 tools/xdev.py validate /Volumes/machub_app/proj/x-dev-pipeline/skills/x-spec2-workspace/iteration-1/stackchan-esp32s3-voice-link/without_skill/outputs --json`，退出码为 0；返回 package type=`spec2`、skipped=false、issues=[]、total_issues=0。machine-grading.json 也记录了相同结果。"
+    },
+    {
+      "text": "用户原话追溯覆盖 StackChan/ESP32-S3、唤醒 listen、采集上行、ASR、TTS 回传播放、低延迟、可打断、可观测、稳定恢复九类要求，并映射到真实且唯一的 Requirement。",
+      "passed": true,
+      "evidence": "spec.md:52-60 的九行追溯表逐项覆盖九类用户原话，并分别唯一映射到 R1-R9。spec.md:64、74、90、106、122、138、148、164、180 存在且仅存在对应的九个 Requirement 定义，每个 Requirement 后均有 Scenario 验收条目；追溯中的 Requirement 名称与这些真实定义一致。"
+    },
+    {
+      "text": "数据流、状态、时序、资源、不变量、故障六个元组均标记适用，给出适用理由、真实落点和可验证证据。",
+      "passed": true,
+      "evidence": "spec.md:218-225 的建模覆盖声明包含数据流、状态、时序、资源、不变量、故障六行，每行都有适用理由、design.md 落点和验证证据。六个落点真实存在于 design.md:5 `数据流`、47 `状态模型`、108 `时序与延迟预算`、191 `资源模型`、211 `系统不变量`、229 `故障恢复`，各节都包含实质模型、规则或验收内容。"
+    },
+    {
+      "text": "Requirement 与 Module 覆盖关系双向闭合，模块使用统一状态词汇并明确边界、接口和资源所有权。",
+      "passed": true,
+      "evidence": "modules.md:7-13 给出七个 Module 到 Requirement 的回指，modules.md:107-115 给出 R1-R9 到 Module 的反向覆盖；逐项核对两张表得到完全相同的关系集合。modules.md:17-25 对每个模块列出独占所有权、输入、输出和边界，44-82 定义通用信封及双向事件接口，86-99 定义统一设备端和服务端状态，101 明确设备状态与服务端 generation 状态的唯一写者。"
+    },
+    {
+      "text": "design.md 描述端到端音频与文本数据流、设备和服务端状态生命周期、关键时序与延迟预算、资源所有权、不变量及故障恢复。",
+      "passed": true,
+      "evidence": "design.md:30-35 描述麦克风音频经设备、传输、网关、ASR final text、TTS streaming audio 回到扬声器的端到端链路；51-104 给出设备与服务端状态机及守卫；112-189 给出正常/打断时序和六项延迟预算；193-205 给出资源、权威所有者、容量和释放；213-225 给出九条不变量；229-267 给出恢复策略、故障矩阵和 24 小时验收。"
+    },
+    {
+      "text": "低延迟要求包含可测量预算；具体阈值未定时明确列为待确认决策，并定义端到端与关键分段的测量口径。",
+      "passed": true,
+      "evidence": "spec.md:32 将最终低延迟阈值列为 A5 待确认项，spec.md:140 给出 wake、ASR、TTS、首个可播放样本、静音和服务端取消的建议 p95 数值。design.md:178-185 为六项指标逐一规定起点、终点、目标和测量条件，其中 eou_to_play_first 是端到端口径，wake_to_uplink_first、eou_to_asr_final、asr_final_to_tts_first 等是关键分段；design.md:187 规定固定测试条件、至少 100 次样本及 p50/p95/p99 报告。"
+    },
+    {
+      "text": "播放打断包含取消传播、当前播放终止、相关资源释放，以及已取消或过期音频永不恢复播放的不变量。",
+      "passed": true,
+      "evidence": "spec.md:150-161 要求本地立即静音、释放旧播放所有权、取消沿设备/传输/网关/TTS/ASR 传播，并规定已取消 generation 的缓存、在途帧和迟到结果永久失效。design.md:156-174 的打断时序包含 mute、flush、raise fence、priority cancel、网关丢队列、TTS cancel 和 cancel_ack；design.md:195-204 规定 DMA、缓冲、owner、generation context、ASR/TTS 句柄的取消释放；design.md:217-225 的 I3-I5、I8 强制旧音频永不进入播放 DMA并最终释放全部相关资源。"
+    },
+    {
+      "text": "可观测设计包含跨设备和服务端的会话或关联标识，以及覆盖关键阶段、时延、错误与恢复的日志、事件或指标。",
+      "passed": true,
+      "evidence": "spec.md:166-171 规定 session_id、generation_id、transport_epoch、trace_id、seq 贯通设备、传输网关、ASR 与 TTS，并要求可查询关键状态、阶段时刻、重试、取消、背压、丢弃和故障。design.md:273-280 列出唤醒、传输、ASR、TTS、播放/取消、资源/终态事件，282 规定全部事件的关联字段，286-290 列出阶段延迟、资源、重连/重试、错误、恢复成功率和告警指标。"
+    },
+    {
+      "text": "稳定运行设计覆盖网络断开、服务超时、流中断、重试或重连、背压或缓冲上限、部分失败，并给出恢复验收证据。",
+      "passed": true,
+      "evidence": "spec.md:182-199 的 R9 明确断网、心跳/服务超时、流问题、缓冲溢出、有限退避重试、背压、降级和 24 小时长稳验收。design.md:233-237 规定总/阶段 deadline、最多 3 次退避重试、新 transport_epoch 重连和安全续传守卫；design.md:243-256 的故障矩阵覆盖物理断连、半开、上下行背压、溢出、ASR/TTS 超时、TTS 流中断、并发取消、过载和遥测部分失败；design.md:260-265 规定资源无单调增长、确定终态、旧音频零播放和 trace 可还原的恢复验收证据。"
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "exec_command": 9,
+      "apply_patch": 3,
+      "send_message": 1
+    },
+    "total_tool_calls": 13,
+    "total_steps": 6,
+    "errors_encountered": 0,
+    "output_chars": 31934,
+    "transcript_chars": 1610,
+    "counting_scope": "Counts this agent run through the final file-structure check; output_chars is the wc -m sum of outputs/spec.md, outputs/modules.md, and outputs/design.md."
+  },
+  "claims": [
+    {
+      "claim": "输出目录只有 spec.md、modules.md、design.md 三个非空文件。",
+      "type": "factual",
+      "verified": true,
+      "evidence": "现场目录检查与 stat 结果确认三个文件，大小分别为 15956、13744、23236 bytes；未发现其他输出项。"
+    },
+    {
+      "claim": "输出通过 xdev 校验并被识别为 spec2。",
+      "type": "process",
+      "verified": true,
+      "evidence": "评分时现场复跑验证器，退出码 0，type=spec2，issues=[]，total_issues=0。"
+    },
+    {
+      "claim": "九类用户要求建立了一对一 Requirement 追溯。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "spec.md:52-60 有九行唯一映射；spec.md 中恰有 R1-R9 九个同名真实 Requirement 定义及相应 Scenario。"
+    },
+    {
+      "claim": "Requirement 与 Module 覆盖关系双向闭合。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "modules.md:7-13 的模块回指集合与 107-115 的 Requirement 承接模块集合逐项互为逆关系。"
+    },
+    {
+      "claim": "design.md 实质承载数据流、状态、时序、资源、不变量和故障六元组。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "design.md:5、47、108、191、211、229 六个真实章节分别提供链路、状态机、时序预算、资源表、不变量表和故障矩阵。"
+    },
+    {
+      "claim": "执行过程未读取 x-spec2/SKILL.md 或 templates。",
+      "type": "process",
+      "verified": false,
+      "evidence": "transcript.md 的“读取的测试材料”只给出执行者自述，现有材料没有原始工具调用日志或访问审计，可确认该自述存在，无法独立验证读取边界。"
+    },
+    {
+      "claim": "建议延迟阈值与恢复参数仍需产品、硬件、服务团队确认。",
+      "type": "factual",
+      "verified": true,
+      "evidence": "spec.md:32 将延迟阈值列为 A5 待确认；design.md:187 和 303-304 要求通过基线压测、弱网故障注入和评审冻结最终 SLO 与恢复参数。"
+    }
+  ],
+  "user_notes_summary": {
+    "uncertainties": [
+      "目标 StackChan ESP32-S3 板型、音频器件、I2S 引脚和可用 PSRAM 尚待确认。",
+      "全双工传输协议、设备认证、证书轮换、音频编解码、采样率、帧长、缓冲容量和回声消除能力尚待确认。",
+      "唤醒词引擎、VAD、ASR/TTS 服务商、语言集合及供应商取消能力尚待确认。",
+      "延迟预算、恢复窗口、重试次数、受控网络条件和生产 SLO 尚待最终确认。",
+      "原始音频与转写的调试授权、留存和脱敏规则尚待确认。"
+    ],
+    "needs_review": [
+      "硬件 BOM、协议与音频格式需要真机资源和链路压测后冻结。",
+      "建议时延和恢复预算需要产品、硬件与服务团队联合确认。",
+      "认证、隐私和数据留存策略需要安全与数据治理评审。"
+    ],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "reason": "transcript.md 显示 baseline 读取了完整 `evals/stackchan-esp32s3-voice-link.md`，其中直接包含三件产物、九项保真要求、六元组重点和验收判定。该暴露显著降低 with_skill 与 without_skill 的区分度。后续 baseline 只应获得用户题目，评分 rubric 应由 grader 独立持有。"
+      },
+      {
+        "assertion": "Requirement 与 Module 覆盖关系双向闭合，模块使用统一状态词汇并明确边界、接口和资源所有权。",
+        "reason": "建议将闭合定义为 modules.md 的 Module→Requirement 与 Requirement→Module 两张表集合严格相等，并明确 spec.md 的“主要受影响模块”表是摘要还是完整覆盖。当前输出的 modules.md 正反表完全闭合，spec.md 的摘要集合更窄，机器化口径可以消除跨文档解释空间。"
+      }
+    ],
+    "overall": "十条 expectation 覆盖产物边界、机械有效性、追溯、六元组、模块闭合、动态设计、延迟、打断、观测和恢复，实质性与可判定性较强。baseline 的 rubric 暴露是当前评测最主要的区分度风险。"
+  }
+}

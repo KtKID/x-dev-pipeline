@@ -1,0 +1,64 @@
+{
+  "expectations": [
+    {
+      "text": "执行失败、grader 扣分和 rubric 升级后的重评分形成独立记录并保留各自版本。",
+      "passed": true,
+      "evidence": "DeductionRecord 以 grading_run_id、grader/rubric version 和 assertion_id 标识独立评分事实；契约明确规定 rubric 升级后的重评分创建新的 grading_run_id 与 DeductionRecord，并以 supersedes_grading_run_id 关联旧轮次。AC-01 进一步要求 1 条 FailureRecord 与两个 grading run 下的独立 DeductionRecord，且 R1 内容和分数保持原值。"
+    },
+    {
+      "text": "两个 writer 并发提交相同证据时只形成一个 canonical 条目，其余请求稳定关联。",
+      "passed": true,
+      "evidence": "canonical_key 有数据库唯一约束，归并采用 insert-on-conflict-return-existing，KnowledgeSourceLink 以联合唯一键幂等追加。6.2 明确要求两个 collector 同时提交相同证据或同一问题时仅产生一个 canonical entry，失败事务读取胜出条目并追加来源关联；AC-05 验证 1 个 KnowledgeEntry、2 条 KnowledgeSourceLink 和仅 1 个 revision 1。"
+    },
+    {
+      "text": "新证据通过追加修订更新根因，历史结论与当时决策引用保持可查询。",
+      "passed": true,
+      "evidence": "6.3 规定推翻根因的新证据创建新修订，旧修订和引用旧 revision 的决策继续可查，current_revision_id 原子指向新结论。AC-06 具体要求 revision 3、其证据和 P1 引用保留可查，并由 revision 4 追加 REJECTED 或新结论。"
+    },
+    {
+      "text": "证据不足时根因保持待确认，区分 `detected_stage` 与 `origin_stage`，并记录候选原因和缺失证据。",
+      "passed": false,
+      "evidence": "契约为 UNASSESSED/HYPOTHESIS 规定候选根因、置信依据与 missing_evidence，AC-08 也阻止未确认项进入确认统计；但模型只有 FailureRecord.stage，KnowledgeRevision 没有 detected_stage 或 origin_stage 字段，也没有保持发现阶段不可变、归因阶段可修订的规则。该关键区分缺失。"
+    },
+    {
+      "text": "知识记录能追溯 run、attempt、pipeline 版本、artifact 与原始证据。",
+      "passed": true,
+      "evidence": "FailureRecord 强制 pipeline_run_id、stage_attempt_id、pipeline_version_id 和 evidence_refs；EvidenceRecord 强制内容寻址 evidence_id 与不可变 artifact_uri；FixRecord 还保存 artifact hash 和实施 run/attempt。身份契约要求外部身份向运行账本校验并保留写入时版本。"
+    },
+    {
+      "text": "验收用例能够击穿覆盖写入、错误归因和并发重复条目。",
+      "passed": true,
+      "evidence": "AC-03 与 AC-07 检查冲突输入和并发修订不会覆盖既有事实/current；AC-06 用新反证推翻已确认根因并检查旧决策引用；AC-05 以真实并发、至少 50 轮验证相同 canonical key 仅生成一个 KnowledgeEntry 且两个来源链接均保留。"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 1,
+    "total": 6,
+    "pass_rate": 0.8333333333333334
+  },
+  "claims": [
+    {
+      "claim": "rubric 升级后的重评分会形成新的评分事实并保留旧评分。",
+      "type": "factual",
+      "verified": true,
+      "evidence": "DeductionRecord 规则与 AC-01 同时规定新的 grading_run_id、supersedes 链及旧内容保留。"
+    },
+    {
+      "claim": "并发归并相同 canonical key 只产生一个知识条目。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "唯一约束、insert-on-conflict-return-existing、幂等 source link 与 AC-05 真实并发验收形成完整可实现闭环。"
+    },
+    {
+      "claim": "知识模型支持可定位失败归因。",
+      "type": "quality",
+      "verified": false,
+      "evidence": "根因修订可追踪，模型缺少 detected_stage 与 origin_stage 两个独立字段，无法精确表达发现位置和起源位置。"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "六条断言覆盖版本留痕、并发 canonical 化、追加修订、待确认归因、证据追溯与对抗性验收，能够识别字段级关键缺口。"
+  }
+}

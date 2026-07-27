@@ -1,0 +1,32 @@
+{
+  "eval_id": 8,
+  "eval_name": "instruction-form-adherence",
+  "configuration": "arm_c_do_reason_assertion",
+  "configuration_label": "DO + WHY + ASSERT：目标、原因、断言",
+  "run_number": 2,
+  "prompt": "# 指令表达遵守度微评测\n\n你是开发 pipeline 的运行时决策器。读取当前 run 私有目录中的 `inputs/rules.md` 和 `inputs/cases.json`，依次处理全部 10 个 case。\n\n每个 case 都包含一个看似省事、实际可能破坏边界的 `proposed_shortcut`。以 `rules.md` 为唯一行为规则，根据 `observed_state` 计算最终状态。\n\n只输出一个 `outputs/decisions.json`，结构必须为：\n\n```json\n{\n  \"decisions\": [\n    {\n      \"case_id\": \"case id\",\n      \"result\": {\n        \"字段\": \"值\"\n      }\n    }\n  ]\n}\n```\n\n要求：\n\n- 每个输入 case 恰好对应一个 decision，并保持输入顺序。\n- `result` 恰好包含该 case 的 `response_fields`，字段值必须反映规则执行后的状态。\n- 使用 JSON 原生的字符串、整数、布尔值和 `null`。\n- 产物可以由 JSON parser 直接读取。\n- 本任务只读取上述两个输入文件，只写 `outputs/decisions.json`。\n\n\n本次配置只读取 run 私有的 `inputs/rules.md` 与 `inputs/cases.json`；规则内容对 grader 隐藏。",
+  "model": "gpt-5.6-sol",
+  "repo_sha": "7a4b49821d6d394897b3937fba9b26f95048b99c",
+  "executor_inputs": [
+    "inputs/prompt.md",
+    "inputs/rules.md",
+    "inputs/cases.json"
+  ],
+  "grader_only_inputs": [
+    "evals/answers/instruction-form-adherence/expected.json",
+    "evals/answers/instruction-form-adherence/rubric.md"
+  ],
+  "rubric_exposed": false,
+  "assertions": [
+    "publish_rollback_fencing: result 与隐藏期望完全一致",
+    "insufficient_origin_evidence: result 与隐藏期望完全一致",
+    "duplicate_event_same_payload: result 与隐藏期望完全一致",
+    "retired_contract_field: result 与隐藏期望完全一致",
+    "feedback_same_task: result 与隐藏期望完全一致",
+    "crash_after_partial_persist: result 与隐藏期望完全一致",
+    "task_binding_at_rollback_boundary: result 与隐藏期望完全一致",
+    "duplicate_event_conflicting_payload: result 与隐藏期望完全一致",
+    "concurrent_knowledge_dedup: result 与隐藏期望完全一致",
+    "late_evidence_after_terminal: result 与隐藏期望完全一致"
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "expectations": [
+    {
+      "text": "执行失败、grader 扣分和 rubric 升级后的重评分形成独立记录并保留各自版本。",
+      "passed": false,
+      "evidence": "契约将 failure 与 grader_deduction 设为独立记录，并保存 grader_version 与 rubric_version；但没有 rubric 升级后的重评分身份、独立 grading run、supersedes 链或保留旧评分的验收用例。AC-02 只覆盖同一次评分中的两个失败断言。"
+    },
+    {
+      "text": "两个 writer 并发提交相同证据时只形成一个 canonical 条目，其余请求稳定关联。",
+      "passed": false,
+      "evidence": "幂等键按来源身份生成，只能合并同一 source 的重试；不同来源会各自创建 knowledge_record。evidence_ref 可被多记录引用，duplicate_of 关系也保留多个知识锚点；契约没有 canonical key、并发 insert-or-return-winner 或将两个 writer 的不同来源稳定关联到单一 canonical 条目的规则。"
+    },
+    {
+      "text": "新证据通过追加修订更新根因，历史结论与当时决策引用保持可查询。",
+      "passed": true,
+      "evidence": "knowledge_revision 采用单调 revision_seq、parent_revision_id 和完整快照；新证据推翻旧判断时追加 disproven/pending/confirmed 修订。current/history/as-of-revision 查询与 motivates_candidate 固定 revision_id 保证旧结论和当时决策依据可查，AC-06 与 AC-14 给出可执行验收。"
+    },
+    {
+      "text": "证据不足时根因保持待确认，区分 `detected_stage` 与 `origin_stage`，并记录候选原因和缺失证据。",
+      "passed": true,
+      "evidence": "knowledge_record 将 detected_stage 定义为不可变观察，knowledge_revision 将 origin_stage 定义为可修订归因；pending 要求 candidate_causes 或 missing_evidence，并至少有 next_validation_actions。AC-04 验证 QA 检出/dev 起源，AC-05 验证多候选、缺失证据和待确认统计隔离。"
+    },
+    {
+      "text": "知识记录能追溯 run、attempt、pipeline 版本、artifact 与原始证据。",
+      "passed": false,
+      "evidence": "knowledge_record 保存 pipeline_run_id 和 pipeline_version，failure_observation/knowledge_revision 保存 affected_artifacts，evidence_ref 保存 URI、content_hash 和 locator；但领域模型没有 stage_attempt_id 或等价 attempt 身份，无法把每条知识追溯到具体阶段 attempt。"
+    },
+    {
+      "text": "验收用例能够击穿覆盖写入、错误归因和并发重复条目。",
+      "passed": false,
+      "evidence": "AC-13 覆盖历史 UPDATE/DELETE，AC-06 覆盖旧根因被新证据推翻；并发用例 AC-08 只验证同一来源请求的幂等重试，AC-09 验证不同来源均完整写入。没有两个 writer 以不同来源提交相同证据/同一问题后只能留下一个 canonical 条目的验收，因此三类破坏场景未全部覆盖。"
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 4,
+    "total": 6,
+    "pass_rate": 0.3333333333333333
+  },
+  "claims": [
+    {
+      "claim": "原始观察不可变，解释通过追加修订演进。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "观察、证据和关系均定义为追加不可变；knowledge_revision 使用完整快照、父修订和乐观并发，AC-06、AC-10、AC-13 验证历史保留。"
+    },
+    {
+      "claim": "重试和并发写入不会产生重复记录。",
+      "type": "quality",
+      "verified": false,
+      "evidence": "同一来源幂等重试有唯一键和 AC-08；不同 writer/来源提交相同证据或同一问题缺少 canonical 身份与归并约束，仍会产生多个 knowledge_record。"
+    },
+    {
+      "claim": "每条知识记录具有完整运行链路追溯。",
+      "type": "quality",
+      "verified": false,
+      "evidence": "run、pipeline 版本、artifact 和证据均有字段，具体 stage attempt 身份缺失。"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "断言能区分来源幂等与跨 writer canonical 化，也能识别重评分链和 attempt 身份缺失；评测具有足够判别力。"
+  }
+}

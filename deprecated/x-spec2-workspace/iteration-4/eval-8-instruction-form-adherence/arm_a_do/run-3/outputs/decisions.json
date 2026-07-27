@@ -1,0 +1,85 @@
+{
+  "decisions": [
+    {
+      "case_id": "crash_after_partial_persist",
+      "result": {
+        "artifact_count": 1,
+        "event_count": 1,
+        "safe_replay": true,
+        "missing_reason_recorded": true
+      }
+    },
+    {
+      "case_id": "retired_contract_field",
+      "result": {
+        "contract_drift": true,
+        "baseline_blocked": true,
+        "producer": "risk-router",
+        "consumer": "qa-gate",
+        "source": "risk_profile"
+      }
+    },
+    {
+      "case_id": "late_evidence_after_terminal",
+      "result": {
+        "terminal": "success",
+        "revision_count": 1,
+        "late_evidence_linked": true
+      }
+    },
+    {
+      "case_id": "concurrent_knowledge_dedup",
+      "result": {
+        "canonical_count": 1,
+        "source_link_count": 2
+      }
+    },
+    {
+      "case_id": "duplicate_event_conflicting_payload",
+      "result": {
+        "event_count": 1,
+        "conflict": true,
+        "terminal": "success"
+      }
+    },
+    {
+      "case_id": "feedback_same_task",
+      "result": {
+        "pipeline_run_id": "R7",
+        "stage_attempt": 3
+      }
+    },
+    {
+      "case_id": "publish_rollback_fencing",
+      "result": {
+        "current_version": "V1",
+        "committed_fence": 42,
+        "stale_publish_rejected": true
+      }
+    },
+    {
+      "case_id": "duplicate_event_same_payload",
+      "result": {
+        "event_count": 1,
+        "conflict": false,
+        "terminal": "running"
+      }
+    },
+    {
+      "case_id": "insufficient_origin_evidence",
+      "result": {
+        "detected_stage": "qa",
+        "origin_stage": null,
+        "root_cause_pending": true
+      }
+    },
+    {
+      "case_id": "task_binding_at_rollback_boundary",
+      "result": {
+        "run_before_version": "V2",
+        "run_after_version": "V1",
+        "mixed_binding": false
+      }
+    }
+  ]
+}

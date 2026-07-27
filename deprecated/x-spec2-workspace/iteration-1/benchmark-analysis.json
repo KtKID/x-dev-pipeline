@@ -1,0 +1,7 @@
+[
+  "两组十条语义断言均为 100%，本 case 证明 x-spec2 在复杂动态链路上保持完整性；单次样本不用于推断跨题稳定性。",
+  "with_skill 输出 23679 字符，without_skill 输出 31934 字符；在相同通过率下减少 8255 字符，约 25.8%。benchmark 的 tokens 字段在本轮承载 output_chars 代理值。",
+  "with_skill 使用 19 次工具调用，without_skill 使用 13 次；skill 增加了模板读取和校验步骤，同时压缩了最终文档。",
+  "测试 case 向两组公开了完整产物边界与评分 rubric，因此本轮主要验证产物质量和压缩效果，对 skill 指令增益的区分度有限。",
+  "本轮没有可靠 wall-clock timing，time_seconds 保持 0，避免用估算值污染结果。"
+]

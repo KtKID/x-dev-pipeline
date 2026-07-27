@@ -1,0 +1,70 @@
+{
+  "expectations": [
+    {
+      "text": "配对 manifest 固定任务、模型、repo、权限、预算和 grader 断言，任一不一致都会使样本失效。",
+      "passed": true,
+      "evidence": "第 5.1 节 manifest 必填结构固定 task_set_version/case_ids、model、repository_snapshot、permissions_profile_id、budget 和 grader/断言摘要；第 5.2 节要求双臂这些条件一致；第 7.3 节规定任一条件失败产生 INVALID_COMPARISON；AC6 进一步验收模型修订或权限不一致时评测失效且不得晋级。"
+    },
+    {
+      "text": "评测期间生产 baseline 漂移时保留原评测事实，并在晋级前触发重放或重新基准化。",
+      "passed": true,
+      "evidence": "第 8.3 节明确生产版本变化不改写 manifest 或已采集结果，旧结果继续可查；发布前发现 baseline 偏离时进入 BASELINE_STALE，并创建新 evaluation 执行重放，或在逐条等价性证明下重新基准化。AC7 对旧评测保留、stale 检查和两种后续路径给出自动验收。"
+    },
+    {
+      "text": "两个候选并发发布通过版本前置条件或 compare-and-set 保证唯一胜者。",
+      "passed": true,
+      "evidence": "第 6.3 节给出 production current_version_id 与 routing_epoch 双前置条件的事务性 CAS；第 8.4 节规定基于同一 {V1, epoch E} 的两个候选中首个成功，第二个收到 BASELINE_STALE。AC8 要求恰好一个请求成功、epoch 只更新至 11 且生产指针始终引用一个完整版本。"
+    },
+    {
+      "text": "正确性门槛先于 Token；成本更低但出现关键回归的候选必须被拒绝。",
+      "passed": true,
+      "evidence": "第 7.2 节把关键不变量、P0、意图和技术正确性放在效率比较之前，并规定仅对通过全部门禁的结果计算 Token；第 8.2 节将关键不变量、P0、意图和技术正确性失败列为直接拒绝条件。AC13 同时覆盖低成本错误案例不进入 accepted 分母。"
+    },
+    {
+      "text": "候选不合格时稳定生产版本继续服务，拒绝依据与评测成本保持可查询。",
+      "passed": true,
+      "evidence": "第 6.1 节将不合格候选收敛到 REJECTED，生产指针只有通过第 6.3 节发布前置检查及 CAS 才会切换；第 6.2、7.2 和 8.2 节要求终止状态保存消耗、停止依据和直接拒绝原因。第 9 节 T7 要求按 candidate/evaluation/run/decision/release 查询证据，AC4 要求拒绝依据、最小复现和 evolution_eval_tokens 进入结果包。"
+    },
+    {
+      "text": "决策包能够追溯知识、假设、逐案例结果、审批、发布版本和回滚目标。",
+      "passed": true,
+      "evidence": "第 4、5 节将知识条目修订、可证伪假设、case_result、package_digest、approval、pipeline_release 和 rollback_target_version_id 纳入实体及 manifest；第 11 节证据包列出 manifest、逐案例双臂 run/result、decision-package、approvals、releases 和 audit events，并提供校验、聚合、发布与回滚复跑命令。"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "claims": [
+    {
+      "claim": "封存后的 manifest 不可原地修改，条件差异会令配对结果失效。",
+      "type": "factual",
+      "verified": true,
+      "evidence": "第 5.2 节要求封存后变化创建新 evaluation；第 7.3 节将条件不一致归为 INVALID_COMPARISON；AC2 和 AC6 提供自动验收。"
+    },
+    {
+      "claim": "并发晋级通过生产版本与 routing epoch 的事务性 CAS 收敛为唯一胜者。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "第 6.3 和 8.4 节给出双前置 CAS 规则，AC8 要求恰好一个请求成功。"
+    },
+    {
+      "claim": "关键正确性失败会在效率比较前拒绝候选，同时保留已消耗的评测成本。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "第 7.2、8.2 节规定硬门禁和直接拒绝顺序，AC4 要求后续回放停止且 evolution_eval_tokens 完整保留。"
+    },
+    {
+      "claim": "决策证据可以通过内容寻址证据包离线复算。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "第 11 节定义完整证据包、六类逻辑复跑命令及 digest 一致性验收。"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "六条断言覆盖配对可比性、基线漂移、并发唯一胜者、正确性优先、拒绝后的稳定服务与成本留存，以及端到端追溯；均要求规则或可执行验收，区分度充分。"
+  }
+}

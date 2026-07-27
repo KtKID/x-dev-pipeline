@@ -1,0 +1,79 @@
+{
+  "expectations": [
+    {
+      "text": "任务创建与 pipeline/路由版本绑定是单一原子动作，run 不会处于未绑定或混合版本。",
+      "passed": true,
+      "evidence": "第 5.1 节要求在同一事务内插入 pipeline_run、初始 attempt 关联和 RUN_VERSION_BOUND outbox，提交失败不产生可见 run；I2、I9 要求提交时绑定字段完整且每个已提交 epoch 只有一份完整配置；AC-03、AC-05 明确断言空绑定和混合字段计数为零。"
+    },
+    {
+      "text": "回滚提交前已创建任务保持原版本，提交后的新任务全部绑定稳定版本。",
+      "passed": true,
+      "evidence": "I6-I7 和第 5.3 节以数据库提交顺序定义切面：创建先提交时保留旧 epoch 的 V1/V2 绑定，回滚先提交时创建读取新 epoch 并绑定 V1；AC-01、AC-02、AC-04、AC-05 给出可自动验证的边界用例。"
+    },
+    {
+      "text": "回滚命令可幂等重试，进程在切换中崩溃后能够恢复到明确版本。",
+      "passed": true,
+      "evidence": "第 4.4、5.2 节定义 rollback_operation_id、首次结果复用和参数冲突；第 6 节区分提交前崩溃的完整旧 epoch 与提交后响应丢失的完整 V1-only 新 epoch；AC-07、AC-10 验证重试只产生一个 epoch 增量和一条 canonical 事实。"
+    },
+    {
+      "text": "发布与回滚并发时通过序列号、租约或 fencing token 阻止旧操作覆盖新状态。",
+      "passed": false,
+      "evidence": "契约为 RollbackCanary 定义 expected_epoch CAS，并用 AC-08 验证陈旧回滚拒绝；发布或晋级操作的写协议、与回滚共享的 fencing 规则及发布/回滚并发验收均未定义，现有证据只能证明回滚与既有 route epoch 的冲突保护。"
+    },
+    {
+      "text": "canary 触发条件、观测窗口、回滚原因和受影响 run 进入决策记录与知识库。",
+      "passed": false,
+      "evidence": "第 1.3 节把自动决定 canary 回滚排除在范围外；回滚事件仅要求 reason、evidence_refs 和旧/新 epoch。契约未定义触发条件、观测窗口、受影响 run 集合、知识库记录结构或写入/派生验收。"
+    },
+    {
+      "text": "验收用例明确覆盖切换边界并能检测混合版本任务。",
+      "passed": true,
+      "evidence": "AC-01 至 AC-04 用锁释放顺序覆盖回滚前后两个确定切面，AC-05 以 100 个并发请求断言不存在其他 epoch、空绑定和重复事实；第 9 节要求输出 mixed_version_run_count=0、post_rollback_non_v1_count=0 和事务 trace。"
+    }
+  ],
+  "summary": {
+    "passed": 4,
+    "failed": 2,
+    "total": 6,
+    "pass_rate": 0.6666666666666666
+  },
+  "claims": [
+    {
+      "claim": "任务创建提交是 run 与版本绑定的单一线性化点。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "第 5.1 节把 run、初始 attempt 关联和绑定事实放入同一事务，并规定提交失败时 run 不可见。"
+    },
+    {
+      "claim": "回滚后的存量 V2 run 继续按原摘要执行。",
+      "type": "factual",
+      "verified": true,
+      "evidence": "A5、I3、I10、第 5.4 节与 AC-02/AC-11/AC-12 均冻结 run 绑定并保护被引用的 V2 制品。"
+    },
+    {
+      "claim": "相同回滚 operation 重试返回首次已提交结果。",
+      "type": "process",
+      "verified": true,
+      "evidence": "第 4.4 节定义 operation 幂等，第 6 节定义提交前后恢复路径，AC-07 验证 revision 与 canonical 事实唯一。"
+    },
+    {
+      "claim": "契约覆盖完整的回滚知识沉淀链路。",
+      "type": "quality",
+      "verified": false,
+      "evidence": "输出只定义 reason 与 evidence_refs；触发条件、观测窗口、受影响 run 和知识库写入契约均缺席。"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "发布与回滚并发时通过序列号、租约或 fencing token 阻止旧操作覆盖新状态。",
+        "reason": "可要求一个发布事务与一个回滚事务基于同一 epoch 并发，明确断言只有一个新 epoch 提交，落败操作返回稳定冲突码，重试无法覆盖胜出状态。"
+      },
+      {
+        "assertion": "canary 触发条件、观测窗口、回滚原因和受影响 run 进入决策记录与知识库。",
+        "reason": "可要求决策事件与知识记录的字段映射、affected_run_ids 或可复算查询条件，以及知识派生失败后的 outbox 重试验收。"
+      }
+    ],
+    "overall": "六条断言具有区分度；第 4、5 条准确暴露了 A 臂对控制面并发和知识沉淀的契约缺口。"
+  }
+}

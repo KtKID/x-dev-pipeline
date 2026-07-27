@@ -1,0 +1,9 @@
+[
+  "arm_a_do: exact-match 100.0% ± 0.0%, all-10 run rate 100.0%, mean 108496 tokens, mean 37.9s, mean 2.67 tool calls.",
+  "arm_b_dont: exact-match 96.7% ± 4.7%, all-10 run rate 66.7%, mean 88500 tokens, mean 39.1s, mean 2.00 tool calls.",
+  "arm_c_do_reason_assertion: exact-match 100.0% ± 0.0%, all-10 run rate 100.0%, mean 99896 tokens, mean 55.4s, mean 2.33 tool calls.",
+  "arm_b_dont 的随机波动 case: retired_contract_field。",
+  "arm_a_do_minus_arm_b_dont: quality +3.3 points, tokens +22.6%, time -2.9%.",
+  "arm_a_do_minus_arm_c_do_reason_assertion: quality +0.0 points, tokens +8.6%, time -31.6%.",
+  "arm_b_dont_minus_arm_c_do_reason_assertion: quality -3.3 points, tokens -11.4%, time -29.5%."
+]

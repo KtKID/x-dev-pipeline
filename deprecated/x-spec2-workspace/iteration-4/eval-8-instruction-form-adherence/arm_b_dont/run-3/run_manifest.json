@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "eval_id": 8,
+  "configuration": "arm_b_dont",
+  "configuration_label": "DON'T：禁止行为",
+  "run_number": 3,
+  "repo_sha": "7a4b49821d6d394897b3937fba9b26f95048b99c",
+  "input_sha256": "sha256:919a459779cec64953e3a6a0b6e979e83ed3802d3e0475f3f707222dd54c7cc7",
+  "prompt_sha256": "sha256:9aaac3198e8a5fd645e2368ce0b03f49739d0bc3c83ed7593e2169f96f3d34cd",
+  "rules_sha256": "sha256:03beff6aa722ec6bfe2641a21af0bb777ad7ae4acd2dc1c966aa598cbfd45a3f",
+  "cases_sha256": "sha256:a4a1ea261e8b8eb9380db1760cf87e3add50ca9eaeb85e6d99aac66e11bb2cfe",
+  "instruction_chars": 873,
+  "total_input_chars": 5656,
+  "case_order": [
+    "crash_after_partial_persist",
+    "retired_contract_field",
+    "late_evidence_after_terminal",
+    "concurrent_knowledge_dedup",
+    "duplicate_event_conflicting_payload",
+    "feedback_same_task",
+    "publish_rollback_fencing",
+    "duplicate_event_same_payload",
+    "insufficient_origin_evidence",
+    "task_binding_at_rollback_boundary"
+  ],
+  "grader_visibility": "expected and rubric excluded from executor"
+}

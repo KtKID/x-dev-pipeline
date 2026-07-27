@@ -1,0 +1,80 @@
+{
+  "expectations": [
+    {
+      "text": "feedback_same_task: result 与隐藏期望完全一致",
+      "passed": true,
+      "evidence": "精确匹配：{\"pipeline_run_id\": \"R7\", \"stage_attempt\": 3}"
+    },
+    {
+      "text": "duplicate_event_same_payload: result 与隐藏期望完全一致",
+      "passed": true,
+      "evidence": "精确匹配：{\"conflict\": false, \"event_count\": 1, \"terminal\": \"running\"}"
+    },
+    {
+      "text": "duplicate_event_conflicting_payload: result 与隐藏期望完全一致",
+      "passed": true,
+      "evidence": "精确匹配：{\"conflict\": true, \"event_count\": 1, \"terminal\": \"success\"}"
+    },
+    {
+      "text": "late_evidence_after_terminal: result 与隐藏期望完全一致",
+      "passed": true,
+      "evidence": "精确匹配：{\"late_evidence_linked\": true, \"revision_count\": 1, \"terminal\": \"success\"}"
+    },
+    {
+      "text": "crash_after_partial_persist: result 与隐藏期望完全一致",
+      "passed": true,
+      "evidence": "精确匹配：{\"artifact_count\": 1, \"event_count\": 1, \"missing_reason_recorded\": true, \"safe_replay\": true}"
+    },
+    {
+      "text": "insufficient_origin_evidence: result 与隐藏期望完全一致",
+      "passed": true,
+      "evidence": "精确匹配：{\"detected_stage\": \"qa\", \"origin_stage\": null, \"root_cause_pending\": true}"
+    },
+    {
+      "text": "concurrent_knowledge_dedup: result 与隐藏期望完全一致",
+      "passed": true,
+      "evidence": "精确匹配：{\"canonical_count\": 1, \"source_link_count\": 2}"
+    },
+    {
+      "text": "publish_rollback_fencing: result 与隐藏期望完全一致",
+      "passed": true,
+      "evidence": "精确匹配：{\"committed_fence\": 42, \"current_version\": \"V1\", \"stale_publish_rejected\": true}"
+    },
+    {
+      "text": "task_binding_at_rollback_boundary: result 与隐藏期望完全一致",
+      "passed": true,
+      "evidence": "精确匹配：{\"mixed_binding\": false, \"run_after_version\": \"V1\", \"run_before_version\": \"V2\"}"
+    },
+    {
+      "text": "retired_contract_field: result 与隐藏期望完全一致",
+      "passed": true,
+      "evidence": "精确匹配：{\"baseline_blocked\": true, \"consumer\": \"qa-gate\", \"contract_drift\": true, \"producer\": \"risk-router\", \"source\": \"risk_profile\"}"
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "exec": 3
+    },
+    "total_tool_calls": 3,
+    "errors_encountered": 0,
+    "total_steps": 1,
+    "output_chars": 1867,
+    "transcript_chars": 0
+  },
+  "claims": [],
+  "user_notes_summary": {
+    "uncertainties": [],
+    "needs_review": [],
+    "workarounds": []
+  },
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "精确状态断言由确定性 grader 校验。"
+  }
+}

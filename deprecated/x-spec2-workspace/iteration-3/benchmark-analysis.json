@@ -1,0 +1,14 @@
+[
+  "30 条断言中，17 条在 compact_spec 与 verbose_spec 下同时通过，13 条出现方向相反的结果，0 条同时失败。compact_spec 在 6 条反向断言上通过，verbose_spec 在 7 条上通过；整体平均通过率仅相差 3.3 个百分点，实际对应全部 30 条断言中的 1 条净差。",
+  "跨 case 的通过率呈分组结构：compact_spec 在 knowledge-lifecycle 为 5/6，对 verbose_spec 的 2/6；verbose_spec 在 canary-rollback-binding 为 6/6，对 compact_spec 的 4/6，在 contract-risk-routing 为 5/6，对 compact_spec 的 3/6；run-ledger-contract 同为 5/6，paired-promotion 同为 6/6。",
+  "run-ledger-contract 的相同 5/6 总分来自互补失败：断言 1“一个用户任务对应一个 run，反馈返工使用同一 run 的新 attempt，并在任务创建时绑定 pipeline 版本”仅 compact_spec 通过；断言 4“stage 中断或部分持久化后可以安全重放，避免重复提交，并记录缺失指标原因”仅 verbose_spec 通过。",
+  "knowledge-lifecycle 有 5 条反向断言：compact_spec 单独通过断言 1“执行失败、grader 扣分和 rubric 升级后的重评分形成独立记录并保留各自版本”、断言 2“两个 writer 并发提交相同证据时只形成一个 canonical 条目，其余请求稳定关联”、断言 5“知识记录能追溯 run、attempt、pipeline 版本、artifact 与原始证据”和断言 6“验收用例能够击穿覆盖写入、错误归因和并发重复条目”；verbose_spec 单独通过断言 4“证据不足时根因保持待确认，区分 detected_stage 与 origin_stage，并记录候选原因和缺失证据”。",
+  "paired-promotion 的 6 条断言在两种配置下全部通过，是唯一完全同结果的 case；该 case 的断言结果无法区分 compact_spec 与 verbose_spec。",
+  "canary-rollback-binding 的前 3 条断言及第 6 条在两种配置下同时通过；断言 4“发布与回滚并发时通过序列号、租约或 fencing token 阻止旧操作覆盖新状态”和断言 5“canary 触发条件、观测窗口、回滚原因和受影响 run 进入决策记录与知识库”仅 verbose_spec 通过。",
+  "contract-risk-routing 有 4 条反向断言：断言 3“公开契约、共享状态、并发或不可逆操作进入完整 spec/task/verify/独立审查路径”仅 compact_spec 通过；断言 1“每个阶段字段定义唯一 producer、consumer 和有效来源，风险、Requirement、Scenario 与报告路径语义一致”、断言 2“consumer 读取退役字段或旧路径时产生可定位 CONTRACT_DRIFT 并阻止版本进入 baseline”和断言 6“验收同时覆盖合法新契约、旧字段漂移和路由低估三类反例”仅 verbose_spec 通过。",
+  "compact_spec 在全部 5 个 case 中都使用更少时间和 token。逐 case 的 token 降幅为 44.5%、28.4%、48.2%、29.2%、28.8%；时间降幅为 28.6%、4.2%、31.4%、2.7%、6.2%，时间收益主要集中在 run-ledger-contract 与 paired-promotion。",
+  "资源差异与通过率方向并不固定：knowledge-lifecycle 中 compact_spec 同时多通过 3 条、少用 42,889 token；canary-rollback-binding 与 contract-risk-routing 中 verbose_spec 各多通过 2 条，同时分别多用 43,910 和 43,887 token；run-ledger-contract 与 paired-promotion 总分持平，verbose_spec 分别多用 88,865 和 98,990 token。",
+  "verbose_spec 的资源分布存在两个不同离群点：run-ledger-contract 用时 307.970 秒，为该配置最高值且比其均值高 84.092 秒；paired-promotion 使用 205,489 token，为该配置最高值且比其均值高 33,669。两个最高值来自不同 case。",
+  "compact_spec 的 token 在 106,499 到 110,940 之间，极差 4,441；verbose_spec 在 150,469 到 205,489 之间，极差 55,020。均值之外，compact_spec 的跨 case token 用量明显更集中。",
+  "全部 10 个 run 的 tool_calls 与 errors 都记录为 0，同时每个 run 记录了 168.824 至 307.970 秒和 106,499 至 205,489 token；当前 benchmark 的资源字段无法进一步按工具调用或错误恢复拆分这些消耗。"
+]

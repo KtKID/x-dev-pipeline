@@ -1,0 +1,69 @@
+{
+  "expectations": [
+    {
+      "text": "每个阶段字段定义唯一 producer、consumer 和有效来源，风险、Requirement、Scenario 与报告路径语义一致。",
+      "passed": true,
+      "evidence": "第 4 节逐项给出 Requirement/Scenario、风险、实现结果、verify、QA、fix、状态和报告位置的唯一真源、生效结果与下游形式；第 6 节按每个阶段边界列出 producer、consumer、字段和引用规则。"
+    },
+    {
+      "text": "consumer 读取退役字段或旧路径时产生可定位 `CONTRACT_DRIFT` 并阻止版本进入 baseline。",
+      "passed": true,
+      "evidence": "7.1 在 baseline 前扫描 legacy denylist，7.2 定义 NO_LEGACY_READ，7.3 的 CONTRACT_DRIFT 输出包含 producer、consumer、field、expected_source、actual_source 和 evidence_path；AC2 验证旧字段/旧路径非零退出，AC3 明确候选不得进入 baseline。"
+    },
+    {
+      "text": "公开契约、共享状态、并发或不可逆操作进入完整 spec/task/verify/独立审查路径。",
+      "passed": false,
+      "evidence": "8.2 明确公开契约、并发和不可逆状态进入 high/full，full 包含稳定 task contract、verify 和 q1/q2/q3 独立审查；规则没有把可逆的共享状态写入单独列为强制 full，且 high 路径没有明确要求完整 spec。AC7 也只覆盖系统不变量或公开契约。"
+    },
+    {
+      "text": "低风险轻量路径保留影子 QA，发现 P0/P1 后形成知识并提高同类任务风险权重。",
+      "passed": true,
+      "evidence": "low/light 决策必须记录确定性影子 QA；P0/P1 产生 ROUTER_UNDER_REVIEW 知识输入。路由输入包含同类任务错误放行率和 P0/P1 历史快照，low 仅在历史错误放行率低时成立，校准又按任务类别分桶并生成候选策略，使同类后续任务的风险判断受到该反馈影响。"
+    },
+    {
+      "text": "路由策略有独立版本，run 记录决策输入、profile 和策略版本，可通过历史错误放行率校准。",
+      "passed": true,
+      "evidence": "route_decision 明确记录 pipeline_run_id、policy_version、input_fingerprint、signal_snapshot_id、risk_level 和 profile；策略有独立状态机。9.2 定义 router_false_release_rate，并按任务类别、模块、不变量、policy version 和时间窗口分桶校准。"
+    },
+    {
+      "text": "验收同时覆盖合法新契约、旧字段漂移和路由低估三类反例。",
+      "passed": true,
+      "evidence": "AC1 覆盖合法 V2 全阶段链，AC2 覆盖退役 README/旧 spec/旧 risk 位置读取，AC9 覆盖 light profile 被影子 QA 发现 P1 的路由低估；三者均给出可执行输入、动作和结构化预期。"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 1,
+    "total": 6,
+    "pass_rate": 0.8333333333333334
+  },
+  "claims": [
+    {
+      "claim": "Requirement/Scenario、风险和报告位置都有唯一声明真源与受约束的下游引用形式。",
+      "type": "factual",
+      "verified": true,
+      "evidence": "第 4 节唯一真源表和第 6 节逐边界契约共同定义了来源、生产者、消费者及稳定引用。"
+    },
+    {
+      "claim": "任何旧字段、错误路径或重复真源都会产生可定位 CONTRACT_DRIFT 并阻止候选进入 baseline。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "NO_LEGACY_READ/SOURCE_UNIQUE、结构化错误字段以及 AC2/AC3 共同给出定位和 baseline 阻断规则。"
+    },
+    {
+      "claim": "所有共享状态操作都会强制进入完整 spec/task/verify/独立审查路径。",
+      "type": "quality",
+      "verified": false,
+      "evidence": "路由规则只明确系统不变量、高风险模块、公开契约、并发和不可逆状态；可逆共享状态写入没有独立强制 full 规则，full 描述也未明确包含完整 spec。"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "低风险轻量路径保留影子 QA，发现 P0/P1 后形成知识并提高同类任务风险权重。",
+        "reason": "建议增加固定同类任务的反馈前后配对验收，直接断言历史错误放行信号变化以及后续最低 profile 上调。"
+      }
+    ],
+    "overall": "rubric 能识别字段真源、legacy 漂移、硬风险路由和反例覆盖；第 4 条增加可观察的前后路由变化后会更具判别力。"
+  }
+}

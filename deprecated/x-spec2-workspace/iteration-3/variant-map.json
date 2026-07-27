@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "comparison": "scenario_pruning",
+  "blind_execution_arms": {
+    "arm-a": {
+      "metrics_configuration": "with_skill",
+      "label": "compact_spec",
+      "artifact": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md",
+      "sha256": "b3d0d5cde7ff2cc65e2df558f6e603897c0a95affa304c634bbfe6ce559953fc"
+    },
+    "arm-b": {
+      "metrics_configuration": "without_skill",
+      "label": "verbose_spec",
+      "artifact": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md",
+      "sha256": "f1fbb5c8b521b2bd8c1ee2b9f2788be9ca3c7b5f96bfc38ac8105c22e58a16bf"
+    }
+  },
+  "interpretation": "with_skill/without_skill are compatibility labels for existing metrics and viewer schemas; this iteration compares compact_spec against verbose_spec."
+}

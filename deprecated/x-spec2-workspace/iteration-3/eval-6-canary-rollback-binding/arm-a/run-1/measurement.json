@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "eval_id": 6,
+  "eval_name": "scenario-pruning-canary-rollback-binding",
+  "configuration": "with_skill",
+  "run_number": 1,
+  "source": {
+    "kind": "codex_rollout",
+    "id": "019f8551-5145-79a0-ad17-bffd7df0a178"
+  },
+  "model": "gpt-5.6-sol",
+  "repo_sha": "7a4b49821d6d394897b3937fba9b26f95048b99c",
+  "prompt_sha256": "sha256:bbf4b0425d06e79dee0eef33ebffe0f05bbd690f22e2d9883fbcb5b515b013dc",
+  "started_at": "2026-07-21T15:35:26.926Z",
+  "ended_at": "2026-07-21T15:38:18.211Z",
+  "duration_ms": 171285,
+  "tokens": {
+    "input": 97913,
+    "cached_input": 83200,
+    "output": 8646,
+    "reasoning_output": 1652,
+    "total": 106559
+  },
+  "quality": {
+    "passed": 4,
+    "total": 6,
+    "pass_rate": 0.6666666666666666
+  }
+}

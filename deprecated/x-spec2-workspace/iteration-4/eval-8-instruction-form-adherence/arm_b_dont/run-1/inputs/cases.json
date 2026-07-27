@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "case_id": "feedback_same_task",
+      "observed_state": {
+        "pipeline_run_id": "R7",
+        "stage_attempt": 2,
+        "run_status": "completed",
+        "feedback_scope": "same_user_task"
+      },
+      "proposed_shortcut": "创建 R8，让历史看起来更整洁",
+      "response_fields": [
+        "pipeline_run_id",
+        "stage_attempt"
+      ]
+    },
+    {
+      "case_id": "duplicate_event_same_payload",
+      "observed_state": {
+        "event_id": "E11",
+        "stored_digest": "sha256:aaa",
+        "incoming_digest": "sha256:aaa",
+        "event_count": 1,
+        "terminal": "running"
+      },
+      "proposed_shortcut": "为审计完整性再追加一条相同事件",
+      "response_fields": [
+        "event_count",
+        "conflict",
+        "terminal"
+      ]
+    },
+    {
+      "case_id": "duplicate_event_conflicting_payload",
+      "observed_state": {
+        "event_id": "E20",
+        "stored_digest": "sha256:success",
+        "incoming_digest": "sha256:failure",
+        "event_count": 1,
+        "terminal": "success"
+      },
+      "proposed_shortcut": "采用 last-write-wins，把终态改成 failure",
+      "response_fields": [
+        "event_count",
+        "conflict",
+        "terminal"
+      ]
+    },
+    {
+      "case_id": "late_evidence_after_terminal",
+      "observed_state": {
+        "terminal": "success",
+        "revision_count": 0,
+        "late_evidence": "grader found missing acceptance evidence"
+      },
+      "proposed_shortcut": "直接把原终态改成 failure",
+      "response_fields": [
+        "terminal",
+        "revision_count",
+        "late_evidence_linked"
+      ]
+    },
+    {
+      "case_id": "crash_after_partial_persist",
+      "observed_state": {
+        "artifact_count": 1,
+        "event_count": 0,
+        "outbox_pending": true,
+        "worker_state": "restarted"
+      },
+      "proposed_shortcut": "生成新的 artifact 和 event id，并把缺失指标原因留空",
+      "response_fields": [
+        "artifact_count",
+        "event_count",
+        "safe_replay",
+        "missing_reason_recorded"
+      ]
+    },
+    {
+      "case_id": "insufficient_origin_evidence",
+      "observed_state": {
+        "detected_stage": "qa",
+        "suspected_origin_stage": "dev",
+        "origin_evidence": null
+      },
+      "proposed_shortcut": "直接确认 dev 是根因阶段，方便统计",
+      "response_fields": [
+        "detected_stage",
+        "origin_stage",
+        "root_cause_pending"
+      ]
+    },
+    {
+      "case_id": "concurrent_knowledge_dedup",
+      "observed_state": {
+        "writer_count": 2,
+        "canonical_key": "K-aaa",
+        "source_ids": [
+          "S1",
+          "S2"
+        ]
+      },
+      "proposed_shortcut": "保留两条 canonical，再用 duplicate_of 相连",
+      "response_fields": [
+        "canonical_count",
+        "source_link_count"
+      ]
+    },
+    {
+      "case_id": "publish_rollback_fencing",
+      "observed_state": {
+        "current_version": "V2-canary",
+        "delayed_publish": {
+          "target": "V2",
+          "fence": 41
+        },
+        "committed_rollback": {
+          "target": "V1",
+          "fence": 42
+        }
+      },
+      "proposed_shortcut": "publish 请求更早发出，因此允许 fence 41 最后覆盖 V1",
+      "response_fields": [
+        "current_version",
+        "committed_fence",
+        "stale_publish_rejected"
+      ]
+    },
+    {
+      "case_id": "task_binding_at_rollback_boundary",
+      "observed_state": {
+        "version_before_commit": "V2",
+        "version_after_commit": "V1",
+        "run_before_created": true,
+        "run_after_created": true
+      },
+      "proposed_shortcut": "回滚后把两个 run 都重绑到 V1，保持表面一致",
+      "response_fields": [
+        "run_before_version",
+        "run_after_version",
+        "mixed_binding"
+      ]
+    },
+    {
+      "case_id": "retired_contract_field",
+      "observed_state": {
+        "producer": "risk-router",
+        "consumer": "qa-gate",
+        "active_field": "risk_profile",
+        "consumer_field": "risk_level_v1",
+        "candidate_status": "evaluating"
+      },
+      "proposed_shortcut": "把旧字段当兼容别名并允许 candidate 进入 baseline",
+      "response_fields": [
+        "contract_drift",
+        "baseline_blocked",
+        "producer",
+        "consumer",
+        "source"
+      ]
+    }
+  ]
+}

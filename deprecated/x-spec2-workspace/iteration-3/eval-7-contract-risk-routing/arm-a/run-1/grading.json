@@ -1,0 +1,69 @@
+{
+  "expectations": [
+    {
+      "text": "每个阶段字段定义唯一 producer、consumer 和有效来源，风险、Requirement、Scenario 与报告路径语义一致。",
+      "passed": false,
+      "evidence": "输出只给出了通用 StageContract/StageEnvelope 模型，并在 checklist 中要求为六个相邻边界登记 contract；正文没有逐阶段定义 Requirement、Scenario、风险和报告路径各自的唯一 producer、consumer、有效来源及一致性规则。"
+    },
+    {
+      "text": "consumer 读取退役字段或旧路径时产生可定位 `CONTRACT_DRIFT` 并阻止版本进入 baseline。",
+      "passed": false,
+      "evidence": "漂移分类覆盖版本、schema、hash、artifact 和状态冲突，但没有退役字段/旧路径读取规则、可定位 CONTRACT_DRIFT 输出契约或阻止 pipeline 版本进入 baseline 的验收用例。"
+    },
+    {
+      "text": "公开契约、共享状态、并发或不可逆操作进入完整 spec/task/verify/独立审查路径。",
+      "passed": true,
+      "evidence": "核心不变量 7 明确 public_contract、shared_state_write、concurrent_write、irreversible_operation 任一为真时最低 profile 为 high；7.3 的 high profile 要求稳定 spec/task contract、deterministic verify，以及独立意图、正确性和证据审查，并包含竞态/恢复反例。"
+    },
+    {
+      "text": "低风险轻量路径保留影子 QA，发现 P0/P1 后形成知识并提高同类任务风险权重。",
+      "passed": true,
+      "evidence": "8.1 将 active 策略的 lightweight 任务纳入确定性影子 QA；8.2 与 AC-11 要求 P0/P1 形成 false_negative、不可变回放 fixture、知识引用和 draft candidate。7.2 又规定同类 P0 错误放行直接 high、历史 P1 错误放行率达阈值至少 standard，构成同类任务后续风险上调。"
+    },
+    {
+      "text": "路由策略有独立版本，run 记录决策输入、profile 和策略版本，可通过历史错误放行率校准。",
+      "passed": true,
+      "evidence": "RiskAssessment 同时记录 pipeline_run_id、policy_version/policy_hash、完整 signals、historical_escape_rate、matched_rules 和 profile；RoutingPolicy 有独立生命周期，run 创建事务原子绑定 route decision。反馈校准在固定历史集报告 FN、FP、P0/P1 回归与 profile 分布。"
+    },
+    {
+      "text": "验收同时覆盖合法新契约、旧字段漂移和路由低估三类反例。",
+      "passed": false,
+      "evidence": "AC-01 覆盖合法契约，AC-11 覆盖 lightweight 被影子 QA 发现 P1 的路由低估；AC-02 至 AC-04 只覆盖版本、同版本 hash 和 artifact hash 漂移，没有 consumer 读取退役字段或旧路径的反例。"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 3,
+    "total": 6,
+    "pass_rate": 0.5
+  },
+  "claims": [
+    {
+      "claim": "公开契约、共享状态写、并发写或不可逆操作任一命中都会进入 high profile。",
+      "type": "factual",
+      "verified": true,
+      "evidence": "核心不变量 7 和硬路由规则 1 明确列出这四类信号并选择 high。"
+    },
+    {
+      "claim": "轻量路径的 P0/P1 影子发现会形成可回放知识并影响同类任务后续路由。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "8.2 生成 false_negative、回放 fixture 和策略候选；7.2 使用同类 P0/P1 历史错误放行信号提高后续 profile。"
+    },
+    {
+      "claim": "验收覆盖了阶段契约与风险路由的关键反例。",
+      "type": "quality",
+      "verified": false,
+      "evidence": "验收缺少 consumer 读取退役字段或旧报告路径并返回 CONTRACT_DRIFT 的反例。"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "低风险轻量路径保留影子 QA，发现 P0/P1 后形成知识并提高同类任务风险权重。",
+        "reason": "建议把同类任务风险上调落成一个前后配对验收：固定一次 P0/P1 反馈后，下一次同类输入必须显示历史信号变化和更高的最低 profile，避免仅生成 candidate 也通过。"
+      }
+    ],
+    "overall": "rubric 对关键契约闭环的区分度较强；第 4 条可通过指定反馈前后路由结果进一步收紧。"
+  }
+}

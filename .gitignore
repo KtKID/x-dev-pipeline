@@ -27,6 +27,11 @@ skills/x-pipeline-efficiency-workspace/**/full-pipeline-run-*/workspace/
 skills/x-pipeline-efficiency-workspace/invalid-attempts/**/workspace/
 skills/x-pipeline-efficiency-workspace/**/codex-home/
 skills/x-pipeline-efficiency-workspace/**/grader-workspace/
+deprecated/x-pipeline-efficiency-workspace/**/run-*/workspace/
+deprecated/x-pipeline-efficiency-workspace/**/full-pipeline-run-*/workspace/
+deprecated/x-pipeline-efficiency-workspace/invalid-attempts/**/workspace/
+deprecated/x-pipeline-efficiency-workspace/**/codex-home/
+deprecated/x-pipeline-efficiency-workspace/**/grader-workspace/
 
 # Generated reviewer input snapshots; the review reports are canonical
 **/reports/qa-gate/context/

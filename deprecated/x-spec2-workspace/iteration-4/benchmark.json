@@ -1,0 +1,1065 @@
+{
+  "metadata": {
+    "skill_name": "x-spec2 instruction form",
+    "skill_path": "skills/x-spec2",
+    "executor_model": "gpt-5.6-sol",
+    "timestamp": "2026-07-21T16:35:35.881873Z",
+    "evals_run": [
+      8
+    ],
+    "case_count": 10,
+    "runs_per_configuration": 3,
+    "observations_per_configuration": 30,
+    "variance_semantics": "three independent executor rollouts per configuration"
+  },
+  "runs": [
+    {
+      "eval_id": 8,
+      "eval_name": "instruction-form-adherence",
+      "configuration": "arm_a_do",
+      "configuration_label": "DO：目标行为",
+      "run_number": 1,
+      "model": "gpt-5.6-sol",
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 39.162,
+        "tokens": 118309,
+        "tool_calls": 3,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "feedback_same_task: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"pipeline_run_id\": \"R7\", \"stage_attempt\": 3}"
+        },
+        {
+          "text": "duplicate_event_same_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": false, \"event_count\": 1, \"terminal\": \"running\"}"
+        },
+        {
+          "text": "duplicate_event_conflicting_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": true, \"event_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "late_evidence_after_terminal: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"late_evidence_linked\": true, \"revision_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "crash_after_partial_persist: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"artifact_count\": 1, \"event_count\": 1, \"missing_reason_recorded\": true, \"safe_replay\": true}"
+        },
+        {
+          "text": "insufficient_origin_evidence: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"detected_stage\": \"qa\", \"origin_stage\": null, \"root_cause_pending\": true}"
+        },
+        {
+          "text": "concurrent_knowledge_dedup: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"canonical_count\": 1, \"source_link_count\": 2}"
+        },
+        {
+          "text": "publish_rollback_fencing: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"committed_fence\": 42, \"current_version\": \"V1\", \"stale_publish_rejected\": true}"
+        },
+        {
+          "text": "task_binding_at_rollback_boundary: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"mixed_binding\": false, \"run_after_version\": \"V1\", \"run_before_version\": \"V2\"}"
+        },
+        {
+          "text": "retired_contract_field: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"baseline_blocked\": true, \"consumer\": \"qa-gate\", \"contract_drift\": true, \"producer\": \"risk-router\", \"source\": \"risk_profile\"}"
+        }
+      ],
+      "notes": [],
+      "token_buckets": {
+        "input": 116925,
+        "cached_input": 108544,
+        "output": 1384,
+        "reasoning_output": 252,
+        "total": 118309
+      }
+    },
+    {
+      "eval_id": 8,
+      "eval_name": "instruction-form-adherence",
+      "configuration": "arm_a_do",
+      "configuration_label": "DO：目标行为",
+      "run_number": 2,
+      "model": "gpt-5.6-sol",
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 33.119,
+        "tokens": 87753,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "publish_rollback_fencing: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"committed_fence\": 42, \"current_version\": \"V1\", \"stale_publish_rejected\": true}"
+        },
+        {
+          "text": "insufficient_origin_evidence: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"detected_stage\": \"qa\", \"origin_stage\": null, \"root_cause_pending\": true}"
+        },
+        {
+          "text": "duplicate_event_same_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": false, \"event_count\": 1, \"terminal\": \"running\"}"
+        },
+        {
+          "text": "retired_contract_field: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"baseline_blocked\": true, \"consumer\": \"qa-gate\", \"contract_drift\": true, \"producer\": \"risk-router\", \"source\": \"risk_profile\"}"
+        },
+        {
+          "text": "feedback_same_task: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"pipeline_run_id\": \"R7\", \"stage_attempt\": 3}"
+        },
+        {
+          "text": "crash_after_partial_persist: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"artifact_count\": 1, \"event_count\": 1, \"missing_reason_recorded\": true, \"safe_replay\": true}"
+        },
+        {
+          "text": "task_binding_at_rollback_boundary: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"mixed_binding\": false, \"run_after_version\": \"V1\", \"run_before_version\": \"V2\"}"
+        },
+        {
+          "text": "duplicate_event_conflicting_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": true, \"event_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "concurrent_knowledge_dedup: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"canonical_count\": 1, \"source_link_count\": 2}"
+        },
+        {
+          "text": "late_evidence_after_terminal: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"late_evidence_linked\": true, \"revision_count\": 1, \"terminal\": \"success\"}"
+        }
+      ],
+      "notes": [],
+      "token_buckets": {
+        "input": 86534,
+        "cached_input": 62720,
+        "output": 1219,
+        "reasoning_output": 205,
+        "total": 87753
+      }
+    },
+    {
+      "eval_id": 8,
+      "eval_name": "instruction-form-adherence",
+      "configuration": "arm_a_do",
+      "configuration_label": "DO：目标行为",
+      "run_number": 3,
+      "model": "gpt-5.6-sol",
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 41.482,
+        "tokens": 119427,
+        "tool_calls": 3,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "crash_after_partial_persist: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"artifact_count\": 1, \"event_count\": 1, \"missing_reason_recorded\": true, \"safe_replay\": true}"
+        },
+        {
+          "text": "retired_contract_field: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"baseline_blocked\": true, \"consumer\": \"qa-gate\", \"contract_drift\": true, \"producer\": \"risk-router\", \"source\": \"risk_profile\"}"
+        },
+        {
+          "text": "late_evidence_after_terminal: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"late_evidence_linked\": true, \"revision_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "concurrent_knowledge_dedup: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"canonical_count\": 1, \"source_link_count\": 2}"
+        },
+        {
+          "text": "duplicate_event_conflicting_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": true, \"event_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "feedback_same_task: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"pipeline_run_id\": \"R7\", \"stage_attempt\": 3}"
+        },
+        {
+          "text": "publish_rollback_fencing: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"committed_fence\": 42, \"current_version\": \"V1\", \"stale_publish_rejected\": true}"
+        },
+        {
+          "text": "duplicate_event_same_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": false, \"event_count\": 1, \"terminal\": \"running\"}"
+        },
+        {
+          "text": "insufficient_origin_evidence: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"detected_stage\": \"qa\", \"origin_stage\": null, \"root_cause_pending\": true}"
+        },
+        {
+          "text": "task_binding_at_rollback_boundary: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"mixed_binding\": false, \"run_after_version\": \"V1\", \"run_before_version\": \"V2\"}"
+        }
+      ],
+      "notes": [],
+      "token_buckets": {
+        "input": 117720,
+        "cached_input": 110592,
+        "output": 1707,
+        "reasoning_output": 452,
+        "total": 119427
+      }
+    },
+    {
+      "eval_id": 8,
+      "eval_name": "instruction-form-adherence",
+      "configuration": "arm_b_dont",
+      "configuration_label": "DON'T：禁止行为",
+      "run_number": 1,
+      "model": "gpt-5.6-sol",
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 39.456,
+        "tokens": 88538,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "feedback_same_task: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"pipeline_run_id\": \"R7\", \"stage_attempt\": 3}"
+        },
+        {
+          "text": "duplicate_event_same_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": false, \"event_count\": 1, \"terminal\": \"running\"}"
+        },
+        {
+          "text": "duplicate_event_conflicting_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": true, \"event_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "late_evidence_after_terminal: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"late_evidence_linked\": true, \"revision_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "crash_after_partial_persist: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"artifact_count\": 1, \"event_count\": 1, \"missing_reason_recorded\": true, \"safe_replay\": true}"
+        },
+        {
+          "text": "insufficient_origin_evidence: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"detected_stage\": \"qa\", \"origin_stage\": null, \"root_cause_pending\": true}"
+        },
+        {
+          "text": "concurrent_knowledge_dedup: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"canonical_count\": 1, \"source_link_count\": 2}"
+        },
+        {
+          "text": "publish_rollback_fencing: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"committed_fence\": 42, \"current_version\": \"V1\", \"stale_publish_rejected\": true}"
+        },
+        {
+          "text": "task_binding_at_rollback_boundary: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"mixed_binding\": false, \"run_after_version\": \"V1\", \"run_before_version\": \"V2\"}"
+        },
+        {
+          "text": "retired_contract_field: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"baseline_blocked\": true, \"consumer\": \"qa-gate\", \"contract_drift\": true, \"producer\": \"risk-router\", \"source\": \"risk_profile\"}"
+        }
+      ],
+      "notes": [],
+      "token_buckets": {
+        "input": 86972,
+        "cached_input": 81152,
+        "output": 1566,
+        "reasoning_output": 554,
+        "total": 88538
+      }
+    },
+    {
+      "eval_id": 8,
+      "eval_name": "instruction-form-adherence",
+      "configuration": "arm_b_dont",
+      "configuration_label": "DON'T：禁止行为",
+      "run_number": 2,
+      "model": "gpt-5.6-sol",
+      "result": {
+        "pass_rate": 0.9,
+        "passed": 9,
+        "failed": 1,
+        "total": 10,
+        "time_seconds": 38.944,
+        "tokens": 88432,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "publish_rollback_fencing: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"committed_fence\": 42, \"current_version\": \"V1\", \"stale_publish_rejected\": true}"
+        },
+        {
+          "text": "insufficient_origin_evidence: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"detected_stage\": \"qa\", \"origin_stage\": null, \"root_cause_pending\": true}"
+        },
+        {
+          "text": "duplicate_event_same_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": false, \"event_count\": 1, \"terminal\": \"running\"}"
+        },
+        {
+          "text": "retired_contract_field: result 与隐藏期望完全一致",
+          "passed": false,
+          "evidence": "期望 {\"baseline_blocked\": true, \"consumer\": \"qa-gate\", \"contract_drift\": true, \"producer\": \"risk-router\", \"source\": \"risk_profile\"}；实际 {\"baseline_blocked\": true, \"consumer\": \"qa-gate\", \"contract_drift\": true, \"producer\": \"risk-router\", \"source\": null}"
+        },
+        {
+          "text": "feedback_same_task: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"pipeline_run_id\": \"R7\", \"stage_attempt\": 3}"
+        },
+        {
+          "text": "crash_after_partial_persist: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"artifact_count\": 1, \"event_count\": 1, \"missing_reason_recorded\": true, \"safe_replay\": true}"
+        },
+        {
+          "text": "task_binding_at_rollback_boundary: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"mixed_binding\": false, \"run_after_version\": \"V1\", \"run_before_version\": \"V2\"}"
+        },
+        {
+          "text": "duplicate_event_conflicting_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": true, \"event_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "concurrent_knowledge_dedup: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"canonical_count\": 1, \"source_link_count\": 2}"
+        },
+        {
+          "text": "late_evidence_after_terminal: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"late_evidence_linked\": true, \"revision_count\": 1, \"terminal\": \"success\"}"
+        }
+      ],
+      "notes": [],
+      "token_buckets": {
+        "input": 86857,
+        "cached_input": 77056,
+        "output": 1575,
+        "reasoning_output": 560,
+        "total": 88432
+      }
+    },
+    {
+      "eval_id": 8,
+      "eval_name": "instruction-form-adherence",
+      "configuration": "arm_b_dont",
+      "configuration_label": "DON'T：禁止行为",
+      "run_number": 3,
+      "model": "gpt-5.6-sol",
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 38.811,
+        "tokens": 88529,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "crash_after_partial_persist: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"artifact_count\": 1, \"event_count\": 1, \"missing_reason_recorded\": true, \"safe_replay\": true}"
+        },
+        {
+          "text": "retired_contract_field: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"baseline_blocked\": true, \"consumer\": \"qa-gate\", \"contract_drift\": true, \"producer\": \"risk-router\", \"source\": \"risk_profile\"}"
+        },
+        {
+          "text": "late_evidence_after_terminal: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"late_evidence_linked\": true, \"revision_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "concurrent_knowledge_dedup: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"canonical_count\": 1, \"source_link_count\": 2}"
+        },
+        {
+          "text": "duplicate_event_conflicting_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": true, \"event_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "feedback_same_task: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"pipeline_run_id\": \"R7\", \"stage_attempt\": 3}"
+        },
+        {
+          "text": "publish_rollback_fencing: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"committed_fence\": 42, \"current_version\": \"V1\", \"stale_publish_rejected\": true}"
+        },
+        {
+          "text": "duplicate_event_same_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": false, \"event_count\": 1, \"terminal\": \"running\"}"
+        },
+        {
+          "text": "insufficient_origin_evidence: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"detected_stage\": \"qa\", \"origin_stage\": null, \"root_cause_pending\": true}"
+        },
+        {
+          "text": "task_binding_at_rollback_boundary: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"mixed_binding\": false, \"run_after_version\": \"V1\", \"run_before_version\": \"V2\"}"
+        }
+      ],
+      "notes": [],
+      "token_buckets": {
+        "input": 86939,
+        "cached_input": 81152,
+        "output": 1590,
+        "reasoning_output": 594,
+        "total": 88529
+      }
+    },
+    {
+      "eval_id": 8,
+      "eval_name": "instruction-form-adherence",
+      "configuration": "arm_c_do_reason_assertion",
+      "configuration_label": "DO + WHY + ASSERT：目标、原因、断言",
+      "run_number": 1,
+      "model": "gpt-5.6-sol",
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 33.144,
+        "tokens": 89215,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "feedback_same_task: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"pipeline_run_id\": \"R7\", \"stage_attempt\": 3}"
+        },
+        {
+          "text": "duplicate_event_same_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": false, \"event_count\": 1, \"terminal\": \"running\"}"
+        },
+        {
+          "text": "duplicate_event_conflicting_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": true, \"event_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "late_evidence_after_terminal: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"late_evidence_linked\": true, \"revision_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "crash_after_partial_persist: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"artifact_count\": 1, \"event_count\": 1, \"missing_reason_recorded\": true, \"safe_replay\": true}"
+        },
+        {
+          "text": "insufficient_origin_evidence: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"detected_stage\": \"qa\", \"origin_stage\": null, \"root_cause_pending\": true}"
+        },
+        {
+          "text": "concurrent_knowledge_dedup: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"canonical_count\": 1, \"source_link_count\": 2}"
+        },
+        {
+          "text": "publish_rollback_fencing: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"committed_fence\": 42, \"current_version\": \"V1\", \"stale_publish_rejected\": true}"
+        },
+        {
+          "text": "task_binding_at_rollback_boundary: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"mixed_binding\": false, \"run_after_version\": \"V1\", \"run_before_version\": \"V2\"}"
+        },
+        {
+          "text": "retired_contract_field: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"baseline_blocked\": true, \"consumer\": \"qa-gate\", \"contract_drift\": true, \"producer\": \"risk-router\", \"source\": \"risk_profile\"}"
+        }
+      ],
+      "notes": [],
+      "token_buckets": {
+        "input": 87837,
+        "cached_input": 82176,
+        "output": 1378,
+        "reasoning_output": 325,
+        "total": 89215
+      }
+    },
+    {
+      "eval_id": 8,
+      "eval_name": "instruction-form-adherence",
+      "configuration": "arm_c_do_reason_assertion",
+      "configuration_label": "DO + WHY + ASSERT：目标、原因、断言",
+      "run_number": 2,
+      "model": "gpt-5.6-sol",
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 40.624,
+        "tokens": 121786,
+        "tool_calls": 3,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "publish_rollback_fencing: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"committed_fence\": 42, \"current_version\": \"V1\", \"stale_publish_rejected\": true}"
+        },
+        {
+          "text": "insufficient_origin_evidence: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"detected_stage\": \"qa\", \"origin_stage\": null, \"root_cause_pending\": true}"
+        },
+        {
+          "text": "duplicate_event_same_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": false, \"event_count\": 1, \"terminal\": \"running\"}"
+        },
+        {
+          "text": "retired_contract_field: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"baseline_blocked\": true, \"consumer\": \"qa-gate\", \"contract_drift\": true, \"producer\": \"risk-router\", \"source\": \"risk_profile\"}"
+        },
+        {
+          "text": "feedback_same_task: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"pipeline_run_id\": \"R7\", \"stage_attempt\": 3}"
+        },
+        {
+          "text": "crash_after_partial_persist: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"artifact_count\": 1, \"event_count\": 1, \"missing_reason_recorded\": true, \"safe_replay\": true}"
+        },
+        {
+          "text": "task_binding_at_rollback_boundary: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"mixed_binding\": false, \"run_after_version\": \"V1\", \"run_before_version\": \"V2\"}"
+        },
+        {
+          "text": "duplicate_event_conflicting_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": true, \"event_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "concurrent_knowledge_dedup: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"canonical_count\": 1, \"source_link_count\": 2}"
+        },
+        {
+          "text": "late_evidence_after_terminal: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"late_evidence_linked\": true, \"revision_count\": 1, \"terminal\": \"success\"}"
+        }
+      ],
+      "notes": [],
+      "token_buckets": {
+        "input": 120142,
+        "cached_input": 108544,
+        "output": 1644,
+        "reasoning_output": 456,
+        "total": 121786
+      }
+    },
+    {
+      "eval_id": 8,
+      "eval_name": "instruction-form-adherence",
+      "configuration": "arm_c_do_reason_assertion",
+      "configuration_label": "DO + WHY + ASSERT：目标、原因、断言",
+      "run_number": 3,
+      "model": "gpt-5.6-sol",
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 10,
+        "failed": 0,
+        "total": 10,
+        "time_seconds": 92.503,
+        "tokens": 88688,
+        "tool_calls": 2,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "crash_after_partial_persist: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"artifact_count\": 1, \"event_count\": 1, \"missing_reason_recorded\": true, \"safe_replay\": true}"
+        },
+        {
+          "text": "retired_contract_field: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"baseline_blocked\": true, \"consumer\": \"qa-gate\", \"contract_drift\": true, \"producer\": \"risk-router\", \"source\": \"risk_profile\"}"
+        },
+        {
+          "text": "late_evidence_after_terminal: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"late_evidence_linked\": true, \"revision_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "concurrent_knowledge_dedup: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"canonical_count\": 1, \"source_link_count\": 2}"
+        },
+        {
+          "text": "duplicate_event_conflicting_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": true, \"event_count\": 1, \"terminal\": \"success\"}"
+        },
+        {
+          "text": "feedback_same_task: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"pipeline_run_id\": \"R7\", \"stage_attempt\": 3}"
+        },
+        {
+          "text": "publish_rollback_fencing: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"committed_fence\": 42, \"current_version\": \"V1\", \"stale_publish_rejected\": true}"
+        },
+        {
+          "text": "duplicate_event_same_payload: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"conflict\": false, \"event_count\": 1, \"terminal\": \"running\"}"
+        },
+        {
+          "text": "insufficient_origin_evidence: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"detected_stage\": \"qa\", \"origin_stage\": null, \"root_cause_pending\": true}"
+        },
+        {
+          "text": "task_binding_at_rollback_boundary: result 与隐藏期望完全一致",
+          "passed": true,
+          "evidence": "精确匹配：{\"mixed_binding\": false, \"run_after_version\": \"V1\", \"run_before_version\": \"V2\"}"
+        }
+      ],
+      "notes": [],
+      "token_buckets": {
+        "input": 87472,
+        "cached_input": 82176,
+        "output": 1216,
+        "reasoning_output": 195,
+        "total": 88688
+      }
+    }
+  ],
+  "run_summary": {
+    "arm_a_do": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 37.921,
+        "stddev": 3.5251480347166506,
+        "min": 33.119,
+        "max": 41.482
+      },
+      "tokens": {
+        "mean": 108496.33333333333,
+        "stddev": 14674.851261786456,
+        "min": 87753,
+        "max": 119427
+      }
+    },
+    "arm_b_dont": {
+      "pass_rate": {
+        "mean": 0.9666666666666667,
+        "stddev": 0.04714045207910316,
+        "min": 0.9,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 39.07033333333334,
+        "stddev": 0.2780603451690948,
+        "min": 38.811,
+        "max": 39.456
+      },
+      "tokens": {
+        "mean": 88499.66666666667,
+        "stddev": 47.98842453018112,
+        "min": 88432,
+        "max": 88538
+      }
+    },
+    "arm_c_do_reason_assertion": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 55.42366666666667,
+        "stddev": 26.39627903491113,
+        "min": 33.144,
+        "max": 92.503
+      },
+      "tokens": {
+        "mean": 99896.33333333333,
+        "stddev": 15479.826922661492,
+        "min": 88688,
+        "max": 121786
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.03",
+      "time_seconds": "-1.1",
+      "tokens": "+19997"
+    }
+  },
+  "three_arm_summary": {
+    "arm_a_do": {
+      "label": "DO：目标行为",
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "all_10_pass_rate": 1.0,
+      "time_seconds": {
+        "mean": 37.921,
+        "stddev": 3.5251480347166506,
+        "min": 33.119,
+        "max": 41.482
+      },
+      "tokens": {
+        "mean": 108496.33333333333,
+        "stddev": 14674.851261786456,
+        "min": 87753,
+        "max": 119427
+      },
+      "tool_calls": {
+        "mean": 2.6666666666666665,
+        "stddev": 0.4714045207910317,
+        "min": 2,
+        "max": 3
+      },
+      "instruction_chars": 864
+    },
+    "arm_b_dont": {
+      "label": "DON'T：禁止行为",
+      "pass_rate": {
+        "mean": 0.9666666666666667,
+        "stddev": 0.04714045207910316,
+        "min": 0.9,
+        "max": 1.0
+      },
+      "all_10_pass_rate": 0.6666666666666666,
+      "time_seconds": {
+        "mean": 39.07033333333334,
+        "stddev": 0.2780603451690948,
+        "min": 38.811,
+        "max": 39.456
+      },
+      "tokens": {
+        "mean": 88499.66666666667,
+        "stddev": 47.98842453018112,
+        "min": 88432,
+        "max": 88538
+      },
+      "tool_calls": {
+        "mean": 2,
+        "stddev": 0.0,
+        "min": 2,
+        "max": 2
+      },
+      "instruction_chars": 873
+    },
+    "arm_c_do_reason_assertion": {
+      "label": "DO + WHY + ASSERT：目标、原因、断言",
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "all_10_pass_rate": 1.0,
+      "time_seconds": {
+        "mean": 55.42366666666667,
+        "stddev": 26.39627903491113,
+        "min": 33.144,
+        "max": 92.503
+      },
+      "tokens": {
+        "mean": 99896.33333333333,
+        "stddev": 15479.826922661492,
+        "min": 88688,
+        "max": 121786
+      },
+      "tool_calls": {
+        "mean": 2.3333333333333335,
+        "stddev": 0.4714045207910317,
+        "min": 2,
+        "max": 3
+      },
+      "instruction_chars": 1880
+    }
+  },
+  "pairwise_deltas": {
+    "arm_a_do_minus_arm_b_dont": {
+      "pass_rate_points": 3.3333333333333326,
+      "tokens": 19996.666666666657,
+      "tokens_ratio": 0.22595188682443235,
+      "time_seconds": -1.1493333333333382,
+      "time_ratio": -0.029417034237401052
+    },
+    "arm_a_do_minus_arm_c_do_reason_assertion": {
+      "pass_rate_points": 0.0,
+      "tokens": 8600.0,
+      "tokens_ratio": 0.08608924585153277,
+      "time_seconds": -17.50266666666667,
+      "time_ratio": -0.3157977037486994
+    },
+    "arm_b_dont_minus_arm_c_do_reason_assertion": {
+      "pass_rate_points": -3.3333333333333326,
+      "tokens": -11396.666666666657,
+      "tokens_ratio": -0.11408493471565517,
+      "time_seconds": -16.35333333333333,
+      "time_ratio": -0.2950604735642415
+    }
+  },
+  "case_frequencies": {
+    "arm_a_do": {
+      "concurrent_knowledge_dedup": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "crash_after_partial_persist": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "duplicate_event_conflicting_payload": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "duplicate_event_same_payload": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "feedback_same_task": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "insufficient_origin_evidence": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "late_evidence_after_terminal": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "publish_rollback_fencing": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "retired_contract_field": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "task_binding_at_rollback_boundary": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      }
+    },
+    "arm_b_dont": {
+      "concurrent_knowledge_dedup": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "crash_after_partial_persist": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "duplicate_event_conflicting_payload": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "duplicate_event_same_payload": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "feedback_same_task": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "insufficient_origin_evidence": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "late_evidence_after_terminal": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "publish_rollback_fencing": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "retired_contract_field": {
+        "passed": 2,
+        "total": 3,
+        "pass_rate": 0.6666666666666666
+      },
+      "task_binding_at_rollback_boundary": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      }
+    },
+    "arm_c_do_reason_assertion": {
+      "concurrent_knowledge_dedup": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "crash_after_partial_persist": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "duplicate_event_conflicting_payload": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "duplicate_event_same_payload": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "feedback_same_task": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "insufficient_origin_evidence": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "late_evidence_after_terminal": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "publish_rollback_fencing": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "retired_contract_field": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      },
+      "task_binding_at_rollback_boundary": {
+        "passed": 3,
+        "total": 3,
+        "pass_rate": 1.0
+      }
+    }
+  },
+  "notes": [
+    "arm_a_do: exact-match 100.0% ± 0.0%, all-10 run rate 100.0%, mean 108496 tokens, mean 37.9s, mean 2.67 tool calls.",
+    "arm_b_dont: exact-match 96.7% ± 4.7%, all-10 run rate 66.7%, mean 88500 tokens, mean 39.1s, mean 2.00 tool calls.",
+    "arm_c_do_reason_assertion: exact-match 100.0% ± 0.0%, all-10 run rate 100.0%, mean 99896 tokens, mean 55.4s, mean 2.33 tool calls.",
+    "arm_b_dont 的随机波动 case: retired_contract_field。",
+    "arm_a_do_minus_arm_b_dont: quality +3.3 points, tokens +22.6%, time -2.9%.",
+    "arm_a_do_minus_arm_c_do_reason_assertion: quality +0.0 points, tokens +8.6%, time -31.6%.",
+    "arm_b_dont_minus_arm_c_do_reason_assertion: quality -3.3 points, tokens -11.4%, time -29.5%."
+  ]
+}

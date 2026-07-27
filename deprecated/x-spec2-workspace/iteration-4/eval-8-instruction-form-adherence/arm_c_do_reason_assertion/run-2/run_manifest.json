@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "eval_id": 8,
+  "configuration": "arm_c_do_reason_assertion",
+  "configuration_label": "DO + WHY + ASSERT：目标、原因、断言",
+  "run_number": 2,
+  "repo_sha": "7a4b49821d6d394897b3937fba9b26f95048b99c",
+  "input_sha256": "sha256:cd6d6071a0b8f718331c12898f777dcea008ead5a394c1f18f2d6770592d80b8",
+  "prompt_sha256": "sha256:9aaac3198e8a5fd645e2368ce0b03f49739d0bc3c83ed7593e2169f96f3d34cd",
+  "rules_sha256": "sha256:f32777a5d545d67358247a5880d0269b5f66c1c2136ca634c08627c08e21b784",
+  "cases_sha256": "sha256:366451c811e5747c519d6b2f020d5223fb384866f3e722f5c2207c25dda0cef3",
+  "instruction_chars": 1880,
+  "total_input_chars": 6663,
+  "case_order": [
+    "publish_rollback_fencing",
+    "insufficient_origin_evidence",
+    "duplicate_event_same_payload",
+    "retired_contract_field",
+    "feedback_same_task",
+    "crash_after_partial_persist",
+    "task_binding_at_rollback_boundary",
+    "duplicate_event_conflicting_payload",
+    "concurrent_knowledge_dedup",
+    "late_evidence_after_terminal"
+  ],
+  "grader_visibility": "expected and rubric excluded from executor"
+}

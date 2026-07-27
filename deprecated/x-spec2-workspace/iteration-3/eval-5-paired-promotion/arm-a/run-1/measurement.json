@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "eval_id": 5,
+  "eval_name": "scenario-pruning-paired-promotion",
+  "configuration": "with_skill",
+  "run_number": 1,
+  "source": {
+    "kind": "codex_rollout",
+    "id": "019f854c-a731-73b0-83f3-d8878a6dc37a"
+  },
+  "model": "gpt-5.6-sol",
+  "repo_sha": "7a4b49821d6d394897b3937fba9b26f95048b99c",
+  "prompt_sha256": "sha256:881362f7540f242fe41e2bce6206b9d0782fbacbae6256bbd273b8738d9717ba",
+  "started_at": "2026-07-21T15:30:21.245Z",
+  "ended_at": "2026-07-21T15:33:10.069Z",
+  "duration_ms": 168824,
+  "tokens": {
+    "input": 97827,
+    "cached_input": 83200,
+    "output": 8672,
+    "reasoning_output": 366,
+    "total": 106499
+  },
+  "quality": {
+    "passed": 6,
+    "total": 6,
+    "pass_rate": 1.0
+  }
+}

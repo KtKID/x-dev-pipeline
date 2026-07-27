@@ -1,0 +1,13 @@
+{
+  "tool_calls": {
+    "exec_command": 15,
+    "apply_patch": 3,
+    "send_message": 1
+  },
+  "total_tool_calls": 19,
+  "total_steps": 8,
+  "errors_encountered": 0,
+  "output_chars": 25979,
+  "transcript_chars": 2178,
+  "counting_scope": "Original run tool metrics are retained; output_chars was refreshed after the U/J/D reason-layer regeneration and is the wc -m sum of outputs/spec.md, outputs/modules.md, and outputs/design.md."
+}

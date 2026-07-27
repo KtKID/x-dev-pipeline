@@ -1,0 +1,558 @@
+{
+  "metadata": {
+    "skill_name": "x-spec2",
+    "skill_path": "skills/x-spec2",
+    "executor_model": "gpt-5.6-sol",
+    "timestamp": "2026-07-21T15:42:32.474Z",
+    "evals_run": [
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "runs_per_configuration": 5,
+    "pilot": false,
+    "sample_size_per_configuration": 5
+  },
+  "runs": [
+    {
+      "eval_id": 3,
+      "eval_name": "scenario-pruning-run-ledger-contract",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8333333333333334,
+        "passed": 5,
+        "failed": 1,
+        "total": 6,
+        "time_seconds": 219.818,
+        "tokens": 110940,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "一个用户任务对应一个 run，反馈返工使用同一 run 的新 attempt，并在任务创建时绑定 pipeline 版本。",
+          "passed": true,
+          "evidence": "第 1 节明确规定每个用户任务获得唯一 pipeline_run_id，反馈返工以新 stage_attempt 写入原 run；第 3.6 条进一步规定用户反馈返工属于原 run。5.4 与 CreateRun 规定创建事务同时写入不可变 pipeline_binding，AC10 可执行断言同一 run 创建 revision 2 和新 attempt，并沿用原 binding。"
+        },
+        {
+          "text": "重复 `event_id` 幂等，乱序事件可重建逻辑顺序，冲突终态被隔离。",
+          "passed": true,
+          "evidence": "I5、8.1 规定同 event_id 同 payload 返回原确认且不重复计数，同 ID 异 payload 写 integrity_conflict；I6、8.2 使用 producer_seq、因果边和 checkpoint 重建逻辑顺序。I7、8.3 规定终态 expected-status CAS，竞争失败事实进入冲突隔离。AC4、AC6、AC8 分别给出重复投递、1/4/5/3/2 乱序和 success/failure 并发终结的可执行断言。"
+        },
+        {
+          "text": "终态后的迟到证据通过修订关联，不能静默改写已发布结果。",
+          "passed": true,
+          "evidence": "I8 规定迟到证据以新事件引用原事件或终态，并保持已发布 digest、旧评分和旧终态；5.9 定义 supplements/corrects_interpretation revision link；AttachLateEvidence 只追加 supplements。AC9 断言 H1 与 accepted 事实保持不变，新证据通过 supplements link 可查。"
+        },
+        {
+          "text": "stage 中断或部分持久化后可以安全重放，避免重复提交，并记录缺失指标原因。",
+          "passed": false,
+          "evidence": "8.4 与 AC11 给出事务 outbox、原幂等身份重试、checkpoint 追平和从零重建，可覆盖部分持久化后的安全重放与去重。数据契约、恢复规则及 AC11 均缺少 missing_metrics 结构、缺失指标原因码和相应断言，因此该条的最后一项没有可实现或可验收证据。"
+        },
+        {
+          "text": "task contract 给出可实现的数据/状态所有者和清晰范围。",
+          "passed": true,
+          "evidence": "第 2 节逐项界定本次实现、接口边界和延后事项；第 7 节为 current pointer、run/binding、revision/attempt、ledger event、artifact、projection、runtime/grader 写域和冲突裁决指定唯一所有者、允许操作及禁止能力。"
+        },
+        {
+          "text": "验收用例包含可执行输入、动作、预期状态与证据。",
+          "passed": true,
+          "evidence": "AC1-AC15 均采用 GIVEN/WHEN/THEN，包含具体并发数、事件序列、状态码、digest、CAS 与查询断言；第 11 节给出 bash scripts/verify-run-ledger-contract.sh、退出码约束和 verification.json 证据 schema，可形成可复跑证据。"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 3,
+      "eval_name": "scenario-pruning-run-ledger-contract",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8333333333333334,
+        "passed": 5,
+        "failed": 1,
+        "total": 6,
+        "time_seconds": 307.97,
+        "tokens": 199805,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "一个用户任务对应一个 run，反馈返工使用同一 run 的新 attempt，并在任务创建时绑定 pipeline 版本。",
+          "passed": false,
+          "evidence": "CreateRun 的同事务版本绑定、RunRequestDedup 和 PipelineRun.version_binding 能保证创建时固定版本。第 3.7 条与 4.1 明确规定终态后再次执行创建新 pipeline_run_id；A13 进一步断言 repair 创建新 run。产物缺少用户反馈返工沿用同一 run 并创建新 attempt 的命令、状态规则和验收用例，且现有终态后语义与该要求冲突。"
+        },
+        {
+          "text": "重复 `event_id` 幂等，乱序事件可重建逻辑顺序，冲突终态被隔离。",
+          "passed": true,
+          "evidence": "5.5 规定同 event_id/source_seq 同 digest 返回原确认，异 digest 返回 EVENT_IDEMPOTENCY_CONFLICT；6.3 使用连续 source_seq、predecessor_event_ids 和 pending_event_ids 补齐后重放。6.3.7 规定同一 attempt 的不同完成结果进入 EVENT_IDEMPOTENCY_CONFLICT/INCONSISTENT 且 run 无法成功收敛。A06、A07 提供重复/乱序及冲突隔离断言。"
+        },
+        {
+          "text": "终态后的迟到证据通过修订关联，不能静默改写已发布结果。",
+          "passed": true,
+          "evidence": "5.5 为修订事件定义 supersedes_event_id 与 correction_reason，OUTCOME_REVISED payload 必须引用 prior_terminal_event_id 和 evidence_refs；6.2 规定终态保持吸收性，修订只更新 effective_outcome 并保留原 execution_state 和终态事件。A14 从已成功终结的 run 出发，断言 update/delete 被拒绝、修订追加且查询同时返回原终态和最新结论。"
+        },
+        {
+          "text": "stage 中断或部分持久化后可以安全重放，避免重复提交，并记录缺失指标原因。",
+          "passed": true,
+          "evidence": "5.6 定义 missing_metrics 的 metric_name、missing_reason_code、detail 及首版原因码；6.5 规定持久 outbox、固定 event_id/source_seq、账本确认屏障和崩溃不确定性处理。A09 断言中断状态和 Token/耗时缺失原因，A10 断言 outbox 重放只保存一次且投影等于无故障基线，A11 断言 RESULT_UNCERTAIN_AFTER_CRASH 与更高 attempt 编号。"
+        },
+        {
+          "text": "task contract 给出可实现的数据/状态所有者和清晰范围。",
+          "passed": true,
+          "evidence": "第 2 节明确列出账本、绑定、投影、恢复和自动验收的包含范围，以及知识库、评分算法、晋级、UI 等范围外项；第 7 节逐项指定 Version Registry、Run Registrar、Orchestrator、Ledger Store、Projector、Collector、Evidence Store、Reconciler 和修订入口的所有权与消费者边界。"
+        },
+        {
+          "text": "验收用例包含可执行输入、动作、预期状态与证据。",
+          "passed": true,
+          "evidence": "A01-A16 具有具体 GIVEN/WHEN/THEN，覆盖 20 次并发、至少 100 次版本竞争、seq 1..6 乱序、故障注入、错误码、状态和 digest 等可断言结果；第 11 节列出 pytest 命令、A-ID 筛选和七类固定证据文件及必备元数据。"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "scenario-pruning-knowledge-lifecycle",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8333333333333334,
+        "passed": 5,
+        "failed": 1,
+        "total": 6,
+        "time_seconds": 181.105,
+        "tokens": 107937,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "执行失败、grader 扣分和 rubric 升级后的重评分形成独立记录并保留各自版本。",
+          "passed": true,
+          "evidence": "DeductionRecord 以 grading_run_id、grader/rubric version 和 assertion_id 标识独立评分事实；契约明确规定 rubric 升级后的重评分创建新的 grading_run_id 与 DeductionRecord，并以 supersedes_grading_run_id 关联旧轮次。AC-01 进一步要求 1 条 FailureRecord 与两个 grading run 下的独立 DeductionRecord，且 R1 内容和分数保持原值。"
+        },
+        {
+          "text": "两个 writer 并发提交相同证据时只形成一个 canonical 条目，其余请求稳定关联。",
+          "passed": true,
+          "evidence": "canonical_key 有数据库唯一约束，归并采用 insert-on-conflict-return-existing，KnowledgeSourceLink 以联合唯一键幂等追加。6.2 明确要求两个 collector 同时提交相同证据或同一问题时仅产生一个 canonical entry，失败事务读取胜出条目并追加来源关联；AC-05 验证 1 个 KnowledgeEntry、2 条 KnowledgeSourceLink 和仅 1 个 revision 1。"
+        },
+        {
+          "text": "新证据通过追加修订更新根因，历史结论与当时决策引用保持可查询。",
+          "passed": true,
+          "evidence": "6.3 规定推翻根因的新证据创建新修订，旧修订和引用旧 revision 的决策继续可查，current_revision_id 原子指向新结论。AC-06 具体要求 revision 3、其证据和 P1 引用保留可查，并由 revision 4 追加 REJECTED 或新结论。"
+        },
+        {
+          "text": "证据不足时根因保持待确认，区分 `detected_stage` 与 `origin_stage`，并记录候选原因和缺失证据。",
+          "passed": false,
+          "evidence": "契约为 UNASSESSED/HYPOTHESIS 规定候选根因、置信依据与 missing_evidence，AC-08 也阻止未确认项进入确认统计；但模型只有 FailureRecord.stage，KnowledgeRevision 没有 detected_stage 或 origin_stage 字段，也没有保持发现阶段不可变、归因阶段可修订的规则。该关键区分缺失。"
+        },
+        {
+          "text": "知识记录能追溯 run、attempt、pipeline 版本、artifact 与原始证据。",
+          "passed": true,
+          "evidence": "FailureRecord 强制 pipeline_run_id、stage_attempt_id、pipeline_version_id 和 evidence_refs；EvidenceRecord 强制内容寻址 evidence_id 与不可变 artifact_uri；FixRecord 还保存 artifact hash 和实施 run/attempt。身份契约要求外部身份向运行账本校验并保留写入时版本。"
+        },
+        {
+          "text": "验收用例能够击穿覆盖写入、错误归因和并发重复条目。",
+          "passed": true,
+          "evidence": "AC-03 与 AC-07 检查冲突输入和并发修订不会覆盖既有事实/current；AC-06 用新反证推翻已确认根因并检查旧决策引用；AC-05 以真实并发、至少 50 轮验证相同 canonical key 仅生成一个 KnowledgeEntry 且两个来源链接均保留。"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 4,
+      "eval_name": "scenario-pruning-knowledge-lifecycle",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.3333333333333333,
+        "passed": 2,
+        "failed": 4,
+        "total": 6,
+        "time_seconds": 189.005,
+        "tokens": 150826,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "执行失败、grader 扣分和 rubric 升级后的重评分形成独立记录并保留各自版本。",
+          "passed": false,
+          "evidence": "契约将 failure 与 grader_deduction 设为独立记录，并保存 grader_version 与 rubric_version；但没有 rubric 升级后的重评分身份、独立 grading run、supersedes 链或保留旧评分的验收用例。AC-02 只覆盖同一次评分中的两个失败断言。"
+        },
+        {
+          "text": "两个 writer 并发提交相同证据时只形成一个 canonical 条目，其余请求稳定关联。",
+          "passed": false,
+          "evidence": "幂等键按来源身份生成，只能合并同一 source 的重试；不同来源会各自创建 knowledge_record。evidence_ref 可被多记录引用，duplicate_of 关系也保留多个知识锚点；契约没有 canonical key、并发 insert-or-return-winner 或将两个 writer 的不同来源稳定关联到单一 canonical 条目的规则。"
+        },
+        {
+          "text": "新证据通过追加修订更新根因，历史结论与当时决策引用保持可查询。",
+          "passed": true,
+          "evidence": "knowledge_revision 采用单调 revision_seq、parent_revision_id 和完整快照；新证据推翻旧判断时追加 disproven/pending/confirmed 修订。current/history/as-of-revision 查询与 motivates_candidate 固定 revision_id 保证旧结论和当时决策依据可查，AC-06 与 AC-14 给出可执行验收。"
+        },
+        {
+          "text": "证据不足时根因保持待确认，区分 `detected_stage` 与 `origin_stage`，并记录候选原因和缺失证据。",
+          "passed": true,
+          "evidence": "knowledge_record 将 detected_stage 定义为不可变观察，knowledge_revision 将 origin_stage 定义为可修订归因；pending 要求 candidate_causes 或 missing_evidence，并至少有 next_validation_actions。AC-04 验证 QA 检出/dev 起源，AC-05 验证多候选、缺失证据和待确认统计隔离。"
+        },
+        {
+          "text": "知识记录能追溯 run、attempt、pipeline 版本、artifact 与原始证据。",
+          "passed": false,
+          "evidence": "knowledge_record 保存 pipeline_run_id 和 pipeline_version，failure_observation/knowledge_revision 保存 affected_artifacts，evidence_ref 保存 URI、content_hash 和 locator；但领域模型没有 stage_attempt_id 或等价 attempt 身份，无法把每条知识追溯到具体阶段 attempt。"
+        },
+        {
+          "text": "验收用例能够击穿覆盖写入、错误归因和并发重复条目。",
+          "passed": false,
+          "evidence": "AC-13 覆盖历史 UPDATE/DELETE，AC-06 覆盖旧根因被新证据推翻；并发用例 AC-08 只验证同一来源请求的幂等重试，AC-09 验证不同来源均完整写入。没有两个 writer 以不同来源提交相同证据/同一问题后只能留下一个 canonical 条目的验收，因此三类破坏场景未全部覆盖。"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "eval_name": "scenario-pruning-paired-promotion",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 168.824,
+        "tokens": 106499,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "配对 manifest 固定任务、模型、repo、权限、预算和 grader 断言，任一不一致都会使样本失效。",
+          "passed": true,
+          "evidence": "第 5.1 节 manifest 必填结构固定 task_set_version/case_ids、model、repository_snapshot、permissions_profile_id、budget 和 grader/断言摘要；第 5.2 节要求双臂这些条件一致；第 7.3 节规定任一条件失败产生 INVALID_COMPARISON；AC6 进一步验收模型修订或权限不一致时评测失效且不得晋级。"
+        },
+        {
+          "text": "评测期间生产 baseline 漂移时保留原评测事实，并在晋级前触发重放或重新基准化。",
+          "passed": true,
+          "evidence": "第 8.3 节明确生产版本变化不改写 manifest 或已采集结果，旧结果继续可查；发布前发现 baseline 偏离时进入 BASELINE_STALE，并创建新 evaluation 执行重放，或在逐条等价性证明下重新基准化。AC7 对旧评测保留、stale 检查和两种后续路径给出自动验收。"
+        },
+        {
+          "text": "两个候选并发发布通过版本前置条件或 compare-and-set 保证唯一胜者。",
+          "passed": true,
+          "evidence": "第 6.3 节给出 production current_version_id 与 routing_epoch 双前置条件的事务性 CAS；第 8.4 节规定基于同一 {V1, epoch E} 的两个候选中首个成功，第二个收到 BASELINE_STALE。AC8 要求恰好一个请求成功、epoch 只更新至 11 且生产指针始终引用一个完整版本。"
+        },
+        {
+          "text": "正确性门槛先于 Token；成本更低但出现关键回归的候选必须被拒绝。",
+          "passed": true,
+          "evidence": "第 7.2 节把关键不变量、P0、意图和技术正确性放在效率比较之前，并规定仅对通过全部门禁的结果计算 Token；第 8.2 节将关键不变量、P0、意图和技术正确性失败列为直接拒绝条件。AC13 同时覆盖低成本错误案例不进入 accepted 分母。"
+        },
+        {
+          "text": "候选不合格时稳定生产版本继续服务，拒绝依据与评测成本保持可查询。",
+          "passed": true,
+          "evidence": "第 6.1 节将不合格候选收敛到 REJECTED，生产指针只有通过第 6.3 节发布前置检查及 CAS 才会切换；第 6.2、7.2 和 8.2 节要求终止状态保存消耗、停止依据和直接拒绝原因。第 9 节 T7 要求按 candidate/evaluation/run/decision/release 查询证据，AC4 要求拒绝依据、最小复现和 evolution_eval_tokens 进入结果包。"
+        },
+        {
+          "text": "决策包能够追溯知识、假设、逐案例结果、审批、发布版本和回滚目标。",
+          "passed": true,
+          "evidence": "第 4、5 节将知识条目修订、可证伪假设、case_result、package_digest、approval、pipeline_release 和 rollback_target_version_id 纳入实体及 manifest；第 11 节证据包列出 manifest、逐案例双臂 run/result、decision-package、approvals、releases 和 audit events，并提供校验、聚合、发布与回滚复跑命令。"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 5,
+      "eval_name": "scenario-pruning-paired-promotion",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 245.946,
+        "tokens": 205489,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "配对 manifest 固定任务、模型、repo、权限、预算和 grader 断言，任一不一致都会使样本失效。",
+          "passed": true,
+          "evidence": "第 3.1 节 manifest 固定 task snapshot、模型、repo SHA、权限、Token/时间/tool-call 预算和 assertion set/grader 摘要；第 4.2、6.1 节要求逐 pair 完全相等并将差异归为 INVALID。AC2 以表驱动测试覆盖任务、模型、权限、预算、断言和 seed。"
+        },
+        {
+          "text": "评测期间生产 baseline 漂移时保留原评测事实，并在晋级前触发重放或重新基准化。",
+          "passed": true,
+          "evidence": "第 5 节规定 baseline 被取代后已启动 run 按冻结快照完成、evaluation 保留、decision 进入 STALE，并以新生产版本创建新 manifest 配对回放。AC5 要求原 run/evaluation 可查询，旧生产 generation 保持生效。"
+        },
+        {
+          "text": "两个候选并发发布通过版本前置条件或 compare-and-set 保证唯一胜者。",
+          "passed": true,
+          "evidence": "第 4.5、8.3 节要求发布校验 expected baseline version 与 generation 后原子 CAS；第 8.4 节规定首个 CAS 成功、另一个进入 CONFLICT。AC11 要求恰好一个 APPLIED，最终 production pointer 等于胜者版本，并重复至少 100 次并发压力测试。"
+        },
+        {
+          "text": "正确性门槛先于 Token；成本更低但出现关键回归的候选必须被拒绝。",
+          "passed": true,
+          "evidence": "第 7.1 节固定顺序先检查目标修复、关键硬门槛、意图与技术正确性，再比较 Token；第 7.3 节明确 Token 改善无法抵消前述失败。AC8 直接验收 Token 改善 30% 且出现 P0 回归时 decision=REJECTED。"
+        },
+        {
+          "text": "候选不合格时稳定生产版本继续服务，拒绝依据与评测成本保持可查询。",
+          "passed": true,
+          "evidence": "第 7.2 节对 INVALID、REJECTED、DECLINED 明确规定当前生产版本继续服务，并保存阻断项或审批意见；第 6.4 节要求提前停止时记录拒绝依据、已完成层级及全部 evolution_eval_tokens。T9、AC14 和 AC16 要求按实体查询并导出可离线复核的拒绝与成本证据。"
+        },
+        {
+          "text": "决策包能够追溯知识、假设、逐案例结果、审批、发布版本和回滚目标。",
+          "passed": true,
+          "evidence": "第 2、3 节把 knowledge_entry_id、hypothesis_id、逐案例 pair/run/grading、decision digest、approval 和 promotion 连接为稳定身份链；第 7.1 节审计完整性门槛要求知识、假设、run、grading、决策和 rollback target 全部可定位。T9、AC16 与 12.3 节要求证据包双向查询生产版本、审批、发布和回滚目标。"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "eval_name": "scenario-pruning-canary-rollback-binding",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6666666666666666,
+        "passed": 4,
+        "failed": 2,
+        "total": 6,
+        "time_seconds": 171.285,
+        "tokens": 106559,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "任务创建与 pipeline/路由版本绑定是单一原子动作，run 不会处于未绑定或混合版本。",
+          "passed": true,
+          "evidence": "第 5.1 节要求在同一事务内插入 pipeline_run、初始 attempt 关联和 RUN_VERSION_BOUND outbox，提交失败不产生可见 run；I2、I9 要求提交时绑定字段完整且每个已提交 epoch 只有一份完整配置；AC-03、AC-05 明确断言空绑定和混合字段计数为零。"
+        },
+        {
+          "text": "回滚提交前已创建任务保持原版本，提交后的新任务全部绑定稳定版本。",
+          "passed": true,
+          "evidence": "I6-I7 和第 5.3 节以数据库提交顺序定义切面：创建先提交时保留旧 epoch 的 V1/V2 绑定，回滚先提交时创建读取新 epoch 并绑定 V1；AC-01、AC-02、AC-04、AC-05 给出可自动验证的边界用例。"
+        },
+        {
+          "text": "回滚命令可幂等重试，进程在切换中崩溃后能够恢复到明确版本。",
+          "passed": true,
+          "evidence": "第 4.4、5.2 节定义 rollback_operation_id、首次结果复用和参数冲突；第 6 节区分提交前崩溃的完整旧 epoch 与提交后响应丢失的完整 V1-only 新 epoch；AC-07、AC-10 验证重试只产生一个 epoch 增量和一条 canonical 事实。"
+        },
+        {
+          "text": "发布与回滚并发时通过序列号、租约或 fencing token 阻止旧操作覆盖新状态。",
+          "passed": false,
+          "evidence": "契约为 RollbackCanary 定义 expected_epoch CAS，并用 AC-08 验证陈旧回滚拒绝；发布或晋级操作的写协议、与回滚共享的 fencing 规则及发布/回滚并发验收均未定义，现有证据只能证明回滚与既有 route epoch 的冲突保护。"
+        },
+        {
+          "text": "canary 触发条件、观测窗口、回滚原因和受影响 run 进入决策记录与知识库。",
+          "passed": false,
+          "evidence": "第 1.3 节把自动决定 canary 回滚排除在范围外；回滚事件仅要求 reason、evidence_refs 和旧/新 epoch。契约未定义触发条件、观测窗口、受影响 run 集合、知识库记录结构或写入/派生验收。"
+        },
+        {
+          "text": "验收用例明确覆盖切换边界并能检测混合版本任务。",
+          "passed": true,
+          "evidence": "AC-01 至 AC-04 用锁释放顺序覆盖回滚前后两个确定切面，AC-05 以 100 个并发请求断言不存在其他 epoch、空绑定和重复事实；第 9 节要求输出 mixed_version_run_count=0、post_rollback_non_v1_count=0 和事务 trace。"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 6,
+      "eval_name": "scenario-pruning-canary-rollback-binding",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 176.101,
+        "tokens": 150469,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "任务创建与 pipeline/路由版本绑定是单一原子动作，run 不会处于未绑定或混合版本。",
+          "passed": true,
+          "evidence": "第 4.3、5.1、6.2 节要求 task、TaskVersionBinding、TASK_VERSION_BOUND 和 dispatch outbox 同一事务提交，run 复制同一不可变版本引用；不变量 1、3、8、10 与 AC-04 明确排除缺失绑定和混合 manifest。"
+        },
+        {
+          "text": "回滚提交前已创建任务保持原版本，提交后的新任务全部绑定稳定版本。",
+          "passed": true,
+          "evidence": "第 5.3 节以提交顺序形成明确切面，不变量 5、9 固化前后语义；AC-04 断言 revision 20 任务保持 v1/v2 合法绑定，revision 21 的任务全部绑定 v1，AC-06/AC-07 验证响应丢失和跨回滚执行仍保留原绑定。"
+        },
+        {
+          "text": "回滚命令可幂等重试，进程在切换中崩溃后能够恢复到明确版本。",
+          "passed": true,
+          "evidence": "第 5.2 节把控制幂等结果与 route revision 写入同一路由切换路径；第 7 节规定 commit 前故障保留旧路由、commit 后响应丢失返回首次新 revision，服务重启按持久绑定与 outbox 恢复；AC-08 和 AC-11 提供自动验收。"
+        },
+        {
+          "text": "发布与回滚并发时通过序列号、租约或 fencing token 阻止旧操作覆盖新状态。",
+          "passed": true,
+          "evidence": "第 5.2 节规定 canary 开启、比例更新、晋级和回滚共用 expected_route_revision CAS 与路由行锁；旧 revision 返回 ROUTE_REVISION_CONFLICT。第 7 节覆盖两个控制操作竞争，AC-08 直接验证回滚/晋级并发只产生一个后继 revision，落败操作无法覆盖新状态。"
+        },
+        {
+          "text": "canary 触发条件、观测窗口、回滚原因和受影响 run 进入决策记录与知识库。",
+          "passed": true,
+          "evidence": "第 4.5 节要求回滚事件保存触发指标、阈值、观测窗口、原因、版本链、证据和关联知识条目 ID；T9 要求知识记录派生入口；AC-12 要求从回滚 revision 追溯 canary run、策略阈值、证据、操作者与知识条目，第 7 节还定义知识派生失败时的 outbox 重试。"
+        },
+        {
+          "text": "验收用例明确覆盖切换边界并能检测混合版本任务。",
+          "passed": true,
+          "evidence": "AC-04 以 barrier、至少 1,000 个任务、固定 seed 和至少 20 轮覆盖回滚切面，逐项断言 revision 20/21 的合法版本、唯一 binding、无混合 manifest、无未知 revision 和无重复任务；第 10 节要求输出 revision 到版本/bucket 计数矩阵与零违规断言。"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "eval_name": "scenario-pruning-contract-risk-routing",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 3,
+        "failed": 3,
+        "total": 6,
+        "time_seconds": 187.954,
+        "tokens": 108624,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "每个阶段字段定义唯一 producer、consumer 和有效来源，风险、Requirement、Scenario 与报告路径语义一致。",
+          "passed": false,
+          "evidence": "输出只给出了通用 StageContract/StageEnvelope 模型，并在 checklist 中要求为六个相邻边界登记 contract；正文没有逐阶段定义 Requirement、Scenario、风险和报告路径各自的唯一 producer、consumer、有效来源及一致性规则。"
+        },
+        {
+          "text": "consumer 读取退役字段或旧路径时产生可定位 `CONTRACT_DRIFT` 并阻止版本进入 baseline。",
+          "passed": false,
+          "evidence": "漂移分类覆盖版本、schema、hash、artifact 和状态冲突，但没有退役字段/旧路径读取规则、可定位 CONTRACT_DRIFT 输出契约或阻止 pipeline 版本进入 baseline 的验收用例。"
+        },
+        {
+          "text": "公开契约、共享状态、并发或不可逆操作进入完整 spec/task/verify/独立审查路径。",
+          "passed": true,
+          "evidence": "核心不变量 7 明确 public_contract、shared_state_write、concurrent_write、irreversible_operation 任一为真时最低 profile 为 high；7.3 的 high profile 要求稳定 spec/task contract、deterministic verify，以及独立意图、正确性和证据审查，并包含竞态/恢复反例。"
+        },
+        {
+          "text": "低风险轻量路径保留影子 QA，发现 P0/P1 后形成知识并提高同类任务风险权重。",
+          "passed": true,
+          "evidence": "8.1 将 active 策略的 lightweight 任务纳入确定性影子 QA；8.2 与 AC-11 要求 P0/P1 形成 false_negative、不可变回放 fixture、知识引用和 draft candidate。7.2 又规定同类 P0 错误放行直接 high、历史 P1 错误放行率达阈值至少 standard，构成同类任务后续风险上调。"
+        },
+        {
+          "text": "路由策略有独立版本，run 记录决策输入、profile 和策略版本，可通过历史错误放行率校准。",
+          "passed": true,
+          "evidence": "RiskAssessment 同时记录 pipeline_run_id、policy_version/policy_hash、完整 signals、historical_escape_rate、matched_rules 和 profile；RoutingPolicy 有独立生命周期，run 创建事务原子绑定 route decision。反馈校准在固定历史集报告 FN、FP、P0/P1 回归与 profile 分布。"
+        },
+        {
+          "text": "验收同时覆盖合法新契约、旧字段漂移和路由低估三类反例。",
+          "passed": false,
+          "evidence": "AC-01 覆盖合法契约，AC-11 覆盖 lightweight 被影子 QA 发现 P1 的路由低估；AC-02 至 AC-04 只覆盖版本、同版本 hash 和 artifact hash 漂移，没有 consumer 读取退役字段或旧路径的反例。"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 7,
+      "eval_name": "scenario-pruning-contract-risk-routing",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.8333333333333334,
+        "passed": 5,
+        "failed": 1,
+        "total": 6,
+        "time_seconds": 200.368,
+        "tokens": 152511,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "每个阶段字段定义唯一 producer、consumer 和有效来源，风险、Requirement、Scenario 与报告路径语义一致。",
+          "passed": true,
+          "evidence": "第 4 节逐项给出 Requirement/Scenario、风险、实现结果、verify、QA、fix、状态和报告位置的唯一真源、生效结果与下游形式；第 6 节按每个阶段边界列出 producer、consumer、字段和引用规则。"
+        },
+        {
+          "text": "consumer 读取退役字段或旧路径时产生可定位 `CONTRACT_DRIFT` 并阻止版本进入 baseline。",
+          "passed": true,
+          "evidence": "7.1 在 baseline 前扫描 legacy denylist，7.2 定义 NO_LEGACY_READ，7.3 的 CONTRACT_DRIFT 输出包含 producer、consumer、field、expected_source、actual_source 和 evidence_path；AC2 验证旧字段/旧路径非零退出，AC3 明确候选不得进入 baseline。"
+        },
+        {
+          "text": "公开契约、共享状态、并发或不可逆操作进入完整 spec/task/verify/独立审查路径。",
+          "passed": false,
+          "evidence": "8.2 明确公开契约、并发和不可逆状态进入 high/full，full 包含稳定 task contract、verify 和 q1/q2/q3 独立审查；规则没有把可逆的共享状态写入单独列为强制 full，且 high 路径没有明确要求完整 spec。AC7 也只覆盖系统不变量或公开契约。"
+        },
+        {
+          "text": "低风险轻量路径保留影子 QA，发现 P0/P1 后形成知识并提高同类任务风险权重。",
+          "passed": true,
+          "evidence": "low/light 决策必须记录确定性影子 QA；P0/P1 产生 ROUTER_UNDER_REVIEW 知识输入。路由输入包含同类任务错误放行率和 P0/P1 历史快照，low 仅在历史错误放行率低时成立，校准又按任务类别分桶并生成候选策略，使同类后续任务的风险判断受到该反馈影响。"
+        },
+        {
+          "text": "路由策略有独立版本，run 记录决策输入、profile 和策略版本，可通过历史错误放行率校准。",
+          "passed": true,
+          "evidence": "route_decision 明确记录 pipeline_run_id、policy_version、input_fingerprint、signal_snapshot_id、risk_level 和 profile；策略有独立状态机。9.2 定义 router_false_release_rate，并按任务类别、模块、不变量、policy version 和时间窗口分桶校准。"
+        },
+        {
+          "text": "验收同时覆盖合法新契约、旧字段漂移和路由低估三类反例。",
+          "passed": true,
+          "evidence": "AC1 覆盖合法 V2 全阶段链，AC2 覆盖退役 README/旧 spec/旧 risk 位置读取，AC9 覆盖 light profile 被影子 QA 发现 P1 的路由低估；三者均给出可执行输入、动作和结构化预期。"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 0.7666666666666667,
+        "stddev": 0.16996731711975951,
+        "min": 0.5,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 185.7972,
+        "stddev": 18.345445357363232,
+        "min": 168.824,
+        "max": 219.818
+      },
+      "tokens": {
+        "mean": 108111.8,
+        "stddev": 1631.1916380364387,
+        "min": 106499.0,
+        "max": 110940.0
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.8,
+        "stddev": 0.24494897427831783,
+        "min": 0.3333333333333333,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 223.87800000000001,
+        "stddev": 48.18702947059511,
+        "min": 176.101,
+        "max": 307.97
+      },
+      "tokens": {
+        "mean": 171820.0,
+        "stddev": 25243.662586875147,
+        "min": 150469.0,
+        "max": 205489.0
+      }
+    },
+    "delta": {
+      "pass_rate": "-0.03",
+      "time_seconds": "-38.1",
+      "tokens": "-63708"
+    }
+  },
+  "notes": []
+}

@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "eval_id": 8,
+  "eval_name": "instruction-form-adherence",
+  "configuration": "arm_a_do",
+  "configuration_label": "DO：目标行为",
+  "run_number": 3,
+  "source": {
+    "kind": "codex_rollout",
+    "id": "019f8582-6d92-7872-bfc7-854577388097",
+    "rollout_path": "/Users/kid/.codex/sessions/2026/07/22/rollout-2026-07-22T00-29-05-019f8582-6d92-7872-bfc7-854577388097.jsonl"
+  },
+  "model": "gpt-5.6-sol",
+  "repo_sha": "7a4b49821d6d394897b3937fba9b26f95048b99c",
+  "prompt_sha256": "sha256:18e5c168b2848d0fd8c11ccc340f4b11d7671f1d68d6a47c47ee78c73d92e9d0",
+  "started_at": "2026-07-21T16:29:05.433Z",
+  "ended_at": "2026-07-21T16:29:46.915Z",
+  "duration_ms": 41482,
+  "tokens": {
+    "input": 117720,
+    "cached_input": 110592,
+    "output": 1707,
+    "reasoning_output": 452,
+    "total": 119427
+  },
+  "quality": {
+    "passed": 10,
+    "total": 10,
+    "pass_rate": 1.0
+  },
+  "execution_metrics": {
+    "tool_calls": {
+      "exec": 3
+    },
+    "total_tool_calls": 3,
+    "errors_encountered": 0
+  }
+}

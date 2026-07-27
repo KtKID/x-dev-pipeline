@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "eval_id": 8,
+  "configuration": "arm_a_do",
+  "configuration_label": "DO：目标行为",
+  "run_number": 1,
+  "repo_sha": "7a4b49821d6d394897b3937fba9b26f95048b99c",
+  "input_sha256": "sha256:2c95a47c1d2cc71eba8587e21c1422fba5adc79b84cf874ebdfe9cb41865fed8",
+  "prompt_sha256": "sha256:9aaac3198e8a5fd645e2368ce0b03f49739d0bc3c83ed7593e2169f96f3d34cd",
+  "rules_sha256": "sha256:1c7d765f8dbc860c711afa6efd3360ca0ba5e4862975a4005204b5cacf98210a",
+  "cases_sha256": "sha256:da1da7ab581b2efe1ded0c4f9069207b1cce075df0474aa4d3a2fa70c40fc1d4",
+  "instruction_chars": 864,
+  "total_input_chars": 5647,
+  "case_order": [
+    "feedback_same_task",
+    "duplicate_event_same_payload",
+    "duplicate_event_conflicting_payload",
+    "late_evidence_after_terminal",
+    "crash_after_partial_persist",
+    "insufficient_origin_evidence",
+    "concurrent_knowledge_dedup",
+    "publish_rollback_fencing",
+    "task_binding_at_rollback_boundary",
+    "retired_contract_field"
+  ],
+  "grader_visibility": "expected and rubric excluded from executor"
+}

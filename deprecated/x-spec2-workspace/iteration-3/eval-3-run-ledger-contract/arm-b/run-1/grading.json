@@ -1,0 +1,64 @@
+{
+  "expectations": [
+    {
+      "text": "一个用户任务对应一个 run，反馈返工使用同一 run 的新 attempt，并在任务创建时绑定 pipeline 版本。",
+      "passed": false,
+      "evidence": "CreateRun 的同事务版本绑定、RunRequestDedup 和 PipelineRun.version_binding 能保证创建时固定版本。第 3.7 条与 4.1 明确规定终态后再次执行创建新 pipeline_run_id；A13 进一步断言 repair 创建新 run。产物缺少用户反馈返工沿用同一 run 并创建新 attempt 的命令、状态规则和验收用例，且现有终态后语义与该要求冲突。"
+    },
+    {
+      "text": "重复 `event_id` 幂等，乱序事件可重建逻辑顺序，冲突终态被隔离。",
+      "passed": true,
+      "evidence": "5.5 规定同 event_id/source_seq 同 digest 返回原确认，异 digest 返回 EVENT_IDEMPOTENCY_CONFLICT；6.3 使用连续 source_seq、predecessor_event_ids 和 pending_event_ids 补齐后重放。6.3.7 规定同一 attempt 的不同完成结果进入 EVENT_IDEMPOTENCY_CONFLICT/INCONSISTENT 且 run 无法成功收敛。A06、A07 提供重复/乱序及冲突隔离断言。"
+    },
+    {
+      "text": "终态后的迟到证据通过修订关联，不能静默改写已发布结果。",
+      "passed": true,
+      "evidence": "5.5 为修订事件定义 supersedes_event_id 与 correction_reason，OUTCOME_REVISED payload 必须引用 prior_terminal_event_id 和 evidence_refs；6.2 规定终态保持吸收性，修订只更新 effective_outcome 并保留原 execution_state 和终态事件。A14 从已成功终结的 run 出发，断言 update/delete 被拒绝、修订追加且查询同时返回原终态和最新结论。"
+    },
+    {
+      "text": "stage 中断或部分持久化后可以安全重放，避免重复提交，并记录缺失指标原因。",
+      "passed": true,
+      "evidence": "5.6 定义 missing_metrics 的 metric_name、missing_reason_code、detail 及首版原因码；6.5 规定持久 outbox、固定 event_id/source_seq、账本确认屏障和崩溃不确定性处理。A09 断言中断状态和 Token/耗时缺失原因，A10 断言 outbox 重放只保存一次且投影等于无故障基线，A11 断言 RESULT_UNCERTAIN_AFTER_CRASH 与更高 attempt 编号。"
+    },
+    {
+      "text": "task contract 给出可实现的数据/状态所有者和清晰范围。",
+      "passed": true,
+      "evidence": "第 2 节明确列出账本、绑定、投影、恢复和自动验收的包含范围，以及知识库、评分算法、晋级、UI 等范围外项；第 7 节逐项指定 Version Registry、Run Registrar、Orchestrator、Ledger Store、Projector、Collector、Evidence Store、Reconciler 和修订入口的所有权与消费者边界。"
+    },
+    {
+      "text": "验收用例包含可执行输入、动作、预期状态与证据。",
+      "passed": true,
+      "evidence": "A01-A16 具有具体 GIVEN/WHEN/THEN，覆盖 20 次并发、至少 100 次版本竞争、seq 1..6 乱序、故障注入、错误码、状态和 digest 等可断言结果；第 11 节列出 pytest 命令、A-ID 筛选和七类固定证据文件及必备元数据。"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 1,
+    "total": 6,
+    "pass_rate": 0.8333333333
+  },
+  "claims": [
+    {
+      "claim": "终态后的再次执行会创建关联的新 run。",
+      "type": "factual",
+      "verified": true,
+      "evidence": "第 3.7 条和 4.1 的身份表明确该语义，A13 对 repair、replay 和 migration 分别断言新 run ID。"
+    },
+    {
+      "claim": "投影可以从 PipelineRun、manifest 和不可变 RunEvent 确定性重建。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "5.7 定义 projection_digest 与可删除重建语义；A15 断言删除缓存后两次重建 digest 与删除前完全一致。"
+    },
+    {
+      "claim": "中断运行会保留最后成功阶段并逐项记录缺失指标原因。",
+      "type": "quality",
+      "verified": true,
+      "evidence": "5.6 定义 missing_metrics 结构，A09 断言 INTERRUPTED、last_successful_stage 以及 PROCESS_EXITED/PROVIDER_DID_NOT_REPORT 原因。"
+    }
+  ],
+  "eval_feedback": {
+    "suggestions": [],
+    "overall": "六条 rubric 能识别完整账本契约中的关键边界；第 1 条明确要求反馈返工沿用同一 run，因此能够发现将所有终态后执行统一建模为新 run 的身份偏差。"
+  }
+}

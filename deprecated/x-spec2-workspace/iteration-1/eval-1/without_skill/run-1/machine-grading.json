@@ -1,0 +1,62 @@
+{
+  "expectations": [
+    {
+      "text": "输出目录只包含非空的 spec.md、modules.md、design.md",
+      "passed": true,
+      "evidence": "实际文件: ['design.md', 'modules.md', 'spec.md']; 非空: True"
+    },
+    {
+      "text": "xdev 校验成功并识别为 spec2",
+      "passed": true,
+      "evidence": "exit=0; payload={\"packages\": [{\"path\": \"/Volumes/machub_app/proj/x-dev-pipeline/skills/x-spec2-workspace/iteration-1/eval-1/without_skill/run-1/outputs\", \"type\": \"spec2\", \"skipped\": false, \"issues\": []}], \"total_issues\": 0, \"skipped_legacy\": 0}"
+    },
+    {
+      "text": "spec.md 声明六元组且 design.md 承载六元组动态设计",
+      "passed": true,
+      "evidence": "六元组同时出现情况: {'数据流': True, '状态': True, '时序': True, '资源': True, '不变量': True, '故障': True}"
+    },
+    {
+      "text": "产物保留硬件、语音链路、延迟、打断、可观测和恢复信号",
+      "passed": true,
+      "evidence": "信号检查: {'hardware': True, 'wake_and_listen': True, 'speech_pipeline': True, 'latency': True, 'barge_in': True, 'observability': True, 'recovery': True}"
+    },
+    {
+      "text": "spec.md 至少包含九行用户要求追溯",
+      "passed": true,
+      "evidence": "用户追溯数据行计数: 9"
+    },
+    {
+      "text": "输出不含 task、checklist 或 README 产物",
+      "passed": true,
+      "evidence": "命中的禁止文件: []"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  },
+  "validator": {
+    "command": [
+      "/Applications/Xcode.app/Contents/Developer/usr/bin/python3",
+      "/Volumes/machub_app/proj/x-dev-pipeline/tools/xdev.py",
+      "validate",
+      "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-spec2-workspace/iteration-1/eval-1/without_skill/run-1/outputs",
+      "--json"
+    ],
+    "exit_code": 0,
+    "payload": {
+      "packages": [
+        {
+          "path": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-spec2-workspace/iteration-1/eval-1/without_skill/run-1/outputs",
+          "type": "spec2",
+          "skipped": false,
+          "issues": []
+        }
+      ],
+      "total_issues": 0,
+      "skipped_legacy": 0
+    }
+  }
+}
