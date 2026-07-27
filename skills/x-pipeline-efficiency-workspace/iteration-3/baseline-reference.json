@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "eval_id": 10,
+  "run_number": 1,
+  "source_iteration": "skills/x-pipeline-efficiency-workspace/iteration-2",
+  "source_run": "eval-10-voice-chain-end-to-end/without_skill/run-1",
+  "reuse_reason": "The baseline snapshot, model, prompt, fixture, rubric and evaluator remain byte-frozen; the reused formal sample is one of two baseline repetitions and candidate-v3 runs are fresh.",
+  "measurement_sha256": "4e35380bbd2d92c4146a0efbd1240f32721001a591d4a1b2dbfbaff8c48e36f3"
+}
