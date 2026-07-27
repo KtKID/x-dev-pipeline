@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.5.0
+
+### 发布更新
+
+- **规范链路定版**：公开开发主链统一为 `x-spec → x-adversarial-risk → x-req → x-dev → x-verify → x-qa-gate → x-fix`
+- **正式名称归位**：最新版 `x-spec` 与 `x-req` 使用稳定名称，迭代版本与历史 workspace 进入废弃或评测目录
+- **Codex 发布边界**：Codex 插件仅发布产品 skill、必要运行脚本与插件元数据；评测入口、workspace、历史 skill、评测指标脚本和运行缓存退出发布包
+- **版本统一**：`package.json`、Claude Code manifest、Claude marketplace、Codex manifest 与 README 全部升级到 `0.5.0`
+
 ## v0.3.6
 
 ### 发布更新

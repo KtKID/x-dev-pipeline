@@ -1,7 +1,7 @@
 {
   "name": "x-dev-pipeline",
-  "version": "0.3.6",
-  "description": "Development workflow plugin for Claude Code and Codex — structured spec/req/dev/verify/qa-gate/fix pipeline with lightweight quick-dev and audit capabilities.",
+  "version": "0.5.0",
+  "description": "Development workflow plugin for Claude Code and Codex — structured spec, adversarial risk review, task breakdown, implementation, verify, qa-gate, fix loops, and audits.",
   "license": "MIT",
   "keywords": [
     "claude-code",
