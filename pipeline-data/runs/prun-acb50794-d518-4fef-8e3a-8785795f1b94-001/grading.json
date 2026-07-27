@@ -1,0 +1,339 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-acb50794-d518-4fef-8e3a-8785795f1b94-001",
+  "rubric": "evals/answers/task-01-configresolver-spec-quality/rubric.md",
+  "rubric_sha256": "c970f0440b7db906949325464d87063b12f2e1fb800e4084dc66830f3b662f3d",
+  "status": "manual_review_complete",
+  "expectations": [
+    {
+      "id": 1,
+      "text": "明确 sources 低到高优先级，普通字段由最后一个有效高优先级值覆盖。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:107", "artifacts/configresolver-sol5.6-spec.md:109-113"],
+      "score_impact": 0
+    },
+    {
+      "id": 2,
+      "text": "明确 object 按 Children 递归合并，并覆盖至少三层嵌套对象。",
+      "passed": false,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:115-121"],
+      "severity": "P1",
+      "reason_code": "SPEC_MISSING_THREE_LEVEL_EXAMPLE",
+      "parent_reason_code": "SPEC_BOUNDARY_COVERAGE_GAP",
+      "score_impact": 5
+    },
+    {
+      "id": 3,
+      "text": "明确高优先级对象只覆盖其提供的叶子，低优先级未覆盖兄弟叶子继续保留。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:117-121"],
+      "score_impact": 0
+    },
+    {
+      "id": 4,
+      "text": "明确 array 整体替换，禁止逐元素或追加合并。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:17", "artifacts/configresolver-sol5.6-spec.md:123-129"],
+      "score_impact": 0
+    },
+    {
+      "id": 5,
+      "text": "明确 optional 字段遇到 nil 后从最终 Config 删除。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:139-145"],
+      "score_impact": 0
+    },
+    {
+      "id": 6,
+      "text": "明确删除对象或叶子后，相应最终叶子和 Provenance 一起消失。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:131-145"],
+      "score_impact": 0
+    },
+    {
+      "id": 7,
+      "text": "场景覆盖普通覆盖、递归对象、数组替换和删除四类合并路径，THEN 可直接断言具体结果。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:107-145"],
+      "score_impact": 0
+    },
+    {
+      "id": 8,
+      "text": "同时覆盖 required 字段被 nil 删除与所有来源缺失，并断言 errors.Is(..., ErrRequiredRemoved)。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:147-161"],
+      "score_impact": 0
+    },
+    {
+      "id": 9,
+      "text": "覆盖顶层或嵌套未知字段，并断言 errors.Is(..., ErrUnknownField)。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:163-169"],
+      "score_impact": 0
+    },
+    {
+      "id": 10,
+      "text": "覆盖类型错误，并断言 errors.Is(..., ErrTypeMismatch)。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:171-177"],
+      "score_impact": 0
+    },
+    {
+      "id": 11,
+      "text": "类型建模包含 string、全部整数/浮点 number、boolean、object、array；array 元素不校验。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:41-42", "artifacts/configresolver-sol5.6-spec.md:179-185"],
+      "score_impact": 0
+    },
+    {
+      "id": 12,
+      "text": "Provenance 只记录最终叶子路径，值为提供最终叶子值的 Source.Name。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:43", "artifacts/configresolver-sol5.6-spec.md:187-193"],
+      "score_impact": 0
+    },
+    {
+      "id": 13,
+      "text": "递归对象场景分别断言保留叶子与覆盖叶子的来源。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:115-121"],
+      "score_impact": 0
+    },
+    {
+      "id": 14,
+      "text": "覆盖 RFC 6901 的转义，并保持 Result.Config 原始字段名。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:187-193"],
+      "score_impact": 0
+    },
+    {
+      "id": 15,
+      "text": "明确 Resolve 不修改 schema、sources、Source.Data 及嵌套 map/slice，并用调用前后深比较验证。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:195-201"],
+      "score_impact": 0
+    },
+    {
+      "id": 16,
+      "text": "明确 Data 为 nil 的来源调用后仍为 nil，并覆盖 nil/空 schema 或 sources 的合法/错误结果。",
+      "passed": false,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:68", "artifacts/configresolver-sol5.6-spec.md:195-201"],
+      "severity": "P1",
+      "reason_code": "SPEC_EMPTY_INPUT_MATRIX_MISSING",
+      "parent_reason_code": "SPEC_BOUNDARY_COVERAGE_GAP",
+      "score_impact": 5
+    },
+    {
+      "id": 17,
+      "text": "明确 Result 不共享会让输入被后续结果写入间接修改的可变别名，或用等价所有权断言封闭该风险。",
+      "passed": false,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:45", "artifacts/configresolver-sol5.6-spec.md:195-201"],
+      "severity": "P1",
+      "reason_code": "SPEC_RESULT_ALIAS_OWNERSHIP_MISSING",
+      "parent_reason_code": "SPEC_OWNERSHIP_GAP",
+      "score_impact": 5
+    },
+    {
+      "id": 18,
+      "text": "覆盖相同逻辑数据采用不同 map 插入顺序仍得到 DeepEqual 的 Config 与 Provenance。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:203-209"],
+      "score_impact": 0
+    },
+    {
+      "id": 19,
+      "text": "覆盖约 100 字段连续 10,000 次小于 2 秒，并用 race detector 验证共享 sources 并发调用无数据竞争。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:211-225"],
+      "score_impact": 0
+    },
+    {
+      "id": 20,
+      "text": "Smoke/验收命令包含 go test ./... 与 go vet ./...，并为性能和竞态给出可执行测试入口。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:71-76", "artifacts/configresolver-sol5.6-spec.md:211-233"],
+      "score_impact": 0
+    },
+    {
+      "id": 21,
+      "text": "任务目标描述可观察成功结果，非目标明确实现范围。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:5-19"],
+      "score_impact": 0
+    },
+    {
+      "id": 22,
+      "text": "影响边界包含 configresolver 目标模块、调用方上游、结果/错误消费方下游。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:21-31"],
+      "score_impact": 0
+    },
+    {
+      "id": 23,
+      "text": "边界表写出输入不可变、确定性、公开 API/错误兼容和并发安全等相关不变量。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:23-31"],
+      "score_impact": 0
+    },
+    {
+      "id": 24,
+      "text": "判断依据只保存影响实现或验收的事实/推断，并被边界或 Scenario 引用。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:33-46", "artifacts/configresolver-sol5.6-spec.md:99-233"],
+      "score_impact": 0
+    },
+    {
+      "id": 25,
+      "text": "建模覆盖逐项声明数据流、状态、时序、资源、不变量、故障的落点或具体不适用理由。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:48-57"],
+      "score_impact": 0
+    },
+    {
+      "id": 26,
+      "text": "验收清单区分 unit、smoke、e2e，E2E 写明需要或省略及依据。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:59-81"],
+      "score_impact": 0
+    },
+    {
+      "id": 27,
+      "text": "测试驱动顺序体现 Scenario 到失败测试、最小实现、重构回归。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:83-95"],
+      "score_impact": 0
+    },
+    {
+      "id": 28,
+      "text": "Scenario 直接使用 GIVEN/WHEN/THEN，并标出测试层和依据。",
+      "passed": true,
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:97-233"],
+      "score_impact": 0
+    }
+  ],
+  "deductions": [
+    {
+      "severity": "P1",
+      "reason_code": "SPEC_MISSING_THREE_LEVEL_EXAMPLE",
+      "finding": "递归合并 Scenario 只写抽象的对象与子字段，没有 app.server.tls 级别的三层可执行实例。",
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:115-121"],
+      "score_impact": 5
+    },
+    {
+      "severity": "P1",
+      "reason_code": "SPEC_EMPTY_INPUT_MATRIX_MISSING",
+      "finding": "规格验证 nil Source.Data 保持 nil，未定义 nil/空 schema 与 nil/空 sources 各自的成功或错误结果。",
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:68", "artifacts/configresolver-sol5.6-spec.md:195-201"],
+      "score_impact": 5
+    },
+    {
+      "severity": "P1",
+      "reason_code": "SPEC_RESULT_ALIAS_OWNERSHIP_MISSING",
+      "finding": "输入快照只比较 Resolve 返回时刻，缺少修改 Result.Config 或嵌套数组后复查输入的所有权断言。",
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:195-201"],
+      "score_impact": 5
+    },
+    {
+      "severity": "P2",
+      "reason_code": "SPEC_INFERENCE_STATUS_UNVERIFIED",
+      "finding": "J3、J4、J5、J8 标记为 LLM 推断，同时状态写成已确认；产物没有保存确认主体或证据。",
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:39-44"],
+      "score_impact": 0
+    },
+    {
+      "severity": "P2",
+      "reason_code": "SPEC_EVIDENCE_SOURCE_UNRESOLVED",
+      "finding": "判断依据多次引用 task.md，目标产物包内没有该文件；本次评测通过外部 PROMPT.md 哈希补齐了审计链。",
+      "evidence": ["artifacts/configresolver-sol5.6-spec.md:37-46", "manifest.json"],
+      "score_impact": 0
+    },
+    {
+      "severity": "P2",
+      "reason_code": "EVAL_SOURCE_PROVENANCE_MISSING",
+      "finding": "原始产物包没有保存生成 session；本次通过当日 Codex rollout、工作区、prompt 与 apply_patch 内容恢复了完整来源。",
+      "evidence": ["manifest.json", "telemetry.json", "events.jsonl:evt-015-evt-022"],
+      "resolved_in_attempt": 2,
+      "score_impact": 0
+    },
+    {
+      "severity": "P1",
+      "reason_code": "EVAL_HIDDEN_MEMORY_CONTAMINATION",
+      "finding": "生成者在写 spec 前读取了同题历史验收报告，其中直接披露三个 hidden harness 失败点，并明确将它们写成 Scenario；产物评分有效，模型与 skill 的盲测归因无效。",
+      "evidence": [
+        "manifest.json:task.hidden_evaluation_leakage",
+        "telemetry.json:taint_reasons",
+        "/Users/kid/.codex/sessions/2026/07/22/rollout-2026-07-22T20-35-49-019f89d3-3a38-7572-8835-4a7c22bb5f36.jsonl"
+      ],
+      "score_impact": 0
+    }
+  ],
+  "summary": {
+    "passed": 25,
+    "failed": 3,
+    "total": 28,
+    "pass_rate": 0.8928571428571429,
+    "score": 85,
+    "score_max": 100
+  },
+  "quality": {
+    "task_semantic": {
+      "passed": 17,
+      "failed": 3,
+      "total": 20,
+      "score": 85,
+      "score_max": 100
+    },
+    "groups": {
+      "merge_semantics": {"passed": 6, "total": 7, "score": 30, "score_max": 35},
+      "schema_validation": {"passed": 4, "total": 4, "score": 20, "score_max": 20},
+      "provenance": {"passed": 3, "total": 3, "score": 15, "score_max": 15},
+      "boundaries": {"passed": 1, "total": 3, "score": 5, "score_max": 15},
+      "performance_determinism": {"passed": 2, "total": 2, "score": 10, "score_max": 10},
+      "tool_gate": {"passed": 1, "total": 1, "score": 5, "score_max": 5}
+    },
+    "structure": {
+      "passed": 8,
+      "failed": 0,
+      "total": 8,
+      "score": 8,
+      "score_max": 8
+    },
+    "p0_count": 0,
+    "p1_count": 4,
+    "artifact_p1_count": 3,
+    "evaluation_validity_p1_count": 1,
+    "p2_count": 3
+  },
+  "baseline_comparison": {
+    "baseline": "controlled x-spec3 gpt-5.6-sol pilot run-1",
+    "task_semantic_score": 85,
+    "structure_score": "8/8",
+    "passed": 25,
+    "total": 28,
+    "scenario_count": 14,
+    "bytes": 16557,
+    "words": 1206,
+    "differences": [
+      "当前产物补上不同 map 插入顺序验收，因此 assertion 18 从失败变为通过。",
+      "当前产物删掉 nil/空 schema 或 sources 的结果矩阵，因此 assertion 16 从通过变为失败。",
+      "三层递归实例与 Result 可变别名两个缺口保持未修复。",
+      "总分保持 85/100；Scenario 从 14 增至 17，文档从 16557 字节降至 14602 字节。"
+    ],
+    "comparability": "题面、rubric、模型和 spec 产物类型一致，可描述产物质量与文本体积。当前 run 还执行 x-req3，并读取同题 hidden 失败记忆；模型与 skill 的盲测、因果结论无效。"
+  },
+  "decision": {
+    "execution_outcome": "completed",
+    "quality_gate": "failed",
+    "accepted_delivery": false,
+    "next_stage": "revise_spec",
+    "gate_reason": "三个 P1 仍需修订或由负责人显式接受风险；进入 req/dev 前补齐三层递归、空输入矩阵和返回值所有权。"
+  },
+  "evaluator_gaps": [
+    "生成 source session 已在 attempt 2 恢复；原产物交付协议仍缺少 session id，来源恢复依赖 JSONL 搜索与 apply_patch 重建。",
+    "tools/metrics.py 要求 session_meta.git.commit_hash 非空，无法解析有效的非 Git Codex 工作区，本次按最终累计 token_count 与产物边界直接提取。",
+    "样本读取同题历史 hidden 失败记忆，无法用于判断 x-spec3 的纯净增益；后续 eval 需要隔离同题 memory。",
+    "rubric assertion 16 同时绑定 nil Data 形态保持与 nil/空 schema/sources 语义，失败归因粒度偏粗。",
+    "harness-v2 README 标为草案；当前评分以题面哈希一致和项目冻结 rubric 为准。",
+    "隐藏 harness 检查调用期间输入不变，未直接检查修改 Result 后输入是否变化；Result 所有权属于规格强化项。"
+  ]
+}

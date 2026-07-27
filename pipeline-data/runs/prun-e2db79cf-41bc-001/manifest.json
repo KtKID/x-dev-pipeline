@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-e2db79cf-41bc-001",
+  "run_kind": "evaluation",
+  "objective": "验收 Kongming Agent 为 ConfigResolver 任务生成的 spec3 与 req3 文档，核对会话 JSONL、受限 skill 使用、任务契约与下游校验链。",
+  "parent_run_id": null,
+  "source": {
+    "kind": "kongming_session_jsonl",
+    "id": "thread-e2db79cf41bc",
+    "workspace_dir": "/Users/kid/.kongming",
+    "session_path": "/Users/kid/.kongming/sessions/thread-e2db79cf41bc/thread-e2db79cf41bc.jsonl",
+    "session_sha256": "f250112cc6fd6f226233d652e5f99bf3fc6f8afe08764ef178478499aca7cc02",
+    "trace_path": "/Users/kid/.kongming/sessions/thread-e2db79cf41bc/trace.jsonl",
+    "trace_sha256": "3c48eecf84abb77990b68f33e8665af6480e75e1597d7a94b49daecd7e1e50fe",
+    "session_manifest": "/Users/kid/.kongming/sessions/thread-e2db79cf41bc/manifest.json",
+    "session_created_at": "2026-07-22T21:38:38.225+08:00"
+  },
+  "task": {
+    "path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/task.md",
+    "sha256": "0484ec1f9e5deb29ecfc38a6d572460bc56825a75a8d7c620c2067183af703be",
+    "snapshot_path": "artifacts/source-task.md",
+    "snapshot_sha256": "0484ec1f9e5deb29ecfc38a6d572460bc56825a75a8d7c620c2067183af703be",
+    "evaluation_task_reference": "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/model-input/task-01-configresolver/PROMPT.md",
+    "rubric": "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/EVALUATION.md",
+    "rubric_sha256": "46fd2de09b07796485b3d493f1a1134c46d73b50675f18f3855305c28ff3e0cf",
+    "rubric_exposed_to_executor": false,
+    "hidden_harness": {
+      "path": "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/harness-v2/configresolver_hidden_test.go",
+      "sha256": "e77d0a68a24af9df67e2c2338b636bbf863288bebbe64cf988950d0e958e787c"
+    }
+  },
+  "repository": {
+    "evaluator_workspace": "/Volumes/machub_app/proj/x-dev-pipeline",
+    "sha": "84e4f9bf67d141885c11d2b66645760d7040189d",
+    "branch": "evo",
+    "worktree_state": "dirty before evaluation; pre-existing changes kept outside this run directory",
+    "executor_workspace": {
+      "path": "/Users/kid/.kongming",
+      "version_controlled": null
+    }
+  },
+  "executor": {
+    "agent": "kongming-agent",
+    "model": "glm-5.2",
+    "run_count": 1,
+    "skills": [
+      {
+        "name": "x-spec3",
+        "requested_path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/skills/x-spec3",
+        "resolved_path": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-spec3",
+        "sha256": "aaa62f1321e98341a255a5751d239966f3a03d35b38f2b9384ceb867cf65ca94"
+      },
+      {
+        "name": "x-req3",
+        "requested_path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/skills/x-req3",
+        "resolved_path": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-req3",
+        "sha256": "ff30c07865e4856fef10e41371d52d2845e312987570ad9006fdb2c933637403"
+      }
+    ],
+    "skill_restriction_audit": {
+      "requested_scope": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/skills",
+      "session_accessed_skill_paths": [
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/skills/x-spec3",
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/skills/x-req3"
+      ],
+      "source_session_evaluator_only_access": false,
+      "status": "passed",
+      "note": "两个用户指定路径是指向当前项目 skill 源的符号链接；会话中的调用参数始终使用用户指定的本地路径。"
+    }
+  },
+  "pipeline": {
+    "phases": [
+      "preparation",
+      "x-spec3.spec",
+      "x-req3.task",
+      "spec_quality_review"
+    ],
+    "executor_completed_at": "2026-07-22T21:48:52.860+08:00"
+  },
+  "artifacts": [
+    {
+      "kind": "spec",
+      "original_path": "/Users/kid/.kongming/docs/spec/configresolver/spec.md",
+      "snapshot_path": "artifacts/spec.md",
+      "sha256": "7d081666b88acf4c1e1c1e00538ca26bc7ba53572081261019de2d09775be7a5",
+      "bytes": 12977,
+      "written_at": "2026-07-22T21:47:31.862+08:00"
+    },
+    {
+      "kind": "dev_checklist",
+      "original_path": "/Users/kid/.kongming/docs/spec/configresolver/tasks/configresolver/dev-checklist.md",
+      "snapshot_path": "artifacts/dev-checklist.md",
+      "sha256": "9a3f94feede22fb1a1d8b212db256baf8226a0949a16bbc2a1563edf1e1d7909",
+      "bytes": 2811,
+      "written_at": "2026-07-22T21:48:21.100+08:00"
+    }
+  ],
+  "comparison": {
+    "baseline_run_id": null,
+    "comparable": false,
+    "reason": "未冻结同一执行器、模型、skill 版本与隔离上下文的基线 run。"
+  },
+  "status_source": "events.jsonl"
+}

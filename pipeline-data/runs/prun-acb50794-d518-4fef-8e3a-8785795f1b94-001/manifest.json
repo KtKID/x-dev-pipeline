@@ -1,0 +1,128 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-acb50794-d518-4fef-8e3a-8785795f1b94-001",
+  "run_kind": "evaluation",
+  "objective": "评审 configresolver-sol5.6 规格质量，核对冻结题面、隐藏验收、结构质量、效率证据并形成可审计报告",
+  "parent_run_id": null,
+  "source": {
+    "kind": "codex_rollout",
+    "id": "019f89d3-3a38-7572-8835-4a7c22bb5f36",
+    "rollout_path": "/Users/kid/.codex/sessions/2026/07/22/rollout-2026-07-22T20-35-49-019f89d3-3a38-7572-8835-4a7c22bb5f36.jsonl",
+    "rollout_sha256": "14c8353383b292aa30a2703b3f004e5fd97b8dbc5472bd97d6a068d1a55d4308",
+    "workspace_dir": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver",
+    "session_id": "019f89d3-3a38-7572-8835-4a7c22bb5f36",
+    "session_lookup": {
+      "result": "recovered",
+      "matched_by": [
+        "workspace",
+        "2026-07-22T20:35:49+08:00 start time",
+        "user prompt",
+        "spec apply_patch content",
+        "233-line artifact shape"
+      ],
+      "note": "rollout 生成的 spec 与评测目标只有标题后缀“模型 sol5.6极高”一处差异。"
+    }
+  },
+  "task": {
+    "path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/task.md",
+    "sha256": "0484ec1f9e5deb29ecfc38a6d572460bc56825a75a8d7c620c2067183af703be",
+    "evaluation_task_reference": "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/model-input/task-01-configresolver/PROMPT.md",
+    "rubric": "evals/answers/task-01-configresolver-spec-quality/rubric.md",
+    "rubric_sha256": "c970f0440b7db906949325464d87063b12f2e1fb800e4084dc66830f3b662f3d",
+    "rubric_exposed_to_executor": false,
+    "hidden_evaluation_leakage": {
+      "detected": true,
+      "kind": "prior_same_task_hidden_failure_memory",
+      "evidence": "rollout lines 46, 64 and 161 read prior x-log3 hidden failures and named three hidden failing cases"
+    },
+    "evaluation_reference": {
+      "path": "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/EVALUATION.md",
+      "sha256": "46fd2de09b07796485b3d493f1a1134c46d73b50675f18f3855305c28ff3e0cf"
+    },
+    "hidden_harness": {
+      "path": "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/harness-v2/configresolver_hidden_test.go",
+      "sha256": "e77d0a68a24af9df67e2c2338b636bbf863288bebbe64cf988950d0e958e787c"
+    }
+  },
+  "repository": {
+    "executor_workspace": {
+      "path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver",
+      "version_controlled": false,
+      "sha": null,
+      "branch": null
+    },
+    "evaluator": {
+      "path": "/Volumes/machub_app/proj/x-dev-pipeline",
+      "sha": "84e4f9bf67d141885c11d2b66645760d7040189d",
+      "branch": "evo",
+      "dirty": true
+    }
+  },
+  "executor": {
+    "provider": "openai",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "xhigh",
+    "originator": "Codex Desktop",
+    "cli_version": "0.144.2",
+    "artifact_label": "sol5.6极高",
+    "skills": [
+      {
+        "name": "x-spec3",
+        "sha256": "aaa62f1321e98341a255a5751d239966f3a03d35b38f2b9384ceb867cf65ca94"
+      },
+      {
+        "name": "x-req3",
+        "sha256": "ff30c07865e4856fef10e41371d52d2845e312987570ad9006fdb2c933637403"
+      }
+    ],
+    "claims": [
+      {
+        "name": "spec_version",
+        "value": 3,
+        "evidence": "artifacts/configresolver-sol5.6-spec.md:1"
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "kind": "spec",
+      "original_path": "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/configresolver-sol5.6/spec/configresolver/spec.md",
+      "snapshot_path": "artifacts/configresolver-sol5.6-spec.md",
+      "sha256": "b5574b99cc8ce35b3e544963181854d7556ad69faadf51e3d706d633f9866b40",
+      "bytes": 14602,
+      "words": 1088,
+      "lines": 233,
+      "scenario_count": 17
+    },
+    {
+      "kind": "producer_spec_record",
+      "original_path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/configresolver/spec.md",
+      "current_state": "moved_or_removed",
+      "reconstructed_from": "codex rollout call_cqndOmJcPxRACS37H863Td6K",
+      "sha256": "52e7d2cd18bf6200467df2fbf2cf5a63dfe1758554a39bdc167d9d8c2aa5b746",
+      "lines": 233,
+      "relation_to_evaluated_artifact": "evaluated artifact changes only line 3 title from '# 多来源配置解析器' to '# 多来源配置解析器 模型 sol5.6极高'"
+    }
+  ],
+  "baseline": {
+    "kind": "controlled_x_spec3_pilot",
+    "path": "skills/x-spec3-workspace/iteration-1/eval-9-configresolver-spec-quality/with_skill/run-1",
+    "artifact_sha256": "1ab8054403f467881a3849927b0f07d7408e5765152e200dc7e6b36e3fb6ce1a",
+    "prompt_equivalent": true,
+    "rubric_equivalent": true,
+    "executor_identity_comparable": false
+  },
+  "pipeline": {
+    "phases": [
+      "x-spec3.spec",
+      "x-req3.task",
+      "source_validation_handoff",
+      "spec_quality_review",
+      "report_persistence"
+    ],
+    "evaluated_artifact_phase": "x-spec3.spec",
+    "implementation_eval": "not_run"
+  },
+  "started_at": "2026-07-22T12:35:49.432Z",
+  "status_source": "events.jsonl"
+}

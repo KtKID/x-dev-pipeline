@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "knowledge_id": "pkn-20260722-kongming-configresolver-boundary-coverage-001",
+  "entry_type": "evaluation_result",
+  "status": "pending_confirmation",
+  "title": "ConfigResolver 规格应把递归、空值、所有权和构造顺序写成具体反例",
+  "source": {
+    "pipeline_run_id": "prun-e2db79cf-41bc-001",
+    "stage": "spec_quality_review",
+    "attempt": 1
+  },
+  "reason_codes": [
+    "SPEC_MISSING_THREE_LEVEL_EXAMPLE",
+    "SPEC_EMPTY_INPUT_MATRIX_MISSING",
+    "SPEC_RESULT_ALIAS_OWNERSHIP_MISSING",
+    "SPEC_DELETION_PROVENANCE_CLEANUP_MISSING",
+    "SPEC_MAP_INSERTION_ORDER_MISSING"
+  ],
+  "observations": {
+    "expected": "每个高损失边界有具体 GIVEN 与可观察 THEN。",
+    "actual": "当前 Scenarios 缺少三层对象、nil/empty 输入矩阵、修改 Result 后复查输入、对象删除后的子树 Provenance 清理、相同逻辑不同 map 插入顺序。",
+    "severity": "P1"
+  },
+  "root_cause_hypotheses": [
+    {
+      "status": "observed",
+      "statement": "规格把边界类别写进验收清单或不变量，却没有全部落成独立可执行 Scenario。"
+    },
+    {
+      "status": "hypothesis",
+      "statement": "x-spec3 已提示高损失边界，但缺少从每个显式边界和不变量到 Scenario ID 或验收门禁的机械覆盖闭环。"
+    }
+  ],
+  "optimization_targets": [
+    "为每个高损失边界建立可执行断言，并分配永久稳定的 SC_01 格式 Scenario ID；多个紧密相关断言可以合并在同一 Scenario。",
+    "每个显式边界和不变量必须回指一个 Scenario ID 或非 Scenario 验收门禁；req3 checklist 只引用对应 ID。"
+  ],
+  "regression_cases": [
+    "configresolver-three-level-merge-and-provenance",
+    "configresolver-nil-empty-input-matrix",
+    "configresolver-result-alias-ownership",
+    "configresolver-object-delete-clears-provenance",
+    "configresolver-map-insertion-order-determinism"
+  ],
+  "evidence_refs": [
+    "pipeline-data/runs/prun-e2db79cf-41bc-001/artifacts/spec.md:114-120",
+    "pipeline-data/runs/prun-e2db79cf-41bc-001/artifacts/spec.md:130-144",
+    "pipeline-data/runs/prun-e2db79cf-41bc-001/artifacts/spec.md:186-232"
+  ],
+  "revision_history": [
+    {
+      "attempt": 1,
+      "recorded_at": "2026-07-22T22:11:32+08:00",
+      "change": "记录五类高损失边界缺口。"
+    },
+    {
+      "attempt": 2,
+      "recorded_at": "2026-07-22T22:41:22+08:00",
+      "change": "采用 SC_01 两位稳定 ID，并允许边界映射到 Scenario ID 或非 Scenario 验收门禁。"
+    }
+  ],
+  "recorded_at": "2026-07-22T22:41:22+08:00"
+}

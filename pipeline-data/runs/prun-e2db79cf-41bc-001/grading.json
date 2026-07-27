@@ -1,0 +1,303 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-e2db79cf-41bc-001",
+  "rubric": "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/EVALUATION.md",
+  "rubric_sha256": "46fd2de09b07796485b3d493f1a1134c46d73b50675f18f3855305c28ff3e0cf",
+  "status": "manual_review_complete",
+  "expectations": [
+    {
+      "id": 1,
+      "text": "冻结 module 名、根目录 package、所有导出类型字段、错误变量与 Resolve 完整签名。",
+      "passed": false,
+      "evidence": [
+        "artifacts/source-task.md:8-42",
+        "artifacts/spec.md:7-23"
+      ],
+      "severity": "P0",
+      "reason_code": "SPEC_PUBLIC_API_CONTRACT_OMISSION",
+      "parent_reason_code": "SPEC_INTENT_GAP",
+      "score_impact": 10
+    },
+    {
+      "id": 2,
+      "text": "sources 低到高优先级下普通字段由高优先级覆盖，并生成叶子 Provenance。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:98-104"],
+      "score_impact": 0
+    },
+    {
+      "id": 3,
+      "text": "object 按 Children 递归合并，互补子字段保留各自来源。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:114-120"],
+      "score_impact": 0
+    },
+    {
+      "id": 4,
+      "text": "递归对象合并包含至少三层的具体输入、结果与 Provenance 断言。",
+      "passed": false,
+      "evidence": [
+        "artifacts/spec.md:55-56",
+        "artifacts/spec.md:114-120",
+        "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/EVALUATION.md:7-10"
+      ],
+      "severity": "P1",
+      "reason_code": "SPEC_MISSING_THREE_LEVEL_EXAMPLE",
+      "parent_reason_code": "SPEC_BOUNDARY_COVERAGE_GAP",
+      "score_impact": 5
+    },
+    {
+      "id": 5,
+      "text": "array 用高优先级完整替换，且 Provenance 指向替换来源。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:122-128"],
+      "score_impact": 0
+    },
+    {
+      "id": 6,
+      "text": "可选标量字段的 nil 删除同时从最终 Config 移除。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:130-136"],
+      "score_impact": 0
+    },
+    {
+      "id": 7,
+      "text": "object 被 nil 删除时，其子树 Config 与全部 descendant Provenance 同时消失。",
+      "passed": false,
+      "evidence": [
+        "artifacts/spec.md:130-144",
+        "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/harness-v2/configresolver_hidden_test.go:95-119"
+      ],
+      "severity": "P1",
+      "reason_code": "SPEC_DELETION_PROVENANCE_CLEANUP_MISSING",
+      "parent_reason_code": "SPEC_BOUNDARY_COVERAGE_GAP",
+      "score_impact": 5
+    },
+    {
+      "id": 8,
+      "text": "required 字段被显式删除或所有来源缺失时都可 errors.Is ErrRequiredRemoved。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:146-160"],
+      "score_impact": 0
+    },
+    {
+      "id": 9,
+      "text": "根级和 object 内未知字段均可 errors.Is ErrUnknownField。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:162-176"],
+      "score_impact": 0
+    },
+    {
+      "id": 10,
+      "text": "五种字段类型有验收落点，类型不匹配可 errors.Is ErrTypeMismatch。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:55-62", "artifacts/spec.md:178-184"],
+      "score_impact": 0
+    },
+    {
+      "id": 11,
+      "text": "number 接受至少 int、int64、float64 与 uint，且保持原 Go 数值值。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:106-112"],
+      "score_impact": 0
+    },
+    {
+      "id": 12,
+      "text": "Provenance 只记录最终叶子，并使用 object 叶子的 JSON Pointer。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:194-200"],
+      "score_impact": 0
+    },
+    {
+      "id": 13,
+      "text": "JSON Pointer 同时覆盖 / 与 ~ 转义，Config 保持原始字段名。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:202-208"],
+      "score_impact": 0
+    },
+    {
+      "id": 14,
+      "text": "调用期间深层 map 与 slice 不会修改输入。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:210-216"],
+      "score_impact": 0
+    },
+    {
+      "id": 15,
+      "text": "Data 为 nil 的 Source 在 Resolve 后仍为 nil。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:218-224"],
+      "score_impact": 0
+    },
+    {
+      "id": 16,
+      "text": "Result 的嵌套 map/slice 不持有会让后续写 Result 间接改写 inputs 的别名。",
+      "passed": false,
+      "evidence": ["artifacts/spec.md:210-224"],
+      "severity": "P1",
+      "reason_code": "SPEC_RESULT_ALIAS_OWNERSHIP_MISSING",
+      "parent_reason_code": "SPEC_OWNERSHIP_GAP",
+      "score_impact": 5
+    },
+    {
+      "id": 17,
+      "text": "明确 nil/empty schema 与 nil/empty sources 各组合的合法结果或错误。",
+      "passed": false,
+      "evidence": ["artifacts/spec.md:186-192", "artifacts/spec.md:218-224"],
+      "severity": "P1",
+      "reason_code": "SPEC_EMPTY_INPUT_MATRIX_MISSING",
+      "parent_reason_code": "SPEC_BOUNDARY_COVERAGE_GAP",
+      "score_impact": 5
+    },
+    {
+      "id": 18,
+      "text": "重复使用同一输入可得到 reflect.DeepEqual 的 Config 和 Provenance。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:226-232"],
+      "score_impact": 0
+    },
+    {
+      "id": 19,
+      "text": "逻辑相同、map 插入顺序不同的 schema 与 source 返回相同结果。",
+      "passed": false,
+      "evidence": [
+        "artifacts/spec.md:226-232",
+        "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/EVALUATION.md:14-17"
+      ],
+      "severity": "P1",
+      "reason_code": "SPEC_MAP_INSERTION_ORDER_MISSING",
+      "parent_reason_code": "SPEC_BOUNDARY_COVERAGE_GAP",
+      "score_impact": 5
+    },
+    {
+      "id": 20,
+      "text": "共享 sources 的并发 Resolve 以 go test -race 验证无竞态，并比较所有返回结果。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:234-240"],
+      "score_impact": 0
+    },
+    {
+      "id": 21,
+      "text": "100 字段、10000 次 Resolve 的烟雾验收有小于 2 秒阈值。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:242-248", "artifacts/dev-checklist.md:15"],
+      "score_impact": 0
+    },
+    {
+      "id": 22,
+      "text": "交付目标声明 go test ./... 与 go vet ./... 均须通过。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:7-9"],
+      "score_impact": 0
+    },
+    {
+      "id": 23,
+      "text": "纯函数库的 E2E 省略决策有明确依据。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:72-75"],
+      "score_impact": 0
+    },
+    {
+      "id": 24,
+      "text": "每个 req3 task 行只引用一个精确存在的 Scenario，spec 与 task 校验均返回零 issue。",
+      "passed": false,
+      "evidence": [
+        "artifacts/dev-checklist.md:10-14",
+        "events.jsonl:evt-008"
+      ],
+      "severity": "P0",
+      "reason_code": "REQ_SCENARIO_REFERENCE_INVALID",
+      "parent_reason_code": "REQ_DECOMPOSITION_GAP",
+      "score_impact": 0
+    }
+  ],
+  "quality": {
+    "merge_semantics": {"passed": 2, "total": 4, "score": 20, "score_max": 35},
+    "schema_validation": {"passed": 3, "total": 3, "score": 20, "score_max": 20},
+    "provenance": {"passed": 2, "total": 3, "score": 10, "score_max": 15},
+    "boundary_conditions": {"passed": 2, "total": 5, "score": 5, "score_max": 15},
+    "performance_and_determinism": {"passed": 3, "total": 4, "score": 5, "score_max": 10},
+    "delivery_and_task_routing": {"passed": 2, "total": 5, "score": 5, "score_max": 5}
+  },
+  "deductions": [
+    {
+      "severity": "P0",
+      "reason_code": "SPEC_PUBLIC_API_CONTRACT_OMISSION",
+      "finding": "spec 没有冻结 Go module、根目录 package、三个类型字段和 Resolve 签名；下游可写出无法通过外部编译的 API。",
+      "evidence": ["artifacts/source-task.md:8-42", "artifacts/spec.md:7-23"],
+      "score_impact": 10,
+      "origin_stage": "x-spec3.spec",
+      "detected_stage": "spec_quality_review"
+    },
+    {
+      "severity": "P0",
+      "reason_code": "REQ_SCENARIO_REFERENCE_INVALID",
+      "finding": "T1-T5 将多个 Scenario 用分号拼在一个单元格；xdev 将整串视为不存在的标题，导致 R3Q5=5、R3Q6=18，verify 无法按 Scenario 对账。",
+      "evidence": ["artifacts/dev-checklist.md:10-14", "events.jsonl:evt-008"],
+      "score_impact": 0,
+      "origin_stage": "x-req3.task",
+      "detected_stage": "req3_validation"
+    },
+    {
+      "severity": "P1",
+      "reason_code": "SPEC_MISSING_THREE_LEVEL_EXAMPLE",
+      "finding": "递归 Scenario 只有 object 加一层 leaf，缺少至少三层的具体 Given/Then。",
+      "evidence": ["artifacts/spec.md:114-120"],
+      "score_impact": 5,
+      "origin_stage": "x-spec3.spec",
+      "detected_stage": "spec_quality_review"
+    },
+    {
+      "severity": "P1",
+      "reason_code": "SPEC_DELETION_PROVENANCE_CLEANUP_MISSING",
+      "finding": "nil 删除只断言 Config；object 删除及子孙 Provenance 清理缺少可执行断言。",
+      "evidence": ["artifacts/spec.md:130-144"],
+      "score_impact": 5,
+      "origin_stage": "x-spec3.spec",
+      "detected_stage": "spec_quality_review"
+    },
+    {
+      "severity": "P1",
+      "reason_code": "SPEC_RESULT_ALIAS_OWNERSHIP_MISSING",
+      "finding": "输入深比较发生在 Resolve 返回时；缺少修改 Result.Config 嵌套 map/slice 后复查 inputs 的所有权断言。",
+      "evidence": ["artifacts/spec.md:210-224"],
+      "score_impact": 5,
+      "origin_stage": "x-spec3.spec",
+      "detected_stage": "spec_quality_review"
+    },
+    {
+      "severity": "P1",
+      "reason_code": "SPEC_EMPTY_INPUT_MATRIX_MISSING",
+      "finding": "只定义空 map 加空 slice，未定义 nil/empty schema 与 nil/empty sources 的结果矩阵。",
+      "evidence": ["artifacts/spec.md:186-192", "artifacts/spec.md:218-224"],
+      "score_impact": 5,
+      "origin_stage": "x-spec3.spec",
+      "detected_stage": "spec_quality_review"
+    },
+    {
+      "severity": "P1",
+      "reason_code": "SPEC_MAP_INSERTION_ORDER_MISSING",
+      "finding": "确定性只重复同一对象；缺少不同 map 插入顺序的等价输入对照。",
+      "evidence": ["artifacts/spec.md:226-232"],
+      "score_impact": 5,
+      "origin_stage": "x-spec3.spec",
+      "detected_stage": "spec_quality_review"
+    }
+  ],
+  "summary": {
+    "passed": 17,
+    "failed": 7,
+    "total": 24,
+    "pass_rate": 0.7083333333333334,
+    "score": 65,
+    "score_max": 100
+  },
+  "decision": {
+    "execution_outcome": "completed",
+    "quality_gate": "failed",
+    "accepted_delivery": false,
+    "next_stage": "revise_spec_and_req",
+    "gate_reason": "两个 P0 分别阻断公开 API 编译契约和 req3→verify Scenario 证据链；五个 P1 仍需在修订中补齐。"
+  },
+  "evaluator_gaps": []
+}

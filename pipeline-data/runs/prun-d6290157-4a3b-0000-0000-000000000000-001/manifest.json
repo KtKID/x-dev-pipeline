@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-d6290157-4a3b-0000-0000-000000000000-001",
+  "run_kind": "evaluation",
+  "objective": "验收 Kongming 会话 thread-d62901574a3b 生成的 configresolver spec3 与 req3 任务文档",
+  "parent_run_id": null,
+  "source": {
+    "kind": "kongming_jsonl",
+    "id": "thread-d62901574a3b",
+    "session_jsonl": "/Users/kid/.kongming/sessions/thread-d62901574a3b/thread-d62901574a3b.jsonl",
+    "session_jsonl_sha256": "f1f3a81e6ba985791bbdc93d844ba215c84a71bf0086c0edc050bf0e6f4ab9d4",
+    "trace_jsonl": "/Users/kid/.kongming/sessions/thread-d62901574a3b/trace.jsonl",
+    "trace_jsonl_sha256": "c14bf3c4e50bed5b68574b662696347f0dee6785f9f805314f7a12b818962bed",
+    "workspace_dir": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver",
+    "session_started_at": "2026-07-22T23:23:48Z",
+    "session_finished_at": "2026-07-22T23:45:25Z"
+  },
+  "task": {
+    "path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/task.md",
+    "sha256": "0484ec1f9e5deb29ecfc38a6d572460bc56825a75a8d7c620c2067183af703be",
+    "snapshot_path": "artifacts/task.md",
+    "rubric": "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/EVALUATION.md",
+    "rubric_sha256": "46fd2de09b07796485b3d493f1a1134c46d73b50675f18f3855305c28ff3e0cf",
+    "rubric_exposed_to_executor": false,
+    "hidden_harness": {
+      "path": "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/harness-v2/configresolver_hidden_test.go",
+      "sha256": "e77d0a68a24af9df67e2c2338b636bbf863288bebbe64cf988950d0e958e787c"
+    }
+  },
+  "repository": {
+    "path": "/Volumes/machub_app/proj/x-dev-pipeline",
+    "sha": "d6d9218bf5f819be9ade8521856309f6da9613c3",
+    "branch": "evo",
+    "evaluation_workspace_dirty_before_run": true
+  },
+  "executor": {
+    "model": "glm-5.2",
+    "skills": [
+      {
+        "name": "x-spec3",
+        "invocation_path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/skills/x-spec3/SKILL.md",
+        "resolved_path": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-spec3/SKILL.md",
+        "sha256": "5f0982cad2973404c39223cd47b2ea1125e90ce2d78b7fbe989ccada9e982f4d"
+      },
+      {
+        "name": "x-req3",
+        "invocation_path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/skills/x-req3/SKILL.md",
+        "resolved_path": "/Volumes/machub_app/proj/x-dev-pipeline/skills/x-req3/SKILL.md",
+        "sha256": "8bd8f9ad1f1d84a04c54e95909c5cdad64b7c8232ac644d73f3d6f5c745dc332"
+      }
+    ],
+    "skill_scope": {
+      "requested_root": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/skills",
+      "invocation_paths_within_requested_root": true,
+      "resolved_symlink_targets": "/Volumes/machub_app/proj/x-dev-pipeline/skills",
+      "classification": "local-path invocation with external symlink targets"
+    }
+  },
+  "pipeline": {
+    "phases": [
+      "x-spec3.spec",
+      "x-req3.task",
+      "pipeline-eval-report.acceptance"
+    ]
+  },
+  "artifacts": [
+    {
+      "kind": "task",
+      "original_path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/task.md",
+      "snapshot_path": "artifacts/task.md",
+      "sha256": "0484ec1f9e5deb29ecfc38a6d572460bc56825a75a8d7c620c2067183af703be",
+      "bytes": 3209
+    },
+    {
+      "kind": "spec",
+      "original_path": "/Users/kid/.kongming/docs/spec/configresolver/spec.md",
+      "snapshot_path": "artifacts/spec.md",
+      "sha256": "13e2c3185ac53f2c844bf81893f0c2381af95b08626806590136b3fe1600b3f9",
+      "bytes": 16885
+    },
+    {
+      "kind": "dev_checklist",
+      "original_path": "/Users/kid/.kongming/docs/spec/configresolver/tasks/configresolver/dev-checklist.md",
+      "snapshot_path": "artifacts/dev-checklist.md",
+      "sha256": "1d967b5575a18658e1dbf6576ecc1cda2d050d490adb32a70de823004362ca8f",
+      "bytes": 4720
+    },
+    {
+      "kind": "source_session",
+      "original_path": "/Users/kid/.kongming/sessions/thread-d62901574a3b/thread-d62901574a3b.jsonl",
+      "snapshot_path": "artifacts/source-session.jsonl",
+      "sha256": "f1f3a81e6ba985791bbdc93d844ba215c84a71bf0086c0edc050bf0e6f4ab9d4",
+      "bytes": 107889
+    },
+    {
+      "kind": "source_trace",
+      "original_path": "/Users/kid/.kongming/sessions/thread-d62901574a3b/trace.jsonl",
+      "snapshot_path": "artifacts/source-trace.jsonl",
+      "sha256": "c14bf3c4e50bed5b68574b662696347f0dee6785f9f805314f7a12b818962bed",
+      "bytes": 129131
+    }
+  ],
+  "started_at": "2026-07-22T23:23:48Z",
+  "status_source": "events.jsonl"
+}

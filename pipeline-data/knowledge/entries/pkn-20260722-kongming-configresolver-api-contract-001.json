@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "knowledge_id": "pkn-20260722-kongming-configresolver-api-contract-001",
+  "entry_type": "evaluation_result",
+  "status": "pending_confirmation",
+  "title": "ConfigResolver spec 必须逐字冻结 Go module、包与公开 API",
+  "source": {
+    "pipeline_run_id": "prun-e2db79cf-41bc-001",
+    "stage": "spec_quality_review",
+    "attempt": 1
+  },
+  "reason_codes": [
+    "SPEC_PUBLIC_API_CONTRACT_OMISSION"
+  ],
+  "observations": {
+    "expected": "spec 应携带 module=configresolver、根目录 package=configresolver、Source/Field/Result 的字段与 Resolve 完整签名。",
+    "actual": "spec 只提到导出类型、函数和三个错误变量；下游无法从文档恢复精确 API。",
+    "severity": "P0"
+  },
+  "root_cause_hypotheses": [
+    {
+      "status": "observed",
+      "statement": "生成阶段将源任务中的完整 API 代码块压缩为名称级功能描述。"
+    },
+    {
+      "status": "hypothesis",
+      "statement": "x-spec3 只有通用的公开契约提示和压缩要求，模板缺少用户原文硬契约的无损保留槽位，使模型容易丢失签名、字段和常量。"
+    }
+  ],
+  "optimization_targets": [
+    "把用户明确给出的 API、schema、协议、错误码、配置键和命令格式识别为硬契约，并以原代码块或结构等价表无损写入 spec。",
+    "为公开 API 保存可执行的外部包编译验收证据；该证据可位于验收门禁，只有存在独立行为链时才建立 Scenario。"
+  ],
+  "regression_cases": [
+    "configresolver-public-api-external-compile"
+  ],
+  "evidence_refs": [
+    "pipeline-data/runs/prun-e2db79cf-41bc-001/artifacts/source-task.md:8-42",
+    "pipeline-data/runs/prun-e2db79cf-41bc-001/artifacts/spec.md:7-23"
+  ],
+  "revision_history": [
+    {
+      "attempt": 1,
+      "recorded_at": "2026-07-22T22:11:32+08:00",
+      "change": "记录公开 API 契约遗漏。"
+    },
+    {
+      "attempt": 2,
+      "recorded_at": "2026-07-22T22:41:20+08:00",
+      "change": "删除缺少证据的 SPEC_CONTRACT_CONTRADICTION；将修复核心改为用户硬契约无损保留与独立验收证据，取消强制建立 smoke Scenario。"
+    }
+  ],
+  "recorded_at": "2026-07-22T22:41:20+08:00"
+}

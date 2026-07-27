@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "knowledge_id": "pkn-20260722-kongming-configresolver-req-gate-001",
+  "entry_type": "evaluation_result",
+  "status": "pending_confirmation",
+  "title": "configresolver 空 Children 严格校验与 req3 就绪门禁",
+  "source": {
+    "pipeline_run_id": "prun-d6290157-4a3b-0000-0000-000000000000-001",
+    "stage": "spec_quality_review",
+    "attempt": 1
+  },
+  "reason_codes": [
+    "SPEC_CONTRACT_CONTRADICTION",
+    "REQ_DECOMPOSITION_GAP",
+    "SPEC_BOUNDARY_ERROR"
+  ],
+  "observations": {
+    "expected": "每个 object 的每个输入键都由对应 Children 声明；空 Children 只接受空对象。相关待确认 J-ID 必须在 req3 前闭合。",
+    "actual": "J11 允许空 Children 接受自由结构，并保持待确认状态；随后已生成 dev-checklist。",
+    "severity": "P0",
+    "origin_stage": "x-spec3.spec",
+    "detected_stage": "spec_quality_review"
+  },
+  "root_cause_hypotheses": [
+    {
+      "status": "confirmed",
+      "text": "实现者以可选 Children 推断自由对象语义，覆盖了题面对未知字段的硬约束；req3 没有执行待确认 J-ID 门禁。"
+    }
+  ],
+  "optimization_targets": [
+    "在 spec3 自审中把 object Children 为空、object 删除后恢复、三层递归、嵌套 Required、数组输出别名、被覆盖非法值和不同 map 插入顺序列为配置解析器固定边界。",
+    "在 req3 写入前机械检查 J-ID 状态；任何 task-relevant 待确认项直接返回 spec3。",
+    "影响边界表达到三个模块时生成 diagram.md，并保存 scaffold、validate、status 和 graph 事实。"
+  ],
+  "regression_cases": [
+    "schema server 为 object 且 Children 为空，source server 含任意子键时返回 ErrUnknownField。",
+    "任一相关 J-ID 为 待确认 时，req3 任务文档写入被阻断。",
+    "低优先级 object 后 nil 删除再由高优先级 object 恢复时，恢复对象从空基线合并且 provenance 仅含最终叶子。"
+  ],
+  "evidence_refs": [
+    "pipeline-data/runs/prun-d6290157-4a3b-0000-0000-000000000000-001/artifacts/spec.md:31-41",
+    "pipeline-data/runs/prun-d6290157-4a3b-0000-0000-000000000000-001/artifacts/dev-checklist.md:1-22",
+    "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/task.md:48-49",
+    "pipeline-data/runs/prun-d6290157-4a3b-0000-0000-000000000000-001/grading.json"
+  ],
+  "recorded_at": "2026-07-22T23:53:15Z"
+}

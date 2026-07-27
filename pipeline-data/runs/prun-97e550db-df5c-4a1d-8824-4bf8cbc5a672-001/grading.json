@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-97e550db-df5c-4a1d-8824-4bf8cbc5a672-001",
+  "rubric": "evals/answers/task-01-configresolver-spec-quality/rubric.md",
+  "status": "manual_review_complete",
+  "quality": {
+    "task_semantic_passed": 12,
+    "task_semantic_total": 20,
+    "task_semantic_score": 60,
+    "structure_passed": 6,
+    "structure_total": 8,
+    "combined_passed": 18,
+    "combined_total": 28,
+    "combined_pass_rate": 0.6428571428571429,
+    "scenario_count": 14,
+    "artifact_bytes": 12856
+  },
+  "decision": {
+    "execution_outcome": "completed",
+    "quality_gate": "failed",
+    "accepted_delivery": false,
+    "implementation_eval": "stopped_before_dev",
+    "reason": "The generated contract contains contradictions that can drive a conforming developer toward incorrect behavior."
+  },
+  "deductions": [
+    {
+      "severity": "P0",
+      "reason_code": "SCENARIO_SCHEMA_CONTRADICTION",
+      "finding": "nil-removes-field supplies extra although the schema only declares debug, then requires successful deletion and preservation of extra; the task requires ErrUnknownField.",
+      "evidence": [
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/spec.md:132",
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/spec.md:134",
+        "evals/problems/task-01-configresolver/PROMPT.md:71"
+      ]
+    },
+    {
+      "severity": "P0",
+      "reason_code": "UNSUPPORTED_NUMBER_NORMALIZATION",
+      "finding": "Scenarios require int input 80 to become float64(80), while the task only defines accepted numeric Go types and the spec's own J7 says a single number type is not forced.",
+      "evidence": [
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/spec.md:37",
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/spec.md:110",
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/spec.md:118"
+      ]
+    },
+    {
+      "severity": "P0",
+      "reason_code": "MODULE_ROOT_CONTRACT_DRIFT",
+      "finding": "The spec and req place the Go module under task-01-configresolver while the task contract defines the submitted module root as the package root; the downstream checklist propagates the same location decision.",
+      "evidence": [
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/spec.md:80",
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/tasks/config-resolver-impl/dev-checklist.md:10",
+        "evals/problems/task-01-configresolver/PROMPT.md:10"
+      ]
+    },
+    {
+      "severity": "P1",
+      "reason_code": "THREE_LEVEL_RECURSION_CASE_MISSING",
+      "finding": "Recursive object behavior is demonstrated only with server.host and server.port; no three-level object case closes the hidden recursion boundary.",
+      "evidence": [
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/spec.md:114",
+        "evals/answers/task-01-configresolver-spec-quality/rubric.md:10"
+      ]
+    },
+    {
+      "severity": "P1",
+      "reason_code": "MAP_INSERTION_ORDER_CASE_MISSING",
+      "finding": "Determinism compares repeated calls over the same maps and omits logically equal maps constructed in different insertion orders.",
+      "evidence": [
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/spec.md:194",
+        "evals/answers/task-01-configresolver-spec-quality/rubric.md:36"
+      ]
+    },
+    {
+      "severity": "P1",
+      "reason_code": "DEEP_OWNERSHIP_COVERAGE_INCOMPLETE",
+      "finding": "The ownership checks cover one nested object but do not explicitly close schema mutation, nested arrays, or all mutable aliases between Result and inputs.",
+      "evidence": [
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/spec.md:178",
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/spec.md:186",
+        "evals/answers/task-01-configresolver-spec-quality/rubric.md:32"
+      ]
+    },
+    {
+      "severity": "P1",
+      "reason_code": "NIL_EMPTY_BOUNDARY_MATRIX_INCOMPLETE",
+      "finding": "Data == nil is covered, while nil/empty schema and nil/empty sources outcomes remain unspecified.",
+      "evidence": [
+        "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/spec.md:178",
+        "evals/answers/task-01-configresolver-spec-quality/rubric.md:31"
+      ]
+    }
+  ],
+  "positive_findings": [
+    "The document keeps one spec.md and uses direct GIVEN/WHEN/THEN scenarios.",
+    "Required deletion and missing behavior use errors.Is with ErrRequiredRemoved.",
+    "Race, performance, go test, go vet, and E2E omission are explicitly modeled.",
+    "x-req3 preserves Scenario names and propagates the spec contract into an executable checklist."
+  ]
+}

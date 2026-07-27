@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-e0910982-1e70-4829-8a3a-68e6e1da9bb5-001",
+  "source": {
+    "kind": "claude_jsonl",
+    "session_id": "e0910982-1e70-4829-8a3a-68e6e1da9bb5",
+    "artifact": "artifacts/source-session.jsonl"
+  },
+  "model": "claude-sonnet-5",
+  "llm_calls": 13,
+  "tokens": {
+    "input": 4244,
+    "output": 56691,
+    "reasoning": 0,
+    "cache_read": 1089700,
+    "cache_write": 86393,
+    "total_without_cache_read": 147328,
+    "total_with_cache": 1237028,
+    "cost_usd": null
+  },
+  "duration": {
+    "prompt_to_final_seconds": 651.166,
+    "session_lifecycle_seconds": 652.939
+  },
+  "tools": {
+    "total": 19,
+    "failures": 0,
+    "by_name": {
+      "Bash": 9,
+      "Read": 6,
+      "Write": 2,
+      "Edit": 2
+    }
+  },
+  "user_followup_messages": 0,
+  "phase_allocation": {
+    "method": "以去重的 Claude message.id 汇总 token；以输出首个 spec.md、dev-checklist.md 的 Write 调用作为阶段边界。准备阶段包含读取两个本地 skill、模板和任务。",
+    "phases": [
+      {
+        "phase": "preparation",
+        "input": 4232,
+        "output": 37465,
+        "reasoning": 0,
+        "cache_read": 428499,
+        "cache_write": 39235,
+        "total_without_cache_read": 80932,
+        "total_with_cache": 509431,
+        "message_count": 7
+      },
+      {
+        "phase": "x-spec3.spec",
+        "input": 2,
+        "output": 8607,
+        "reasoning": 0,
+        "cache_read": 76416,
+        "cache_write": 31064,
+        "total_without_cache_read": 39673,
+        "total_with_cache": 116089,
+        "message_count": 1
+      },
+      {
+        "phase": "x-req3.task",
+        "input": 10,
+        "output": 10619,
+        "reasoning": 0,
+        "cache_read": 584785,
+        "cache_write": 16094,
+        "total_without_cache_read": 26723,
+        "total_with_cache": 611508,
+        "message_count": 5
+      }
+    ]
+  },
+  "tainted_state": false,
+  "measurement_notes": [
+    "同一 Claude message.id 会拆成 thinking、tool_use 或 text 多条 JSONL 记录；本报告按 message.id 去重，因此没有重复相加 usage。",
+    "Claude JSONL 没有独立 reasoning token 字段；reasoning 记录为 0，provider 的输出总量保留在 output。",
+    "JSONL 没有价格或计费货币字段，cost_usd 保留为 null。",
+    "SessionStart hook 自动注入 superpowers 上下文；agent 发起的 19 个工具调用没有读取或调用用户限定目录外的 skill。"
+  ]
+}

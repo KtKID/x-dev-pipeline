@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-97e550db-df5c-4a1d-8824-4bf8cbc5a672-001",
+  "source": {
+    "kind": "mavis_sqlite",
+    "database": "/Users/kid/.mavis/sqlite.db",
+    "resolved_database": "/Users/kid/.minimax/sqlite.db",
+    "session_id": "mvs_97e550dbdf5c4a1d88244bf8cbc5a672",
+    "scope": "root session; no child sessions"
+  },
+  "model": "minimax/MiniMax-M3",
+  "llm_calls": 16,
+  "tokens": {
+    "input": 42586,
+    "output": 8281,
+    "reasoning": 0,
+    "cache_read": 626811,
+    "cache_write": 0,
+    "total_without_cache_read": 50867,
+    "total_with_cache": 677678,
+    "cache_read_share": 0.9249392779461633,
+    "cost_usd": 0.06032166
+  },
+  "duration": {
+    "prompt_at": "2026-07-22T07:47:12.206Z",
+    "final_response_at": "2026-07-22T07:49:02.960Z",
+    "prompt_to_final_seconds": 110.754,
+    "session_lifecycle_seconds": 121.836
+  },
+  "tools": {
+    "total": 20,
+    "by_name": {"bash": 7, "read": 6, "todowrite": 4, "write": 3},
+    "failures": 0
+  },
+  "rework": {
+    "user_followup_messages": 0,
+    "executor_rework_rounds": 0
+  },
+  "phase_allocation": {
+    "method": "token_usage rows split at the first x-req3 planning message",
+    "boundary": {
+      "session_message_id": 11990,
+      "timestamp": "2026-07-22T07:48:33.025Z"
+    },
+    "phases": [
+      {
+        "id": "x-spec3.spec",
+        "llm_calls": 10,
+        "input": 41630,
+        "output": 5242,
+        "reasoning": 0,
+        "cache_read": 344340,
+        "cache_write": 0,
+        "total_without_cache_read": 46872,
+        "total_with_cache": 391212,
+        "cost_usd": 0.0394398
+      },
+      {
+        "id": "x-req3.task",
+        "llm_calls": 6,
+        "input": 956,
+        "output": 3039,
+        "reasoning": 0,
+        "cache_read": 282471,
+        "cache_write": 0,
+        "total_without_cache_read": 3995,
+        "total_with_cache": 286466,
+        "cost_usd": 0.02088186
+      }
+    ]
+  },
+  "measurement_notes": [
+    "Token values are provider telemetry from Mavis token_usage rows.",
+    "Cache-read tokens are reported separately and included in total_with_cache.",
+    "Phase token attribution is a deterministic timestamp split; the full-session totals are authoritative.",
+    "Reviewer/grader tokens are outside this Mavis executor session and are not included."
+  ]
+}

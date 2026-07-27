@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-e2db79cf-41bc-001",
+  "source": {
+    "kind": "kongming_session_jsonl",
+    "session_id": "thread-e2db79cf41bc",
+    "path": "/Users/kid/.kongming/sessions/thread-e2db79cf41bc/thread-e2db79cf41bc.jsonl",
+    "measured": true
+  },
+  "model": "glm-5.2",
+  "llm_calls": 8,
+  "tokens": {
+    "input": 19962,
+    "output": 6816,
+    "reasoning": 18889,
+    "cache_read": 89408,
+    "cache_write": 0,
+    "total_without_cache_read": 45667,
+    "total_with_cache": 135075,
+    "cost_usd": null,
+    "measured": true,
+    "provider_raw": {
+      "input_tokens_including_cached": 109370,
+      "completion_tokens_including_reasoning": 25705,
+      "reasoning_output_tokens": 18889,
+      "cached_input_tokens": 89408,
+      "reported_total_tokens": 135075
+    }
+  },
+  "duration": {
+    "prompt_at": "2026-07-22T21:38:38.226+08:00",
+    "spec_written_at": "2026-07-22T21:47:31.862+08:00",
+    "dev_checklist_written_at": "2026-07-22T21:48:21.100+08:00",
+    "final_response_at": "2026-07-22T21:48:52.860+08:00",
+    "prompt_to_spec_seconds": 533.636,
+    "prompt_to_final_seconds": 614.634,
+    "session_lifecycle_seconds": 614.635,
+    "measured": true
+  },
+  "tools": {
+    "total": 16,
+    "failures": 1,
+    "by_name": {
+      "read_file": 7,
+      "list_dir": 6,
+      "run_shell": 1,
+      "write_file": 2
+    },
+    "failure_detail": "首次 task.md read_file 被 approval rejected；同一会话随后重新读取成功。"
+  },
+  "user_followup_messages": 0,
+  "phase_allocation": {
+    "method": "将 8 条 assistant usage 按 artifact write 边界分为准备、spec 写入与 req 写入加自审；input=prompt-cached，output=completion-reasoning。",
+    "phases": [
+      {
+        "name": "preparation",
+        "input": 14539,
+        "output": 698,
+        "reasoning": 7940,
+        "cache_read": 41984,
+        "cache_write": 0,
+        "total_without_cache_read": 23177,
+        "total_with_cache": 65161,
+        "boundary": "assistant usage rows 1-5；完成任务、两个本地 skill 与模板读取，尚未请求写入 spec.md"
+      },
+      {
+        "name": "x-spec3.spec",
+        "input": 168,
+        "output": 4236,
+        "reasoning": 9240,
+        "cache_read": 14336,
+        "cache_write": 0,
+        "total_without_cache_read": 13644,
+        "total_with_cache": 27980,
+        "boundary": "assistant usage row 6；请求写入 spec.md"
+      },
+      {
+        "name": "x-req3.task",
+        "input": 5255,
+        "output": 1882,
+        "reasoning": 1709,
+        "cache_read": 33088,
+        "cache_write": 0,
+        "total_without_cache_read": 8846,
+        "total_with_cache": 41934,
+        "boundary": "assistant usage rows 7-8；请求写入 dev-checklist.md 并给出自审"
+      }
+    ]
+  },
+  "tainted_state": false,
+  "taint_reasons": [],
+  "measurement_notes": [
+    "会话 JSONL 的 completion_tokens 包含 reasoning_output_tokens，因此将其拆成 output=completion-reasoning 与 reasoning 两个互斥桶。",
+    "会话 JSONL 的 prompt_tokens 包含 cached_input_tokens，因此将其拆成 input=prompt-cache_read 与 cache_read 两个互斥桶。",
+    "原始五桶和等于 reported_total_tokens 135075；成本缺少 provider 价格表，保留 null。",
+    "source session 未访问 evaluator-only rubric 或 hidden harness；受限 skill 路径审计通过。"
+  ]
+}

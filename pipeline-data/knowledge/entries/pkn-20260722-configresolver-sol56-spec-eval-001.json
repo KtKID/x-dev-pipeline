@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "knowledge_id": "pkn-20260722-configresolver-sol56-spec-eval-001",
+  "entry_type": "evaluation_result",
+  "status": "pending_confirmation",
+  "title": "ConfigResolver sol5.6 规格得分 85；来源已恢复，同题 hidden 记忆污染使因果对比失效",
+  "source": {
+    "pipeline_run_id": "prun-acb50794-d518-4fef-8e3a-8785795f1b94-001",
+    "stage": "spec_quality_review",
+    "attempt": 2,
+    "codex_session_id": "019f89d3-3a38-7572-8835-4a7c22bb5f36"
+  },
+  "reason_codes": [
+    "SPEC_MISSING_THREE_LEVEL_EXAMPLE",
+    "SPEC_EMPTY_INPUT_MATRIX_MISSING",
+    "SPEC_RESULT_ALIAS_OWNERSHIP_MISSING",
+    "SPEC_INFERENCE_STATUS_UNVERIFIED",
+    "SPEC_EVIDENCE_SOURCE_UNRESOLVED",
+    "EVAL_SOURCE_PROVENANCE_MISSING",
+    "EVAL_HIDDEN_MEMORY_CONTAMINATION",
+    "CODEX_METRICS_NON_GIT_UNSUPPORTED",
+    "EVAL_SOURCE_DISCOVERY_EXACT_MATCH_BLIND_SPOT"
+  ],
+  "observations": {
+    "task_semantic_score": 85,
+    "structure_score": "8/8",
+    "p0_count": 0,
+    "artifact_p1_count": 3,
+    "evaluation_validity_p1_count": 1,
+    "scenario_count": 17,
+    "bytes": 14602,
+    "words": 1088,
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "xhigh",
+    "source_rollout_sha256": "14c8353383b292aa30a2703b3f004e5fd97b8dbc5472bd97d6a068d1a55d4308",
+    "generated_spec_sha256": "52e7d2cd18bf6200467df2fbf2cf5a63dfe1758554a39bdc167d9d8c2aa5b746",
+    "evaluated_spec_sha256": "b5574b99cc8ce35b3e544963181854d7556ad69faadf51e3d706d633f9866b40",
+    "artifact_difference": "仅第 3 行标题追加“模型 sol5.6极高”",
+    "telemetry_available": true,
+    "tainted_state": true,
+    "tokens": {
+      "full_pipeline_total": 1072417,
+      "full_pipeline_without_cache_read": 82209,
+      "cache_read": 990208,
+      "x_spec3_phase_total": 459812,
+      "x_req3_phase_total": 204920,
+      "source_validation_handoff_total": 407685
+    },
+    "duration_seconds": {
+      "prompt_to_spec": 245.305,
+      "prompt_to_final": 373.992
+    },
+    "baseline": {
+      "task_semantic_score": 85,
+      "structure_score": "8/8",
+      "scenario_count": 14,
+      "bytes": 16557,
+      "words": 1206,
+      "spec_total_tokens": 331824,
+      "duration_seconds": 283.084
+    },
+    "delta": {
+      "semantic_score": 0,
+      "scenario_count": 3,
+      "bytes": -1955,
+      "words": -118,
+      "spec_total_tokens": 127988,
+      "spec_total_tokens_rate": 0.3857,
+      "prompt_to_spec_seconds": -37.779,
+      "fixed_assertions": [18],
+      "regressed_assertions": [16]
+    },
+    "jointly_satisfiable_scenarios": true,
+    "causal_benchmark_valid": false
+  },
+  "confirmed_facts": [
+    "Codex rollout 在 2026-07-22 20:35:49+08:00 于 /Volumes/machub_app/proj/x-dev-world/minimax/configresolver 启动。",
+    "生成模型为 gpt-5.6-sol，reasoning effort 为 xhigh，执行了 x-spec3 与 x-req3。",
+    "rollout 生成的 233 行 spec 与被评 spec 只有标题后缀一处差异。",
+    "生成者直接读取同题历史 hidden 失败记忆，并明确把三个失败点写成 Scenario。",
+    "最终累计 Token 为 1072417，其中 x-spec3 阶段为 459812；Prompt 到 spec 写入耗时 245.305 秒。",
+    "tools/metrics.py 因非 Git 工作区缺少 commit_hash 而拒绝解析该有效 rollout。"
+  ],
+  "root_cause_hypotheses": [
+    "规格压缩优先保留类别覆盖，三层递归、空输入结果矩阵和返回值别名需要具体反例才能稳定进入 Scenario。",
+    "Scenario 数量没有直接约束 assertion 覆盖，新增场景可以与已有场景重复，同时遗漏另一条边界。",
+    "原始文件后来被移动或删除，被评副本又修改标题；只按最终标题和当前路径检索会漏掉真实 Codex 来源。",
+    "生成阶段没有持久化 source session id，评测阶段需要依赖时间窗口、工作区、prompt 与写入 patch 重建来源。",
+    "同题 memory 暴露 hidden 失败会提高相关边界命中率，同时破坏 skill 与模型的盲测归因。",
+    "Codex telemetry 解析器把 Git commit 设为硬前提，非 Git eval 工作区因此丢失自动度量。",
+    "判断表允许 LLM 推断直接写成已确认，审计者无法区分题面事实、合理解释和负责人确认。"
+  ],
+  "optimization_targets": [
+    "为递归合并固定 app.server.tls.enabled/cert 三层用例，并分别断言值与 Provenance。",
+    "新增 nil/空 schema 与 nil/空 sources 的结果矩阵，同时保持 nil Source.Data 形态检查。",
+    "新增修改 Result.Config 和嵌套 slice 后复查 schema/sources 深度快照的所有权用例。",
+    "把 LLM 推断状态改为待确认或保留假设，只有用户、题面或测试证据才能升级为已确认。",
+    "生成阶段同步写入 source session id、模型、skill hash、prompt hash、Token、耗时和污染状态。",
+    "来源搜索同时支持日期窗口、workspace、任务哈希、prompt 和 artifact write patch 匹配。",
+    "评测执行前隔离同题 memory，并把 memory 命中记录为强制污染信号。",
+    "让 tools/metrics.py 接受 repo_sha=null 的非 Git Codex session。",
+    "把覆盖目标绑定到 rubric assertion 或风险 ID，使用覆盖增量衡量 Scenario。"
+  ],
+  "regression_cases": [
+    "configresolver-three-level-merge-and-provenance",
+    "configresolver-nil-empty-input-matrix",
+    "configresolver-result-alias-ownership",
+    "pipeline-run-source-telemetry-required",
+    "eval-same-task-memory-isolation",
+    "codex-telemetry-non-git-workspace",
+    "codex-source-recovery-by-time-workspace-and-patch"
+  ],
+  "evidence_refs": [
+    "pipeline-data/runs/prun-acb50794-d518-4fef-8e3a-8785795f1b94-001/manifest.json",
+    "pipeline-data/runs/prun-acb50794-d518-4fef-8e3a-8785795f1b94-001/grading.json",
+    "pipeline-data/runs/prun-acb50794-d518-4fef-8e3a-8785795f1b94-001/telemetry.json",
+    "pipeline-data/runs/prun-acb50794-d518-4fef-8e3a-8785795f1b94-001/events.jsonl",
+    "pipeline-data/runs/prun-acb50794-d518-4fef-8e3a-8785795f1b94-001/artifacts/configresolver-sol5.6-spec.md",
+    "/Users/kid/.codex/sessions/2026/07/22/rollout-2026-07-22T20-35-49-019f89d3-3a38-7572-8835-4a7c22bb5f36.jsonl",
+    "evals/answers/task-01-configresolver-spec-quality/rubric.md"
+  ],
+  "revision_history": [
+    {
+      "attempt": 1,
+      "recorded_at": "2026-07-22T21:13:00+08:00",
+      "change": "完成产物评分，生成来源与 telemetry 暂未定位。"
+    },
+    {
+      "attempt": 2,
+      "recorded_at": "2026-07-22T21:24:00+08:00",
+      "change": "恢复 Codex source session、模型、Token、耗时与 artifact patch；确认同题 hidden memory 污染和非 Git telemetry 解析缺口。"
+    }
+  ],
+  "recorded_at": "2026-07-22T21:24:00+08:00"
+}

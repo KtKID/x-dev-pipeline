@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-e0910982-1e70-4829-8a3a-68e6e1da9bb5-001",
+  "rubric": "task.md + 本地 x-spec3/x-req3 SKILL.md 导出的可判定 assertions",
+  "rubric_sha256": "0484ec1f9e5deb29ecfc38a6d572460bc56825a75a8d7c620c2067183af703be",
+  "status": "manual_review_complete",
+  "expectations": [
+    {
+      "id": "A1",
+      "text": "spec 完整覆盖任务 API、10 条合并规则、三类哨兵错误、不可变性、确定性、性能与 race 要求。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:5-27", "artifacts/spec.md:55-91", "artifacts/spec.md:96-262"],
+      "severity": "P0",
+      "reason_code": null,
+      "score_impact": 40
+    },
+    {
+      "id": "A2",
+      "text": "spec 的 21 个 Scenario 都具有唯一标题、GIVEN、WHEN、THEN、测试层和依据，能直接形成单元或 smoke 测试。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:96-262", "临时镜像 spec3 校验仅返回任务承接问题，没有 spec 结构或 GWT 问题"],
+      "severity": "P1",
+      "reason_code": null,
+      "score_impact": 20
+    },
+    {
+      "id": "A3",
+      "text": "x-req3 checklist 的每个非 None 行精确回指一个现存 Scenario，并由所有 task 合计承接全部 21 个 Scenario。",
+      "passed": false,
+      "evidence": ["artifacts/dev-checklist.md:9-14", "xdev validate task: R3Q5 x5", "xdev validate spec: R3Q6 x19"],
+      "severity": "P1",
+      "reason_code": "REQ_DECOMPOSITION_GAP",
+      "parent_reason_code": "REQ_DECOMPOSITION_GAP",
+      "origin_stage": "x-req3.task",
+      "detected_stage": "evaluation",
+      "score_impact": -25
+    },
+    {
+      "id": "A4",
+      "text": "x-req3 的 scaffold、validate、status 与 graph 门禁应具有可复核的执行事实。",
+      "passed": false,
+      "evidence": ["artifacts/source-session.jsonl: tool calls only search for xdev.py; no scaffold/validate/status/graph call", "source-session final text states manual self-review replaced mechanical validation"],
+      "severity": "P1",
+      "reason_code": "VERIFY_COVERAGE_GAP",
+      "parent_reason_code": "VERIFY_COVERAGE_GAP",
+      "origin_stage": "x-req3.task",
+      "detected_stage": "evaluation",
+      "score_impact": -10
+    },
+    {
+      "id": "A5",
+      "text": "agent 发起的 skill 使用遵守用户的本地目录限制。",
+      "passed": true,
+      "evidence": ["artifacts/source-session.jsonl: x-spec3/x-req3 local SKILL.md Read calls", "artifacts/source-session.jsonl: no Skill tool use or user-scope-external skill path"],
+      "severity": "P1",
+      "reason_code": null,
+      "score_impact": 5
+    }
+  ],
+  "deductions": [
+    {
+      "severity": "P1",
+      "reason_code": "REQ_DECOMPOSITION_GAP",
+      "parent_reason_code": "REQ_DECOMPOSITION_GAP",
+      "finding": "T2、T3、T4、T6、T7 把多个 Scenario 名称以 / 拼接。解析器将每个拼接文本作为一个不存在的 Scenario，造成 5 个 R3Q5 与 19 个 R3Q6。",
+      "evidence": ["artifacts/dev-checklist.md:9-14", "temporary xdev validation evidence recorded in evaluation-report.md"],
+      "score_impact": -25
+    },
+    {
+      "severity": "P1",
+      "reason_code": "VERIFY_COVERAGE_GAP",
+      "parent_reason_code": "VERIFY_COVERAGE_GAP",
+      "finding": "缺少 x-req3 规定的 scaffold、validate、status、graph 执行记录。手工自审无法提供零 issue 的机械证明，且实际 validator 已发现 5 个 issue。",
+      "evidence": ["artifacts/source-session.jsonl", "evaluation-report.md#质量"],
+      "score_impact": -10
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 2,
+    "total": 5,
+    "pass_rate": 0.6,
+    "score": 65,
+    "score_max": 100
+  },
+  "decision": {
+    "execution_outcome": "completed",
+    "quality_gate": "failed",
+    "accepted_delivery": false,
+    "next_stage": "revise_x_req3"
+  },
+  "evaluator_gaps": [
+    {
+      "kind": "cost_unavailable",
+      "detail": "source JSONL 缺少价格/币种字段，无法从证据计算 USD 成本。"
+    }
+  ]
+}

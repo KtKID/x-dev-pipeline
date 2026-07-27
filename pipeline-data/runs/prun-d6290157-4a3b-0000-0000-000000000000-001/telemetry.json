@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-d6290157-4a3b-0000-0000-000000000000-001",
+  "source": {
+    "kind": "kongming_jsonl_and_trace",
+    "session_id": "thread-d62901574a3b",
+    "session_jsonl": "artifacts/source-session.jsonl",
+    "trace_jsonl": "artifacts/source-trace.jsonl"
+  },
+  "model": "glm-5.2",
+  "llm_calls": 14,
+  "tokens": {
+    "input": 34603,
+    "output": 20151,
+    "reasoning": 10925,
+    "cache_read": 243456,
+    "cache_write": 0,
+    "total_without_cache_read": 65679,
+    "total_with_cache": 309135,
+    "cost_usd": null
+  },
+  "duration": {
+    "prompt_to_final_seconds": 1296.274,
+    "session_lifecycle_seconds": 688.864,
+    "source_run_count": 3
+  },
+  "tools": {
+    "total": 17,
+    "failures": 3,
+    "by_name": {
+      "read_file": 6,
+      "list_dir": 5,
+      "write_file": 4,
+      "present_choices": 2
+    },
+    "failure_evidence": [
+      "two write_file calls returned approval rejected",
+      "one present_choices call returned questions[0].id must be a non-empty string"
+    ]
+  },
+  "user_followup_messages": 2,
+  "phase_allocation": {
+    "method": "trace LLM response boundaries: calls 1-12 end with the successful spec write; calls 13-14 write and summarize dev-checklist",
+    "phases": [
+      {
+        "phase": "x-spec3.spec",
+        "llm_calls": 12,
+        "input": 27262,
+        "output": 17865,
+        "reasoning": 10925,
+        "cache_read": 184384,
+        "cache_write": 0,
+        "total_without_cache_read": 56052,
+        "total_with_cache": 240436
+      },
+      {
+        "phase": "x-req3.task",
+        "llm_calls": 2,
+        "input": 7341,
+        "output": 2286,
+        "reasoning": 0,
+        "cache_read": 59072,
+        "cache_write": 0,
+        "total_without_cache_read": 9627,
+        "total_with_cache": 68699
+      }
+    ]
+  },
+  "scope_audit": {
+    "requested_skill_root": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/skills",
+    "tool_call_arguments_stayed_under_requested_root": true,
+    "resolved_skill_targets": "/Volumes/machub_app/proj/x-dev-pipeline/skills",
+    "tainted_state": "scope interpretation required for symlink targets"
+  },
+  "evolution_eval_tokens": 0,
+  "measurement_notes": [
+    "Source usage reports prompt_tokens inclusive of cached_input_tokens and completion_tokens inclusive of reasoning_output_tokens.",
+    "input equals prompt_tokens minus cached_input_tokens; output equals completion_tokens minus reasoning_output_tokens; cache_write is absent from source telemetry and recorded as zero.",
+    "prompt_to_final spans initial user prompt through final assistant response. session_lifecycle_seconds sums the three trace run.start to run.end intervals and excludes user approval idle time.",
+    "The automatic evolution review failed with ProviderError after the executor completed; it produced no executor artifacts or reported token usage."
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "knowledge_id": "pkn-20260722-req3-gate-evidence",
+  "entry_type": "evaluation_result",
+  "status": "pending_confirmation",
+  "title": "x-req3 缺少机械门禁时手工自审不足以证明可交接",
+  "source": {
+    "pipeline_run_id": "prun-e0910982-1e70-4829-8a3a-68e6e1da9bb5-001",
+    "stage": "x-req3.task",
+    "attempt": 1
+  },
+  "reason_codes": ["VERIFY_COVERAGE_GAP"],
+  "observations": {
+    "expected": "执行 scaffold、validate、status、graph 并保留事实。",
+    "actual": "session 仅搜索 xdev.py，随后采用手工自审。",
+    "consequence": "后续独立 xdev 验证发现 5 个 task issue 与 19 个 spec coverage issue。"
+  },
+  "root_cause_hypotheses": [
+    {
+      "status": "confirmed",
+      "detail": "本地 skill 依赖的 tools/xdev.py 未随任务工作区提供，执行器未建立可复核替代路径。"
+    }
+  ],
+  "optimization_targets": [
+    "在任务环境提供 xdev CLI，或在 skill 内声明无 CLI 时的明确阻断与交接要求。"
+  ],
+  "regression_cases": [
+    "x-req3 session 在最终交接前必须包含 validate、status、graph 的成功输出。"
+  ],
+  "evidence_refs": [
+    "pipeline-data/runs/prun-e0910982-1e70-4829-8a3a-68e6e1da9bb5-001/artifacts/source-session.jsonl",
+    "pipeline-data/runs/prun-e0910982-1e70-4829-8a3a-68e6e1da9bb5-001/evaluation-report.md"
+  ],
+  "recorded_at": "2026-07-22T13:42:28Z"
+}

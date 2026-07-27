@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "storage_profile": "bootstrap-json-v0",
+  "knowledge_id": "pkn-20260722-skill-description-validator-001",
+  "entry_type": "failure",
+  "status": "resolved",
+  "title": "Skill frontmatter description 中的尖括号会被 quick_validate 拒绝",
+  "source": {
+    "pipeline_run_id": "prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001",
+    "stage": "x-req3.candidate_implementation",
+    "attempt": 1
+  },
+  "reason_codes": ["SKILL_DESCRIPTION_ANGLE_BRACKET_VALIDATION"],
+  "failure": {
+    "command": "python3 skill-creator/scripts/quick_validate.py skills/x-req3",
+    "message": "Description cannot contain angle brackets (< or >)",
+    "cause": "x-req3 frontmatter description 使用了 <spec-name> 和 <task-name> 路径占位符。"
+  },
+  "resolution": {
+    "change": "把 description 中的尖括号占位符改成 {spec-name} 与 {task-name}。",
+    "verification": "skill-creator quick_validate 重新运行通过"
+  },
+  "policy": "Skill frontmatter description 使用花括号或自然语言表达路径变量；尖括号只出现在正文示例中。",
+  "evidence_refs": [
+    {"kind": "skill", "value": "skills/x-req3/SKILL.md"}
+  ],
+  "recorded_at": "2026-07-22T06:06:21Z"
+}

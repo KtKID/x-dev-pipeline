@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-e0910982-1e70-4829-8a3a-68e6e1da9bb5-001",
+  "run_kind": "evaluation",
+  "objective": "验收 configresolver-sonnet5 的 x-spec3 与 x-req3 任务文档，并审计 source session 的本地 skill 限制与执行遥测。",
+  "parent_run_id": null,
+  "source": {
+    "kind": "claude_jsonl",
+    "id": "e0910982-1e70-4829-8a3a-68e6e1da9bb5",
+    "path": "/Users/kid/.claude/projects/-Volumes-machub-app-proj-x-dev-world-minimax-configresolver/e0910982-1e70-4829-8a3a-68e6e1da9bb5.jsonl",
+    "sha256": "17449b429a777877012fb5c8e67b203b55b989f7ba5a72a7dfc85ea6357bba83",
+    "workspace_dir": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver"
+  },
+  "task": {
+    "path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/task.md",
+    "sha256": "0484ec1f9e5deb29ecfc38a6d572460bc56825a75a8d7c620c2067183af703be",
+    "rubric": "由 task.md 的 10 条合并规则、性能/交付要求，以及本地 x-spec3/x-req3 SKILL.md 的输出与门禁契约导出；评审时才可见。",
+    "rubric_sha256": "0484ec1f9e5deb29ecfc38a6d572460bc56825a75a8d7c620c2067183af703be",
+    "rubric_exposed_to_executor": false
+  },
+  "repository": {
+    "sha": null,
+    "branch": null,
+    "note": "候选工作区当前没有 Git 仓库。"
+  },
+  "executor": {
+    "model": "claude-sonnet-5",
+    "skills": [
+      {
+        "name": "x-spec3",
+        "path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/skills/x-spec3/SKILL.md",
+        "sha256": "aaa62f1321e98341a255a5751d239966f3a03d35b38f2b9384ceb867cf65ca94"
+      },
+      {
+        "name": "x-req3",
+        "path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/skills/x-req3/SKILL.md",
+        "sha256": "ff30c07865e4856fef10e41371d52d2845e312987570ad9006fdb2c933637403"
+      }
+    ],
+    "skill_scope_audit": "通过：19 个 agent 工具调用仅读取用户指定本地 x-spec3/x-req3 的 SKILL.md 与模板，并写入候选文档；不存在 agent 发起的外部 Skill 调用。SessionStart 自动注入的 superpowers 上下文由平台 hook 提供，已与 agent 行为分开记录。"
+  },
+  "pipeline": {
+    "phases": [
+      "preparation",
+      "x-spec3.spec",
+      "x-req3.task",
+      "evaluation"
+    ]
+  },
+  "artifacts": [
+    {
+      "kind": "task",
+      "source_path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/task.md",
+      "snapshot_path": "artifacts/task.md",
+      "sha256": "0484ec1f9e5deb29ecfc38a6d572460bc56825a75a8d7c620c2067183af703be"
+    },
+    {
+      "kind": "spec",
+      "source_path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/configresolver-sonnet5/spec/configresolver-sonnet5/spec.md",
+      "snapshot_path": "artifacts/spec.md",
+      "sha256": "e42af023c3360b018f33fab03bd781536312b90f1234f5e5772e2fa050678876"
+    },
+    {
+      "kind": "dev_checklist",
+      "source_path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/configresolver-sonnet5/spec/configresolver-sonnet5/tasks/implement-resolver/dev-checklist.md",
+      "snapshot_path": "artifacts/dev-checklist.md",
+      "sha256": "7c1c1606dd83a24265fbb7aec0c0fa49c6a08b54622081540bf3969ab3e3922b"
+    },
+    {
+      "kind": "source_session",
+      "source_path": "/Users/kid/.claude/projects/-Volumes-machub-app-proj-x-dev-world-minimax-configresolver/e0910982-1e70-4829-8a3a-68e6e1da9bb5.jsonl",
+      "snapshot_path": "artifacts/source-session.jsonl",
+      "sha256": "17449b429a777877012fb5c8e67b203b55b989f7ba5a72a7dfc85ea6357bba83"
+    }
+  ],
+  "started_at": "2026-07-22T13:14:30.996Z",
+  "status_source": "events.jsonl"
+}

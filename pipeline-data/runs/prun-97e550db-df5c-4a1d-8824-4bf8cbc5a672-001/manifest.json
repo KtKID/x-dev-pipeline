@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "storage_profile": "bootstrap-json-v0",
+  "pipeline_run_id": "prun-97e550db-df5c-4a1d-8824-4bf8cbc5a672-001",
+  "run_kind": "evaluation",
+  "objective": "使用 MiniMax-M3 执行 x-spec3 到 x-req3，生成 ConfigResolver 开发规格并评审质量",
+  "source": {
+    "kind": "mavis_session",
+    "id": "mvs_97e550dbdf5c4a1d88244bf8cbc5a672",
+    "database": "/Users/kid/.mavis/sqlite.db",
+    "workspace_dir": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver"
+  },
+  "task": {
+    "path": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/task.md",
+    "sha256": "0484ec1f9e5deb29ecfc38a6d572460bc56825a75a8d7c620c2067183af703be",
+    "eval_prompt": "evals/problems/task-01-configresolver/PROMPT.md",
+    "hidden_reference": "evals/problems/EVALUATION.md",
+    "rubric": "evals/answers/task-01-configresolver-spec-quality/rubric.md"
+  },
+  "repository": {
+    "sha": "84e4f9bf67d141885c11d2b66645760d7040189d",
+    "branch": "evo"
+  },
+  "executor": {
+    "agent": "mavis",
+    "framework": "opencode",
+    "model": "minimax/MiniMax-M3",
+    "skills": [
+      {
+        "name": "x-spec3",
+        "sha256": "aaa62f1321e98341a255a5751d239966f3a03d35b38f2b9384ceb867cf65ca94"
+      },
+      {
+        "name": "x-req3",
+        "sha256": "ff30c07865e4856fef10e41371d52d2845e312987570ad9006fdb2c933637403"
+      }
+    ]
+  },
+  "pipeline": {
+    "phases": ["x-spec3.spec", "x-req3.task", "spec_quality_review"],
+    "implementation_eval": "not_run"
+  },
+  "started_at": "2026-07-22T07:47:12.206Z",
+  "status_source": "events.jsonl"
+}

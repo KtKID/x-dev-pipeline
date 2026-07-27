@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "knowledge_id": "pkn-20260722-req3-scenario-cardinality",
+  "entry_type": "evaluation_result",
+  "status": "pending_confirmation",
+  "title": "x-req3 的复合 Scenario 单元格会使承接验证全部失效",
+  "source": {
+    "pipeline_run_id": "prun-e0910982-1e70-4829-8a3a-68e6e1da9bb5-001",
+    "stage": "x-req3.task",
+    "attempt": 1
+  },
+  "reason_codes": ["REQ_DECOMPOSITION_GAP"],
+  "observations": {
+    "expected": "每个 checklist 非 None 行只含一个、完全等于 spec 标题的 Scenario。",
+    "actual": "T2/T3/T4/T6/T7 以 / 拼接多个标题。",
+    "validator_result": "task 级 R3Q5=5；spec 级 R3Q6=19。"
+  },
+  "root_cause_hypotheses": [
+    {
+      "status": "confirmed",
+      "detail": "将业务逻辑聚合任务与 x-req3 的逐 Scenario 机器契约混为同一表示，造成解析器将拼接字符串视为悬空标题。"
+    }
+  ],
+  "optimization_targets": [
+    "按 Scenario 行拆解任务，依赖和文件范围可重复但标题必须精确。"
+  ],
+  "regression_cases": [
+    "任一 Scenario 列含 / 时，task validate 必须产生 R3Q5；修复后 task/spec 两层 validate 均为零 issue。"
+  ],
+  "evidence_refs": [
+    "pipeline-data/runs/prun-e0910982-1e70-4829-8a3a-68e6e1da9bb5-001/artifacts/dev-checklist.md:9-14",
+    "pipeline-data/runs/prun-e0910982-1e70-4829-8a3a-68e6e1da9bb5-001/evaluation-report.md"
+  ],
+  "recorded_at": "2026-07-22T13:42:28Z"
+}

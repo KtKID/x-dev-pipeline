@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-acb50794-d518-4fef-8e3a-8785795f1b94-001",
+  "source": {
+    "kind": "codex_rollout",
+    "session_id": "019f89d3-3a38-7572-8835-4a7c22bb5f36",
+    "path": "/Users/kid/.codex/sessions/2026/07/22/rollout-2026-07-22T20-35-49-019f89d3-3a38-7572-8835-4a7c22bb5f36.jsonl",
+    "sha256": "14c8353383b292aa30a2703b3f004e5fd97b8dbc5472bd97d6a068d1a55d4308",
+    "measured": true,
+    "extraction": {
+      "method": "last cumulative token_count before task_complete with artifact snapshot boundaries",
+      "project_parser": "tools/metrics.py:parse_codex_session_source",
+      "project_parser_status": "unsupported_non_git_workspace",
+      "project_parser_error": "session_meta.git.commit_hash 必须是非空字符串",
+      "fallback": "verified Codex JSONL event extraction"
+    }
+  },
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "xhigh",
+  "llm_calls": 24,
+  "tokens": {
+    "input": 64438,
+    "output": 10575,
+    "reasoning": 7196,
+    "cache_read": 990208,
+    "cache_write": 0,
+    "total_without_cache_read": 82209,
+    "total_with_cache": 1072417,
+    "cost_usd": null,
+    "measured": true,
+    "provider_raw": {
+      "input_tokens_including_cached": 1054646,
+      "cached_input_tokens": 990208,
+      "output_tokens_including_reasoning": 17771,
+      "reasoning_output_tokens": 7196,
+      "total_tokens": 1072417
+    }
+  },
+  "duration": {
+    "session_meta_at": "2026-07-22T12:35:49.432Z",
+    "task_started_at": "2026-07-22T12:36:14.014Z",
+    "prompt_at": "2026-07-22T12:36:14.030Z",
+    "spec_written_at": "2026-07-22T12:40:19.335Z",
+    "final_response_at": "2026-07-22T12:42:28.022Z",
+    "task_complete_at": "2026-07-22T12:42:28.070Z",
+    "prompt_to_spec_seconds": 245.305,
+    "prompt_to_final_seconds": 373.992,
+    "executor_window_seconds": 374.056,
+    "session_lifecycle_seconds": 398.638,
+    "measured": true
+  },
+  "tools": {
+    "total": 23,
+    "by_name": {"functions.exec": 23},
+    "failures": 0,
+    "expected_nonzero_validation_results": 1,
+    "measured": true
+  },
+  "phase_allocation": {
+    "method": "cumulative token_count delta at spec and req artifact write boundaries",
+    "phases": [
+      {
+        "id": "x-spec3.spec",
+        "start": "2026-07-22T12:36:14.030Z",
+        "end": "2026-07-22T12:40:19.340Z",
+        "input": 41493,
+        "output": 6487,
+        "reasoning": 5560,
+        "cache_read": 406272,
+        "cache_write": 0,
+        "total_without_cache_read": 53540,
+        "total_with_cache": 459812
+      },
+      {
+        "id": "x-req3.task",
+        "start": "2026-07-22T12:40:19.340Z",
+        "end": "2026-07-22T12:41:28.790Z",
+        "input": 9943,
+        "output": 2807,
+        "reasoning": 682,
+        "cache_read": 191488,
+        "cache_write": 0,
+        "total_without_cache_read": 13432,
+        "total_with_cache": 204920
+      },
+      {
+        "id": "source_validation_handoff",
+        "start": "2026-07-22T12:41:28.790Z",
+        "end": "2026-07-22T12:42:28.060Z",
+        "input": 13002,
+        "output": 1281,
+        "reasoning": 954,
+        "cache_read": 392448,
+        "cache_write": 0,
+        "total_without_cache_read": 15237,
+        "total_with_cache": 407685
+      }
+    ]
+  },
+  "user_followup_messages": 0,
+  "tainted_state": true,
+  "taint_reasons": [
+    "Executor searched MEMORY.md for configresolver before writing the spec.",
+    "Executor read rollout_summaries/2026-07-21T07-39-54-W78F-x_log3_configresolver_acceptance_skill_audit.md.",
+    "That prior report disclosed the exact hidden failures object nil merge barrier, per-source validation, and nested required missing with absent parent.",
+    "The executor explicitly said it would turn those three risks into Scenarios."
+  ],
+  "measurement_notes": [
+    "Codex input_tokens includes cached_input_tokens; normalized input equals 1054646 - 990208 = 64438.",
+    "Codex output_tokens includes reasoning_output_tokens; normalized visible output equals 17771 - 7196 = 10575.",
+    "total_with_cache = 64438 + 10575 + 7196 + 990208 = 1072417, matching provider total_tokens.",
+    "The full session generated both spec3 and req3 artifacts; use the x-spec3.spec phase total 459812 for spec-only comparison.",
+    "The evaluated copy differs from the rollout-generated spec only by the title suffix on line 3.",
+    "Direct evaluator-only rubric and harness files were not read; prior same-task hidden-failure memory was read, so causal skill benchmarking is contaminated.",
+    "tools/metrics.py currently rejects this valid Codex rollout because the executor workspace is not a Git repository; the final cumulative token_count and phase snapshots were therefore extracted directly from the immutable JSONL."
+  ],
+  "baseline_reference": {
+    "model": "gpt-5.6-sol",
+    "source_id": "019f85ab-2d96-7e01-96e7-9b258cec3c4d",
+    "total_tokens_original_measurement": 331824,
+    "cached_input": 292608,
+    "reasoning_output": 4485,
+    "duration_seconds": 283.084,
+    "comparability": "题面、rubric、模型与 spec 产物类型可比；当前 run 预读 x-req3 和同题隐藏失败 memory，执行范围与上下文不同。质量与文本体积可描述，skill 因果与盲测结论无效。"
+  }
+}

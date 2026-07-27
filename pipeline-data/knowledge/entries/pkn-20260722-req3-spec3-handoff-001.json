@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "storage_profile": "bootstrap-json-v0",
+  "knowledge_id": "pkn-20260722-req3-spec3-handoff-001",
+  "entry_type": "contract_migration",
+  "status": "confirmed",
+  "title": "spec3 需要 Scenario 原生 req3 profile 才能保持任务覆盖和 verify 真实性",
+  "source": {
+    "pipeline_run_id": "prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001",
+    "stage": "x-req3.candidate_implementation",
+    "attempt": 1
+  },
+  "reason_codes": [
+    "SPEC3_REQ2_PACKAGE_CONTRACT_MISMATCH",
+    "SPEC3_REQ2_TRACE_KEY_MISMATCH",
+    "SPEC3_REQ2_VERIFY_FALSE_GREEN_RISK",
+    "REQ3_PROFILE_SEPARATION",
+    "UNIT_SMOKE_AUTO_E2E_DECLARED_POLICY"
+  ],
+  "confirmed_observations": [
+    "req2 要求 spec.md 与 modules.md，当前 spec3 的正式产物只有 spec.md。",
+    "req2 以 Requirement 为 task 范围键，spec3 以直接 Scenario 为行为契约。",
+    "req2 verify 只解析验收节的 Requirement/Scenario 与验证标记，当前 spec3 的 Scenarios 节会得到空验收范围。",
+    "Requirement 全写 None 会让 req2 verify 只执行命令并得到 expected_auto 为空的成功结果，形成假绿风险。",
+    "独立 req3 profile 可以保留 req2 基线，并让 xdev、task validate 和 verify 明确按 spec_version 分流。",
+    "spec3 的测试层足以形成确定性证据政策：unit/smoke 必须 auto，e2e 必须 auto 或 manual 声明。"
+  ],
+  "implemented_contract": {
+    "producer": "skills/x-spec3",
+    "consumer": "skills/x-req3",
+    "task_trace_key": "Scenario semantic name",
+    "task_artifact": "docs/spec/<spec>/tasks/<task>/dev-checklist.md",
+    "spec2_baseline_preserved": true,
+    "verify_policy": {
+      "unit": "auto_required",
+      "smoke": "auto_required",
+      "e2e": "auto_or_manual_required"
+    }
+  },
+  "validation": {
+    "new_req3_tests": {"passed": 8, "total": 8},
+    "repository_tests": {"passed": 184, "total": 184},
+    "real_spec3_probe": {
+      "case": "ConfigResolver",
+      "detected_type": "spec3",
+      "xdev_issues": 0
+    }
+  },
+  "measurement_limitations": [
+    "当前证据覆盖确定性工具和真实 spec3 格式，尚未执行 spec3→req3→dev 的隐藏功能测试配对评测。",
+    "x-req3 的 LLM 拆解质量、Token 与耗时需要在后续多任务重复 eval 中测量。"
+  ],
+  "next_validation": [
+    "使用 ConfigResolver 运行 x-req3 与冻结基线的任务拆解配对 eval。",
+    "继续执行 dev 与隐藏测试，比较边界命中率、错误放行率、Token 和耗时。"
+  ],
+  "evidence_refs": [
+    {"kind": "skill", "value": "skills/x-req3/SKILL.md"},
+    {"kind": "engine", "value": "tools/req3.py"},
+    {"kind": "verify", "value": "tools/verify.py"},
+    {"kind": "tests", "value": "test/test_req3_engine.py"},
+    {"kind": "eval_cases", "value": "skills/x-req3/evals/evals.json"}
+  ],
+  "recorded_at": "2026-07-22T06:06:21Z"
+}

@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-d6290157-4a3b-0000-0000-000000000000-001",
+  "rubric": "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/EVALUATION.md",
+  "rubric_sha256": "46fd2de09b07796485b3d493f1a1134c46d73b50675f18f3855305c28ff3e0cf",
+  "status": "manual_review_complete",
+  "expectations": [
+    {
+      "id": "E01",
+      "text": "公开 API、范围和成功命令形成可执行目标。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:5-16", "artifacts/dev-checklist.md:10", "artifacts/dev-checklist.md:22"],
+      "severity": "P2",
+      "reason_code": "SPEC_INTENT_GAP",
+      "score_impact": 10
+    },
+    {
+      "id": "E02",
+      "text": "低到高的标量覆盖、对象递归合并和数组整体替换拥有直接 GWT 场景与实现任务。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:100-122", "artifacts/dev-checklist.md:11-12"],
+      "severity": "P2",
+      "reason_code": "SPEC_INTENT_GAP",
+      "score_impact": 15
+    },
+    {
+      "id": "E03",
+      "text": "nil 删除、恢复和顶层必填缺失拥有可判定的错误契约。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:124-154", "artifacts/dev-checklist.md:13-14"],
+      "severity": "P2",
+      "reason_code": "SPEC_BOUNDARY_ERROR",
+      "score_impact": 10
+    },
+    {
+      "id": "E04",
+      "text": "所有 object 层级都执行严格 schema unknown-field 校验，空 Children 也只允许空对象。",
+      "passed": false,
+      "evidence": ["artifacts/spec.md:31", "artifacts/spec.md:41", "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/task.md:48-49"],
+      "severity": "P0",
+      "reason_code": "SPEC_CONTRACT_CONTRADICTION",
+      "parent_reason_code": "SPEC_CONTRACT_CONTRADICTION",
+      "score_impact": 20
+    },
+    {
+      "id": "E05",
+      "text": "五个 Type 的拒绝边界包含 array 错误类型和被高优先级覆盖的低优先级非法值。",
+      "passed": false,
+      "evidence": ["artifacts/spec.md:172-202", "artifacts/dev-checklist.md:13-16", "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/harness-x-log-current/configresolver_adversarial_test.go:52-65"],
+      "severity": "P1",
+      "reason_code": "SPEC_BOUNDARY_ERROR",
+      "parent_reason_code": "SPEC_BOUNDARY_ERROR",
+      "score_impact": 5
+    },
+    {
+      "id": "E06",
+      "text": "Provenance 覆盖最终叶子、JSON Pointer 转义和对象删除后的全部后代清理。",
+      "passed": false,
+      "evidence": ["artifacts/spec.md:124-130", "artifacts/spec.md:204-218", "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/harness-v2/configresolver_hidden_test.go:91-117"],
+      "severity": "P1",
+      "reason_code": "SPEC_BOUNDARY_ERROR",
+      "parent_reason_code": "SPEC_BOUNDARY_ERROR",
+      "score_impact": 10
+    },
+    {
+      "id": "E07",
+      "text": "输入不可变、nil Source.Data 保持 nil 与并发调用拥有独立场景和实现任务。",
+      "passed": true,
+      "evidence": ["artifacts/spec.md:220-242", "artifacts/dev-checklist.md:19-20"],
+      "severity": "P2",
+      "reason_code": "SPEC_BOUNDARY_ERROR",
+      "score_impact": 10
+    },
+    {
+      "id": "E08",
+      "text": "递归、必填和所有权边界包含三层对象、缺失父对象下的嵌套必填字段及 Result 与输入完全隔离。",
+      "passed": false,
+      "evidence": ["artifacts/spec.md:108-114", "artifacts/spec.md:140-154", "artifacts/spec.md:220-226", "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/harness-v2/configresolver_hidden_test.go:31-61", "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/harness-x-log-current/configresolver_adversarial_test.go:31-50"],
+      "severity": "P1",
+      "reason_code": "SPEC_BOUNDARY_ERROR",
+      "parent_reason_code": "SPEC_BOUNDARY_ERROR",
+      "score_impact": 10
+    },
+    {
+      "id": "E09",
+      "text": "确定性和性能证据覆盖不同 map 插入顺序及 100 字段 10,000 次阈值。",
+      "passed": false,
+      "evidence": ["artifacts/spec.md:244-258", "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/EVALUATION.md:8-18"],
+      "severity": "P1",
+      "reason_code": "SPEC_BOUNDARY_ERROR",
+      "parent_reason_code": "SPEC_BOUNDARY_ERROR",
+      "score_impact": 5
+    },
+    {
+      "id": "E10",
+      "text": "x-req3 只在相关 J-ID 全部已确认后执行，并为三个以上影响边界模块生成 diagram。",
+      "passed": false,
+      "evidence": ["artifacts/spec.md:41", "artifacts/dev-checklist.md:1-22", "artifacts/source-session.jsonl:17", "skills/x-req3/SKILL.md:20-24"],
+      "severity": "P0",
+      "reason_code": "REQ_DECOMPOSITION_GAP",
+      "parent_reason_code": "REQ_DECOMPOSITION_GAP",
+      "score_impact": 5
+    }
+  ],
+  "deductions": [
+    {
+      "severity": "P0",
+      "reason_code": "SPEC_CONTRACT_CONTRADICTION",
+      "finding": "J11 allows arbitrary keys in an object with empty Children, while task rule 6 requires ErrUnknownField for keys absent from schema.",
+      "evidence": ["artifacts/spec.md:41", "artifacts/task.md:48-49"]
+    },
+    {
+      "severity": "P0",
+      "reason_code": "REQ_DECOMPOSITION_GAP",
+      "finding": "The task checklist was written while J11 remained 待确认, although x-req3 requires a return to x-spec3 for any task-relevant pending judgment.",
+      "evidence": ["artifacts/spec.md:41", "artifacts/dev-checklist.md:1-22", "artifacts/source-session.jsonl:17"]
+    },
+    {
+      "severity": "P1",
+      "reason_code": "SPEC_BOUNDARY_ERROR",
+      "finding": "Scenario coverage omits object deletion provenance cleanup, three-level recursion, nested required fields, array mismatch, result alias isolation and map-insertion-order determinism.",
+      "evidence": ["artifacts/spec.md:108-258", "/Volumes/machub_app/proj/x-evals/llm-go-benchmark/evaluator-only/task-01-configresolver/EVALUATION.md:8-18"]
+    },
+    {
+      "severity": "P1",
+      "reason_code": "REQ_DECOMPOSITION_GAP",
+      "finding": "The session lacks scaffold, validate, status and graph execution evidence; current evaluator validation proves format only. The impact-boundary table lists four rows and has no diagram.md.",
+      "evidence": ["artifacts/source-session.jsonl", "artifacts/dev-checklist.md:1-22", "artifacts/spec.md:20-25"]
+    }
+  ],
+  "quality": {
+    "semantic_score": 45,
+    "structure_score": 40,
+    "structure_score_max": 40,
+    "static_validator": {
+      "spec3_issues": 0,
+      "req3_task_issues": 0,
+      "command": "python3 tools/xdev.py validate <target> --json"
+    }
+  },
+  "summary": {
+    "passed": 4,
+    "failed": 6,
+    "total": 10,
+    "pass_rate": 0.4,
+    "score": 45,
+    "score_max": 100
+  },
+  "decision": {
+    "execution_outcome": "completed",
+    "quality_gate": "failed",
+    "accepted_delivery": false,
+    "next_stage": "revise_spec"
+  },
+  "evaluator_gaps": [
+    {
+      "id": "GAP-01",
+      "text": "The frozen task is marked as a draft pending PROMPT.md replacement. This evaluation grades the frozen task.md and records the evaluator-only v2 harness as stronger boundary evidence."
+    }
+  ]
+}

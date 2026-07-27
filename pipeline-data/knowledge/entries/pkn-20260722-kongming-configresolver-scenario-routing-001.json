@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "knowledge_id": "pkn-20260722-kongming-configresolver-scenario-routing-001",
+  "entry_type": "evaluation_result",
+  "status": "confirmed",
+  "title": "spec3 Scenario 使用稳定两位 ID，req3 checklist 仅以 ID 建立多对多追踪",
+  "source": {
+    "pipeline_run_id": "prun-e2db79cf-41bc-001",
+    "stage": "req3_validation",
+    "attempt": 1
+  },
+  "reason_codes": [
+    "REQ_SCENARIO_REFERENCE_INVALID",
+    "REQ_DECOMPOSITION_GAP"
+  ],
+  "observations": {
+    "expected": "每个 Scenario 使用创建后永久稳定的 SC_01 格式 ID；checklist 的 Scenario IDs 列只填写一个或多个 ID，全部 Scenario 可机械对账。",
+    "actual": "T1-T5 使用分号拼接多个名称；解析器将整串视为一个不存在的标题，spec 侧 18 个 unit Scenario 因而无人承接。",
+    "validator": "R3Q5=5，R3Q6=18",
+    "severity": "P0"
+  },
+  "root_cause_hypotheses": [
+    {
+      "status": "confirmed",
+      "statement": "执行 x-req3 时没有完成其 scaffold/validate/status/graph 收尾步骤。"
+    },
+    {
+      "status": "confirmed",
+      "statement": "现行 x-req3 以可编辑的自然语言标题充当引用键，并把整个单元格解析为单个名称；该协议无法表达一个执行任务承接多个 Scenario。"
+    }
+  ],
+  "optimization_targets": [
+    "Scenario 标题采用 `### SC_01 <可判定行为名称>`；ID 创建后保持稳定，新增项递增并禁止重排重编号。",
+    "dev-checklist 使用 `Scenario IDs` 列，只填写 `SC_01` 或 `SC_01, SC_02`；任务行与 Scenario 建立多对多关系。",
+    "dev-report 与 verify 以单个 Scenario ID 保存证据；validator 检查 ID 格式、唯一性、引用存在性和全量覆盖。",
+    "运行 spec 与 task 两个 validate 命令直至零 issue。"
+  ],
+  "regression_cases": [
+    "spec3-stable-two-digit-scenario-id",
+    "req3-multiple-scenario-ids-per-row",
+    "scenario-title-rename-keeps-references-valid",
+    "xdev-validate-spec-and-task-zero-issues"
+  ],
+  "evidence_refs": [
+    "pipeline-data/runs/prun-e2db79cf-41bc-001/artifacts/dev-checklist.md:10-14",
+    "pipeline-data/runs/prun-e2db79cf-41bc-001/events.jsonl:evt-008"
+  ],
+  "confirmed_decisions": [
+    "Scenario ID 格式固定为 SC_01、SC_02……，使用两位十进制编号。",
+    "checklist 只保存 Scenario ID，不复制 Scenario 标题。",
+    "同一个 checklist 任务行允许引用多个 Scenario ID。"
+  ],
+  "revision_history": [
+    {
+      "attempt": 1,
+      "recorded_at": "2026-07-22T22:11:32+08:00",
+      "change": "记录自然语言 Scenario 名称拼接造成 R3Q5/R3Q6 失败。"
+    },
+    {
+      "attempt": 2,
+      "recorded_at": "2026-07-22T22:41:21+08:00",
+      "change": "用户确认采用两位稳定 ID SC_01；checklist 仅存 ID，并支持一个任务行引用多个 ID。"
+    }
+  ],
+  "recorded_at": "2026-07-22T22:41:21+08:00"
+}

@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "storage_profile": "bootstrap-json-v0",
+  "knowledge_id": "pkn-20260722-pipeline-eval-report-omission-001",
+  "entry_type": "process_failure",
+  "status": "confirmed",
+  "title": "项目 eval 分析流程被要求固化后未生成对应 skill",
+  "source": {
+    "pipeline_run_id": "prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001",
+    "stage": "pipeline-eval-report.skill_implementation",
+    "attempt": 1,
+    "confirmed_by": "user"
+  },
+  "reason_codes": [
+    "PIPELINE_EVAL_SKILL_NOT_PERSISTED",
+    "EVAL_REPORT_AD_HOC",
+    "WRONG_SKILL_ATTRIBUTION"
+  ],
+  "observations": [
+    "用户已要求把项目 eval 分析流程用 skill 固化，仓库 skills 目录仍缺少对应 SKILL.md。",
+    "ConfigResolver 评审通过手工步骤生成 manifest、events、telemetry、grading 和 evaluation-report。",
+    "后续询问 skill 路径时先后错误归因到 x-cr 和另一个项目的 x-evals-report。"
+  ],
+  "root_cause": {
+    "state": "confirmed",
+    "finding": "流程设计被保留为对话意图，执行计划缺少以项目内 SKILL.md、eval cases 和确定性验证为完成条件的交付项。"
+  },
+  "resolution": {
+    "status": "implemented",
+    "skill": "skills/pipeline-eval-report/SKILL.md",
+    "skill_sha256": "b5153f07cc26f1c81c48c2f94adff53d46232d5e3eaf4f408810acd5adeaec13",
+    "validation": [
+      "skill-creator quick_validate passed",
+      "ConfigResolver pipeline run validate_run.py passed with zero issues",
+      "evals/evals.json parsed successfully",
+      "validate_run.py compiled successfully"
+    ]
+  },
+  "optimization_targets": [
+    "用户要求把流程固化为 skill 时，把 SKILL.md、真实 eval cases 和验证结果设为同一任务的完成门槛。",
+    "eval 报告开始前先解析项目级 pipeline-eval-report，再执行 run 识别、遥测、评分和知识写入。",
+    "报告最终回复固定给出 skill 路径和 validate_run.py 结果。"
+  ],
+  "regression_cases": [
+    "外部 Mavis x-spec3 到 x-req3 运行的追认与评分",
+    "同一 run 在 rubric 修订后的追加式重评分",
+    "不同模型和 skill 版本的独立重放可比性判断"
+  ],
+  "evidence_refs": [
+    {
+      "kind": "skill",
+      "value": "skills/pipeline-eval-report/SKILL.md"
+    },
+    {
+      "kind": "evals",
+      "value": "skills/pipeline-eval-report/evals/evals.json"
+    },
+    {
+      "kind": "validator",
+      "value": "skills/pipeline-eval-report/scripts/validate_run.py"
+    },
+    {
+      "kind": "validated_run",
+      "value": "pipeline-data/runs/prun-97e550db-df5c-4a1d-8824-4bf8cbc5a672-001"
+    }
+  ],
+  "recorded_at": "2026-07-22T13:02:43Z"
+}

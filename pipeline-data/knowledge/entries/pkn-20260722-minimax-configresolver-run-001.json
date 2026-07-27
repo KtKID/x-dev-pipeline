@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "storage_profile": "bootstrap-json-v0",
+  "knowledge_id": "pkn-20260722-minimax-configresolver-run-001",
+  "entry_type": "evaluation_result",
+  "status": "pending_confirmation",
+  "title": "MiniMax ConfigResolver 运行完成但规格矛盾触发质量门禁",
+  "source": {
+    "pipeline_run_id": "prun-97e550db-df5c-4a1d-8824-4bf8cbc5a672-001",
+    "source_session_id": "mvs_97e550dbdf5c4a1d88244bf8cbc5a672",
+    "stages": ["x-spec3.spec", "x-req3.task", "spec_quality_review"]
+  },
+  "reason_codes": [
+    "SCENARIO_SCHEMA_CONTRADICTION",
+    "UNSUPPORTED_NUMBER_NORMALIZATION",
+    "MODULE_ROOT_CONTRACT_DRIFT",
+    "THREE_LEVEL_RECURSION_CASE_MISSING",
+    "MAP_INSERTION_ORDER_CASE_MISSING",
+    "DEEP_OWNERSHIP_COVERAGE_INCOMPLETE",
+    "NIL_EMPTY_BOUNDARY_MATRIX_INCOMPLETE",
+    "HIGH_CACHE_READ_SHARE"
+  ],
+  "observations": {
+    "execution_completed": true,
+    "quality_gate": "failed",
+    "task_semantic_score": 60,
+    "structure_passed": "6/8",
+    "scenario_count": 14,
+    "tokens_total_with_cache": 677678,
+    "tokens_total_without_cache_read": 50867,
+    "cache_read_share": 0.9249392779461633,
+    "prompt_to_final_seconds": 110.754
+  },
+  "observed_findings": [
+    "x-spec3 到 x-req3 的结构交接成功，Scenario 名和实现顺序能够下传。",
+    "上游 Scenario 的语义矛盾会被 x-req3 忠实传播到开发清单。",
+    "文档更短和执行更快无法弥补关键正确性回归。",
+    "单看 Scenario 数量无法判断边界覆盖质量。"
+  ],
+  "root_cause_hypotheses": [
+    "x-spec3 自审偏重结构完备与 Scenario 数量，缺少跨 Scenario、schema 和 THEN 的机械一致性检查。",
+    "模型把常见 JSON 数字表示习惯带入未规定归一化的 Go any 契约。",
+    "工作区包装目录影响了 module root 判断，任务原文的交付根语义未被提升为高优先级不变量。",
+    "隐蔽边界提示仍停留在类别级声明，没有稳定触发超过常见深度的具体反例。"
+  ],
+  "optimization_targets": [
+    "增加 Scenario schema-source-THEN 一致性检查：非 unknown-field 场景中的每个输入键都必须存在于 schema。",
+    "增加表示保持规则：任务未定义转换时，Scenario 保持输入的具体 Go 数字类型。",
+    "把交付根目录作为从任务证据解析的显式判断，禁止从包装目录名称推断 module root。",
+    "固定加入三层递归、不同 map 插入顺序、深层 map/slice 所有权和 nil/空输入矩阵 eval case。",
+    "持续分列 cache read、非缓存读取和输出 Token，检查重复 skill/template 上下文。"
+  ],
+  "evidence_refs": [
+    {
+      "kind": "report",
+      "value": "pipeline-data/runs/prun-97e550db-df5c-4a1d-8824-4bf8cbc5a672-001/evaluation-report.md"
+    },
+    {
+      "kind": "grading",
+      "value": "pipeline-data/runs/prun-97e550db-df5c-4a1d-8824-4bf8cbc5a672-001/grading.json"
+    },
+    {
+      "kind": "telemetry",
+      "value": "pipeline-data/runs/prun-97e550db-df5c-4a1d-8824-4bf8cbc5a672-001/telemetry.json"
+    },
+    {
+      "kind": "artifact",
+      "value": "/Volumes/machub_app/proj/x-dev-world/minimax/configresolver/docs/spec/config-resolver/spec.md",
+      "sha256": "fb88f6251c3934f370dc3c0322b9533f0b03c8752edcabc31b576691e6117e00"
+    }
+  ],
+  "recorded_at": "2026-07-22T12:17:56Z"
+}
