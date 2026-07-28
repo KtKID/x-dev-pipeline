@@ -30,6 +30,22 @@
         "返回结果包含 AR-003 的完整正文且不包含相似度分数",
         "最终输出使用召回正文检查序列连续性和状态转换语义"
       ]
+    },
+    {
+      "id": 3,
+      "prompt": "使用 x-dev-rag-call 从调用方指定的 evals/fixtures 目录批量匹配恢复与幂等风险，使用 Qwen/Qwen3-Embedding-0.6B 一次召回 Top5。返回实际命令、CLI 退出码、全部命中 ID 和完整原文。",
+      "expected_output": "LLM 只调用一次 rag_retrieve.py，把 evals/fixtures 目录作为 source，显式指定 Qwen/Qwen3-Embedding-0.6B 和 top-n 5，并在同一轮处理返回的全部结果。",
+      "files": [
+        "evals/fixtures/recovery-spec.md",
+        "evals/fixtures/retry-spec.md",
+        "evals/fixtures/risk-catalog.md"
+      ],
+      "expectations": [
+        "执行记录只包含一次对 x-dev-rag-call/scripts/rag_retrieve.py 的调用",
+        "调用参数把 evals/fixtures 目录作为 source，并包含 top-n 5",
+        "调用参数显式包含 model Qwen/Qwen3-Embedding-0.6B",
+        "最终输出在同一轮列出全部命中 ID 和完整正文"
+      ]
     }
   ]
 }

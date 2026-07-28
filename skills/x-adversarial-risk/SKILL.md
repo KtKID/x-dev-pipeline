@@ -1,7 +1,7 @@
 ---
 name: x-adversarial-risk
 description: |
-  对 x-spec 产出的 Spec 做一次有轮次上限的风险复核：读取 Spec、生成“功能关键词 + Risk”查询，从调用方提供的风险语料召回 Top5；用户确认没有 RAG 经验集时，按 Spec 分数执行有上限的独立对抗性检验。用于 review_budget 为 deep/full 且 adversarial_review 为 pending、上一次验证返回聚合 issue，或用户显式要求推翻 Spec 假设、补充高价值风险 Scenario 的场景。
+  对 x-spec 产出的 Spec 做一次有轮次上限的风险复核：读取 Spec、生成“功能关键词 + Risk”查询，默认从本 skill 自带的风险语料召回 Top5，也接受调用方覆盖语料路径；用户确认跳过 RAG 时，按 Spec 分数执行有上限的独立对抗性检验。用于 review_budget 为 deep/full 且 adversarial_review 为 pending、上一次验证返回聚合 issue，或用户显式要求推翻 Spec 假设、补充高价值风险 Scenario 的场景。
 ---
 
 # x-adversarial-risk
@@ -14,13 +14,13 @@ description: |
 
 Spec 是事实输入。Spec 证据不足以支持新行为时保留现有契约，并在回执中报告证据缺口。项目文件、任务原文、实现代码、QA 报告和脚本源码留给后续独立流程。
 
-风险语料由调用方提供，路径可以位于当前项目或独立知识库。共享 skill 只保存审查流程、检索调用方式和机械校验脚本。`x-dev-rag-call` 读取指定路径并返回 TopN 的 `id + source + text`；当前 agent 直接使用返回正文，省去整库阅读、LLM 精排、经验改写和按 ID 二次读取。
+当前已加载的 `x-adversarial-risk/SKILL.md` 所在目录是 `ADVERSARIAL_RISK_SKILL_DIR`。默认风险语料位于 `${ADVERSARIAL_RISK_SKILL_DIR}/references/risk-catalog.md`。调用方显式提供文件或目录时使用该路径覆盖默认值；默认文件缺失、为空或不可读时报告具体问题。
 
-开始召回前必须取得明确的风险语料路径。当前上下文缺少路径时，停下当前工作并向用户询问：
+当前已加载的 `x-dev-rag-call/SKILL.md` 所在目录是 `RAG_SKILL_DIR`。召回脚本固定从 `${RAG_SKILL_DIR}/scripts/rag_retrieve.py` 读取。两个根目录都来自当前 plugin 实际加载的 skill 路径，与调用项目 cwd 解耦。
 
-> 请提供 RAG 风险经验集的本地文件或目录路径。如果当前没有 RAG 经验集，请确认跳过 RAG 召回；后续将只根据 Spec 的风险分数执行有上限的独立对抗性检验。
+`x-dev-rag-call` 读取选定语料并返回 TopN 的 `id + source + text`；当前 agent 直接使用返回正文，省去整库阅读、LLM 精排、经验改写和按 ID 二次读取。用户明确确认跳过 RAG 时进入无 RAG 路径。
 
-用户提供路径后进入 RAG 路径。用户明确确认没有经验集或确认跳过后进入无 RAG 路径。agent 不猜测路径，也不扫描工作区寻找候选语料。
+agent 使用上述默认语料或调用方覆盖路径，不扫描工作区寻找其他候选语料。
 
 ## 对抗性定义
 
@@ -82,24 +82,28 @@ Spec 是事实输入。Spec 证据不足以支持新行为时保留现有契约�
 
 ### 第 2 轮：向量召回
 
-确认调用方提供的风险语料路径。路径存在时调用相邻的 `x-dev-rag-call`：
+设置 skill 根目录和本轮语料路径。调用方显式提供路径时替换 `RISK_CORPUS`，随后调用相邻的 `x-dev-rag-call`：
 
 ```bash
+ADVERSARIAL_RISK_SKILL_DIR="<当前已加载的 x-adversarial-risk/SKILL.md 所在目录>"
+RAG_SKILL_DIR="<当前已加载的 x-dev-rag-call/SKILL.md 所在目录>"
+RISK_CORPUS="${ADVERSARIAL_RISK_SKILL_DIR}/references/risk-catalog.md"
+
 uv run --offline --isolated \
-  --python /opt/homebrew/Caskroom/miniforge/base/bin/python3 \
   --with "sentence-transformers>=2.7.0" \
   --with "transformers>=4.51.0,<5" \
-  python skills/x-dev-rag-call/scripts/rag_retrieve.py \
-  --source <调用方提供的风险语料路径> \
+  python "${RAG_SKILL_DIR}/scripts/rag_retrieve.py" \
+  --source "${RISK_CORPUS}" \
   --query "功能关键词：<功能、模块、状态、动作>
 Risk：<具体失败机制>" \
   --top-n 5 \
+  --model "Qwen/Qwen3-Embedding-0.6B" \
   --json
 ```
 
-成功输出包含最多五条 `matches[].id`、`matches[].source` 和 `matches[].text`。默认从本地模型缓存加载 `Qwen/Qwen3-Embedding-0.6B`，并通过 `local_files_only=True` 禁止联网下载。查询使用官方 `query` 提示模板，风险语料正文按普通文档编码，两侧向量都归一化。需要指定其他本地模型时增加 `--model <本地路径或本地模型名>`。
+成功输出包含最多五条 `matches[].id`、`matches[].source` 和 `matches[].text`。命令从本地模型缓存加载 `Qwen/Qwen3-Embedding-0.6B`，并通过 `local_files_only=True` 禁止联网下载。查询使用官方 `query` 提示模板，风险语料正文按普通文档编码，两侧向量都归一化。需要指定其他本地模型时替换 `--model` 的值。
 
-召回成功后按命中顺序使用全部正文完成适用性判断、最小反例构造、Scenario 去重和最终修改集合设计，并在 Spec 审查记录中写明实际采用的 `RAG:AR-NNN`。调用方未提供语料路径或召回失败时保持 `adversarial_review: pending`，记录退出码、`error` 和 `message`，并阻断 x-req。
+召回成功后按命中顺序使用全部正文完成适用性判断、最小反例构造、Scenario 去重和最终修改集合设计，并在 Spec 审查记录中写明实际采用的 `RAG:AR-NNN`。默认语料不可用或召回失败时保持 `adversarial_review: pending`，记录实际语料路径、退出码、`error` 和 `message`，并阻断 x-req。
 
 用户确认跳过 RAG 后，本轮省略召回命令，按 `deep` 或 `full` 上限完成独立假设，并在审查记录中写入 `CLI=skipped:no-corpus`。该确认只替代 RAG 召回，评分和对抗性预算继续生效。
 
@@ -130,17 +134,24 @@ Risk：<具体失败机制>" \
 RAG 路径运行：
 
 ```bash
-python3 skills/x-adversarial-risk/scripts/risk_contract.py \
+ADVERSARIAL_RISK_SKILL_DIR="<当前已加载的 x-adversarial-risk/SKILL.md 所在目录>"
+RISK_CORPUS="${ADVERSARIAL_RISK_SKILL_DIR}/references/risk-catalog.md"
+
+python3 "${ADVERSARIAL_RISK_SKILL_DIR}/scripts/risk_contract.py" \
   validate-review docs/spec/<spec-name>/spec.md \
-  --catalog <调用方提供的风险语料路径> --json
+  --catalog "${RISK_CORPUS}" \
+  --require-rich-fields \
+  --json
 ```
 
-验证命令聚合 Spec、风险语料格式和来源映射的全部机械问题。验证失败时保持阻断状态，并在回执中列出完整聚合 issue。
+调用方覆盖语料时同步替换 `RISK_CORPUS`。验证命令聚合 Spec、风险语料完整字段、来源映射和其他机械问题。验证失败时保持阻断状态，并在回执中列出完整聚合 issue。
 
 用户确认跳过 RAG 时运行：
 
 ```bash
-python3 skills/x-adversarial-risk/scripts/risk_contract.py \
+ADVERSARIAL_RISK_SKILL_DIR="<当前已加载的 x-adversarial-risk/SKILL.md 所在目录>"
+
+python3 "${ADVERSARIAL_RISK_SKILL_DIR}/scripts/risk_contract.py" \
   validate-spec docs/spec/<spec-name>/spec.md --json
 ```
 

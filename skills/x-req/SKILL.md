@@ -22,7 +22,7 @@ x-req 把 spec 的行为契约压缩成可执行 checklist。spec.md 保留目�
 拆解前确认：
 
 1. `python3 tools/xdev.py validate <spec-dir> --json` 对 spec 返回零 issue；该检查会把任一待确认 J-ID 判为未就绪。
-2. spec 必须含 `> adversarial_risk_version: 3`，并运行 `python3 skills/x-adversarial-risk/scripts/risk_contract.py validate-spec <spec.md> --json`。退出码必须为 0；版本错误、`pending`、评分/预算不一致、审查记录或 Scenario 来源缺失都会停止 scaffold 和 task 写入。RAG 召回场景统一使用 `adversarial-review (rag:AR-NNN)`。退出码为 1 时停止写入，把完整聚合 issue 作为下一次显式 `$x-adversarial-risk` 修正调用的输入；该修正调用执行当前 x-adversarial-risk 定义的五轮契约。
+2. spec 必须含 `> adversarial_risk_version: 3`。把当前已加载的 `x-adversarial-risk/SKILL.md` 所在目录记为 `ADVERSARIAL_RISK_SKILL_DIR`，运行 `python3 "${ADVERSARIAL_RISK_SKILL_DIR}/scripts/risk_contract.py" validate-spec <spec.md> --json`。退出码必须为 0；版本错误、`pending`、评分/预算不一致、审查记录或 Scenario 来源缺失都会停止 scaffold 和 task 写入。RAG 召回场景统一使用 `adversarial-review (rag:AR-NNN)`。退出码为 1 时停止写入，把完整聚合 issue 作为下一次显式 `$x-adversarial-risk` 修正调用的输入；该修正调用执行当前 x-adversarial-risk 定义的五轮契约。
 3. spec 的 J-ID 状态全部为“已确认”。x-spec 只保存会改变实现或验收的判断，因此任一“待确认”都会停止 scaffold 和 task 写入。
 4. Scenario ID 符合 `SC_01` 两位格式、顺序递增且唯一，GIVEN/WHEN/THEN 可直接转成测试，测试层为 unit、smoke 或 e2e。
 

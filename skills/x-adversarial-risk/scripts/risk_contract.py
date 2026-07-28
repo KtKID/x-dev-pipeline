@@ -37,8 +37,21 @@ ADVERSARIAL_SOURCE_RE = re.compile(
     r"\)$"
 )
 CATALOG_HEADING_RE = re.compile(r"^##\s+(.+?)\s*$")
-CATALOG_FIELD_RE = re.compile(r"^(关键词|Risk)[：:]\s*(.*?)\s*$")
+# 必填字段沿用初始契约；可选字段由 x-bug2rag 写入，供召回时携带对错对照和反例切入。
 REQUIRED_CATALOG_FIELDS = ("关键词", "Risk")
+EXTRA_CATALOG_FIELDS = (
+    "场景",
+    "错误实现",
+    "正确实现",
+    "可观察差异",
+    "分类",
+    "来源",
+)
+ALL_CATALOG_FIELDS = REQUIRED_CATALOG_FIELDS + EXTRA_CATALOG_FIELDS
+RICH_REQUIRED_CATALOG_FIELDS = REQUIRED_CATALOG_FIELDS + EXTRA_CATALOG_FIELDS[:-1]
+CATALOG_FIELD_RE = re.compile(
+    rf"^({'|'.join(ALL_CATALOG_FIELDS)})[：:]\s*(.*?)\s*$"
+)
 FORBIDDEN_CATALOG_MARKERS = (
     "来源证据",
     "/Volumes/",
@@ -303,7 +316,11 @@ def validate_spec(text: str) -> list[Issue]:
     return issues
 
 
-def parse_catalog(text: str) -> tuple[list[RiskCard], list[Issue]]:
+def parse_catalog(
+    text: str,
+    *,
+    require_rich_fields: bool = False,
+) -> tuple[list[RiskCard], list[Issue]]:
     lines = text.splitlines()
     starts: list[tuple[int, str]] = []
     for index, line in enumerate(lines):
@@ -344,11 +361,12 @@ def parse_catalog(text: str) -> tuple[list[RiskCard], list[Issue]]:
                 continue
             match = CATALOG_FIELD_RE.fullmatch(line)
             if not match:
+                allowed = "、".join(ALL_CATALOG_FIELDS)
                 issues.append(
                     Issue(
                         "CATALOG_UNKNOWN_CONTENT",
                         offset + 1,
-                        f"{risk_id} 只允许关键词和 Risk 字段",
+                        f"{risk_id} 只允许以下字段：{allowed}",
                     )
                 )
                 continue
@@ -364,7 +382,12 @@ def parse_catalog(text: str) -> tuple[list[RiskCard], list[Issue]]:
                 continue
             fields[field] = (offset + 1, value.strip())
 
-        for field in REQUIRED_CATALOG_FIELDS:
+        required_fields = (
+            RICH_REQUIRED_CATALOG_FIELDS
+            if require_rich_fields
+            else REQUIRED_CATALOG_FIELDS
+        )
+        for field in required_fields:
             if field not in fields or not fields[field][1]:
                 issues.append(
                     Issue(
@@ -388,9 +411,16 @@ def parse_catalog(text: str) -> tuple[list[RiskCard], list[Issue]]:
     return cards, issues
 
 
-def validate_corpus(text: str) -> list[Issue]:
+def validate_corpus(
+    text: str,
+    *,
+    require_rich_fields: bool = False,
+) -> list[Issue]:
     lines = text.splitlines()
-    _, issues = parse_catalog(text)
+    _, issues = parse_catalog(
+        text,
+        require_rich_fields=require_rich_fields,
+    )
 
     for number, line in enumerate(lines, start=1):
         for marker in FORBIDDEN_CATALOG_MARKERS:
@@ -472,10 +502,20 @@ def build_parser() -> argparse.ArgumentParser:
     spec_parser.add_argument("--json", action="store_true", dest="as_json")
     corpus_parser = subparsers.add_parser("validate-corpus")
     corpus_parser.add_argument("target")
+    corpus_parser.add_argument(
+        "--require-rich-fields",
+        action="store_true",
+        help="要求场景、错误实现、正确实现、可观察差异和分类均为非空",
+    )
     corpus_parser.add_argument("--json", action="store_true", dest="as_json")
     review_parser = subparsers.add_parser("validate-review")
     review_parser.add_argument("target")
     review_parser.add_argument("--catalog", required=True)
+    review_parser.add_argument(
+        "--require-rich-fields",
+        action="store_true",
+        help="要求 catalog 使用完整风险卡字段",
+    )
     review_parser.add_argument("--json", action="store_true", dest="as_json")
     return parser
 
@@ -491,7 +531,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         issues = validate_spec(target_text or "")
         output_target = args.target
     elif args.command == "validate-corpus":
-        issues = validate_corpus(target_text or "")
+        issues = validate_corpus(
+            target_text or "",
+            require_rich_fields=args.require_rich_fields,
+        )
         output_target = args.target
     else:
         catalog_text, catalog_io_issue = _read_target(args.catalog)
@@ -501,7 +544,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 2
         issues = [
             *validate_spec(target_text or ""),
-            *validate_corpus(catalog_text or ""),
+            *validate_corpus(
+                catalog_text or "",
+                require_rich_fields=args.require_rich_fields,
+            ),
             *validate_traceability(target_text or "", catalog_text or ""),
         ]
         output_target = f"{args.target} + {args.catalog}"

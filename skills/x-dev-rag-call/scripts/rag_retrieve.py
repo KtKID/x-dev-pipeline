@@ -82,7 +82,8 @@ class SentenceTransformerBackend:
             )
         except Exception as exc:
             raise RuntimeError(
-                f"本地模型加载失败：{model_name}"
+                f"本地模型加载失败：{model_name}；"
+                "请先缓存该模型，或通过 --model 指定已存在的本地模型目录"
             ) from exc
 
     def encode_query(self, text: str) -> Sequence[float]:

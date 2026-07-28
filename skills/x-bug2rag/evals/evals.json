@@ -1,0 +1,29 @@
+{
+  "skill_name": "x-bug2rag",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "把当前 risk-catalog.md 聚合成每 200 条一个分片的 corpus，生成给 LLM 看的一级目录和可检索的二级短卡，并验证生成物一致。",
+      "expected_output": "使用 corpus_aggregate.py build，生成 manifest、taxonomy、Markdown/JSONL 索引与稳定 shards，并运行 validate。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "这个聚合风险库同时命中权限和边界两个目录，请合并候选、去重后找出 Top5，再一次读取完整经验。",
+      "expected_output": "读取 taxonomy，使用 search 合并多个 route、去重并返回 TopN 短卡，再使用 read 批量读取命中 ID。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "我手工修正了一个 shard 里的 Risk，请重建目录和索引，并证明 locator 和正文仍一致。",
+      "expected_output": "把 shards 作为事实源运行 rebuild，再运行 validate 并报告条目数与一致性。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "读取一个包含多份 fix-report 的目录；同一批报告可能产出多条经验，多个经验也可能共享“话轮”等关键词。提炼后做小分片聚合，验证同词条目跨 shard 的 TopN、去重和详情读取。",
+      "expected_output": "逐报告判断并拆分泛用失败机制，抛弃不完整项；用明确 target 建立聚合目录；读取 taxonomy 后搜索全部相关 route；按 AR-ID 去重并批量读取跨 shard 详情；运行 validate。",
+      "files": []
+    }
+  ]
+}

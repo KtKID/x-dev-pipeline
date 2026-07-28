@@ -8,6 +8,21 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPT = ROOT / "skills" / "x-adversarial-risk" / "scripts" / "risk_contract.py"
+DEFAULT_CORPUS = (
+    ROOT
+    / "skills"
+    / "x-adversarial-risk"
+    / "references"
+    / "risk-catalog.md"
+)
+RAG_FIXTURE = (
+    ROOT
+    / "skills"
+    / "x-dev-rag-call"
+    / "evals"
+    / "fixtures"
+    / "risk-catalog.md"
+)
 
 
 def valid_spec(
@@ -150,6 +165,53 @@ class RiskContractCliTest(unittest.TestCase):
             result = self.run_cli("validate-corpus", path, "--json")
             self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
             self.assertTrue(json.loads(result.stdout)["valid"])
+
+    def test_rich_field_gate_rejects_legacy_two_field_card(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = self.write(Path(raw), "risk-mistakes.md", valid_corpus())
+            result = self.run_cli(
+                "validate-corpus",
+                path,
+                "--require-rich-fields",
+                "--json",
+            )
+            self.assertEqual(result.returncode, 1)
+            payload = json.loads(result.stdout)
+            self.assertFalse(payload["valid"])
+            self.assertEqual(
+                {issue["message"] for issue in payload["issues"]},
+                {
+                    "AR-001 缺少非空字段：场景",
+                    "AR-001 缺少非空字段：错误实现",
+                    "AR-001 缺少非空字段：正确实现",
+                    "AR-001 缺少非空字段：可观察差异",
+                    "AR-001 缺少非空字段：分类",
+                },
+            )
+
+    def test_default_and_eval_corpora_have_expected_rich_cards(self):
+        expected_counts = (
+            (DEFAULT_CORPUS, 6),
+            (RAG_FIXTURE, 5),
+        )
+        for path, expected_count in expected_counts:
+            with self.subTest(path=path, expected_count=expected_count):
+                result = self.run_cli(
+                    "validate-corpus",
+                    path,
+                    "--require-rich-fields",
+                    "--json",
+                )
+                self.assertEqual(
+                    result.returncode,
+                    0,
+                    result.stdout + result.stderr,
+                )
+                self.assertTrue(json.loads(result.stdout)["valid"])
+                self.assertEqual(
+                    path.read_text(encoding="utf-8").count("\n## AR-"),
+                    expected_count,
+                )
 
     def test_corpus_rejects_duplicate_id_and_missing_field(self):
         with tempfile.TemporaryDirectory() as raw:

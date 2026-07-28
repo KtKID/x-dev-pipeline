@@ -1,7 +1,7 @@
 ---
 name: x-dev-rag-call
 description: |
-  从需求、Spec、代码调查、故障描述或计划中提炼关键内容，调用本地 Embedding 模型，从调用方明确指定的 Markdown 或纯文本文件/目录进行语义 TopN 召回，并把命中的原文交回当前 LLM。用户提到“从这个路径召回”“查 RAG”“匹配错题集”“根据 Spec 找相关经验”“取 TopN”时使用；其他 skill 需要从指定本地知识路径获取相关内容时也使用。
+  从需求、Spec、代码调查、故障描述或计划中提炼关键内容，调用本地 Embedding 模型，从调用方明确指定的 Markdown 或纯文本文件/目录进行单文件或目录级批量语义 TopN 召回，并把命中的原文交回当前 LLM。用户提到“从这个路径召回”“查 RAG”“匹配错题集”“批量匹配经验集”“根据 Spec 找相关经验”“取 TopN”时使用；其他 skill 需要从指定本地知识路径获取相关内容时也使用。
 ---
 
 # x-dev-rag-call
@@ -29,10 +29,10 @@ LLM 负责：
 
 Python 脚本负责：
 
-- 读取指定路径中的纯文本。
+- 一次读取指定文件或目录中的全部 Markdown 和纯文本。
 - 按 Markdown 二级及更深标题或纯文本段落切分内容。
-- 实时计算查询向量和文本向量。
-- 计算相似度并返回 TopN。
+- 在一次 `encode_documents` 调用中批量计算全部候选文本向量。
+- 对完整候选集计算相似度、统一排序并返回 TopN。
 
 纯文本是知识事实源。每次调用实时计算向量；第一版保持零索引文件、零向量数据库和零 LLM 精排。
 
@@ -56,27 +56,31 @@ Risk：<具体失败机制>
 
 ### 2. 调用本地召回脚本
 
+先把当前已加载的 `x-dev-rag-call/SKILL.md` 所在目录记为 `RAG_SKILL_DIR`。该目录是脚本资源根，路径解析独立于调用项目的 cwd。
+
 运行：
 
 ```bash
+RAG_SKILL_DIR="<当前已加载的 x-dev-rag-call/SKILL.md 所在目录>"
+
 uv run --offline --isolated \
-  --python /opt/homebrew/Caskroom/miniforge/base/bin/python3 \
   --with "sentence-transformers>=2.7.0" \
   --with "transformers>=4.51.0,<5" \
-  python skills/x-dev-rag-call/scripts/rag_retrieve.py \
+  python "${RAG_SKILL_DIR}/scripts/rag_retrieve.py" \
   --source "<指定文件或目录>" \
   --query "<key_content>" \
   --top-n <N> \
+  --model "Qwen/Qwen3-Embedding-0.6B" \
   --json
 ```
 
-脚本默认从本地模型缓存加载 `Qwen/Qwen3-Embedding-0.6B`，并通过 `local_files_only=True` 禁止联网下载。调用方明确指定另一个本地模型时增加：
+命令显式从本地模型缓存加载 `Qwen/Qwen3-Embedding-0.6B`，并通过 `local_files_only=True` 禁止联网下载。调用方明确指定另一个本地模型时，替换 `--model` 的值。
 
-```bash
---model "<本地模型路径>"
-```
+命令使用当前环境可发现的 Python 与 uv 离线缓存。Codex plugin 包含 skill、脚本和默认 corpus；Embedding 权重由运行环境的 Hugging Face 缓存提供。`MODEL_ERROR` 表示该环境需要先缓存 `Qwen/Qwen3-Embedding-0.6B`，或把 `--model` 改为已存在的本地模型目录。
 
-命令复用当前仓库已有的 uv 离线缓存环境。脚本使用本地文件加载模型；查询向量使用 Qwen 的 `query` 提示模板，文档向量使用普通文档编码，两侧向量均归一化。
+脚本使用本地文件加载模型；查询向量使用 Qwen 的 `query` 提示模板，文档向量使用普通文档编码，两侧向量均归一化。
+
+批量匹配只运行一次命令：`source` 为目录时递归收集其中全部 `.md` 和 `.txt` 文件，一次完成候选编码和全局排序，再返回最多 N 条结果。禁止逐文件循环调用，也禁止用多次 Top1 拼接 TopN。
 
 ### 3. 使用召回结果
 
@@ -94,7 +98,7 @@ uv run --offline --isolated \
 }
 ```
 
-直接使用 `matches[].text` 完成当前任务。脚本已经返回原文，因此无需按 ID 再次读取文件。TopN 大于 1 时，同时处理本次返回的全部结果。
+直接使用 `matches[].text` 完成当前任务。脚本已经返回原文，因此无需按 ID 再次读取文件。TopN 大于 1 时，在同一轮中处理本次返回的全部结果。
 
 当前任务需要适用性判断时，由 LLM 说明每条命中如何影响分析。当前任务只验证召回链路时，成功返回一条完整原文即可。
 
