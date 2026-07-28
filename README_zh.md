@@ -61,7 +61,7 @@ spec 包在 task 拆解前经过独立风险门禁：
                    双评分 + 初版测试       对抗性测试
 ```
 
-x-spec 分别记录 1–5 的复杂度和重要性，并把第一版 Scenario 标记为 `initial-spec`。x-adversarial-risk 按评分选择 standard、deep 或 full 预算；deep/full 才读取本 skill 独占的错题集，并只追加适用于当前 Spec 的 `adversarial-review` 反例 Scenario。带风险版本标记的 Spec 审查状态仍为 pending 时，x-req 阻断任务拆解。
+x-spec 分别记录 1–5 的复杂度和重要性，并把第一版 Scenario 标记为 `initial-spec`。插件在 x-adversarial-risk skill 目录内提供默认的丰富字段错题集，也接受调用方显式路径覆盖默认值。所有预算执行一次 Top5 召回；deep/full 使用适用的命中追加带 `adversarial-review` 来源的反例 Scenario。带风险版本标记的 Spec 审查状态仍为 pending 时，x-req 阻断任务拆解。
 
 ## 验收与证据
 

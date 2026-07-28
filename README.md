@@ -61,7 +61,7 @@ user request → x-spec → x-adversarial-risk → x-req → x-dev
                     score + initial tests   adversarial tests
 ```
 
-x-spec records 1–5 complexity and importance scores and marks first-draft Scenarios as `initial-spec`. x-adversarial-risk selects a standard, deep, or full budget; deep/full runs load its private mistake corpus and append only applicable counterexample Scenarios with `adversarial-review` provenance. x-req blocks a versioned Spec while its adversarial review is pending.
+x-spec records 1–5 complexity and importance scores and marks first-draft Scenarios as `initial-spec`. The plugin ships a default rich-field risk corpus under the x-adversarial-risk skill directory and accepts an explicit caller-provided corpus path as an override. Every budget performs one Top5 lookup; deep/full use applicable matches to add counterexample Scenarios with `adversarial-review` provenance. x-req blocks a versioned Spec while its adversarial review is pending.
 
 ## Acceptance and evidence
 
