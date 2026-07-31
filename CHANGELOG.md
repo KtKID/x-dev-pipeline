@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.5.1
+
+### 用户级风险 RAG
+
+- **跨项目默认语料**：`x-adversarial-risk` 与 `x-bug2rag` 默认读取用户 Home 下的 `~/.x-dev-pipeline/rag/risk-catalog.md`
+- **独立初始化与导入**：新增 `home_corpus.py`，分别执行 `init` 和 `import-existing`，通过 `Path.home()` 统一解析各平台用户目录
+- **受控写入**：`triage_store.py` 作为 LLM 写入接口，负责分配 `AR-NNN`、查重、格式化、严格校验和失败回滚
+- **Codex 发布扩展**：受控白名单加入 `x-bug2rag` 及其脚本、规则和种子 corpus；模型与 Embedding 缓存保持原配置
+- **版本统一**：`package.json`、Claude Code manifest、Claude marketplace、Codex manifest 与 README 全部升级到 `0.5.1`
+
 ## v0.5.0
 
 ### 发布更新

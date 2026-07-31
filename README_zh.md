@@ -6,7 +6,7 @@
 
 [English](./README.md)
 
-**当前版本：** v0.5.0
+**当前版本：** v0.5.1
 
 > 给 AI coding agent 一套可审计的开发工作流：需求契约、实现证据、确定性验证、按风险评审。
 
@@ -61,7 +61,7 @@ spec 包在 task 拆解前经过独立风险门禁：
                    双评分 + 初版测试       对抗性测试
 ```
 
-x-spec 分别记录 1–5 的复杂度和重要性，并把第一版 Scenario 标记为 `initial-spec`。插件在 x-adversarial-risk skill 目录内提供默认的丰富字段错题集，也接受调用方显式路径覆盖默认值。所有预算执行一次 Top5 召回；deep/full 使用适用的命中追加带 `adversarial-review` 来源的反例 Scenario。带风险版本标记的 Spec 审查状态仍为 pending 时，x-req 阻断任务拆解。
+x-spec 分别记录 1–5 的复杂度和重要性，并把第一版 Scenario 标记为 `initial-spec`。插件提供丰富字段的种子错题集；`x-bug2rag/scripts/home_corpus.py` 先初始化 `~/.x-dev-pipeline/rag/`，再通过独立操作把种子复制为 `risk-catalog.md`。风险审查与 Bug 沉淀在所有项目中共享这份用户级 corpus，调用方也可显式覆盖路径。所有预算执行一次 Top5 召回；deep/full 使用适用的命中追加带 `adversarial-review` 来源的反例 Scenario。带风险版本标记的 Spec 审查状态仍为 pending 时，x-req 阻断任务拆解。
 
 ## 验收与证据
 

@@ -6,7 +6,7 @@
 
 [中文说明](./README_zh.md)
 
-**Current release:** v0.5.0
+**Current release:** v0.5.1
 
 > An auditable development workflow for AI coding agents.
 
@@ -61,7 +61,7 @@ user request → x-spec → x-adversarial-risk → x-req → x-dev
                     score + initial tests   adversarial tests
 ```
 
-x-spec records 1–5 complexity and importance scores and marks first-draft Scenarios as `initial-spec`. The plugin ships a default rich-field risk corpus under the x-adversarial-risk skill directory and accepts an explicit caller-provided corpus path as an override. Every budget performs one Top5 lookup; deep/full use applicable matches to add counterexample Scenarios with `adversarial-review` provenance. x-req blocks a versioned Spec while its adversarial review is pending.
+x-spec records 1–5 complexity and importance scores and marks first-draft Scenarios as `initial-spec`. The plugin ships a rich-field seed corpus; `x-bug2rag/scripts/home_corpus.py` initializes `~/.x-dev-pipeline/rag/` and copies the seed to `risk-catalog.md` as a separate operation. Risk review and bug ingestion share that user-global corpus from every project, while an explicit caller path can override it. Every budget performs one Top5 lookup; deep/full use applicable matches to add counterexample Scenarios with `adversarial-review` provenance. x-req blocks a versioned Spec while its adversarial review is pending.
 
 ## Acceptance and evidence
 

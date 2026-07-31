@@ -1,7 +1,7 @@
 {
   "name": "x-dev-pipeline",
-  "version": "0.5.0",
-  "description": "Structured dev workflow with spec, adversarial risk review, task breakdown, execution, verify, qa-gate, fix loops, and audits.",
+  "version": "0.5.1",
+  "description": "Structured dev workflow with spec, user-global risk RAG, task breakdown, execution, verify, qa-gate, fix loops, and audits.",
   "author": {
     "name": "ktkid",
     "url": "https://github.com/KtKID"
@@ -21,7 +21,7 @@
   "interface": {
     "displayName": "x-dev-pipeline",
     "shortDescription": "Structured dev workflow for Codex",
-    "longDescription": "Turn coding requests into a traceable workflow with spec capture, adversarial risk review, task breakdown, implementation, fact verification, risk-matched qa-gate review, fix loops, and independent audits.",
+    "longDescription": "Turn coding requests into a traceable workflow with spec capture, adversarial risk review backed by a user-global RAG corpus, bug-to-RAG ingestion, task breakdown, implementation, fact verification, risk-matched qa-gate review, fix loops, and independent audits.",
     "developerName": "ktkid",
     "category": "Productivity",
     "capabilities": [

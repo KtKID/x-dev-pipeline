@@ -1,7 +1,7 @@
 {
   "name": "x-dev-pipeline",
-  "description": "Structured dev workflow with spec, adversarial risk review, task breakdown, execution, verify, qa-gate, fix loops, and audits",
-  "version": "0.5.0",
+  "description": "Structured dev workflow with spec, user-global risk RAG, task breakdown, execution, verify, qa-gate, fix loops, and audits",
+  "version": "0.5.1",
   "author": {
     "name": "ktkid"
   },
