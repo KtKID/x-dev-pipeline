@@ -1,0 +1,11 @@
+{
+  "execution_mode": "inline-contract-dry-run",
+  "expectations": [
+    {"text": "不变量覆盖先出现 spec 声明的 INV-SPEC 编号", "passed": true, "evidence": "result.md 登记 INV-SPEC-01。"},
+    {"text": "最小反例包含批准 git status 后尝试 git push", "passed": true, "evidence": "不变量覆盖表使用该反例。"},
+    {"text": "贝叶斯候选区分规范化、remember rule 和 matcher 或 dispatch", "passed": true, "evidence": "H1-H4 分别覆盖四段路径。"},
+    {"text": "审查结论使用稳定 Bn 并关联同一个 INV-ID", "passed": true, "evidence": "B1 关联 INV-SPEC-01。"},
+    {"text": "严重度为 P0，置信度单独记录", "passed": true, "evidence": "B1 严重度 P0，置信度已确认。"}
+  ],
+  "summary": {"passed": 5, "failed": 0, "total": 5, "pass_rate": 1.0}
+}

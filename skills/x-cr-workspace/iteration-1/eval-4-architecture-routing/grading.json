@@ -1,0 +1,9 @@
+{
+  "execution_mode": "inline-contract-dry-run",
+  "expectations": [
+    {"text": "明确当前缺少可达错误路径", "passed": true, "evidence": "结果首段明确说明。"},
+    {"text": "路由到 x-audit-arch", "passed": true, "evidence": "结果第二段明确路由。"},
+    {"text": "不把单纯重复事实源登记为 P0/P1 正确性问题", "passed": true, "evidence": "结果明确 x-cr 不登记 P0/P1。"}
+  ],
+  "summary": {"passed": 3, "failed": 0, "total": 3, "pass_rate": 1.0}
+}

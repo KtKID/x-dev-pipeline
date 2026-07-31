@@ -1,0 +1,11 @@
+{
+  "execution_mode": "inline-contract-dry-run",
+  "expectations": [
+    {"text": "spec 幂等不变量进入覆盖表", "passed": true, "evidence": "覆盖表登记 INV-SPEC-01。"},
+    {"text": "报告说明 diff 未触达幂等执行路径或给出保持证据", "passed": true, "evidence": "INV-SPEC-01 结论为未触达并列出路径依据。"},
+    {"text": "继续执行遗漏候选检查", "passed": true, "evidence": "发现日志契约 INV-CAND-01。"},
+    {"text": "缺少可达破坏路径时不生成幂等 P0/P1", "passed": true, "evidence": "只登记日志证据 P2。"},
+    {"text": "覆盖声明包含状态所有者、入口和测试证据", "passed": true, "evidence": "覆盖声明列出状态所有者、扣款入口、事务和测试。"}
+  ],
+  "summary": {"passed": 5, "failed": 0, "total": 5, "pass_rate": 1.0}
+}

@@ -1,0 +1,11 @@
+{
+  "execution_mode": "inline-contract-dry-run",
+  "expectations": [
+    {"text": "区分 INV-SPEC 的 token 规则和 INV-CAND 的服务端信任规则", "passed": true, "evidence": "覆盖表分别登记 INV-SPEC-01 与 INV-CAND-01。"},
+    {"text": "补充候选被归类为 spec 缺口", "passed": true, "evidence": "补充候选关系明确写为 spec 缺口。"},
+    {"text": "最小反例保留合法 token 并篡改 role 或 tenant_id", "passed": true, "evidence": "INV-CAND-01 的最小反例包含两项。"},
+    {"text": "执行路径覆盖 request、authentication、authorization 或 data filter", "passed": true, "evidence": "触达路径覆盖 request、authentication、controller 和 query filter。"},
+    {"text": "报告同时包含不变量结论和贝叶斯根因", "passed": true, "evidence": "两个固定章节均已输出。"}
+  ],
+  "summary": {"passed": 5, "failed": 0, "total": 5, "pass_rate": 1.0}
+}
