@@ -28,6 +28,7 @@ from typing import Sequence
 
 BUG2RAG_SKILL_DIR = Path(__file__).resolve().parents[1]
 AGGREGATE_SCRIPT = BUG2RAG_SKILL_DIR / "scripts" / "corpus_aggregate.py"
+HOME_CORPUS_SCRIPT = BUG2RAG_SKILL_DIR / "scripts" / "home_corpus.py"
 
 
 def _load_aggregate_module():
@@ -44,6 +45,23 @@ def _load_aggregate_module():
 AGGREGATE_MODULE = _load_aggregate_module()
 ROUTE_BY_LABEL = AGGREGATE_MODULE.ROUTE_BY_LABEL
 validate_flat_corpus = AGGREGATE_MODULE.validate_flat_corpus
+
+
+def _load_home_corpus_module():
+    module_name = "x_bug2rag_home_corpus"
+    spec = importlib.util.spec_from_file_location(module_name, HOME_CORPUS_SCRIPT)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(
+            f"cannot load home corpus resolver: {HOME_CORPUS_SCRIPT}"
+        )
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+HOME_CORPUS_MODULE = _load_home_corpus_module()
+DEFAULT_TARGET = HOME_CORPUS_MODULE.user_corpus_path()
 
 # 必填字段：召回后必须能据此构造对/错反例并完成一级路由。
 REQUIRED_FIELDS: tuple[tuple[str, str], ...] = (
@@ -192,8 +210,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--target",
-        required=True,
-        help="flat corpus file or aggregate corpus directory to append to",
+        default=str(DEFAULT_TARGET),
+        help=(
+            "flat corpus file or aggregate corpus directory to append to; "
+            "defaults to ~/.x-dev-pipeline/rag/risk-catalog.md"
+        ),
     )
     for key, label in ALL_FIELDS:
         parser.add_argument(

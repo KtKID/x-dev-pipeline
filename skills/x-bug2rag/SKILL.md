@@ -1,7 +1,7 @@
 ---
 name: x-bug2rag
 description: |
-  把 bug 描述沉淀为可召回的失败机制经验，并维护可扩展到数千条的聚合 corpus。输入一条或多条 bug 描述，按泛用性规则筛选后写入；也能把单文件 catalog 聚合为 taxonomy、短卡搜索视图、JSONL 机器索引和稳定 Markdown 分片，重建/校验索引，并按 AR-ID 批量读取详情。用户说"这个 bug 记一下""沉淀到错题库""这条经验加进 RAG""bug 转 corpus""聚合错题库""给 RAG 分片""重建风险目录/索引"时使用；从 x-cr 报告、复盘记录、issue 列表批量提取经验时也使用。
+  把 bug 描述沉淀到用户 Home 下的通用 RAG，形成可召回的失败机制经验，并维护可扩展到数千条的聚合 corpus。输入一条或多条 bug 描述，按泛用性规则筛选后写入；也能初始化 `~/.x-dev-pipeline/rag`、复制插件已有 catalog、把单文件 catalog 聚合为 taxonomy、短卡搜索视图、JSONL 机器索引和稳定 Markdown 分片，重建/校验索引，并按 AR-ID 批量读取详情。用户说"这个 bug 记一下""沉淀到错题库""这条经验加进 RAG""bug 转 corpus""初始化用户 RAG""聚合错题库""给 RAG 分片""重建风险目录/索引"时使用；从 x-cr 报告、复盘记录、issue 列表批量提取经验时也使用。
   单文件与聚合模式的写入、校验、目录生成、短卡搜索、TopN、详情读取和重建全部由本 skill 自己完成，便于独立测试聚合效果。
 ---
 
@@ -56,6 +56,35 @@ Risk：<一句具体失败机制，主语+条件+后果>
 
 字段必须自包含：召回后 LLM 只读这一段就能构造反例，不需要再翻原 bug。Risk 句禁止空泛（"可能有 bug""要小心"），必须落到具体机制。
 
+## 用户级默认 corpus
+
+所有平台都通过 Python 的 `Path.home()` 定位用户 Home，默认 corpus 固定为：
+
+```text
+~/.x-dev-pipeline/rag/risk-catalog.md
+```
+
+新用户设置分成两个独立操作。第一步只创建用户 RAG 目录：
+
+```bash
+BUG2RAG_SKILL_DIR="<当前已加载的 x-bug2rag/SKILL.md 所在目录>"
+
+python3 "${BUG2RAG_SKILL_DIR}/scripts/home_corpus.py" init --json
+```
+
+第二步把插件已有 `risk-catalog.md` 原样复制到用户目录：
+
+```bash
+python3 "${BUG2RAG_SKILL_DIR}/scripts/home_corpus.py" \
+  import-existing \
+  --json
+```
+
+`import-existing` 默认从同一插件的
+`x-adversarial-risk/references/risk-catalog.md` 读取。目标文件已有相同内容时返回
+`copied: false`；目标文件已有其他内容时停止覆盖。测试新用户流程时用
+`--home <temporary-home>` 隔离真实用户数据。
+
 ## 两种 corpus 存储模式
 
 ### 单文件模式
@@ -98,7 +127,7 @@ risk-corpus/
 
 1. 本 `SKILL.md`。
 2. 用户输入的全部 bug 描述（一条或多条）。
-3. 当用户给出 `--target` 时，单文件读取当前 catalog；聚合目录读取 `taxonomy.md` 和相关二级索引，了解已有条目并避免重复。
+3. 默认读取 `~/.x-dev-pipeline/rag/risk-catalog.md`；调用方给出 `--target` 时读取该目标。聚合目录读取 `taxonomy.md` 和相关二级索引，了解已有条目并避免重复。
 
 ### 第 2 轮：判断
 
@@ -116,14 +145,12 @@ risk-corpus/
 
 ### 第 3 轮：集中写入
 
-当前已加载的 `x-bug2rag/SKILL.md` 所在目录是 `BUG2RAG_SKILL_DIR`。调用方必须明确给出目标 corpus；每条通过项调用一次 `triage_store.py`。脚本根据 `--target` 类型选择单文件追加或聚合目录追加：
+当前已加载的 `x-bug2rag/SKILL.md` 所在目录是 `BUG2RAG_SKILL_DIR`。每条通过项调用一次 `triage_store.py`。默认目标是用户 Home 下的 `~/.x-dev-pipeline/rag/risk-catalog.md`；调用方可用 `--target` 覆盖。脚本根据目标类型选择单文件追加或聚合目录追加：
 
 ```bash
 BUG2RAG_SKILL_DIR="<当前已加载的 x-bug2rag/SKILL.md 所在目录>"
-TARGET_CORPUS="<用户明确指定的单文件 catalog 或聚合目录>"
 
 python3 "${BUG2RAG_SKILL_DIR}/scripts/triage_store.py" \
-  --target "${TARGET_CORPUS}" \
   --keywords "<关键词，逗号分隔>" \
   --risk "<一句失败机制>" \
   --scene "<触发条件与上下文>" \
@@ -135,7 +162,7 @@ python3 "${BUG2RAG_SKILL_DIR}/scripts/triage_store.py" \
   --json
 ```
 
-`--target` 是必填参数。单文件目标由本 skill 的 rich-card parser 校验；目录目标自动转交同目录的 `corpus_aggregate.py append`，同步更新分片、taxonomy、索引和 manifest。路径解析独立于调用项目 cwd。
+单文件目标由本 skill 的 rich-card parser 校验；目录目标自动转交同目录的 `corpus_aggregate.py append`，同步更新分片、taxonomy、索引和 manifest。`--target` 接受显式单文件或聚合目录。默认路径由 `home_corpus.py` 通过 `Path.home()` 解析，与调用项目 cwd 和操作系统无关。
 
 脚本负责：分配下一个连续 `AR-NNN`、按字段顺序格式化、校验八类路由、追加到 corpus 末尾、调用本 skill 的 corpus contract 校验、校验失败自动回滚。
 
@@ -250,4 +277,4 @@ python3 "${BUG2RAG_SKILL_DIR}/scripts/corpus_aggregate.py" rebuild \
 - 一条 bug 也可能提炼不出任何失败机制：直接抛弃，不强凑。
 - 不猜测用户没说的字段。场景/错误实现/正确实现/可观察差异说不清的，要么回问用户，要么抛弃。
 - 不为通过而通过：宁可全抛弃，也不写入空泛的"要小心并发"这类废话条目。
-- corpus 路径必须由用户指定；不扫描工作区寻找候选 corpus。
+- 默认 corpus 固定使用用户 Home 下的 `.x-dev-pipeline/rag/risk-catalog.md`；显式 `--target` 只覆盖当前调用，不触发工作区扫描。

@@ -10,6 +10,7 @@ BUG2RAG_DIR = Path(__file__).resolve().parents[1]
 ROOT = BUG2RAG_DIR.parents[1]
 AGGREGATE = BUG2RAG_DIR / "scripts" / "corpus_aggregate.py"
 TRIAGE_STORE = BUG2RAG_DIR / "scripts" / "triage_store.py"
+HOME_CORPUS = BUG2RAG_DIR / "scripts" / "home_corpus.py"
 
 
 def rich_corpus(count: int) -> str:
@@ -177,6 +178,112 @@ class Bug2RagAggregateTest(unittest.TestCase):
                     encoding="utf-8"
                 ),
             )
+
+    def test_home_init_creates_only_user_rag_directory_and_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as raw:
+            simulated_home = Path(raw) / "new user"
+            directory = simulated_home / ".x-dev-pipeline" / "rag"
+            target = directory / "risk-catalog.md"
+
+            initialized = self.run_cli(
+                HOME_CORPUS,
+                "init",
+                "--home",
+                str(simulated_home),
+                "--json",
+            )
+            self.assertEqual(
+                initialized.returncode,
+                0,
+                initialized.stdout + initialized.stderr,
+            )
+            payload = json.loads(initialized.stdout)
+
+            self.assertTrue(payload["created"])
+            self.assertEqual(payload["target"], str(target))
+            self.assertTrue(directory.is_dir())
+            self.assertEqual(list(directory.iterdir()), [])
+
+            repeated = self.run_cli(
+                HOME_CORPUS,
+                "init",
+                "--home",
+                str(simulated_home),
+                "--json",
+            )
+            self.assertEqual(repeated.returncode, 0, repeated.stdout)
+            self.assertFalse(json.loads(repeated.stdout)["created"])
+
+    def test_home_import_existing_requires_init_and_copies_exact_file(self):
+        with tempfile.TemporaryDirectory() as raw:
+            directory = Path(raw)
+            simulated_home = directory / "new user"
+            target = (
+                simulated_home
+                / ".x-dev-pipeline"
+                / "rag"
+                / "risk-catalog.md"
+            )
+            source = directory / "risk-catalog.md"
+            source.write_text(rich_corpus(3), encoding="utf-8")
+
+            premature = self.run_cli(
+                HOME_CORPUS,
+                "import-existing",
+                "--home",
+                str(simulated_home),
+                "--source",
+                str(source),
+                "--json",
+            )
+            self.assertEqual(premature.returncode, 1)
+            self.assertIn("请先初始化", json.loads(premature.stdout)["error"])
+
+            initialized = self.run_cli(
+                HOME_CORPUS,
+                "init",
+                "--home",
+                str(simulated_home),
+                "--json",
+            )
+            imported = self.run_cli(
+                HOME_CORPUS,
+                "import-existing",
+                "--home",
+                str(simulated_home),
+                "--source",
+                str(source),
+                "--json",
+            )
+            before_repeat = target.read_bytes()
+            repeated = self.run_cli(
+                HOME_CORPUS,
+                "import-existing",
+                "--home",
+                str(simulated_home),
+                "--source",
+                str(source),
+                "--json",
+            )
+            after_repeat = target.read_bytes()
+            validated = self.run_cli(
+                HOME_CORPUS,
+                "validate",
+                "--home",
+                str(simulated_home),
+                "--json",
+            )
+
+            self.assertEqual(initialized.returncode, 0, initialized.stdout)
+            self.assertEqual(imported.returncode, 0, imported.stdout)
+            self.assertTrue(json.loads(imported.stdout)["copied"])
+            self.assertEqual(json.loads(imported.stdout)["entry_count"], 3)
+            self.assertEqual(target.read_bytes(), source.read_bytes())
+            self.assertEqual(repeated.returncode, 0)
+            self.assertFalse(json.loads(repeated.stdout)["copied"])
+            self.assertEqual(after_repeat, before_repeat)
+            self.assertEqual(validated.returncode, 0, validated.stdout)
+            self.assertTrue(json.loads(validated.stdout)["valid"])
 
     def test_read_returns_only_requested_sections_across_shards(self):
         with tempfile.TemporaryDirectory() as raw:

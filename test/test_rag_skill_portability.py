@@ -18,6 +18,7 @@ DEFAULT_CORPUS = (
 )
 TRIAGE_STORE = BUG2RAG_SKILL_DIR / "scripts" / "triage_store.py"
 CORPUS_AGGREGATE = BUG2RAG_SKILL_DIR / "scripts" / "corpus_aggregate.py"
+HOME_CORPUS = BUG2RAG_SKILL_DIR / "scripts" / "home_corpus.py"
 
 
 def load_module(name: str, path: Path):
@@ -78,7 +79,7 @@ class RagSkillPortabilityTest(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertTrue(json.loads(result.stdout)["valid"])
 
-    def test_triage_target_is_explicit_and_skill_is_self_contained(self):
+    def test_triage_defaults_to_home_corpus_and_remains_overridable(self):
         self.assertEqual(
             self.triage_module.BUG2RAG_SKILL_DIR,
             BUG2RAG_SKILL_DIR,
@@ -86,7 +87,10 @@ class RagSkillPortabilityTest(unittest.TestCase):
         self.assertFalse(
             hasattr(self.triage_module, "ADVERSARIAL_RISK_SKILL_DIR")
         )
-        self.assertFalse(hasattr(self.triage_module, "DEFAULT_TARGET"))
+        self.assertEqual(
+            self.triage_module.DEFAULT_TARGET,
+            Path.home() / ".x-dev-pipeline" / "rag" / "risk-catalog.md",
+        )
 
         result = self.run_external(
             sys.executable,
@@ -128,6 +132,24 @@ class RagSkillPortabilityTest(unittest.TestCase):
             validated.stdout + validated.stderr,
         )
         self.assertTrue(json.loads(validated.stdout)["valid"])
+
+    def test_home_corpus_entrypoint_works_outside_plugin_repo(self):
+        result = self.run_external(
+            sys.executable,
+            str(HOME_CORPUS),
+            "path",
+            "--json",
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(
+            json.loads(result.stdout)["target"],
+            str(
+                Path.home()
+                / ".x-dev-pipeline"
+                / "rag"
+                / "risk-catalog.md"
+            ),
+        )
 
     def test_directory_retrieval_encodes_all_documents_in_one_batch(self):
         with tempfile.TemporaryDirectory() as raw:

@@ -1,7 +1,7 @@
 ---
 name: x-adversarial-risk
 description: |
-  对 x-spec 产出的 Spec 做一次有轮次上限的风险复核：读取 Spec、生成“功能关键词 + Risk”查询，默认从本 skill 自带的风险语料召回 Top5，也接受调用方覆盖语料路径；用户确认跳过 RAG 时，按 Spec 分数执行有上限的独立对抗性检验。用于 review_budget 为 deep/full 且 adversarial_review 为 pending、上一次验证返回聚合 issue，或用户显式要求推翻 Spec 假设、补充高价值风险 Scenario 的场景。
+  对 x-spec 产出的 Spec 做一次有轮次上限的风险复核：读取 Spec、生成“功能关键词 + Risk”查询，默认从用户 Home 下的通用风险语料召回 Top5，也接受调用方覆盖语料路径；用户确认跳过 RAG 时，按 Spec 分数执行有上限的独立对抗性检验。用于 review_budget 为 deep/full 且 adversarial_review 为 pending、上一次验证返回聚合 issue，或用户显式要求推翻 Spec 假设、补充高价值风险 Scenario 的场景。
 ---
 
 # x-adversarial-risk
@@ -14,7 +14,7 @@ description: |
 
 Spec 是事实输入。Spec 证据不足以支持新行为时保留现有契约，并在回执中报告证据缺口。项目文件、任务原文、实现代码、QA 报告和脚本源码留给后续独立流程。
 
-当前已加载的 `x-adversarial-risk/SKILL.md` 所在目录是 `ADVERSARIAL_RISK_SKILL_DIR`。默认风险语料位于 `${ADVERSARIAL_RISK_SKILL_DIR}/references/risk-catalog.md`。调用方显式提供文件或目录时使用该路径覆盖默认值；默认文件缺失、为空或不可读时报告具体问题。
+当前已加载的 `x-adversarial-risk/SKILL.md` 所在目录是 `ADVERSARIAL_RISK_SKILL_DIR`。同一插件中 `x-bug2rag/SKILL.md` 所在目录是 `BUG2RAG_SKILL_DIR`。默认风险语料由 `${BUG2RAG_SKILL_DIR}/scripts/home_corpus.py path` 解析，固定落在用户 Home 下的 `.x-dev-pipeline/rag/risk-catalog.md`。调用方显式提供文件或目录时使用该路径覆盖默认值；默认文件缺失时先通过 `home_corpus.py init` 创建目录，再通过独立的 `import-existing` 操作复制插件已有语料。
 
 当前已加载的 `x-dev-rag-call/SKILL.md` 所在目录是 `RAG_SKILL_DIR`。召回脚本固定从 `${RAG_SKILL_DIR}/scripts/rag_retrieve.py` 读取。两个根目录都来自当前 plugin 实际加载的 skill 路径，与调用项目 cwd 解耦。
 
@@ -86,8 +86,9 @@ agent 使用上述默认语料或调用方覆盖路径，不扫描工作区寻�
 
 ```bash
 ADVERSARIAL_RISK_SKILL_DIR="<当前已加载的 x-adversarial-risk/SKILL.md 所在目录>"
+BUG2RAG_SKILL_DIR="<同一插件中 x-bug2rag/SKILL.md 所在目录>"
 RAG_SKILL_DIR="<当前已加载的 x-dev-rag-call/SKILL.md 所在目录>"
-RISK_CORPUS="${ADVERSARIAL_RISK_SKILL_DIR}/references/risk-catalog.md"
+RISK_CORPUS="$(python3 "${BUG2RAG_SKILL_DIR}/scripts/home_corpus.py" path)"
 
 uv run --offline --isolated \
   --with "sentence-transformers>=2.7.0" \
@@ -135,7 +136,8 @@ RAG 路径运行：
 
 ```bash
 ADVERSARIAL_RISK_SKILL_DIR="<当前已加载的 x-adversarial-risk/SKILL.md 所在目录>"
-RISK_CORPUS="${ADVERSARIAL_RISK_SKILL_DIR}/references/risk-catalog.md"
+BUG2RAG_SKILL_DIR="<同一插件中 x-bug2rag/SKILL.md 所在目录>"
+RISK_CORPUS="$(python3 "${BUG2RAG_SKILL_DIR}/scripts/home_corpus.py" path)"
 
 python3 "${ADVERSARIAL_RISK_SKILL_DIR}/scripts/risk_contract.py" \
   validate-review docs/spec/<spec-name>/spec.md \

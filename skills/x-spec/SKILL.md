@@ -23,7 +23,7 @@ x-spec 产出最小完整开发契约。每段内容都服务于实现决策、�
 7. 验收清单：单元测试、Smoke 测试、按需 E2E 测试及其判定依据。
 8. 测试驱动开发顺序。
 9. 可执行的 GIVEN/WHEN/THEN Scenarios，每项标记 `initial-spec` 来源。
-10. 风险召回与对抗性审查记录；默认使用 `x-adversarial-risk` skill 目录内的风险语料，调用方也可覆盖路径。语料可用时所有预算执行一次 Top5 召回；用户确认跳过 RAG 后按分数路由对抗性检验。
+10. 风险召回与对抗性审查记录；默认使用用户 Home 下的 `.x-dev-pipeline/rag/risk-catalog.md`，调用方也可覆盖路径。语料可用时所有预算执行一次 Top5 召回；用户确认跳过 RAG 后按分数路由对抗性检验。
 
 ## 工作流
 
@@ -78,7 +78,7 @@ x-spec 产出最小完整开发契约。每段内容都服务于实现决策、�
 - 平均分低于 3 为 `standard`，3 到低于 4 为 `deep`，4 及以上为 `full`。
 - 任一维度为 4 时预算至少为 `deep`；任一维度为 5 时预算为 `full`。
 
-把评分理由写入“风险评分依据”。当前已加载的 `x-adversarial-risk/SKILL.md` 所在目录是风险 skill 根目录，默认语料为该目录下的 `references/risk-catalog.md`。调用方显式提供文件或目录时覆盖默认值。默认语料缺失、为空或不可读时，报告实际路径并请用户提供语料或确认跳过 RAG。
+把评分理由写入“风险评分依据”。默认语料由同一插件中 `x-bug2rag/scripts/home_corpus.py path` 解析，固定为用户 Home 下的 `.x-dev-pipeline/rag/risk-catalog.md`。调用方显式提供文件或目录时覆盖默认值。默认语料缺失、为空或不可读时，报告实际路径；新用户先执行 `home_corpus.py init`，再独立执行 `home_corpus.py import-existing`。
 
 风险语料可用时，所有预算都执行一次 Top5 召回。`standard` 在同一次 Spec 写入中生成“功能关键词 + Risk”查询，调用 `x-dev-rag-call`，把查询、最多五条召回 ID、CLI 结果和“无 Scenario 扩张”写入 ARV-1，同时设置 `adversarial_review: skipped-standard`；召回失败时记录 exit、error 和 message，仍保持 standard 直接交接。`deep/full` 设置 `adversarial_review: pending`，由 x-adversarial-risk 执行 Top5 召回并继续对抗分析。
 
