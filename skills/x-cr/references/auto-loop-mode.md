@@ -36,4 +36,4 @@ x-req -> risk 定级 -> x-dev -> verify
 x-cr -> x-fix（用户要求修复时）
 ```
 
-x-cr 的报告路径仍为 `reports/cr/cr-report-*.md`，用于保留手动正确性调查和 x-fix 修复回写的共同载体。
+x-cr 的 task 报告路径为 `docs/spec/<spec>/tasks/<task>/reports/cr/cr-report-*.md`，普通仓库调查使用 `reports/cr/cr-report-*.md`；两者都是手动正确性调查和 x-fix 修复回写的共同载体。

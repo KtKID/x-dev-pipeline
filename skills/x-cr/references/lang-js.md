@@ -1,5 +1,7 @@
 # JavaScript 代码规范
 
+> 历史参考：当前 x-cr 流程不加载本文件。运行时正确性使用 `checklist-general.md`；命名、风格和结构规则分别归 x-audit-style / x-audit-arch。
+
 > 语言：JavaScript
 > 适用场景：.js, .jsx 文件审查
 

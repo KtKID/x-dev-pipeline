@@ -64,13 +64,14 @@ x-spec ─→ x-adversarial-risk ─→ x-req ─→ x-dev ─→ x-verify ─�
 | issue 登记与状态写权 | 主 agent 逐条调用 `python3 tools/xdev.py flag ... --json`；本轮首条带 `--new-round`。代码分配 `issue-<n>`、写 ledger、把 P0/P1 task 降为 `[!] 🔴`；`recovered:true` 时主 agent 用原参数再次调用。reviewer、子 agent、x-fix 保持 ledger 与状态列原样 |
 | x-fix 批量修 + 增量复审 | x-fix 一次修完一轮 issue 清单（P0 全修且各固化一条可复跑反例、P1 修或豁免、P2 登记），产出带 issue ID 的逐条处置表；复审尽量由同一个 reviewer 承接，只看 issue 处置 + fix 增量 diff，熔断条件见 `skills/x-qa-gate/SKILL.md` |
 | 门禁回执 | x-verify / x-qa-gate / x-fix 每个节点结束在对话中输出统一回执（P0/P1/P2 计数 + 拦截来源维度 + 处置），零问题也输出；QA Gate issue ledger 由 flag 生成。格式见 `skills/x-qa-gate/SKILL.md`「回执与状态」 |
-| x-cr 手动调查 | `skills/x-cr/SKILL.md` 是手动软件正确性调查入口，独立于自动门禁；流水线 gate 逻辑写到 x-qa-gate |
+| x-cr 手动调查 | `skills/x-cr/SKILL.md` 是手动软件正确性调查入口，独立于自动门禁。先读取归属 spec 的“影响边界与不变量”，再登记遗漏候选并做贝叶斯根因调查；task 报告写入 `docs/spec/<spec>/tasks/<task>/reports/cr/`，普通调查写入 `reports/cr/`；x-fix 按稳定 Bn/INV-ID 消费 |
 | 状态码 | ⏳ 未开始 / ▶️ 进行中 / 🟡 待验证 / 🔴 验证失败 / 🟢 证据通过 / ✅ 已完成 / ↗️ 已升级。x-dev 最多到 🟢，✅ 由完整 review 升级；x-qdev 按 Q0/Q1 主 agent 或 Q2 综合 reviewer 路线关闭，Q3 使用 ↗️ 并由 full task 负责最终完成 |
 
 ## 改 skill 时的注意事项
 
 - **YAML frontmatter 是触发依据**：`description` 里的关键词决定 skill 何时被自动触发。改正文是低风险，**改 description 等于改触发面**——评估全局影响后再改。
 - **report 路径不能乱**：每类 fail 写到固定子目录，旧链路（直接 bug fix）走 `reports/fix/fix-report-*.md` / `fix-note-*.md`，新链路（gate 回流）走 `fix-verify-*.md` / `fix-gate-r<轮次>-*.md`（批量修处置表）。两套路径**并存**，不要合并。
+- **x-cr 报告交接**：task 内 CR 固定写到 `<task>/reports/cr/`，普通仓库 CR 写到仓库级 `reports/cr/`；`Schema: x-cr-v2`、`不变量覆盖`、`审查结论`、`问题详情` 及 Bn/INV-ID 映射是 x-fix 的消费契约，历史报告继续走兼容解析。
 - **manifest 不显式列 skill**：`.claude-plugin/plugin.json` / `.codex-plugin/plugin.json` 都靠 `./skills/` 目录自动发现，新增 skill 不必改 manifest 字段，除非要更新 `defaultPrompt` 示例。
 - **reference 文件保留制**：`skills/x-cr/references/auto-loop-mode.md` 之类的旧 reference **保留**作历史参考，不要删；新逻辑放到 x-qa-gate / x-fix 的 references。
 
