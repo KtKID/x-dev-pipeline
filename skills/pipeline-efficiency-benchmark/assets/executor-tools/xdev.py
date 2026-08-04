@@ -9,13 +9,13 @@
 - flag.py：QA Gate issue ledger 与状态降级事务
 
 用法：
-  python3 tools/xdev.py validate [目标目录 ...] [--include-legacy] [--json]
-  python3 tools/xdev.py instructions <artifact-id> --task <task-dir> [--json]
-  python3 tools/xdev.py scaffold <task-dir> [--with-diagram] [--json]
-  python3 tools/xdev.py status <task-dir> [--json]
-  python3 tools/xdev.py graph <task-dir> [--json]
-  python3 tools/xdev.py verify <task-dir> [--json] [--only <id>]
-  python3 tools/xdev.py flag <task-dir> --task T2,T3 --severity P0 \
+  python3 <x-dev-skill-dir>/scripts/xdev.py validate [目标目录 ...] [--include-legacy] [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py instructions <artifact-id> --task <task-dir> [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py scaffold <task-dir> [--with-diagram] [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py status <task-dir> [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py graph <task-dir> [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py verify <task-dir> [--json] [--only <id>]
+  python3 <x-dev-skill-dir>/scripts/xdev.py flag <task-dir> --task T2,T3 --severity P0 \
       --loc src/a.py:10 --msg "空输入未处理" [--new-round] [--json]
 
 退出码：0 成功；1 校验失败或依赖环；2 用法、目标或 IO 错误。
@@ -24,14 +24,46 @@
 from __future__ import annotations
 
 import argparse
+import importlib
+import importlib.util
 import json
 import sys
 from pathlib import Path
 
-import flag as flag_engine
-import req
-import validator
-import verify as verify_engine
+
+def _load_sibling_engine(module_name: str, skill_name: str):
+    """从同一插件的所属 skill 加载引擎；扁平执行包优先使用同目录副本。"""
+    existing = sys.modules.get(module_name)
+    if existing is not None:
+        return existing
+    skills_root = Path(__file__).resolve().parents[2]
+    path = skills_root / skill_name / "scripts" / f"{module_name}.py"
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"无法加载 {skill_name} 的 {module_name}.py：{path}")
+    engine = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = engine
+    try:
+        spec.loader.exec_module(engine)
+    except Exception:
+        sys.modules.pop(module_name, None)
+        raise
+    return engine
+
+
+def _engine(module_name: str, skill_name: str):
+    try:
+        return importlib.import_module(module_name)
+    except ModuleNotFoundError as exc:
+        if exc.name != module_name:
+            raise
+        return _load_sibling_engine(module_name, skill_name)
+
+
+flag_engine = _engine("flag", "x-qa-gate")
+req = _engine("req", "x-req")
+validator = _engine("validator", "x-spec")
+verify_engine = _engine("verify", "x-verify")
 
 
 def discover(root: Path) -> list[Path]:

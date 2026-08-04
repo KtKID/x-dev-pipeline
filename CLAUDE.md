@@ -24,8 +24,11 @@ x-dev-pipeline/
 │       ├── fix/*.md                   # 修复报告（按触发节点分类）
 │       └── audit/*.md                 # 独立巡检报告
 ├── dev-pipeline/tasks/                # 历史 task 档案；工具不再识别、校验或编排
-├── tools/xdev.py                      # 薄 CLI 路由器
-├── tools/validator.py, flag.py        # 包校验与 QA issue 事务引擎
+├── skills/x-dev/scripts/xdev.py       # 薄 CLI 路由器
+├── skills/x-spec/scripts/             # spec 与包校验引擎
+├── skills/x-req/scripts/              # task 引擎
+├── skills/x-verify/scripts/           # Gate ① 引擎
+├── skills/x-qa-gate/scripts/          # QA issue 事务引擎
 ├── .claude-plugin/                    # Claude Code marketplace 注册
 ├── .codex-plugin/, .agents/           # Codex 注册
 └── examples/, install.sh, install-codex.ps1
@@ -43,7 +46,7 @@ x-spec ─→ x-adversarial-risk ─→ x-req ─→ x-dev ─→ x-verify ─�
 - x-spec 产出 `docs/spec/<spec-name>/spec.md` 第一版，记录复杂度/重要性、预算和 `initial-spec` Scenario
 - x-adversarial-risk 按预算检查第一版；standard 不读错题集，deep/full 才读取自身独立错题集并补 `adversarial-review` Scenario
 - x-req 只接收风险状态为 `skipped-standard` 或 `complete` 的新风险契约，产出 `docs/spec/<spec-name>/tasks/<task>/`
-- `tools/xdev.py` 只做 CLI 分流；package、task、verify、flag 逻辑分别归各自引擎
+- `skills/x-dev/scripts/xdev.py` 只做 CLI 分流；package、task、verify、flag 逻辑分别归各自 skill 引擎
 - x-plan 已废弃，功能合并到 x-req
 
 独立巡检（不在主流程）：`x-audit-perf` / `x-audit-style` / `x-audit-arch`，由用户手动触发或里程碑后跑。`x-audit-arch` 聚焦架构一致性 + 单一事实源（结构性视角），与 `x-audit-style`（表层规范）、`x-qa-gate` R1（spec 正确性）不重叠，边界见 `skills/x-audit-arch/SKILL.md`。
@@ -61,7 +64,7 @@ x-spec ─→ x-adversarial-risk ─→ x-req ─→ x-dev ─→ x-verify ─�
 | reviewer 子 agent | x-qa-gate 按 `risk:` 风险路由：默认线 dispatch 一个综合 reviewer RC（`references/rc-unified.md`），高危线串行 dispatch R1/R2/R3；初始 prompt 预算为 10,000 estimated tokens，使用 manifest + 路径 + diff 命令 + completeness gate |
 | 一轮列全 | 所有 reviewer 穷尽列出全部问题候选后判定；每条返回 task、severity、loc、msg 和证据，并省略编号；回执包含覆盖声明、完整问题候选和穷尽声明；严重度 P0/P1/P2 唯一定义在 `skills/x-qa-gate/SKILL.md` |
 | reviewer 只读 | RC/R1/R2/R3 只输出 review 回执；修改统一走 x-fix |
-| issue 登记与状态写权 | 主 agent 逐条调用 `python3 tools/xdev.py flag ... --json`；本轮首条带 `--new-round`。代码分配 `issue-<n>`、写 ledger、把 P0/P1 task 降为 `[!] 🔴`；`recovered:true` 时主 agent 用原参数再次调用。reviewer、子 agent、x-fix 保持 ledger 与状态列原样 |
+| issue 登记与状态写权 | 主 agent 逐条调用 `python3 skills/x-dev/scripts/xdev.py flag ... --json`；本轮首条带 `--new-round`。代码分配 `issue-<n>`、写 ledger、把 P0/P1 task 降为 `[!] 🔴`；`recovered:true` 时主 agent 用原参数再次调用。reviewer、子 agent、x-fix 保持 ledger 与状态列原样 |
 | x-fix 批量修 + 增量复审 | x-fix 一次修完一轮 issue 清单（P0 全修且各固化一条可复跑反例、P1 修或豁免、P2 登记），产出带 issue ID 的逐条处置表；复审尽量由同一个 reviewer 承接，只看 issue 处置 + fix 增量 diff，熔断条件见 `skills/x-qa-gate/SKILL.md` |
 | 门禁回执 | x-verify / x-qa-gate / x-fix 每个节点结束在对话中输出统一回执（P0/P1/P2 计数 + 拦截来源维度 + 处置），零问题也输出；QA Gate issue ledger 由 flag 生成。格式见 `skills/x-qa-gate/SKILL.md`「回执与状态」 |
 | x-cr 手动调查 | `skills/x-cr/SKILL.md` 是手动软件正确性调查入口，独立于自动门禁。先读取归属 spec 的“影响边界与不变量”，再登记遗漏候选并做贝叶斯根因调查；task 报告写入 `docs/spec/<spec>/tasks/<task>/reports/cr/`，普通调查写入 `reports/cr/`；x-fix 按稳定 Bn/INV-ID 消费 |
@@ -89,7 +92,7 @@ prompt 预算 10,000 estimated tokens。保留 reviewer 检查清单（默认线
 
 ## x-spec2 eval 计量边界
 
-- `tools/metrics.py extract` 只读取调用方显式给出的完成态 Codex rollout JSONL，或主 agent 在子 agent 完成通知到达时保存的 `timing.json`；工具不扫描 session 目录。
+- `skills/pipeline-efficiency-benchmark/scripts/metrics.py extract` 只读取调用方显式给出的完成态 Codex rollout JSONL，或主 agent 在子 agent 完成通知到达时保存的 `timing.json`；工具不扫描 session 目录。
 - rollout 样本必须只有一个 session ID、一个 `turn_context` 和一个 `task_complete`。token 使用完成事件前最后一份 provider 累计快照，duration 使用 `turn_context` 到 `task_complete` 的时间差。
 - 子 agent 通知源保留真实 `total_tokens` 与 `duration_ms`；细分 token、起止时间缺失时写 `null`。collector 和 grader 的 token、耗时不计入被测样本。
 - executor inputs 与 grader-only inputs 必须在 metadata 中分开声明；重叠或 `rubric_exposed: true` 使样本退出 1。paired 聚合还要求 prompt hash、model、repo SHA 与评分断言完全一致。

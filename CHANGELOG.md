@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.5.2
+
+### Codex 发布与确定性脚本打包
+
+- **skill 自包含脚本**：确定性引擎按职责迁入各阶段 skill 的 `scripts/`；`x-dev` CLI 从相邻 skill 加载引擎，外部安装只需插件的 `skills/` 目录。
+- **基准执行包**：`pipeline-efficiency-benchmark` 从各 skill 刷新扁平执行包，并校验 bundle 与所属源脚本的 SHA 一致性。
+- **兼容预检**：Python 3.9 通过标准库目录识别执行包依赖，保持隔离 workspace 的预检可用。
+- **版本统一**：package、Claude manifest/marketplace、Codex manifest 与 README 升级到 `0.5.2`。
+
 ## v0.5.1
 
 ### 用户级风险 RAG

@@ -2,16 +2,49 @@
 """spec/spec7/change/capability 包的确定性校验引擎。
 
 本模块拥有包类型识别、Markdown 机械解析、V1-V7 与 V13-V20 规则聚合。
-当前 task 校验由 req.py 拥有，统一 CLI 位于 xdev.py。
+当前 task 校验由 x-req/scripts/req.py 拥有，统一 CLI 位于 x-dev/scripts/xdev.py。
 """
 
 from __future__ import annotations
 
 import re
+import importlib
+import importlib.util
+import sys
 from pathlib import Path
 
-import req
-import spec as spec_engine
+
+def _load_sibling_engine(module_name: str, skill_name: str):
+    """从同一插件的所属 skill 加载引擎；扁平执行包优先使用同目录副本。"""
+    existing = sys.modules.get(module_name)
+    if existing is not None:
+        return existing
+    skills_root = Path(__file__).resolve().parents[2]
+    path = skills_root / skill_name / "scripts" / f"{module_name}.py"
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"无法加载 {skill_name} 的 {module_name}.py：{path}")
+    engine = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = engine
+    try:
+        spec.loader.exec_module(engine)
+    except Exception:
+        sys.modules.pop(module_name, None)
+        raise
+    return engine
+
+
+def _engine(module_name: str, skill_name: str):
+    try:
+        return importlib.import_module(module_name)
+    except ModuleNotFoundError as exc:
+        if exc.name != module_name:
+            raise
+        return _load_sibling_engine(module_name, skill_name)
+
+
+req = _engine("req", "x-req")
+spec_engine = _engine("spec", "x-spec")
 
 
 STATUS_VOCAB = ("探索中", "方案确认", "可进入 x-req", "开发中", "已完成")

@@ -11,7 +11,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 import sys
 
-sys.path.insert(0, str(ROOT / "tools"))
+sys.path[:0] = [
+    str(ROOT / "skills" / "x-dev" / "scripts"),
+    str(ROOT / "skills" / "x-qa-gate" / "scripts"),
+    str(ROOT / "skills" / "x-verify" / "scripts"),
+    str(ROOT / "skills" / "x-req" / "scripts"),
+    str(ROOT / "skills" / "x-spec" / "scripts"),
+]
 
 import req  # noqa: E402
 import verify as verify_engine  # noqa: E402

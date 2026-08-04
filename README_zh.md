@@ -6,7 +6,7 @@
 
 [English](./README.md)
 
-**当前版本：** v0.5.1
+**当前版本：** v0.5.2
 
 > 给 AI coding agent 一套可审计的开发工作流：需求契约、实现证据、确定性验证、按风险评审。
 
@@ -88,7 +88,7 @@ expect_contains: passed
 ```
 ````
 
-`python3 tools/xdev.py verify <task-dir> --json` 会复跑 auto 块、比较 exit 和输出片段、列出 manual 步骤，并报告缺少证据回指的自动场景。退出码 0 表示自动事实通过；1 表示命令或覆盖失败；2 表示输入、路径或格式错误。
+`python3 skills/x-dev/scripts/xdev.py verify <task-dir> --json` 会复跑 auto 块、比较 exit 和输出片段、列出 manual 步骤，并报告缺少证据回指的自动场景。退出码 0 表示自动事实通过；1 表示命令或覆盖失败；2 表示输入、路径或格式错误。
 
 ## 命令
 
@@ -109,9 +109,10 @@ expect_contains: passed
 
 ## 确定性引擎
 
-`tools/xdev.py` 是机械规则的薄 CLI 入口；包校验由 `tools/validator.py` 负责，spec task
-规划由 `tools/req.py` 负责，验证由 `tools/verify.py` 负责，QA issue 事务由
-`tools/flag.py` 负责：
+`skills/x-dev/scripts/xdev.py` 是机械规则的薄 CLI 入口；包校验由
+`skills/x-spec/scripts/validator.py` 负责，spec task 规划由
+`skills/x-req/scripts/req.py` 负责，验证由 `skills/x-verify/scripts/verify.py` 负责，QA issue
+事务由 `skills/x-qa-gate/scripts/flag.py` 负责：
 
 ```text
 validate [pkg...]                 校验 spec、change、task 契约
@@ -128,16 +129,16 @@ task 命令只接收 `docs/spec/<spec-name>/tasks/<task-name>/`。历史
 
 ## x-spec2 pilot 计量
 
-`tools/metrics.py` 从一个显式 Codex rollout JSONL，或保存后的子 agent 完成通知中记录一次 x-spec2 eval。最小 measurement 包含执行来源 ID、模型、仓库 SHA、prompt 哈希、耗时、provider 返回的真实总 token，以及独立 grader 给出的断言通过率。
+`skills/pipeline-efficiency-benchmark/scripts/metrics.py` 从一个显式 Codex rollout JSONL，或保存后的子 agent 完成通知中记录一次 x-spec2 eval。最小 measurement 包含执行来源 ID、模型、仓库 SHA、prompt 哈希、耗时、provider 返回的真实总 token，以及独立 grader 给出的断言通过率。
 
 ```bash
-python3 tools/metrics.py extract \
+python3 skills/pipeline-efficiency-benchmark/scripts/metrics.py extract \
   --timing <run-dir>/timing.json \
   --metadata <run-dir>/eval_metadata.json \
   --grading <run-dir>/grading.json \
   --output <run-dir>/measurement.json
 
-python3 tools/metrics.py aggregate-spec2 skills/x-spec2-workspace/iteration-2
+python3 skills/pipeline-efficiency-benchmark/scripts/metrics.py aggregate-spec2 skills/x-spec2-workspace/iteration-2
 ```
 
 退出码 0 表示提取或聚合成功；1 表示可读取的样本违反 fresh-session、rubric 隔离或 paired 可比性边界；2 表示参数、IO、JSON 或 schema 错误。单个 paired run 标记为 `pilot: true`，它用于证明测量流程成立，稳定效果判断需要更多题目与重复运行。

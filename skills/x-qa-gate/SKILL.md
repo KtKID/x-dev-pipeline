@@ -69,10 +69,12 @@ reviewer 调度的等待轮次会重复计入主 agent 的完整上下文。按�
 
 ## issue 登记
 
+把当前加载的 `x-dev/SKILL.md` 所在目录记为 `XDEV_SKILL_DIR`；issue CLI 位于 `${XDEV_SKILL_DIR}/scripts/xdev.py`。
+
 主 agent 按 reviewer 返回顺序逐条执行：
 
 ```text
-python3 tools/xdev.py flag <task-dir> --task T2,T3 --severity P0 \
+python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" flag <task-dir> --task T2,T3 --severity P0 \
     --loc src/a.py:10 --msg "空输入未处理" [--new-round] --json
 ```
 

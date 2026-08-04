@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """QA Gate issue 登记与双文件可恢复事务引擎。
 
-本模块由 tools/xdev.py 的 flag 子命令调用，独立拥有输入校验、checklist 状态降级、
+本模块由 x-dev/scripts/xdev.py 的 flag 子命令调用，独立拥有输入校验、checklist 状态降级、
 issue ledger 编号、事务提交和崩溃恢复。仅使用标准库。
 """
 
@@ -182,7 +182,7 @@ def render_issue_report(report_path: Path) -> str:
     """创建新轮 issue ledger 的固定骨架。"""
     return (
         f"# QA Gate Issue Ledger — {report_path.stem}\n\n"
-        "> 由 `tools/xdev.py flag` 生成和维护；issue 行归代码所有；本轮首条由代码分配为 `issue-1`。\n\n"
+        "> 由 `x-dev/scripts/xdev.py flag` 生成和维护；issue 行归代码所有；本轮首条由代码分配为 `issue-1`。\n\n"
         "## Issues\n"
     )
 

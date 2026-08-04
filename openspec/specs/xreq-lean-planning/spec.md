@@ -83,7 +83,7 @@ x-req SHALL 为每个新建或更新 task 选择并写入 `risk: Q0|Q1|Q2|Q3`。
 - **THEN** 产物只保留 task 内容，移除模板注释和复制的 instruction 散文
 
 ### Requirement: 机械校验循环
-x-req SHALL 在编写后运行 `python3 tools/xdev.py validate <task-dir>`，并 SHALL 修复机械 issue，直到校验返回零 issue。
+x-req SHALL 在编写后运行 `python3 skills/x-dev/scripts/xdev.py validate <task-dir>`，并 SHALL 修复机械 issue，直到校验返回零 issue。
 
 #### Scenario: 返回机械 issue
 - **GIVEN** 已编写 task 包违反 V2 或 V8-V11

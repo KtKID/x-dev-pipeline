@@ -4,19 +4,51 @@
 承接父 spec 声明 ``spec_version: 3`` 的
 ``docs/spec/<spec>/tasks/<task>/``，按 checklist 的 Scenario 限定验收范围。
 
-公开 CLI 仍由 ``tools/xdev.py`` 提供；本模块负责 verify block 解析、命令执行、
+公开 CLI 由 ``x-dev/scripts/xdev.py`` 提供；本模块负责 verify block 解析、命令执行、
 验收覆盖对账和退出码。
 """
 
 from __future__ import annotations
 
 import json
+import importlib
+import importlib.util
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-import req
+
+def _load_sibling_engine(module_name: str, skill_name: str):
+    """从同一插件的所属 skill 加载引擎；扁平执行包优先使用同目录副本。"""
+    existing = sys.modules.get(module_name)
+    if existing is not None:
+        return existing
+    skills_root = Path(__file__).resolve().parents[2]
+    path = skills_root / skill_name / "scripts" / f"{module_name}.py"
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"无法加载 {skill_name} 的 {module_name}.py：{path}")
+    engine = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = engine
+    try:
+        spec.loader.exec_module(engine)
+    except Exception:
+        sys.modules.pop(module_name, None)
+        raise
+    return engine
+
+
+def _engine(module_name: str, skill_name: str):
+    try:
+        return importlib.import_module(module_name)
+    except ModuleNotFoundError as exc:
+        if exc.name != module_name:
+            raise
+        return _load_sibling_engine(module_name, skill_name)
+
+
+req = _engine("req", "x-req")
 
 
 VERIFY_FENCE_RE = re.compile(r"^\s*```verify\s*$", re.IGNORECASE)

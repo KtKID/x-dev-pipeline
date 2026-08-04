@@ -13,6 +13,16 @@ SKILL_ROOT = Path(__file__).resolve().parents[1]
 REPO_ROOT = SKILL_ROOT.parents[1]
 SCRIPTS = SKILL_ROOT / "scripts"
 
+TOOL_SOURCES = {
+    "xdev.py": REPO_ROOT / "skills" / "x-dev" / "scripts" / "xdev.py",
+    "validator.py": REPO_ROOT / "skills" / "x-spec" / "scripts" / "validator.py",
+    "flag.py": REPO_ROOT / "skills" / "x-qa-gate" / "scripts" / "flag.py",
+    "req.py": REPO_ROOT / "skills" / "x-req" / "scripts" / "req.py",
+    "spec.py": REPO_ROOT / "skills" / "x-spec" / "scripts" / "spec.py",
+    "verify.py": REPO_ROOT / "skills" / "x-verify" / "scripts" / "verify.py",
+    "metrics.py": REPO_ROOT / "skills" / "pipeline-efficiency-benchmark" / "scripts" / "metrics.py",
+}
+
 
 def sha256(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
@@ -47,7 +57,14 @@ class PipelineEfficiencyBenchmarkTests(unittest.TestCase):
         )
         for name, expected in entries.items():
             self.assertEqual(sha256(bundle / name), expected)
-            self.assertEqual(sha256(REPO_ROOT / "tools" / name), expected)
+            self.assertEqual(sha256(TOOL_SOURCES[name]), expected)
+            self.assertEqual(
+                manifest["tools"][next(
+                    index for index, entry in enumerate(manifest["tools"])
+                    if entry["name"] == name
+                )]["source"],
+                TOOL_SOURCES[name].relative_to(REPO_ROOT / "skills").as_posix(),
+            )
 
     def test_prepare_copies_all_skills_and_tools_then_detects_drift(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

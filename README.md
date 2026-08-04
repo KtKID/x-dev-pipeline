@@ -6,7 +6,7 @@
 
 [中文说明](./README_zh.md)
 
-**Current release:** v0.5.1
+**Current release:** v0.5.2
 
 > An auditable development workflow for AI coding agents.
 
@@ -88,7 +88,7 @@ expect_contains: passed
 ```
 ````
 
-`python3 tools/xdev.py verify <task-dir> --json` re-runs auto blocks, compares exit codes and output fragments, lists manual steps, and reports auto Scenarios without evidence. Exit 0 means every automatic fact passed; exit 1 means a command or coverage failure; exit 2 means input, path, or schema error.
+`python3 skills/x-dev/scripts/xdev.py verify <task-dir> --json` re-runs auto blocks, compares exit codes and output fragments, lists manual steps, and reports auto Scenarios without evidence. Exit 0 means every automatic fact passed; exit 1 means a command or coverage failure; exit 2 means input, path, or schema error.
 
 ## Commands
 
@@ -109,9 +109,11 @@ expect_contains: passed
 
 ## Deterministic engine
 
-`tools/xdev.py` is the thin unified CLI for mechanical rules outside skill prose. Package validation
-is owned by `tools/validator.py`, spec task planning by `tools/req.py`, verification by
-`tools/verify.py`, and QA issue transactions by `tools/flag.py`:
+`skills/x-dev/scripts/xdev.py` is the thin unified CLI for mechanical rules outside skill prose.
+Its engines live with their owning skills: package validation in
+`skills/x-spec/scripts/validator.py`, task planning in `skills/x-req/scripts/req.py`, verification
+in `skills/x-verify/scripts/verify.py`, and QA issue transactions in
+`skills/x-qa-gate/scripts/flag.py`:
 
 ```text
 validate [pkg...]                 validate specs, changes, and task contracts
@@ -129,16 +131,16 @@ orchestration support.
 
 ## x-spec2 pilot metrics
 
-`tools/metrics.py` records a completed x-spec2 eval from either one explicit Codex rollout JSONL or a saved subagent completion notification. The minimum measurement contains the execution source ID, model, repository SHA, prompt hash, duration, real provider total tokens, and independently graded expectation pass rate.
+`skills/pipeline-efficiency-benchmark/scripts/metrics.py` records a completed x-spec2 eval from either one explicit Codex rollout JSONL or a saved subagent completion notification. The minimum measurement contains the execution source ID, model, repository SHA, prompt hash, duration, real provider total tokens, and independently graded expectation pass rate.
 
 ```bash
-python3 tools/metrics.py extract \
+python3 skills/pipeline-efficiency-benchmark/scripts/metrics.py extract \
   --timing <run-dir>/timing.json \
   --metadata <run-dir>/eval_metadata.json \
   --grading <run-dir>/grading.json \
   --output <run-dir>/measurement.json
 
-python3 tools/metrics.py aggregate-spec2 skills/x-spec2-workspace/iteration-2
+python3 skills/pipeline-efficiency-benchmark/scripts/metrics.py aggregate-spec2 skills/x-spec2-workspace/iteration-2
 ```
 
 Exit 0 means extraction or aggregation succeeded; exit 1 means a readable run violates the fresh-session, rubric-isolation, or paired-comparison boundary; exit 2 means usage, IO, JSON, or schema failure. A one-pair result is marked `pilot: true`: it proves the measurement flow and remains insufficient for a stable skill-effect estimate.

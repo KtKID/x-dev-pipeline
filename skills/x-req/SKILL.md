@@ -19,9 +19,11 @@ x-req 把 spec 的行为契约压缩成可执行 checklist。spec.md 保留目�
 
 ## 就绪门禁
 
+把当前已加载的 `x-dev/SKILL.md` 所在目录记为 `XDEV_SKILL_DIR`，统一 CLI 从 `${XDEV_SKILL_DIR}/scripts/xdev.py` 调用。
+
 拆解前确认：
 
-1. `python3 tools/xdev.py validate <spec-dir> --json` 对 spec 返回零 issue；该检查会把任一待确认 J-ID 判为未就绪。
+1. `python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" validate <spec-dir> --json` 对 spec 返回零 issue；该检查会把任一待确认 J-ID 判为未就绪。
 2. spec 必须含 `> adversarial_risk_version: 3`。把当前已加载的 `x-adversarial-risk/SKILL.md` 所在目录记为 `ADVERSARIAL_RISK_SKILL_DIR`，运行 `python3 "${ADVERSARIAL_RISK_SKILL_DIR}/scripts/risk_contract.py" validate-spec <spec.md> --json`。退出码必须为 0；版本错误、`pending`、评分/预算不一致、审查记录或 Scenario 来源缺失都会停止 scaffold 和 task 写入。RAG 召回场景统一使用 `adversarial-review (rag:AR-NNN)`。退出码为 1 时停止写入，把完整聚合 issue 作为下一次显式 `$x-adversarial-risk` 修正调用的输入；该修正调用执行当前 x-adversarial-risk 定义的五轮契约。
 3. spec 的 J-ID 状态全部为“已确认”。x-spec 只保存会改变实现或验收的判断，因此任一“待确认”都会停止 scaffold 和 task 写入。
 4. Scenario ID 符合 `SC_01` 两位格式、顺序递增且唯一，GIVEN/WHEN/THEN 可直接转成测试，测试层为 unit、smoke 或 e2e。
@@ -61,10 +63,10 @@ x-req 把 spec 的行为契约压缩成可执行 checklist。spec.md 保留目�
 高能力模型按一个压缩批次完成拆解：一次读取完整 spec、scaffold 模板和相关目录；一次写完 checklist 与按需 diagram；随后把 validate、status、graph 作为同一验证批次执行。机械检查返回多个 issue 时一次修全并整体复跑。除非文件内容变化，省略重复读取 spec、模板和已验证产物。
 
 1. 读取完整 spec.md，先完成就绪门禁，再确定本 task 的 Scenario、影响模块、不变量、判断依据和测试层；风险审查新增 Scenario 与第一版 Scenario 使用同一拆解规则。
-2. 运行 `python3 tools/xdev.py scaffold <task-dir>`；达到三个影响模块时自动生成图，少于三个模块但用户要求图时加 `--with-diagram`。
+2. 运行 `python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" scaffold <task-dir>`；达到三个影响模块时自动生成图，少于三个模块但用户要求图时加 `--with-diagram`。
 3. 填写 `dev-checklist.md`，删除模板注释与占位行。每个 Scenario ID 必须在 spec.md 中存在且唯一；一个任务行可引用多个 ID。
 4. scaffold 生成 `diagram.md` 时填写它，每个影响边界模块恰好一个节点。
-5. 运行 `python3 tools/xdev.py validate <task-dir> --json`，修复所有机械 issue。
+5. 运行 `python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" validate <task-dir> --json`，修复所有机械 issue。
 6. 运行 `status` 和 `graph`，确认状态、依赖与并行批次可解析。
 7. 报告 task 路径、Scenario 覆盖、risk 及其证据、validate 结果和下一步 `x-dev <task-dir>`。
 

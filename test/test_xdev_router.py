@@ -13,7 +13,13 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "tools"))
+sys.path[:0] = [
+    str(ROOT / "skills" / "x-dev" / "scripts"),
+    str(ROOT / "skills" / "x-qa-gate" / "scripts"),
+    str(ROOT / "skills" / "x-verify" / "scripts"),
+    str(ROOT / "skills" / "x-req" / "scripts"),
+    str(ROOT / "skills" / "x-spec" / "scripts"),
+]
 
 import flag as flag_engine  # noqa: E402
 import req  # noqa: E402
@@ -32,7 +38,7 @@ def capture(*args: str) -> tuple[int, str, str]:
 
 class TestModuleOwnership(unittest.TestCase):
     def test_xdev_is_thin_router(self):
-        line_count = len((ROOT / "tools" / "xdev.py").read_text(encoding="utf-8").splitlines())
+        line_count = len((ROOT / "skills" / "x-dev" / "scripts" / "xdev.py").read_text(encoding="utf-8").splitlines())
         self.assertLessEqual(line_count, 400)
         for removed_name in {
             "detect_type",

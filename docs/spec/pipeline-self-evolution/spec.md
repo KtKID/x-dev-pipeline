@@ -71,7 +71,7 @@
 
 | J-ID | 判断 | 依据 | 状态 | 被使用于 |
 |---|---|---|---|---|
-| J1 | 复用现有 metrics、verify、issue ledger 和 grading 事实，补统一 run 身份 | `tools/metrics.py`、`tools/verify.py`、`tools/xdev.py flag`、`grading.json` 已有确定性数据 | 已确认 | 运行账本、知识库、Token 效率 |
+| J1 | 复用现有 metrics、verify、issue ledger 和 grading 事实，补统一 run 身份 | `pipeline-efficiency-benchmark/scripts/metrics.py`、`x-verify/scripts/verify.py`、`x-dev/scripts/xdev.py flag`、`grading.json` 已有确定性数据 | 已确认 | 运行账本、知识库、Token 效率 |
 | J2 | 强模型的主要剩余风险集中于边界、竞态、状态和失败恢复，文档应提高这些信息的占比 | 用户对首版的评审；首版 417 行、13 个 Requirement、31 个 Scenario，评分 58/100 | 已确认 | 正确完成门禁、风险路由 |
 | J3 | 失败与扣分需要独立建模 | 用户明确要求两者均记录；运行成功仍可能被 grader 扣分 | 已确认 | 失败与扣分知识库 |
 | J4 | 稳定生产版与隔离候选版组成双环，正确性达标后再比较 Token | 用户已确认的演进方向 | 已确认 | 候选进化、配对评测与晋级 |

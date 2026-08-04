@@ -4,7 +4,7 @@
 TBD - created by archiving change unified-flow-verify-engine. Update Purpose after archive.
 ## Requirements
 ### Requirement: Verify block parser
-`python3 tools/xdev.py verify <task-dir> [--json] [--only <id>]` SHALL 从 task 最新 dev-report 读取全部 fenced `verify` 块。每个块 SHALL 使用 `key: value` 行；支持 `id`、`scenario`、`cmd`、`cwd`、`expect_exit`、重复的 `expect_contains`、`timeout`、`mode` 与 `steps`。auto 块必须有唯一 `id` 和 `cmd`，manual 块必须有唯一 `id` 和 `steps`；未知 key、重复 id、非法 mode、非法数值和缺少必要字段 SHALL 以退出码 2 报告。
+`python3 skills/x-dev/scripts/xdev.py verify <task-dir> [--json] [--only <id>]` SHALL 从 task 最新 dev-report 读取全部 fenced `verify` 块。每个块 SHALL 使用 `key: value` 行；支持 `id`、`scenario`、`cmd`、`cwd`、`expect_exit`、重复的 `expect_contains`、`timeout`、`mode` 与 `steps`。auto 块必须有唯一 `id` 和 `cmd`，manual 块必须有唯一 `id` 和 `steps`；未知 key、重复 id、非法 mode、非法数值和缺少必要字段 SHALL 以退出码 2 报告。
 
 #### Scenario: 解析自动与人工证据
 - **GIVEN** dev-report 包含一个 auto 块和一个 manual 块

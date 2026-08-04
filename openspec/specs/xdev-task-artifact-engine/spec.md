@@ -14,10 +14,10 @@ TBD - created by archiving change xreq-instructions-engine. Update Purpose after
 #### Scenario: 模板解析与调用方 cwd 解耦
 - **GIVEN** 命令从插件仓库外的项目目录调用
 - **WHEN** 系统加载注册表模板
-- **THEN** 系统从 `tools/xdev.py` 推导出的插件根目录解析模板，并返回相同模板内容
+- **THEN** 系统从 `skills/x-req/scripts/req.py` 推导出的 x-req skill 目录解析模板，并返回相同模板内容
 
 ### Requirement: 产物 instructions 命令
-工具层 SHALL 提供 `python3 tools/xdev.py instructions <artifact-id> --task <task-dir> [--json]`。JSON 输出 SHALL 包含 `artifact`、`output_path`、`exists`、`template`、`instruction`、`requires` 和 `dependencies`；每个 dependency SHALL 包含 `id`、`path` 和 `exists`。
+工具层 SHALL 提供 `python3 skills/x-dev/scripts/xdev.py instructions <artifact-id> --task <task-dir> [--json]`。JSON 输出 SHALL 包含 `artifact`、`output_path`、`exists`、`template`、`instruction`、`requires` 和 `dependencies`；每个 dependency SHALL 包含 `id`、`path` 和 `exists`。
 
 #### Scenario: 返回合法产物的 instructions
 - **GIVEN** 合法 artifact ID 和已存在的 task 目录
@@ -40,7 +40,7 @@ TBD - created by archiving change xreq-instructions-engine. Update Purpose after
 - **THEN** 命令以 0 退出，并以人类可读格式渲染同一份契约信息
 
 ### Requirement: 幂等 task 骨架
-工具层 SHALL 提供 `python3 tools/xdev.py scaffold <task-dir> [--with-diagram] [--json]`。该命令 SHALL 创建父目录、复制注册表模板，并完整保留所有已有产物。
+工具层 SHALL 提供 `python3 skills/x-dev/scripts/xdev.py scaffold <task-dir> [--with-diagram] [--json]`。该命令 SHALL 创建父目录、复制注册表模板，并完整保留所有已有产物。
 
 #### Scenario: 创建精简的必需骨架
 - **GIVEN** task 目录尚未创建

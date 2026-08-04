@@ -6,7 +6,7 @@
 
 ## 验证证据
 
-> 本节是 `python3 tools/xdev.py verify <task-dir>` 的唯一自动输入。
+> 本节是 `python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" verify <task-dir>` 的唯一自动输入。
 > 至少保留一条测试类 auto 块；归属 `spec.md` 中标为 `验证: manual` 的场景用 manual 块记录可复现人工步骤与理由。
 > 本 task checklist 承接的每个 Scenario 都必须有对应 verify 块；使用 `scenario: SC_01` 精确回指，兄弟 task 承接的 Scenario 不在本报告范围内。
 

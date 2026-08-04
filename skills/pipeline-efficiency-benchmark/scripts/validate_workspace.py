@@ -9,6 +9,7 @@ import json
 import os
 import subprocess
 import sys
+import sysconfig
 from pathlib import Path
 
 from benchmark_common import (
@@ -39,6 +40,22 @@ def local_imports(path: Path) -> set[str]:
         elif isinstance(node, ast.ImportFrom) and node.module:
             result.add(node.module.split(".", 1)[0])
     return result
+
+
+def standard_library_modules() -> set[str]:
+    """返回当前解释器的顶层标准库模块，兼容没有 ``sys.stdlib_module_names`` 的 Python。"""
+    declared = getattr(sys, "stdlib_module_names", None)
+    if declared:
+        return set(declared)
+
+    modules = set(sys.builtin_module_names)
+    stdlib = Path(sysconfig.get_paths()["stdlib"])
+    for child in stdlib.iterdir():
+        if child.suffix == ".py":
+            modules.add(child.stem)
+        elif child.is_dir() and (child / "__init__.py").is_file():
+            modules.add(child.name)
+    return modules
 
 
 def validate_workspace(workspace: Path, manifest_path: Path | None = None) -> list[dict[str, str]]:
@@ -115,7 +132,7 @@ def validate_workspace(workspace: Path, manifest_path: Path | None = None) -> li
                 )
 
         local_modules = {Path(name).stem for name in EXECUTOR_TOOLS}
-        stdlib = set(getattr(sys, "stdlib_module_names", ()))
+        stdlib = standard_library_modules()
         for name in EXECUTOR_TOOLS:
             target = tools_dir / name
             if not target.is_file():

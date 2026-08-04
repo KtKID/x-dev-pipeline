@@ -6,7 +6,7 @@
 
 ### 需求本质
 
-让 `tools/metrics.py` 能从真实 Codex session JSONL 中准确提取一个子 agent 跨多回合执行的增量 Token 与端到端耗时，同时隔离 fork 继承的父会话数据，并为未来 Claude session 提取保留清晰的 provider 边界。
+让 `skills/pipeline-efficiency-benchmark/scripts/metrics.py` 能从真实 Codex session JSONL 中准确提取一个子 agent 跨多回合执行的增量 Token 与端到端耗时，同时隔离 fork 继承的父会话数据，并为未来 Claude session 提取保留清晰的 provider 边界。
 
 ### 系统目标
 
@@ -21,7 +21,7 @@
 
 **包含**：
 
-- `tools/metrics.py` 中 Codex session 身份、活动窗口、累计 Token 基线与最终快照的解析。
+- `skills/pipeline-efficiency-benchmark/scripts/metrics.py` 中 Codex session 身份、活动窗口、累计 Token 基线与最终快照的解析。
 - Codex 多回合完成语义、模型和仓库 SHA 一致性校验、grader-only 输入泄漏扫描。
 - CLI 的 Codex session 输入命名与现有调用方式兼容。
 - `test/test_metrics.py` 中单回合、多回合、fork 前缀、计数器异常和隐私隔离回归测试。
@@ -42,7 +42,7 @@
 - Token 使用 Codex/provider 记录的累计用量，推理 Token 保留独立分桶；总量直接采用累计 `total_tokens` 的增量，禁止按文档文本估算或重复相加分桶（`U3`、`U5`、`J3`）。
 - 耗时是活动 Codex session 的生命周期墙钟时间，从任务派发到最后回复，包含多回合之间等待主 agent 反馈的时间（`U4`、`J4`）。
 - fork 继承前缀不得污染 Token、耗时、模型、repo SHA 或 rubric 泄漏判断（`J1`、`J2`、`J8`）。
-- 当前 `tools/metrics.py` 与 `test/test_metrics.py` 已有未提交修改；实现阶段必须先审查现有 diff，并在其基础上增量修改。
+- 当前 `skills/pipeline-efficiency-benchmark/scripts/metrics.py` 与 `test/test_metrics.py` 已有未提交修改；实现阶段必须先审查现有 diff，并在其基础上增量修改。
 
 ### 系统不变量
 

@@ -9,24 +9,59 @@ spec 级覆盖、可选边界图一致性、任务状态与依赖图。
 from __future__ import annotations
 
 import json
+import importlib
+import importlib.util
 import re
 import sys
 from pathlib import Path
 
-import spec as spec_engine
+
+def _load_sibling_engine(module_name: str, skill_name: str):
+    """从同一插件的所属 skill 加载引擎；扁平执行包优先使用同目录副本。"""
+    existing = sys.modules.get(module_name)
+    if existing is not None:
+        return existing
+    skills_root = Path(__file__).resolve().parents[2]
+    path = skills_root / skill_name / "scripts" / f"{module_name}.py"
+    spec = importlib.util.spec_from_file_location(module_name, path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"无法加载 {skill_name} 的 {module_name}.py：{path}")
+    engine = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = engine
+    try:
+        spec.loader.exec_module(engine)
+    except Exception:
+        sys.modules.pop(module_name, None)
+        raise
+    return engine
 
 
-PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+def _engine(module_name: str, skill_name: str):
+    try:
+        return importlib.import_module(module_name)
+    except ModuleNotFoundError as exc:
+        if exc.name != module_name:
+            raise
+        return _load_sibling_engine(module_name, skill_name)
+
+
+spec_engine = _engine("spec", "x-spec")
+
+
+_DIRECT_SKILL_ROOT = Path(__file__).resolve().parents[1]
+SKILL_ROOT = _DIRECT_SKILL_ROOT
+if not (SKILL_ROOT / "templates").is_dir():
+    SKILL_ROOT = _DIRECT_SKILL_ROOT / "skills" / "x-req"
 
 ARTIFACTS = {
     "dev-checklist": {
         "generates": "dev-checklist.md",
-        "template": "skills/x-req/templates/dev-checklist.md",
+        "template": "templates/dev-checklist.md",
         "instruction": "按 spec Scenario 拆任务；只保存执行信息、风险证据和精确回指。",
     },
     "diagram": {
         "generates": "diagram.md",
-        "template": "skills/x-req/templates/diagram.md",
+        "template": "templates/diagram.md",
         "instruction": "把影响边界表投影为模块图，每个声明模块恰好一个节点。",
     },
 }
@@ -198,7 +233,7 @@ def resolve_spec_dir(task_dir: Path) -> Path | None:
 
 
 def artifact_template(artifact_id: str) -> str:
-    return read_text(PLUGIN_ROOT / ARTIFACTS[artifact_id]["template"])
+    return read_text(SKILL_ROOT / ARTIFACTS[artifact_id]["template"])
 
 
 def artifact_payload(artifact_id: str, task_dir: Path) -> dict:

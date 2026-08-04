@@ -9,11 +9,13 @@ description: |
 
 ## 输入
 
+把当前加载的 `x-dev/SKILL.md` 所在目录记为 `XDEV_SKILL_DIR`；verify CLI 位于 `${XDEV_SKILL_DIR}/scripts/xdev.py`。
+
 task 的 `dev-checklist.md`、归属 spec `spec.md` 和 `dev-report*.md` fenced `verify` 块。req 直接按 Scenario 限定范围。引擎复跑命令、比较 exit/输出并检查当前 task 的证据覆盖。
 
 ## 流程
 
-1. 运行 `python3 tools/xdev.py verify <task-dir> --json`。
+1. 运行 `python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" verify <task-dir> --json`。
 2. exit 0：输出 `pass N / manual M` 回执，不写报告。
 3. exit 1：读取 fail 的 `output_tail` 与 uncovered，必要时用 `--only <id>` 复跑一个块；写 `reports/verify/verify-report-<timestamp>.md`，将完整 failure 清单交 x-fix。
 4. exit 2：按错误来源分诊，不递增 fix-counter。

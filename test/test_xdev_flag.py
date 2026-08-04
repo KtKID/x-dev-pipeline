@@ -16,7 +16,13 @@ from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "tools"))
+sys.path[:0] = [
+    str(ROOT / "skills" / "x-dev" / "scripts"),
+    str(ROOT / "skills" / "x-qa-gate" / "scripts"),
+    str(ROOT / "skills" / "x-verify" / "scripts"),
+    str(ROOT / "skills" / "x-req" / "scripts"),
+    str(ROOT / "skills" / "x-spec" / "scripts"),
+]
 
 import flag as flag_engine  # noqa: E402
 import xdev  # noqa: E402
@@ -174,7 +180,7 @@ summary issue-400
         self.assertIn("| T3 | 开发中 | c.py | T1 | [!] 🔴 | keep-3 |", updated)
         report = task / "reports" / "qa-gate" / payload["report"]
         ledger = report.read_text(encoding="utf-8")
-        self.assertIn("由 `tools/xdev.py flag` 生成和维护", ledger)
+        self.assertIn("由 `x-dev/scripts/xdev.py flag` 生成和维护", ledger)
         self.assertIn("- issue-1 | P0 | T2,T3 | src/a.py:10 | 空输入未处理", ledger)
 
     def test_p2_appends_issue_and_keeps_checklist_bytes(self):

@@ -8,7 +8,7 @@
     {
       "name": "x-dev-pipeline",
       "description": "Structured dev workflow with spec, user-global risk RAG, task breakdown, execution, verify, qa-gate, fix loops, and audits",
-      "version": "0.5.1",
+      "version": "0.5.2",
       "source": "./",
       "author": {
         "name": "ktkid"

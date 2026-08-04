@@ -14,7 +14,13 @@ from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "tools"))
+sys.path[:0] = [
+    str(ROOT / "skills" / "x-dev" / "scripts"),
+    str(ROOT / "skills" / "x-qa-gate" / "scripts"),
+    str(ROOT / "skills" / "x-verify" / "scripts"),
+    str(ROOT / "skills" / "x-req" / "scripts"),
+    str(ROOT / "skills" / "x-spec" / "scripts"),
+]
 
 import req  # noqa: E402
 import validator  # noqa: E402
@@ -40,7 +46,7 @@ class Req3EngineTestCase(unittest.TestCase):
         self.tmp = tempfile.TemporaryDirectory()
         self.root = Path(self.tmp.name)
         self.addCleanup(self.tmp.cleanup)
-        patcher = patch.object(req, "PLUGIN_ROOT", ROOT)
+        patcher = patch.object(req, "SKILL_ROOT", ROOT / "skills" / "x-req")
         patcher.start()
         self.addCleanup(patcher.stop)
 

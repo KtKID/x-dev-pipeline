@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Standard-library contract tests for tools/metrics.py."""
+"""Standard-library contract tests for the benchmark-owned metrics script."""
 
 from __future__ import annotations
 
@@ -15,7 +15,14 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "tools"))
+sys.path[:0] = [
+    str(ROOT / "skills" / "pipeline-efficiency-benchmark" / "scripts"),
+    str(ROOT / "skills" / "x-dev" / "scripts"),
+    str(ROOT / "skills" / "x-qa-gate" / "scripts"),
+    str(ROOT / "skills" / "x-verify" / "scripts"),
+    str(ROOT / "skills" / "x-req" / "scripts"),
+    str(ROOT / "skills" / "x-spec" / "scripts"),
+]
 
 import metrics  # noqa: E402
 
