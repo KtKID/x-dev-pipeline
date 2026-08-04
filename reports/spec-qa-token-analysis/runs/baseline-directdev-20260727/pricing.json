@@ -1,0 +1,19 @@
+{
+  "currency": "USD",
+  "model": "gpt-5.6-sol",
+  "source_url": "https://developers.openai.com/api/docs/pricing",
+  "queried_at": "2026-07-27",
+  "rates_per_million_tokens": {
+    "uncached_input": 5.0,
+    "cached_input": 0.5,
+    "cache_write_input": 6.25,
+    "output": 30.0
+  },
+  "telemetry": {
+    "cache_write_tokens": null
+  },
+  "billing": {
+    "mode": "unknown",
+    "note": "Codex Desktop 订阅会话，session_meta 无 token 级账单/套餐额度倍数；仅按 OpenAI 公开 Standard 单价折算 API 等价成本。"
+  }
+}

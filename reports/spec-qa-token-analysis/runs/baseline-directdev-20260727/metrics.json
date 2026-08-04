@@ -1,0 +1,50 @@
+{
+  "usage": {
+    "full_session": {
+      "input_tokens": 19617273,
+      "cached_input_tokens": 19165184,
+      "output_tokens": 57210,
+      "reasoning_output_tokens": 17719,
+      "total_tokens": 19674483
+    }
+  },
+  "duration": {
+    "session_wall_seconds": 2394.0,
+    "main_active_seconds": 2394.0
+  },
+  "tool_calls": {
+    "agent_tree_total": 147
+  },
+  "phases": [
+    {
+      "phase": "W1 直接开发(未走流程)",
+      "tokens": 19217074,
+      "input_tokens": 19161561,
+      "cached_input_tokens": 18722560,
+      "output_tokens": 55513,
+      "reasoning_output_tokens": 16789,
+      "tool_calls": 145,
+      "wall_seconds": 1800.0
+    },
+    {
+      "phase": "W2 被纠偏后尝试x-spec",
+      "tokens": 457409,
+      "input_tokens": 455712,
+      "cached_input_tokens": 442624,
+      "output_tokens": 1697,
+      "reasoning_output_tokens": 930,
+      "tool_calls": 2,
+      "wall_seconds": 42.0
+    },
+    {
+      "phase": "W3 turn被中断(aborted)",
+      "tokens": 0,
+      "input_tokens": 0,
+      "cached_input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_output_tokens": 0,
+      "tool_calls": 0,
+      "wall_seconds": 18.0
+    }
+  ]
+}

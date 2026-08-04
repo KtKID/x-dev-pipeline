@@ -31,11 +31,11 @@ x-spec 先选择 lite/full，再产出与风险相称的开发契约。lite 压�
 
 - `complexity <= 2`，且 complexity 与 importance 映射出的 `review_budget` 为 `standard`。
 - 按 x-req 风险信号预判 task risk 为 Q0 或 Q1。
-- 影响边界保持在一个模块内；同一模块内的多文件修改仍按实际行为复杂度评分。
+- 影响边界保持在一个模块内；明确唯一目标模块、允许修改的职责/文件范围和禁止波及的相邻模块或公开契约。同一模块内的多文件修改仍按实际行为复杂度评分。
 - 判断依据全部为“已确认”。
 - 跨模块协作、公开契约、安全、持久化、并发、状态机、故障恢复、资源生命周期、真实 E2E 和不可逆副作用等升级信号为空。
 
-lite 仍生成合法的 `spec_version: 3` 单文件包并保留现有元数据与章节，使 validate、x-req、x-dev 和 verify 继续消费同一契约。内容按任务事实压缩：目标与非目标使用最短可判定描述，边界表只保留实际目标模块，判断表只记录会改变实现或验收的判断，建模维度用锚点或具体不适用理由简写，Scenario 按需生成。Q0 为机械结果保留最小可验证 Scenario；Q1 为每个独立可观察行为保留可直接验证的 Scenario。
+lite 仍生成合法的 `spec_version: 3` 单文件包并保留现有元数据与章节，使 validate、x-req、x-dev 和 verify 继续消费同一契约。内容按任务事实压缩：目标与非目标使用最短可判定描述；边界表保留唯一目标模块，写清允许修改的职责/文件范围、禁止波及的相邻模块或公开契约，以及修改前后持续成立的不变量；判断表只记录会改变实现或验收的判断，建模维度用锚点或具体不适用理由简写，Scenario 按需生成。Q0 为机械结果保留最小可验证 Scenario；Q1 为每个独立可观察行为保留可直接验证的 Scenario。
 
 lite Spec 一次写完并完成机械、语义校验；通过后在同一轮直接交接 x-req 创建 checklist，省略阶段间停顿和重复取证。任何条件在写作或校验中失效时，当前轮升级为 full 并补齐完整建模。
 
@@ -163,7 +163,7 @@ lite/full 都使用同一个 `spec.md` 事实源。lite 紧凑填写，full 按�
 - 每个边界不变量都有可观察验证。
 - Scenario ID 均为 `SC_01` 格式，按顺序递增且没有重复；新增或修改场景保持已有 ID 稳定。
 - 复杂度、重要性、平均分和预算满足映射，评分依据能定位到当前任务事实。
-- 模式与评分、task risk 预判和影响边界一致；lite 保持 complexity 不超过 2、standard、Q0/Q1、单模块和升级信号为空，任一条件变化已经升级 full。
+- 模式与评分、task risk 预判和影响边界一致；lite 保持 complexity 不超过 2、standard、Q0/Q1、单模块和升级信号为空，并已写明唯一目标模块、允许修改范围与禁止波及边界；任一条件变化已经升级 full。
 - Scenario 按独立可观察行为与边界生成，不以数量决定 lite/full；Scenario 揭示的跨模块协作、状态迁移或独立故障轴已触发重新评分。
 - 第一版每个 Scenario 都标记 `来源：initial-spec`；RAG 风险场景显式标记 `来源：adversarial-review (rag:AR-NNN)`；独立假设场景标记 `assumption`。默认语料或调用方覆盖语料可用时，`standard` 写入 Top5 查询结果、`skipped-standard` 与 ARV-1；用户确认跳过 RAG 时写入 `skipped:no-corpus`。两条 standard 路径都保持 Scenario 集合不扩张；`deep/full` 在交接对抗审查前保持 `pending`。
 - 每个 Scenario 能直接转成测试，THEN 避免“正确处理”等不可判定措辞。

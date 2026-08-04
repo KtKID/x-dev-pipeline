@@ -1,0 +1,109 @@
+{
+  "schema_version": 2,
+  "run_id": "baseline-directdev-20260727",
+  "label": "Baseline: 直接开发(未走spec流程)",
+  "iteration": null,
+  "scope": "full_pipeline",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "default",
+  "usage": {
+    "convention": "cached_input_is_subset_of_input",
+    "input_tokens": 19617273,
+    "cached_input_tokens": 19165184,
+    "uncached_input_tokens": 452089,
+    "output_tokens": 57210,
+    "reasoning_output_tokens": 17719,
+    "total_tokens": 19674483,
+    "effective_tokens": 509299,
+    "cached_share_of_input_pct": 97.7
+  },
+  "cost": {
+    "status": "priced",
+    "currency": "USD",
+    "pricing": {
+      "model": "gpt-5.6-sol",
+      "source_url": "https://developers.openai.com/api/docs/pricing",
+      "queried_at": "2026-07-27",
+      "rates_per_million_tokens": {
+        "uncached_input": 5.0,
+        "cached_input": 0.5,
+        "cache_write_input": 6.25,
+        "output": 30.0
+      },
+      "cached_input_storage": null,
+      "cache_write_tokens": null
+    },
+    "calculation": {
+      "uncached_input": 2.260445,
+      "cached_input": 9.582592,
+      "cache_write_input": null,
+      "output": 1.7163,
+      "api_equivalent": 13.559337,
+      "cache_write_upper_bound": 14.12444825,
+      "no_cache_api_equivalent": 99.802665,
+      "cache_savings": 86.243328,
+      "cache_savings_pct": 86.41
+    },
+    "billing": {
+      "mode": "unknown",
+      "actual_cash_increment": null,
+      "quota_multiplier": null,
+      "quota_equivalent": null,
+      "note": "Codex Desktop 订阅会话，session_meta 无 token 级账单/套餐额度倍数；仅按 OpenAI 公开 Standard 单价折算 API 等价成本。"
+    },
+    "unknown_reason": null
+  },
+  "duration": {
+    "main_active_seconds": 2394.0,
+    "nested_reviewer_seconds": null,
+    "executor_time_sum_seconds": null
+  },
+  "calls": {
+    "tool_calls": 147,
+    "llm_calls": 145,
+    "failed_commands": null
+  },
+  "scores": {
+    "full": null,
+    "spec_risk": null
+  },
+  "phases": [
+    {
+      "phase": "W1 直接开发(未走流程)",
+      "tokens": 19217074,
+      "input_tokens": 19161561,
+      "cached_input_tokens": 18722560,
+      "output_tokens": 55513,
+      "reasoning_output_tokens": 16789,
+      "tool_calls": 145,
+      "wall_seconds": 1800.0
+    },
+    {
+      "phase": "W2 被纠偏后尝试x-spec",
+      "tokens": 457409,
+      "input_tokens": 455712,
+      "cached_input_tokens": 442624,
+      "output_tokens": 1697,
+      "reasoning_output_tokens": 930,
+      "tool_calls": 2,
+      "wall_seconds": 42.0
+    },
+    {
+      "phase": "W3 turn被中断(aborted)",
+      "tokens": 0,
+      "input_tokens": 0,
+      "cached_input_tokens": 0,
+      "output_tokens": 0,
+      "reasoning_output_tokens": 0,
+      "tool_calls": 0,
+      "wall_seconds": 18.0
+    }
+  ],
+  "measurement": {
+    "metrics_schema": "token-analysis-full-session",
+    "metrics_source": "/Volumes/machub_app/proj/x-dev-pipeline/reports/spec-qa-token-analysis/runs/baseline-directdev-20260727/metrics.json",
+    "timing_source": "/Volumes/machub_app/proj/x-dev-pipeline/reports/spec-qa-token-analysis/runs/baseline-directdev-20260727/metrics.json",
+    "metadata_source": "/Volumes/machub_app/proj/x-dev-pipeline/reports/spec-qa-token-analysis/runs/baseline-directdev-20260727/eval_metadata.json",
+    "pricing_source": "/Volumes/machub_app/proj/x-dev-pipeline/reports/spec-qa-token-analysis/runs/baseline-directdev-20260727/pricing.json"
+  }
+}
