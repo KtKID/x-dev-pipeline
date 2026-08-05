@@ -91,6 +91,16 @@ func SpecScenarios(specMD string) []Scenario {
 	return parseScenarios(outsideFences(splitLines(text)))
 }
 
+// ScenarioIDCounts 统计 spec.md 中每个 Scenario ID 的出现次数。
+// 供 req 引擎做 R3Q5 悬空/重复检查。对齐 spec.py 的 scenario_id_counts。
+func ScenarioIDCounts(specMD string) map[string]int {
+	counts := map[string]int{}
+	for _, sc := range SpecScenarios(specMD) {
+		counts[sc.ID]++
+	}
+	return counts
+}
+
 // HasSpecMarker 判断目录中的 spec.md 是否包含代码围栏外的 spec_version: 3 标记。
 func HasSpecMarker(specDir string) bool {
 	specMD := specDir + "/spec.md"

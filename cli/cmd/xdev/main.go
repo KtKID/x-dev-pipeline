@@ -32,10 +32,16 @@ func run(args []string) int {
 		return exitcode.OK
 	case "cr":
 		return runCR(rest)
-	case "validate", "status", "graph", "instructions", "scaffold", "verify", "flag":
-		// 阶段 C 落地；先给出稳定错误信息，便于调用方判断。
-		fmt.Fprintf(os.Stderr, "xdev %s：该子命令尚未在 Go 版实现（阶段 C 落地）\n", cmd)
-		return exitcode.Usage
+	case "validate":
+		return runValidate(rest)
+	case "status":
+		return runTaskCmd(rest, "status")
+	case "graph":
+		return runTaskCmd(rest, "graph")
+	case "instructions":
+		return runInstructions(rest)
+	case "scaffold":
+		return runScaffold(rest)
 	case "spec":
 		return runSpec(rest)
 	case "risk":
