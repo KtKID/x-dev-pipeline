@@ -42,6 +42,8 @@ func run(args []string) int {
 		return runInstructions(rest)
 	case "scaffold":
 		return runScaffold(rest)
+	case "verify":
+		return runVerify(rest)
 	case "spec":
 		return runSpec(rest)
 	case "risk":
