@@ -58,17 +58,17 @@ x-spec ─→ x-adversarial-risk ─→ x-req ─→ x-dev ─→ x-verify ─�
 | Spec 风险门禁 | x-spec 写 `adversarial_risk_version: 3`、复杂度/重要性/平均分/预算、`pending` 状态和 `initial-spec` 来源；x-adversarial-risk 完成对抗检查并写审查记录；x-req 复跑 `risk_contract.py validate-spec` 后才拆解 |
 | 风险错题集边界 | `skills/x-adversarial-risk/references/risk-mistakes.md` 只由 x-adversarial-risk 在 deep/full 审查或录入已确认缺口时读取；每项使用唯一 `AR-NNN`，并只保存关键词与 Risk |
 | spec 需求包目录 | x-spec 产出 `docs/spec/<spec-name>/`，`docs/spec/README.md` 汇总 spec 导航。x-req 的 README `spec:` 字段指向 `docs/spec/<spec-name>`，一个 task 只归属一个 spec |
-| `dev-report.md` schema | x-dev 使用 `skills/x-dev/templates/dev-report-template.md`（含 `risk: default/high` 字段，Gate ② 路由依据）；x-verify 的必跑清单 = dev-report 命令表 + task README Smoke/E2E 用例（manual 用例列入待人工验收）；x-qdev 默认使用 `skills/x-qdev/templates/dev-report.md`，用户指定完整门禁时改用 x-dev schema |
+| `dev-report.md` schema | x-dev 使用 `skills/x-dev/templates/dev-report-template.md`（含 `risk: default/high` 字段，Gate ② 路由依据）；x-verify 的必跑清单 = dev-report 命令表 + task README Smoke/E2E 用例（manual 用例列入待人工验收）；x-qdev 不使用 dev-report，改用 `skills/x-qdev/templates/task.md` 单文档四段式（①需求/②测试用例/③技术实现/④验证结果），建在对应 spec 的 `tasks/` 下 |
 | 测试分层契约 | x-spec 写验证策略；x-req README 显式列 smoke/e2e 验收用例；单元/契约/边界测试由 x-dev 按实际改动补齐，并写入 `dev-report.md` 验证命令清单 |
 | `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。语义 = **批量修轮数**（一轮 = 一份 issue 清单的整体修复）。x-verify 首次创建，x-fix 按轮递增，x-qa-gate 在 Gate ② 最终 pass 后重置。**3 轮上限**，三方共享 |
 | reviewer 子 agent | x-qa-gate 按 `risk:` 风险路由：默认线 dispatch 一个综合 reviewer RC（`references/rc-unified.md`），高危线串行 dispatch R1/R2/R3；初始 prompt 预算为 10,000 estimated tokens，使用 manifest + 路径 + diff 命令 + completeness gate |
 | 一轮列全 | 所有 reviewer 穷尽列出全部问题候选后判定；每条返回 task、severity、loc、msg 和证据，并省略编号；回执包含覆盖声明、完整问题候选和穷尽声明；严重度 P0/P1/P2 唯一定义在 `skills/x-qa-gate/SKILL.md` |
 | reviewer 只读 | RC/R1/R2/R3 只输出 review 回执；修改统一走 x-fix |
-| issue 登记与状态写权 | 主 agent 逐条调用 `python3 skills/x-dev/scripts/xdev.py flag ... --json`；本轮首条带 `--new-round`。代码分配 `issue-<n>`、写 ledger、把 P0/P1 task 降为 `[!] 🔴`；`recovered:true` 时主 agent 用原参数再次调用。reviewer、子 agent、x-fix 保持 ledger 与状态列原样 |
+| issue 登记与状态写权 | 主 agent 串行逐条调用 `python3 skills/x-dev/scripts/xdev.py flag ... --json`；本轮首条带 `--new-round`。代码分配 `issue-<n>`、写 ledger、把 P0/P1 task 降为 `[!] 🔴`；每个 task 长期只保留一份 `dev-checklist.md`，内容无变化时跳过 checklist 临时文件，实际变更使用固定临时路径并在提交或恢复后清理；`recovered:true` 时主 agent 用原参数再次调用。reviewer、子 agent、x-fix 保持 ledger 与状态列原样 |
 | x-fix 批量修 + 增量复审 | x-fix 一次修完一轮 issue 清单（P0 全修且各固化一条可复跑反例、P1 修或豁免、P2 登记），产出带 issue ID 的逐条处置表；复审尽量由同一个 reviewer 承接，只看 issue 处置 + fix 增量 diff，熔断条件见 `skills/x-qa-gate/SKILL.md` |
 | 门禁回执 | x-verify / x-qa-gate / x-fix 每个节点结束在对话中输出统一回执（P0/P1/P2 计数 + 拦截来源维度 + 处置），零问题也输出；QA Gate issue ledger 由 flag 生成。格式见 `skills/x-qa-gate/SKILL.md`「回执与状态」 |
 | x-cr 手动调查 | `skills/x-cr/SKILL.md` 是手动软件正确性调查入口，独立于自动门禁。先读取归属 spec 的“影响边界与不变量”，再登记遗漏候选并做贝叶斯根因调查；task 报告写入 `docs/spec/<spec>/tasks/<task>/reports/cr/`，普通调查写入 `reports/cr/`；x-fix 按稳定 Bn/INV-ID 消费 |
-| 状态码 | ⏳ 未开始 / ▶️ 进行中 / 🟡 待验证 / 🔴 验证失败 / 🟢 证据通过 / ✅ 已完成 / ↗️ 已升级。x-dev 最多到 🟢，✅ 由完整 review 升级；x-qdev 按 Q0/Q1 主 agent 或 Q2 综合 reviewer 路线关闭，Q3 使用 ↗️ 并由 full task 负责最终完成 |
+| 状态码 | ⏳ 未开始 / ▶️ 进行中 / 🟡 待验证 / 🔴 验证失败 / 🟢 证据通过 / ✅ 已完成 / ↗️ 已升级。x-dev 最多到 🟢，✅ 由完整 review 升级；x-qdev 按自检清单（需求全覆盖/测试真实通过/实现在边界内/不变量未破坏）关闭并输出回执，超出小任务范围时提示改走完整流程 |
 
 ## 改 skill 时的注意事项
 
