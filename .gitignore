@@ -6,13 +6,12 @@ Thumbs.db
 .claude/settings.local.json
 test/__pycache__
 tools/__pycache__
-skills/x-spec2-workspace
-skills/x-spec-workspace
 .xcodeatlas
 .zcode/
 docs/spec/codex-session-metrics/tasks/
 skills/x-pipeline-efficiency-workspace/iteration-2/eval-10-voice-chain-end-to-end/with_skill/run-1/workspace/tools/__pycache__
 .*/__pycache__
+deprecated/x-spec-workspace/
 *.pyc
 
 # Local configuration backups and packaged skill archives
