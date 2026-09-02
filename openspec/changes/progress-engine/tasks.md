@@ -9,9 +9,9 @@
 - [x] 2.1 T4：在 `tools/xdev.py` 注册 flag，完成 severity、严格 T# 列表、loc、msg 与 checklist 唯一性校验；校验失败零写入。
 - [x] 2.2 T5：实现数值后缀轮次选择、`render_issue_report`、受限 `next_issue_id` 与 `append_issue_line`。
 - [x] 2.3 T6：实现 `downgrade_task_rows`，只更新 P0/P1 目标状态单元格；P2、其他单元格与升钩保持现有边界。
-- [x] 2.4 T7：实现 `.flag-transaction.json`、同目录唯一临时文件、读取时/目标 SHA-256、`os.link` 完整独占发布、陈旧写前置校验、目录 fsync、双目标 replace 与 `recover_flag_transaction`；恢复返回旧 issue 且不处理新参数。
+- [x] 2.4 T7：实现单写者 `.flag-transaction.json`、固定同目录临时路径、无变化目标跳过临时文件、读取时/目标 SHA-256、陈旧写前置校验、目录 fsync、双目标 replace 与 `recover_flag_transaction`；恢复兼容旧版 UUID marker，返回旧 issue 且不处理新参数。
 - [x] 2.5 T8：实现 JSON 四键输出与 0/2 退出码，补充人类可读成功、恢复和错误输出。
-- [x] 2.6 T9：新增 `test/test_xdev_flag.py`，覆盖参数矩阵、issue 编号、受限扫描、同秒轮次、ledger 骨架、降级、P2、marker 发布竞争、陈旧写保护、事务中断恢复、恢复优先于值校验、缺失恢复材料和 emoji 回归。
+- [x] 2.6 T9：新增 `test/test_xdev_flag.py`，覆盖参数矩阵、issue 编号、受限扫描、同秒轮次、ledger 骨架、降级、P2 无 checklist 临时文件、固定临时路径、零残留、陈旧写保护、事务中断恢复、恢复优先于值校验、缺失恢复材料和 emoji 回归。
 - [x] 2.7 T10：运行完整 unittest 与 flag 正反样例，仅提交 `tools/xdev.py` 和 `test/` 为 Commit A。（74 tests OK；Commit A `1a90a36`）
 
 ## 3. Commit B：skills 与 gate-fix 协议
@@ -33,7 +33,12 @@
 - [x] 5.3 T19：汇总 active change、commit stats、测试输出与偏离说明，交用户验收并保持 active。
 - [ ] 5.4 T20：用户验收通过后归档 change，复验主 specs，并提交归档材料。
 
-## 6. T# → 文件 → DoD 映射
+## 6. 2026-08-05 单写者与唯一 checklist 修复
+
+- [x] 6.1 T21：删除 UUID 临时文件协议；主 `flag.py` 与 benchmark 镜像改用固定临时路径，内容无变化时跳过 checklist 临时文件，提交与恢复后清理 scratch 文件。
+- [x] 6.2 T22：同步 x-qa-gate/x-dev、CLAUDE、README、plan 与 OpenSpec 契约；新增 P2、重复 blocked、固定路径和恢复零残留反例。验证结果：120 tests OK；progress-engine strict 通过；all strict 12/12；`git diff --check` 通过；手工连续 P2 + P1 后仅保留一份 `dev-checklist.md`。
+
+## 7. T# → 文件 → DoD 映射
 
 | T# | 涉及文件 | 对应 DoD |
 |----|----------|----------|
@@ -57,3 +62,5 @@
 | T18 | 手工临时 fixture | DoD 2、4-9 |
 | T19 | active change 与交付材料 | DoD 11、12 |
 | T20 | archived change 与主 specs | DoD 11 |
+| T21 | `skills/x-qa-gate/scripts/flag.py`、benchmark executor mirror | DoD 3、6、14 |
+| T22 | tests、skills、plan、OpenSpec、CLAUDE、README | DoD 1、11、13、14 |

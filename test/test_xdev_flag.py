@@ -54,6 +54,15 @@ def default_args(*extra: str) -> list[str]:
     ]
 
 
+def flag_scratch_files(task: Path) -> list[Path]:
+    return sorted(
+        path
+        for path in task.rglob("*.tmp")
+        if path.name.endswith(flag_engine.FLAG_TEMP_SUFFIX)
+        or path.name == flag_engine.FLAG_MARKER_TEMP_NAME
+    )
+
+
 class FlagTestCase(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -187,11 +196,21 @@ summary issue-400
         task = self.make_task()
         args = ["--task", "T3", "--severity", "P2", "--loc", "c.py:3", "--msg", "note | pipe"]
         before = (task / "dev-checklist.md").read_bytes()
-        first = capture_flag(task, *args, "--json")
-        second = capture_flag(task, *args, "--json")
+        written_temps = []
+        real_write = flag_engine._write_durable_temp
+
+        def record_temp(path, data):
+            written_temps.append(path)
+            return real_write(path, data)
+
+        with patch.object(flag_engine, "_write_durable_temp", side_effect=record_temp):
+            first = capture_flag(task, *args, "--json")
+            second = capture_flag(task, *args, "--json")
         self.assertEqual(first[0], 0, first[2])
         self.assertEqual(second[0], 0, second[2])
         self.assertEqual((task / "dev-checklist.md").read_bytes(), before)
+        self.assertNotIn(task / ".dev-checklist.md.flag.tmp", written_temps)
+        self.assertEqual(flag_scratch_files(task), [])
         self.assertEqual(json.loads(first[1])["downgraded"], [])
         self.assertEqual(json.loads(second[1])["issue"], "issue-2")
         report_name = json.loads(second[1])["report"]
@@ -207,6 +226,7 @@ summary issue-400
         self.assertEqual(code, 0, stderr)
         self.assertEqual(json.loads(stdout)["downgraded"], [])
         self.assertEqual((task / "dev-checklist.md").read_bytes(), before)
+        self.assertEqual(flag_scratch_files(task), [])
 
     def test_same_second_cli_new_round_resets_issue_number(self):
         task = self.make_task()
@@ -243,7 +263,7 @@ class TestFlagTransactionRecovery(FlagTestCase):
         def flaky_replace(source, target):
             nonlocal calls
             calls += 1
-            if calls == 2:
+            if calls == 3:
                 raise OSError("simulated interruption")
             return real_replace(source, target)
 
@@ -265,6 +285,7 @@ class TestFlagTransactionRecovery(FlagTestCase):
         self.assertEqual(payload["issue"], "issue-1")
         self.assertTrue(payload["recovered"])
         self.assertFalse(marker.exists())
+        self.assertEqual(flag_scratch_files(task), [])
         ledger = (task / "reports" / "qa-gate" / payload["report"]).read_text(encoding="utf-8")
         self.assertIn("空输入未处理", ledger)
         self.assertNotIn("| new", ledger)
@@ -297,71 +318,17 @@ class TestFlagTransactionRecovery(FlagTestCase):
         self.assertIn("恢复材料缺失", stderr)
         self.assertTrue(marker_path.exists())
 
-    def test_marker_publication_competition_recovers_winner(self):
+    def test_pending_transaction_uses_fixed_temp_names(self):
         task = self.make_task()
-        checklist_path = task / "dev-checklist.md"
-        report_path = task / "reports" / "qa-gate" / "qa-gate-report-20260718-153045.md"
-        report_path.parent.mkdir(parents=True)
-        winner_checklist = checklist("| T1 | winner | a.py | — | [!] 🔴 | keep |")
-        winner_report = flag_engine.append_issue_line(
-            flag_engine.render_issue_report(report_path),
-            {"issue": "issue-7", "tasks": ["T1"], "severity": "P0", "loc": "a.py:7", "msg": "winner"},
-        )
-        winner_result = {
-            "issue": "issue-7", "downgraded": ["T1"], "report": report_path.name, "recovered": False,
-        }
-        real_link = os.link
-
-        def publish_winner(_source, marker_path):
-            transaction = "winner"
-            target_data = [
-                (checklist_path, winner_checklist.encode()),
-                (report_path, winner_report.encode()),
-            ]
-            targets = []
-            for target, data in target_data:
-                temp = target.parent / f".{target.name}.{transaction}.tmp"
-                flag_engine._write_durable_temp(temp, data)
-                targets.append({
-                    "target": flag_engine._relative_transaction_path(task, target),
-                    "temp": flag_engine._relative_transaction_path(task, temp),
-                    "sha256": flag_engine._sha256_bytes(data),
-                    "before_sha256": flag_engine._sha256_file(target),
-                })
-            winner_marker_temp = report_path.parent / ".winner-marker.tmp"
-            marker = {
-                "version": flag_engine.FLAG_MARKER_VERSION,
-                "transaction": transaction,
-                "marker_temp": flag_engine._relative_transaction_path(task, winner_marker_temp),
-                "targets": targets,
-                "result": winner_result,
-            }
-            flag_engine._write_durable_temp(
-                winner_marker_temp,
-                json.dumps(marker, ensure_ascii=False, separators=(",", ":")).encode(),
-            )
-            real_link(winner_marker_temp, marker_path)
-            raise FileExistsError("winner published first")
-
-        ours = {
-            "issue": "issue-1", "downgraded": [], "report": report_path.name, "recovered": False,
-        }
-        with patch.object(flag_engine.os, "link", side_effect=publish_winner):
-            result = flag_engine.commit_flag_transaction(
-                task,
-                checklist_path,
-                checklist_path.read_text(encoding="utf-8"),
-                report_path,
-                flag_engine.render_issue_report(report_path),
-                ours,
-                flag_engine._sha256_file(checklist_path),
-                None,
-            )
-        self.assertEqual(result["issue"], "issue-7")
-        self.assertTrue(result["recovered"])
-        self.assertEqual(checklist_path.read_text(encoding="utf-8"), winner_checklist)
-        self.assertEqual(report_path.read_text(encoding="utf-8"), winner_report)
-        self.assertFalse((report_path.parent / flag_engine.FLAG_MARKER_NAME).exists())
+        code, _stdout, _stderr = self.interrupt_after_first_replace(task)
+        self.assertEqual(code, 2)
+        marker_path = task / "reports" / "qa-gate" / flag_engine.FLAG_MARKER_NAME
+        marker = json.loads(marker_path.read_text(encoding="utf-8"))
+        self.assertNotIn("transaction", marker)
+        temps = {entry["target"]: entry["temp"] for entry in marker["targets"]}
+        self.assertEqual(temps["dev-checklist.md"], ".dev-checklist.md.flag.tmp")
+        report_target = next(target for target in temps if "qa-gate-report" in target)
+        self.assertTrue(temps[report_target].endswith(".flag.tmp"))
 
     def test_stale_new_round_cannot_overwrite_completed_round(self):
         task = self.make_task()

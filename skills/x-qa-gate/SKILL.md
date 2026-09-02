@@ -82,6 +82,7 @@ python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" flag <task-dir> --task T2,T3 --sever
 2. 保存 JSON 返回的 `issue`、`downgraded`、`report`、`recovered`，把 issue ID 回填到交给 x-fix 的问题映射。
 3. `recovered:true` 表示命令完成了上一笔 pending 事务；主 agent 使用原参数再次调用，完成本条候选登记。
 4. `flag` 是 issue ledger 与 P0/P1 checklist 降级的唯一写入口。reviewer、子 agent 与 x-fix 保持这两处原样。
+5. 主 agent 串行调用 `flag`。每个 task 长期只保留一份 `dev-checklist.md`；内容未变化时不创建 checklist 临时文件，实际降级时使用固定 `.dev-checklist.md.flag.tmp` 原子替换并在提交或恢复后清理。
 5. 本轮无问题时省略 ledger 创建，直接输出通过回执。
 
 ## 回流

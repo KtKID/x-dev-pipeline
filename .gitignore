@@ -19,9 +19,6 @@ skills/x-pipeline-efficiency-workspace/iteration-2/eval-10-voice-chain-end-to-en
 /.claude/settings.local.json.*
 /skills/*.skill
 
-# Atomic task-state scratch files
-**/.dev-checklist.md.flag-*.tmp
-
 # Benchmark runner sandboxes and local runtime state
 evals/x-pipeline-efficiency-workspace/**/run-*/workspace/
 evals/x-pipeline-efficiency-workspace/**/full-pipeline-run-*/workspace/

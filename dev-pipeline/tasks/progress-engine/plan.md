@@ -1,4 +1,4 @@
-# progress-engine 开发方案（v7，issue 登记改为函数调用）
+# progress-engine 开发方案（v8，单写者与唯一 checklist）
 
 > 一句话：review 发现问题后，由主 agent 调用 `xdev.py flag` 逐条登记——issue 编号、
 > 台账格式化、checklist 降级全部由代码完成；LLM 只传参数。
@@ -8,6 +8,8 @@
 > v7 背景：v6 让 LLM 手写五段竖线行、代码事后解析，格式错误反馈链过长。
 > 用户于 2026-07-18 拍板：格式由 Python 生成，LLM 只传参；问题编号统一为
 > `issue-1`、`issue-2`。v5 指纹版归档于同目录 `plan-v5-fingerprint-archived.md`。
+> 用户于 2026-08-05 拍板：每个 task 长期只保留一份 `dev-checklist.md`；主 agent
+> 串行登记，删除 UUID 临时文件协议，内容无变化时不创建 checklist 临时文件。
 
 ---
 
@@ -26,8 +28,8 @@
 
 原始意图：LLM review 后记录哪个 task 有 bug，checklist 对应 task 行标为 `[!]`。
 
-v7 将 issue 写入口收窄为函数调用。LLM 传入 task、严重度、位置和描述；代码负责参数
-校验、`issue-<n>` 编号、轮次文件选择、台账格式化、事务恢复和 checklist 降级。
+v8 保留函数写入口。LLM 传入 task、严重度、位置和描述；代码负责参数校验、
+`issue-<n>` 编号、轮次文件选择、台账格式化、单写者事务恢复和 checklist 降级。
 
 ## 2. 分权模型
 
@@ -35,7 +37,7 @@ v7 将 issue 写入口收窄为函数调用。LLM 传入 task、严重度、位�
 |------|----|------|
 | 写代码 / 修 bug | 子 agent | 保持状态列与 issue 台账原样 |
 | 发现问题 | reviewer 子 agent | 只在返回值中给出 T#、严重度、位置和描述 |
-| 登记 issue | `xdev.py flag` | 主 agent 逐条调用；代码分配编号、写台账、只降级 |
+| 登记 issue | `xdev.py flag` | 主 agent 串行逐条调用；代码分配编号、写台账、只降级 |
 | 升 `[x]` | 主 agent | 修复与复审确认后手动签字 |
 
 ## 3. 契约
@@ -78,23 +80,23 @@ python3 tools/xdev.py flag <task-dir> --task <T#列表> --severity <P0|P1|P2> \
 flag 同时更新 issue 台账和 `dev-checklist.md`，使用
 `<task-dir>/reports/qa-gate/.flag-transaction.json` 协调：
 
-1. 参数校验后，在内存生成完整新台账、完整新 checklist 和 JSON 结果。
-2. 两份新内容分别写入目标同目录的唯一临时文件并 flush/fsync。
-3. 把完整 marker JSON 写入 qa-gate 目录的唯一临时文件并 fsync，再用 `os.link`
-   独占发布为 `.flag-transaction.json`；发布成功后删除 marker 临时文件并 fsync 目录。
-   标记保存版本、目标相对路径、临时路径、读取时旧 SHA-256、目标新 SHA-256 和本次 JSON 结果。
-4. marker 已存在表示另一调用先获得提交权；当前调用清理自己尚未发布的临时文件，
-   转入既有事务恢复，并且不登记自己的 issue。
-5. marker 完整发布后，先确认两个目标仍匹配读取时旧哈希或已匹配本事务新哈希；出现第三方
-   内容时清理本事务并返回 2，要求调用方重试，防止慢调用覆盖已完成的新 issue。
-6. 前置哈希确认通过后，才通过 `os.replace` 依次提交两个目标；每次替换后 fsync 目标目录。
-   每个文件自身无半写状态。两个目标哈希匹配后删除标记并再次 fsync marker 目录。
-7. 任意参数齐全的 flag 调用发现事务标记时，先前滚完成该事务并返回标记保存的原 issue 结果，
+1. 主 agent 串行调用 flag；参数校验后，在内存生成完整新台账、完整新 checklist 和 JSON 结果。
+2. 逐目标比较当前与目标 SHA-256。内容一致时跳过临时文件；实际变化时写目标同目录固定
+   `.<目标名>.flag.tmp` 并 flush/fsync。
+3. 把完整 marker JSON 写入固定 `.flag-transaction.json.tmp` 并 fsync，再用 `os.replace`
+   发布为 `.flag-transaction.json`。标记保存版本、目标相对路径、固定临时路径、读取时旧
+   SHA-256、目标新 SHA-256 和本次 JSON 结果。
+4. marker 完整发布后，先确认两个目标仍匹配读取时旧哈希或已匹配本事务新哈希；出现第三方
+   内容时清理本事务并返回 2，要求调用方重试。
+5. 前置哈希确认通过后，通过 `os.replace` 依次提交变化目标；每次替换后 fsync 目标目录。
+   目标内容已经一致时删除对应固定临时文件。两个目标哈希匹配后删除 marker 和全部 scratch 文件。
+6. 任意参数齐全的 flag 调用发现事务标记时，先前滚完成该事务并返回标记保存的原 issue 结果，
    `recovered: true`；本次新参数留待调用方再次执行，避免重试产生重复 issue。
+7. 恢复使用 marker 中保存的临时路径，兼容旧版 UUID pending marker。
 8. 临时文件缺失且目标哈希不匹配时返回 2，保留事务标记并输出可操作诊断；目标与
    新旧哈希均不匹配（第三方改写）时同样返回 2、保留标记并报告哈希差异。
 9. flag 仅在两个目标一致且事务标记清理完成后返回登记成功。IO/中断可能暂时留下
-   标记或单目标新状态，下一次调用按上述协议恢复。
+   标记或固定 scratch 文件，下一次串行调用按上述协议恢复或清理。
 
 #### 降级、输出与退出码
 
@@ -116,7 +118,7 @@ flag 同时更新 issue 台账和 `dev-checklist.md`，使用
 | `render_issue_report(...)` | 创建新轮台账固定骨架 |
 | `append_issue_line(report_text, issue)` | 唯一 issue 行格式化点 |
 | `downgrade_task_rows(checklist_text, task_ids)` | 只改目标状态单元格 |
-| `commit_flag_transaction(...)` | 临时文件、marker 完整独占发布、替换与哈希确认 |
+| `commit_flag_transaction(...)` | 固定临时路径、marker 发布、替换、清理与哈希确认 |
 
 ### 3.3 升钩规则
 
@@ -127,7 +129,7 @@ flag 同时更新 issue 台账和 `dev-checklist.md`，使用
 
 | 文件 | 改动 |
 |------|------|
-| `skills/x-qa-gate/SKILL.md` | reviewer 返回结构化问题；主 agent 逐条调用 flag；每轮首条 `--new-round` |
+| `skills/x-qa-gate/SKILL.md` | reviewer 返回结构化问题；主 agent 串行逐条调用 flag；每轮首条 `--new-round`；每个 task 唯一 checklist |
 | `skills/x-qa-gate/references/*.md` | 移除 reviewer 自分配 F#；输出 T#、severity、loc、msg |
 | `skills/x-qa-gate/templates/qa-gate-report-template.md` | 对齐 flag 生成的 issue ledger 骨架与 `issue-1` 样例 |
 | `skills/x-dev/references/execution-rules.md` | 子 agent 保持状态列与台账原样；主 agent 验收后升 `[x]` |
@@ -139,7 +141,7 @@ flag 同时更新 issue 台账和 `dev-checklist.md`，使用
 ## 5. 明确不做
 
 指纹、证据过期检测、checklist 进度节、状态列三符号化、历史 checklist 批量迁移、
-verify 回执 JSON、scaffold `--risk`、行级 verify、OS/advisory 文件锁、clean 轮强制留档、
+verify 回执 JSON、scaffold `--risk`、行级 verify、多写者并发 flag、OS/advisory 文件锁、clean 轮强制留档、
 重复 issue 静默去重。
 
 ## 6. DoD
@@ -148,11 +150,11 @@ verify 回执 JSON、scaffold `--risk`、行级 verify、OS/advisory 文件锁�
 |---|--------|------|
 | 1 | 完整 unittest | OK |
 | 2 | P0 登记 | issue 台账新增 `issue-<n>`；目标状态变 `[!] 🔴`；其余内容原样 |
-| 3 | P2 登记 | 台账新增 issue，所有任务状态原样 |
+| 3 | P2 登记 | 台账新增 issue，所有任务状态原样，task 目录不创建 checklist 临时副本 |
 | 4 | 编号与轮次 | `issue-1`、`issue-2`；同秒新轮生成 `-01`；新轮从 `issue-1` 开始 |
 | 5 | 校验原子性 | 无 pending 事务时，T9、重复 T#、非法 loc、空 msg 等返回 2；checklist、ledger、marker 均无写入 |
 | 6 | 事务恢复 | 模拟首个 replace 后中断；下次 flag 前滚完成原 issue，返回 `recovered:true` 且不登记新 issue |
-| 6a | 陈旧写保护 | 较慢调用读到旧 ledger 后，另一调用先完成；较慢调用返回 2 且保持已完成 ledger 原样 |
+| 6a | 陈旧写保护 | 读取后目标被外部修改时返回 2，保持第三方内容原样 |
 | 6b | 恢复优先于值校验 | 存在 pending 事务时，参数值非法的调用先完成恢复返回 0（`recovered:true`），本次参数不登记 |
 | 7 | 受限扫描 | msg 含 `issue-999` 不影响下一编号；仅行首 issue ID 参与计数 |
 | 8 | 只降不升 | flag 永不写 `[x]`；已 blocked 时台账仍新增 issue |
@@ -160,7 +162,8 @@ verify 回执 JSON、scaffold `--risk`、行级 verify、OS/advisory 文件锁�
 | 10 | 旧格式回归 | emoji fixture 的 status/graph 行为不变 |
 | 11 | OpenSpec | change strict 通过；验收前保持 active |
 | 12 | 提交结构 | commit 0/A/B/C/归档；tasks.md 含 T#→文件→DoD 映射 |
-| 13 | 活跃契约同步 | skills、CLAUDE、README 中 QA Gate 编号统一为 `issue-<n>`，无 F1/F# 与手写 issue 行指引 |
+| 13 | 活跃契约同步 | skills、CLAUDE、README 中 QA Gate 编号统一为 `issue-<n>`，并声明串行单写者与唯一 checklist |
+| 14 | scratch 收口 | 正常提交、P2、重复 blocked 与恢复完成后，marker 和固定临时文件均无残留 |
 
 ## 7. 交付材料
 

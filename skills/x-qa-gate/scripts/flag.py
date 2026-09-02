@@ -12,7 +12,6 @@ import json
 import os
 import re
 import sys
-import uuid
 from datetime import datetime
 from pathlib import Path
 
@@ -27,7 +26,9 @@ REPORT_NAME_RE = re.compile(
     r"^qa-gate-report-(?P<timestamp>[0-9]{8}-[0-9]{6})(?:-(?P<suffix>[0-9]+))?\.md$"
 )
 FLAG_MARKER_NAME = ".flag-transaction.json"
+FLAG_MARKER_TEMP_NAME = ".flag-transaction.json.tmp"
 FLAG_MARKER_VERSION = 1
+FLAG_TEMP_SUFFIX = ".flag.tmp"
 
 
 def cells(row: str) -> list[str]:
@@ -324,7 +325,7 @@ def recover_flag_transaction(task_dir: Path) -> dict | None:
         if not isinstance(entry, dict):
             raise FlagError("事务标记 target 结构非法")
         target = _resolve_transaction_path(task_dir, entry.get("target"))
-        temp = _resolve_transaction_path(task_dir, entry.get("temp"))
+        temp_raw = entry.get("temp")
         expected = entry.get("sha256")
         before = entry.get("before_sha256")
         if not isinstance(expected, str) or re.fullmatch(r"[0-9a-f]{64}", expected) is None:
@@ -336,11 +337,14 @@ def recover_flag_transaction(task_dir: Path) -> dict | None:
         try:
             current = _sha256_file(target)
             if current == expected:
+                if temp_raw is not None:
+                    _resolve_transaction_path(task_dir, temp_raw).unlink(missing_ok=True)
                 continue
             if current != before:
                 raise FlagError(
                     f"事务目标已被其他写入修改：{target}；当前 {current}，事务读取时 {before}"
                 )
+            temp = _resolve_transaction_path(task_dir, temp_raw)
             if not temp.exists():
                 raise FlagError(
                     f"事务恢复材料缺失：{temp}；目标 {target} 期望 SHA-256 {expected}"
@@ -378,8 +382,7 @@ def commit_flag_transaction(
     checklist_before_sha256: str,
     report_before_sha256: str | None,
 ) -> dict:
-    """完整发布 marker 后提交两个目标；竞争者转入既有事务恢复。"""
-    transaction_id = uuid.uuid4().hex
+    """串行写入固定临时文件，完整发布 marker 后提交两个目标。"""
     reports_dir = task_dir / "reports" / "qa-gate"
     reports_dir.mkdir(parents=True, exist_ok=True)
     checklist_path.parent.mkdir(parents=True, exist_ok=True)
@@ -391,41 +394,39 @@ def commit_flag_transaction(
     ]
     prepared: list[Path] = []
     targets: list[dict] = []
-    marker_temp = reports_dir / f".{FLAG_MARKER_NAME}.{transaction_id}.tmp"
+    marker_temp = reports_dir / FLAG_MARKER_TEMP_NAME
     marker_path = reports_dir / FLAG_MARKER_NAME
     marker_published = False
     try:
+        if marker_path.exists():
+            raise FlagError("检测到 pending flag 事务；请先恢复后再登记新 issue")
         for target, content, before_sha256 in target_contents:
-            temp = target.parent / f".{target.name}.flag-{transaction_id}.tmp"
-            _write_durable_temp(temp, content)
-            prepared.append(temp)
+            expected_sha256 = _sha256_bytes(content)
+            temp = target.parent / f".{target.name}{FLAG_TEMP_SUFFIX}"
             targets.append({
                 "target": _relative_transaction_path(task_dir, target),
                 "temp": _relative_transaction_path(task_dir, temp),
-                "sha256": _sha256_bytes(content),
+                "sha256": expected_sha256,
                 "before_sha256": before_sha256,
             })
+            if _sha256_file(target) == expected_sha256:
+                temp.unlink(missing_ok=True)
+                continue
+            temp.unlink(missing_ok=True)
+            prepared.append(temp)
+            _write_durable_temp(temp, content)
         marker = {
             "version": FLAG_MARKER_VERSION,
-            "transaction": transaction_id,
             "marker_temp": _relative_transaction_path(task_dir, marker_temp),
             "targets": targets,
             "result": result,
         }
         marker_bytes = json.dumps(marker, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-        _write_durable_temp(marker_temp, marker_bytes)
+        marker_temp.unlink(missing_ok=True)
         prepared.append(marker_temp)
-        try:
-            os.link(marker_temp, marker_path)
-            marker_published = True
-        except FileExistsError:
-            for path in prepared:
-                path.unlink(missing_ok=True)
-            recovered = recover_flag_transaction(task_dir)
-            if recovered is None:
-                raise FlagError("事务标记竞争后消失，请重试 flag")
-            return recovered
-        marker_temp.unlink()
+        _write_durable_temp(marker_temp, marker_bytes)
+        os.replace(marker_temp, marker_path)
+        marker_published = True
         _fsync_directory(reports_dir)
 
         stale_targets = []
@@ -446,6 +447,7 @@ def commit_flag_transaction(
             target = _resolve_transaction_path(task_dir, entry["target"])
             temp = _resolve_transaction_path(task_dir, entry["temp"])
             if _sha256_file(target) == entry["sha256"]:
+                temp.unlink(missing_ok=True)
                 continue
             try:
                 os.replace(temp, target)
@@ -456,6 +458,8 @@ def commit_flag_transaction(
             if _sha256_file(target) != entry["sha256"]:
                 raise FlagError(f"事务提交后哈希不匹配：{target}")
         marker_path.unlink(missing_ok=True)
+        for path in prepared:
+            path.unlink(missing_ok=True)
         _fsync_directory(reports_dir)
         return _flag_result(result, recovered=False)
     except FlagError:

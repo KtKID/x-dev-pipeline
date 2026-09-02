@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Gate ② issue 登记走 flag 与代码编号
-Gate ② reviewer SHALL 只在返回值中给出 T#、severity、loc、msg，MUST NOT 写文件或分配 issue ID。主 agent SHALL 通过 `python3 tools/xdev.py flag` 逐条登记；每轮首条使用 `--new-round`。flag SHALL 分配 `issue-<n>`、生成 issue ledger 并执行 checklist 降级。子 agent、reviewer 与 x-fix SHALL 保持状态列和 issue ledger 原样；主 agent SHALL 在修复完成、增量复审干净且亲自确认后手动升回 `[x]`。
+Gate ② reviewer SHALL 只在返回值中给出 T#、severity、loc、msg，MUST NOT 写文件或分配 issue ID。主 agent SHALL 通过 `python3 tools/xdev.py flag` 串行逐条登记；每轮首条使用 `--new-round`。flag SHALL 分配 `issue-<n>`、生成 issue ledger 并执行 checklist 降级，每个 task 长期只保留一份 `dev-checklist.md`。子 agent、reviewer 与 x-fix SHALL 保持状态列和 issue ledger 原样；主 agent SHALL 在修复完成、增量复审干净且亲自确认后手动升回 `[x]`。
 
 #### Scenario: Reviewer 返回问题后由 flag 登记
 - **GIVEN** reviewer 返回 T2、P1、src/a.py:10、空输入未处理

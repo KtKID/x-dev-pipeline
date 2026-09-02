@@ -17,6 +17,7 @@
 
 - 子 agent 实现或修复代码时保持 checklist 状态单元格与 `reports/qa-gate/qa-gate-report-*.md` 原样。
 - `python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" flag ...` 是 issue ledger 和 P0/P1 `[!] 🔴` 降级的唯一写入口。
+- 主 agent 按 reviewer 候选顺序串行调用 `flag`；每个 task 长期只保留一份 `dev-checklist.md`。
 - Gate ② 修复与增量复审通过后，主 agent 亲自确认并把对应 `[!]` 升为 `[x]`。
 - P2 flag 只登记 issue，所有 task 状态保持原样。
 

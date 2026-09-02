@@ -25,7 +25,7 @@
 - **THEN** 命令先完成恢复、以 0 退出并返回旧 issue（`recovered: true`），本次参数未被校验或登记
 
 ### Requirement: 轮次文件与 issue 编号
-ledger 文件 SHALL 使用 `qa-gate-report-<YYYYMMDD-HHmmss>.md`；同秒冲突 SHALL 依次使用 `qa-gate-report-<YYYYMMDD-HHmmss>-01.md`、`-02.md`。缺省调用 SHALL 选择 `(时间戳, 数值后缀)` 最大的 ledger；`--new-round` SHALL 以存在性探测选择当前秒首个空闲名称，并发同名的唯一性由事务 marker 的独占发布与提交前哈希校验仲裁；无 ledger 时 SHALL 自动创建首轮。新文件 SHALL 由 `render_issue_report` 生成固定标题、代码所有权说明和 `## Issues`。`next_issue_id` SHALL 只匹配代码生成的行首 `^- issue-([0-9]+) \|`，首条为 `issue-1`，后续取本轮最大值加一；系统 MUST NOT 从 ledger 反向解析 severity、T#、loc 或 msg。
+ledger 文件 SHALL 使用 `qa-gate-report-<YYYYMMDD-HHmmss>.md`；同秒冲突 SHALL 依次使用 `qa-gate-report-<YYYYMMDD-HHmmss>-01.md`、`-02.md`。主 agent SHALL 串行调用 flag。缺省调用 SHALL 选择 `(时间戳, 数值后缀)` 最大的 ledger；`--new-round` SHALL 以存在性探测选择当前秒首个空闲名称；无 ledger 时 SHALL 自动创建首轮。新文件 SHALL 由 `render_issue_report` 生成固定标题、代码所有权说明和 `## Issues`。`next_issue_id` SHALL 只匹配代码生成的行首 `^- issue-([0-9]+) \|`，首条为 `issue-1`，后续取本轮最大值加一；系统 MUST NOT 从 ledger 反向解析 severity、T#、loc 或 msg。
 
 #### Scenario: 首轮自动创建 issue-1
 - **GIVEN** task 没有 ledger
@@ -55,9 +55,9 @@ ledger 文件 SHALL 使用 `qa-gate-report-<YYYYMMDD-HHmmss>.md`；同秒冲突 
 - **THEN** 代码生成单行 ledger 记录并完整保留竖线
 
 ### Requirement: 双文件事务前滚恢复
-flag SHALL 使用 `<task-dir>/reports/qa-gate/.flag-transaction.json` 协调 ledger 与 checklist。校验通过后，系统 SHALL 在内存生成完整目标内容和结果，将两份内容写入目标同目录唯一临时文件并 flush/fsync。系统 SHALL 把完整 marker JSON 写入 qa-gate 目录的唯一临时文件并 fsync，再以 `os.link` 独占发布 marker；发布成功、删除 marker 临时文件并 fsync 目录后，才可通过 `os.replace` 提交目标。marker SHALL 包含 schema version、目标与临时相对路径、读取时旧 SHA-256、目标新 SHA-256、原 JSON 结果。首次替换前，两个目标 SHALL 分别匹配其旧哈希或本事务新哈希；第三种内容 SHALL 使当前事务清理 marker 与自身临时文件、以 2 退出并保持第三方内容。每次替换后 SHALL fsync 目标目录；确认两个目标新哈希后 SHALL 删除 marker 并再次 fsync marker 目录。系统只在 marker 清理完成后报告新 issue 登记成功。
+flag SHALL 使用 `<task-dir>/reports/qa-gate/.flag-transaction.json` 协调 ledger 与每个 task 唯一一份 `dev-checklist.md`。校验通过后，系统 SHALL 在内存生成完整目标内容和结果，并逐目标比较当前 SHA-256 与目标 SHA-256。内容已一致的目标 SHALL 跳过临时文件创建；实际变化的目标 SHALL 写入同目录固定 `.<目标名>.flag.tmp` 并 flush/fsync。系统 SHALL 把完整 marker JSON 写入固定 `.flag-transaction.json.tmp` 并 fsync，再以 `os.replace` 发布 marker。marker SHALL 包含 schema version、目标与固定临时相对路径、读取时旧 SHA-256、目标新 SHA-256、原 JSON 结果。首次替换前，两个目标 SHALL 分别匹配其旧哈希或本事务新哈希；第三种内容 SHALL 使当前事务清理 marker 与自身临时文件、以 2 退出并保持第三方内容。每次替换后 SHALL fsync 目标目录；目标已匹配目标哈希时 SHALL 删除对应临时文件。确认两个目标新哈希后 SHALL 删除 marker 和全部 scratch 文件并再次 fsync marker 目录。系统只在目录回到一份正式 checklist 且 marker 清理完成后报告新 issue 登记成功。
 
-任何参数齐全的 flag 调用发现 pending marker 时 SHALL 先恢复旧事务，按目标现状分四支处理：已匹配本事务新哈希的文件跳过；匹配读取时旧哈希且临时文件存在时继续 replace；匹配旧哈希但临时文件缺失时以 2 退出并保留 marker；与新旧哈希均不匹配（第三方改写）时以 2 退出、保留 marker 并报告当前与期望哈希。恢复成功 SHALL 返回 marker 保存的旧 issue 结果、设置 `recovered: true`，并 MUST NOT 处理本次新 issue 参数。并发调用发布 marker 遇到已存在时 SHALL 清理自己尚未发布的临时文件，转入既有事务恢复，且 MUST NOT 登记自己的 issue。
+任何参数齐全的 flag 调用发现 pending marker 时 SHALL 先恢复旧事务，按目标现状分四支处理：已匹配本事务新哈希的文件清理对应临时文件后跳过；匹配读取时旧哈希且临时文件存在时继续 replace；匹配旧哈希但临时文件缺失时以 2 退出并保留 marker；与新旧哈希均不匹配（第三方改写）时以 2 退出、保留 marker 并报告当前与期望哈希。恢复 SHALL 使用 marker 保存的临时路径以兼容旧版 UUID pending marker。恢复成功 SHALL 返回 marker 保存的旧 issue 结果、设置 `recovered: true`，并 MUST NOT 处理本次新 issue 参数。
 
 #### Scenario: 校验错误不创建事务
 - **WHEN** 参数或 checklist 校验失败
@@ -68,15 +68,15 @@ flag SHALL 使用 `<task-dir>/reports/qa-gate/.flag-transaction.json` 协调 led
 - **WHEN** 下一次调用 flag
 - **THEN** 系统完成 ledger replace、验证两个哈希、清理 marker，返回旧 issue 且 `recovered: true`，本次新参数不被登记
 
-#### Scenario: marker 独占发布竞争
-- **GIVEN** 两个调用均已写好各自临时内容
-- **WHEN** 一个调用先发布 marker，另一个调用遇到 marker 已存在
-- **THEN** 后者清理自己的临时文件、恢复前者事务并返回前者 issue，且不登记自己的 issue
+#### Scenario: 内容无变化时不创建 checklist 临时文件
+- **GIVEN** P2 登记或目标 task 已为 `[!] 🔴`
+- **WHEN** 主 agent 串行调用 flag
+- **THEN** ledger 正常登记 issue，checklist 字节保持原样，目录中不创建或残留 checklist 临时文件
 
-#### Scenario: 陈旧调用停止覆盖已完成轮次
-- **GIVEN** 较慢调用读取了尚不存在的新轮目标，另一调用随后完成该轮 ledger
-- **WHEN** 较慢调用取得 marker 并执行首次替换前校验
-- **THEN** 新轮目标与读取时旧哈希不匹配，较慢调用以 2 退出并保持已完成 ledger 原样
+#### Scenario: 读取后外部修改停止覆盖
+- **GIVEN** flag 已读取目标旧哈希，随后目标被外部修改
+- **WHEN** flag 发布 marker 并执行首次替换前校验
+- **THEN** 目标与读取时旧哈希不匹配，flag 以 2 退出并保持外部内容原样
 
 #### Scenario: 恢复材料缺失
 - **GIVEN** marker 指向的目标哈希未匹配，且对应临时文件缺失
@@ -93,12 +93,12 @@ severity 为 P0/P1 时，flag SHALL 将每个目标 T# 的状态单元格写为 
 
 #### Scenario: P2 只登记
 - **WHEN** flag 以 P2 引用 T3
-- **THEN** T3 状态原样，ledger 新增 issue
+- **THEN** T3 状态原样，ledger 新增 issue，task 目录不产生 checklist 临时副本
 
 #### Scenario: blocked 任务重复登记
 - **GIVEN** T2 已为 `[!] 🔴`
 - **WHEN** flag 再次以 P0 引用 T2
-- **THEN** T2 状态原样，ledger 新增下一 issue
+- **THEN** T2 状态原样，ledger 新增下一 issue，task 目录不产生 checklist 临时副本
 
 ### Requirement: CLI 输出与退出码
 成功登记 SHALL 返回 0，并在 `--json` 下输出 `issue`、`downgraded`、`report`、`recovered` 四个键；正常登记时 `recovered` 为 false。成功恢复 SHALL 返回 0、复用 marker 保存的 issue/downgraded/report，并将 `recovered` 设为 true。参数、校验、事务或 IO 错误 SHALL 返回 2；错误输出 SHALL 包含可操作诊断。
