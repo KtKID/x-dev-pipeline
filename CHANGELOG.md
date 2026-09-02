@@ -1,6 +1,8 @@
 # Changelog
 
-## v0.5.3
+## v1.0.0
+
+首个大版本：开发流程 v6 全链路（x-spec → x-req → x-dev → x-verify）定稿，x-qdev 单文档闭环与 flag 单写者一并交付。
 
 ### 开发流程 v6：spec 链路直达 verify
 
@@ -23,7 +25,7 @@
 - **固定临时路径**：废除 UUID 临时文件协议，`flag` 主脚本与 benchmark 镜像改用固定同目录临时路径；内容无变化的目标跳过 checklist 临时文件，提交与恢复后清理全部 scratch 文件。
 - **唯一 checklist**：每个 task 长期只保留一份 `dev-checklist.md`；P2 只登记不改任务状态，P0/P1 降级 `[!] 🔴`。
 - **反例扩充**：新增 P2、重复 blocked、固定路径与恢复零残留测试（120 tests OK）。
-- **版本统一**：package、Claude manifest/marketplace、Codex manifest 与 README 升级到 `0.5.3`。
+- **版本统一**：package、Claude manifest/marketplace、Codex manifest 与 README 升级到 `1.0.0`。
 
 ## v0.5.2
 

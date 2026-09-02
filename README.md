@@ -6,7 +6,7 @@
 
 [中文说明](./README_zh.md)
 
-**Current release:** v0.5.3
+**Current release:** v1.0.0
 
 > An auditable development workflow for AI coding agents.
 
