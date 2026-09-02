@@ -125,7 +125,7 @@ class TestCurrentTaskRouting(unittest.TestCase):
         self.assertEqual(payload["profile"], "req")
         self.assertEqual(payload["artifact"], "dev-checklist")
         self.assertEqual(payload["requires"], [])
-        self.assertIn("Scenario IDs", payload["template"])
+        self.assertIn("场景回指", payload["template"])
 
     def test_spec2_task_commands_are_rejected(self):
         (self.spec / "spec.md").write_text(

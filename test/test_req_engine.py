@@ -250,8 +250,8 @@ class TestReq3Task(Req3EngineTestCase):
         payload = json.loads(output)
         self.assertEqual(payload["profile"], "req")
         checklist = (task_dir / "dev-checklist.md").read_text(encoding="utf-8")
-        self.assertIn("| Scenario IDs |", checklist)
-        self.assertNotIn("| Requirement |", checklist)
+        self.assertIn("| 场景回指 |", checklist)
+        self.assertNotIn("| Scenario IDs |", checklist)
 
     def test_scaffold_refuses_pending_judgment(self):
         spec_dir = self.make_spec()

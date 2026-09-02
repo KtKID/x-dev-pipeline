@@ -1,44 +1,52 @@
 ---
 name: x-dev
 description: |
-  开发任务执行 skill。读取单个 task 的 dev-checklist，按 `spec:` 指针跟读归属 spec 包，按依赖实现、写 verify 证据，并由 checklist 头部 risk 驱动交付或 Gate ②。
-  触发：`x-dev 功能名称` 或现有 task 目录。
+  开发任务执行 skill。读取单个 task 的 dev-checklist.md，按行序以"先测试后实现"的方式逐行执行，dev-report 只记验证结论（全绿或 N 个 🔴），全部行验证通过后交付。触发：`x-dev {task-dir}`、用户要求执行/开发某个 task。
 ---
 
-# x-dev — 统一执行
+# x-dev — task 执行
 
 ## 输入与边界
 
-把当前加载的 `x-dev/SKILL.md` 所在目录记为 `XDEV_SKILL_DIR`；确定性 CLI 位于 `${XDEV_SKILL_DIR}/scripts/xdev.py`。
+x-dev 的作用域是**单个 task**：`docs/spec/<spec-name>/tasks/<task-name>/`，入口是它的 `dev-checklist.md`，按头部 `spec:` 指针跟读 v6 spec 的相关 feat 与场景。一个 spec 下可以有多个 task，x-dev 一次只执行指定 task，不扫描或编排同级 task。
 
-**x-dev 的作用域是单个 task**：目标目录 `docs/spec/<spec-name>/tasks/<task-name>/` 必须有 `dev-checklist.md`。一个 spec 下可以有多个 task，x-dev 只实现指定 task，不扫描或编排同级 task。
+checklist 的约定（由 x-req 生成）：
 
-checklist 头部 `risk:` 定路由、`spec:` 定归属；任务行定顺序、状态、文件范围和验收范围。当前只读取 spec：
-
-| Profile | task 回指 | 实现边界 | verify 责任 |
-|---|---|---|---|
-| spec/req | `Scenario` | spec.md 目标、影响边界与不变量、判断依据、建模声明及被引用 Scenario | unit/smoke 写 auto 块；e2e 写 auto 或 manual 块 |
-
-dev-report 记录改动和 verify 证据。x-dev 消费 task，保持 spec 包原样。
+- **行序即实现顺序**，无依赖图；从 T1 开始逐行往下做。
+- **场景回指定验收**：一行做完的判定标准是它回指的每个场景的 GIVEN/WHEN/THEN 全部成立。
+- **风险列为 `高:` 的行**，验证必须包含真实链路（smoke 或以上），不允许只写 unit。
+- 改动落在「涉及文件」范围内，不"顺便"改别的。
 
 ## 执行
 
-高能力模型在以下步骤内采用批次执行：独立读取、测试与静态检查放入同一工具批次；文件只在内容变化后重读；状态更新只携带新证据或阻塞，完成回执复用 dev-report 与 verify 结果。
+高能力模型按批次执行：独立读取放同一批次；文件只在内容变化后重读；过程更新只报告新进展或阻塞。
 
-1. 首个取证批次同时读取 checklist、引用的 spec 章节、原始契约样本、涉及的实现与测试文件，收集本 task 的 Scenario、涉及文件、所需边界、判断和模型，建立一次性的“Scenario → 代码 → 反例 → verify”矩阵。同时记录示例配置的原始字段集、CLI 调用、fixture 输入、wire/schema 和落盘布局。
-2. 在取证批次运行 `python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" status <task-dir> --json` 与 `graph <task-dir> --json`。同优先级、无依赖、无同文件写冲突的 ready task 可并行；有依赖的 task 按拓扑序推进。
-3. 将当前 checklist 项更新为进行中，按依赖批次集中修改实现、独立测试、dev-report 与 checklist 状态；每个失败根因一次修完全部关联位置。保持公开契约、不变量、失败路径和输入所有权，改动落在“涉及文件”范围内。扩展配置或输入 schema 时保留原始样本可运行：新增字段使用兼容默认值，除非 spec 明确要求迁移并提供迁移验收。
-4. 为 task 承接的每个 Scenario 写 fenced `verify` 块，`scenario:` 精确回指 Scenario ID。unit/smoke 使用 auto，e2e 使用 auto 或 manual。dev-report 用字面标签 `unit`、`smoke`、`e2e` 标明实际采用的证据层。涉及配置、CLI、协议或文件布局时，至少一个 auto 块使用任务原始样本或其最小字段集启动真实入口并完成一条端到端链路。
-5. 实现完成后更新 checklist 为待测试，先运行一个聚焦反例，再一次运行全部 verify 块声明的命令作为当前 task 完整测试；通过后更新为测试通过。每层绿灯只执行一次；失败时消费完整输出并按根因批量修复。
-6. 运行一次 `python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" verify <task-dir> --json` 完成递增验证链：exit 2 修正 dev-report 格式；exit 1 将 fail 与 uncovered 一次交给 x-fix；exit 0 继续 risk 路由。
-7. 按 checklist 头部 `risk:` 路由：Q0/Q1 输出完成回执及定级依据；Q2 调 x-qa-gate RC；Q3 调 x-qa-gate tri-lens reviewer。Gate ② 全部通过后把 checklist 标为 `[x] ✅`。
+1. **取证批次**：一次读完整 checklist、spec 中被回指的 feat 场景、涉及的实现与测试文件，建立「场景 → 代码 → 测试」的对应关系；顺带确认涉及文件路径真实存在（x-req 留了 glob 的就在此批次定位）。
+2. **逐行 TDD**（先测试后实现，顺序不能反）：
+   - 把当前行状态改为 `[ ] ▶️`。
+   - 为行回指的场景写测试：场景的 THEN 就是断言。先跑一遍，确认失败原因是"功能还没实现"。
+   - 写实现，改动保持在涉及文件范围内，让测试变绿。
+   - 测试通过后行状态改为 `[x] 🟢`。测试照常真实运行，但输出不写进文档。
+3. **行失败时**：读完整输出，按根因一次修完全部关联位置；发现是测试写错就改测试并在 dev-report 未决节记一行原因。同一行失败多次不改目标——回看场景定义，仍不清楚就停下来问用户。失败中的行标 `[!] 🔴`，修复后恢复。
+4. **收尾验证**：全部行 🟢 后，跑一次本 task 全量测试 + 一次既有测试回归（确认没有破坏 spec 概述和既有功能里的不变量），把结论（全绿 / N 个 🔴、回归通过与否）记进 dev-report。
+5. **交付**：确认 checklist 无 🔴 残留，输出回执，报告下一步（同 spec 的下一个 task，或全部完成）。
 
-## 状态与记录
+## dev-report
 
-状态顺序为 `[ ] ⏳ → [ ] ▶️ → [ ] 🟡 → [x] 🟢 → [x] ✅`；Gate ② 负责最终 ✅。`reports/` 位于 task 根目录下，verify 或 qa-gate fail 依既有共享 fix-counter 交给 x-fix 批量修复。
+`docs/spec/<spec-name>/tasks/<task-name>/dev-report.md`，只记结论、不贴测试输出：全绿或 N 个 🔴、回归结果、高风险行验证情况；红色失败一行一条摘要。完整读取 `templates/dev-report.md` 后填充。
 
-## 完成回执
+## 自检（交付前）
 
-报告当前 task、完成项、修改文件、verify 结果、risk 路由、Gate ② 结果、manual 待验收项和遗留阻塞。
+- checklist 每个非 `None` 场景回指都有对应测试且行状态 🟢？
+- 高风险行有真实链路验证？
+- 全部改动都在「涉及文件」范围内？
+- 既有测试回归通过？
+- 每个 🔴 行都在 dev-report 未决节有一行摘要？
 
-连续模式只在**当前 task 内部**推进：`graph` 的 ready 项是本 checklist 的任务行。本 task 走完 Gate 即结束，同 spec 的其他 task 由调用方另行启动。
+## 回执
+
+```
+✅ x-dev 完成 · <task-name> · 行 N/N 🟢 · 场景覆盖 M/M · 高风险行 K（已验证）· 回归通过
+```
+
+有阻塞或失败残留时如实列出：行号、失败摘要、已尝试的动作、需要用户决定的问题。

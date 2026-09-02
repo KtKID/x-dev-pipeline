@@ -6,7 +6,7 @@
 
 [English](./README.md)
 
-**当前版本：** v0.5.2
+**当前版本：** v0.5.3
 
 > 给 AI coding agent 一套可审计的开发工作流：需求契约、实现证据、确定性验证、按风险评审。
 
@@ -146,8 +146,8 @@ python3 skills/pipeline-efficiency-benchmark/scripts/metrics.py aggregate-spec2 
 ## 报告与回流
 
 - Gate ① 全过只输出回执；失败生成 `reports/verify/verify-report-*.md`，交 x-fix。
-- Gate ② reviewer 返回未编号的 task/severity/loc/msg 问题候选。主 agent 逐条调用 `xdev.py flag`，由代码分配 `issue-<n>` 并写入 `reports/qa-gate/qa-gate-report-*.md`。
-- `flag` 通过持久事务标记协调 issue ledger 与 checklist。P0/P1 目标降为 `[!] 🔴`，P2 保持全部 task 状态；pending 事务恢复返回 `recovered:true`，调用方随后重试本条新 issue。
+- Gate ② reviewer 返回未编号的 task/severity/loc/msg 问题候选。主 agent 串行逐条调用 `xdev.py flag`，由代码分配 `issue-<n>` 并写入 `reports/qa-gate/qa-gate-report-*.md`。
+- `flag` 通过持久事务标记协调 issue ledger 与每个 task 唯一的一份 `dev-checklist.md`。checklist 内容无变化时不创建临时文件；P0/P1 实际降级时使用固定临时路径，并在提交或恢复后清理。pending 事务恢复返回 `recovered:true`，调用方随后重试本条新 issue。
 - x-fix 一次处理完整 issue 清单，并保持 ledger 与 checklist 状态单元格原样；增量复审通过后由主 agent 升钩。verify 与 Gate ② 共享既有三轮 fix-counter。
 - manual 验收步骤持续显示在 verify 回执，直到用户确认。
 

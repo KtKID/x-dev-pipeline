@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.5.3
+
+### 开发流程 v6：spec 链路直达 verify
+
+- **x-spec v6**：废除 lite/full 路由与 `spec_version: 3` 契约，改为纯功能性 spec——标题 + 概述 + `featNN` 列表，每个 feat 配 Given/When/Then 场景（正常/边界/异常三类必备），不写技术词汇；未拍板的默认值记入待确认清单。
+- **x-req**：按 feat 分组拆 task，checklist 任务行以 `featNN 场景M` 回指 spec 场景（不复制 GWT），合并后全覆盖；行序即实现顺序，不建依赖图；风险列 `高:` 行要求真实链路验证。
+- **x-dev**：单个 task 逐行 TDD（先测试后实现），场景 THEN 即断言；dev-report 只记验证结论（全绿或 N 个 🔴），不贴测试输出。
+- **x-verify（Gate ①）**：从"运行 verify 引擎"改为交付对账——以 spec 场景为事实源核对回指有效性、行状态闭合、高风险行声明与结论一致性，问题按来源分诊退回，全部一致只输出回执。
+- **边界**：本次只更新到 verify；Gate ②（x-qa-gate flag 台账）、x-fix 及确定性引擎脚本保持现状，既有 dev-checklist 状态标记（⏳/▶️/🟢/🔴）与 flag 引擎兼容。
+- **新增模板**：`x-spec/templates/spec.md`（v6 格式）、`x-req/templates/dev-checklist.md`（回指表）、`x-dev/templates/dev-report.md`（结论式）。
+
+### x-qdev v2：四段式 task 文档
+
+- **一份文档闭环**：废除五学科流程（Q0-Q3 风险分流、Q2 reviewer 协议、状态机），改为"找 spec → 写 task 文档"单文档流，需求、失败测试、实现、验证结果四段依次完成。
+- **先测试后实现**：测试用例先写并确认失败，实现让测试变绿；需求段用功能性语言，验证段只粘贴真实运行输出，收尾强制自检回执。
+- **文档自检 gate**：交付前对 task 文档自身做五项对账（结构、回指有效、覆盖闭合、结论一致、边界核对），不依赖 x-spec/x-req/x-verify 等其他 skill 收口。
+- **模板精简**：移除 `references/execution-rules.md`、`templates/README.md`、`templates/dev-report.md`，只保留 `templates/task.md`。
+
+### flag 单写者与唯一 checklist
+
+- **固定临时路径**：废除 UUID 临时文件协议，`flag` 主脚本与 benchmark 镜像改用固定同目录临时路径；内容无变化的目标跳过 checklist 临时文件，提交与恢复后清理全部 scratch 文件。
+- **唯一 checklist**：每个 task 长期只保留一份 `dev-checklist.md`；P2 只登记不改任务状态，P0/P1 降级 `[!] 🔴`。
+- **反例扩充**：新增 P2、重复 blocked、固定路径与恢复零残留测试（120 tests OK）。
+- **版本统一**：package、Claude manifest/marketplace、Codex manifest 与 README 升级到 `0.5.3`。
+
 ## v0.5.2
 
 ### Codex 发布与确定性脚本打包

@@ -6,7 +6,7 @@
 
 [中文说明](./README_zh.md)
 
-**Current release:** v0.5.2
+**Current release:** v0.5.3
 
 > An auditable development workflow for AI coding agents.
 
@@ -148,8 +148,8 @@ Exit 0 means extraction or aggregation succeeded; exit 1 means a readable run vi
 ## Reports and recovery
 
 - Gate ① returns a short pass receipt. Failures create `reports/verify/verify-report-*.md` with facts for x-fix.
-- Gate ② reviewers return unnumbered task/severity/location/message candidates. The main agent calls `xdev.py flag` for each candidate; code assigns `issue-<n>` and writes `reports/qa-gate/qa-gate-report-*.md`.
-- `flag` uses a durable transaction marker to update the issue ledger and checklist. P0/P1 targets become `[!] 🔴`; P2 keeps every task state unchanged. A recovered pending transaction returns `recovered:true`, and the caller repeats the intended new issue.
+- Gate ② reviewers return unnumbered task/severity/location/message candidates. The main agent calls `xdev.py flag` serially for each candidate; code assigns `issue-<n>` and writes `reports/qa-gate/qa-gate-report-*.md`.
+- `flag` keeps one durable `dev-checklist.md` per task and uses a durable transaction marker to coordinate it with the issue ledger. Unchanged checklist content creates no checklist temp; a real P0/P1 downgrade uses one fixed temp path and cleans it after commit or recovery. A recovered pending transaction returns `recovered:true`, and the caller repeats the intended new issue.
 - x-fix handles the full issue list in one batch while preserving the ledger and checklist state cells. The main agent upgrades resolved tasks after incremental review. Verify and Gate ② share the existing three-round fix counter.
 - Manual acceptance steps stay visible in the verify receipt until a user confirms them.
 
