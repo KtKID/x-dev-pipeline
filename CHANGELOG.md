@@ -25,6 +25,12 @@
 - **固定临时路径**：废除 UUID 临时文件协议，`flag` 主脚本与 benchmark 镜像改用固定同目录临时路径；内容无变化的目标跳过 checklist 临时文件，提交与恢复后清理全部 scratch 文件。
 - **唯一 checklist**：每个 task 长期只保留一份 `dev-checklist.md`；P2 只登记不改任务状态，P0/P1 降级 `[!] 🔴`。
 - **反例扩充**：新增 P2、重复 blocked、固定路径与恢复零残留测试（120 tests OK）。
+
+### 发布面清理
+
+- **skills/ 只留技能**：eval 工作区 `x-cr-workspace` 移至 `evals/`，本地快照 `x-spec-workspace`（含废弃版 x-spec2 基线副本）移至 `deprecated/x-spec-workspace`，不再随 `./skills/` 整目录打包混入 Codex 发布包。
+- **垃圾文件清零**：删除 `skills/` 下的 `.DS_Store` 与 `__pycache__`；`.gitignore` 移除两条失效的 workspace 规则并补 `deprecated/x-spec-workspace/`。
+- **失效路径修复**：`skills/x-req/evals/evals.json` 的 3 处 x-spec-workspace 引用改指 `deprecated/` 新位置。
 - **版本统一**：package、Claude manifest/marketplace、Codex manifest 与 README 升级到 `1.0.0`。
 
 ## v0.5.2
