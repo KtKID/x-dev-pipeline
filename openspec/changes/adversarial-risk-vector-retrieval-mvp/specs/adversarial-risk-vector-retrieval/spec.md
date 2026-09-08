@@ -76,6 +76,8 @@ JSON 错误输出 SHALL 精确包含 `error` 与 `message`。相同输入、相�
 
 iteration-7 的 `x-adversarial-risk` SHALL 在进入对抗分析前，从当前 Spec 或需求中提炼功能关键词和一句 Risk，并调用向量召回 CLI。召回结果 SHALL 直接携带错题正文，当前 agent SHALL 使用该正文检查 Scenario 覆盖和构造最小反例。
 
+运行环境没有可用的本地 Embedding 模型（模型目录缺失，或召回 CLI 按 CLI 错误契约返回可识别的模型加载阶段失败）时，调用方 SHALL 自动绕过本次召回并转入无 RAG 路径：SHALL NOT 因此中止审查，SHALL NOT 触发联网下载或重试加载，也 SHALL NOT 要求用户预先确认。绕过 SHALL 在审查记录中写明原因（如 `CLI=skipped:no-embedding-model`），本轮 Scenario 来源 SHALL NOT 标注 `rag:AR-NNN`。绕过只替代召回，评分与对抗性预算 SHALL 继续生效。参数、路径等其他 exit 2 错误 SHALL NOT 触发绕过，仍按失败处理。
+
 该检索阶段 SHALL NOT 启动 LLM 精排、经验改写或按 ID 二次读取。Scenario 来源 SHALL 统一使用召回结果的 `AR-NNN` ID。风险契约校验器 SHALL 只接受 `adversarial_risk_version: 3`。
 
 #### Scenario: 一条召回结果进入对抗分析
@@ -83,6 +85,24 @@ iteration-7 的 `x-adversarial-risk` SHALL 在进入对抗分析前，从当前 
 - **GIVEN** 向量召回成功返回一条 `AR-003`
 - **WHEN** x-adversarial-risk 开始检查当前 Spec 的日志恢复风险
 - **THEN** 当前 agent 直接使用返回正文构造最小反例，并记录复用或新增的 Scenario
+
+#### Scenario: Embedding 模型不可用时自动绕过
+
+- **GIVEN** 本地模型缓存中没有可加载的 Embedding 模型
+- **WHEN** x-adversarial-risk 调用向量召回 CLI，命令按错误契约返回模型加载阶段的失败
+- **THEN** 调用方把该失败识别为环境降级，转入无 RAG 路径按预算完成独立对抗检验，并在审查记录写入绕过原因
+
+#### Scenario: 绕过时不伪造召回来源
+
+- **GIVEN** 本轮因 Embedding 模型不可用而绕过召回
+- **WHEN** 审查记录写入本次新增的 Scenario 来源
+- **THEN** 来源只写独立对抗推导，不出现 `rag:AR-NNN`
+
+#### Scenario: 非模型类错误不触发绕过
+
+- **GIVEN** 调用方向召回 CLI 提供了不存在的错题集路径
+- **WHEN** 命令返回路径类 exit 2 错误
+- **THEN** 调用方按失败处理，不进入无 RAG 路径
 
 #### Scenario: 旧 namespace 来源被拒绝
 
