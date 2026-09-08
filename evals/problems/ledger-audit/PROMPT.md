@@ -1,8 +1,6 @@
 # 任务：实现一个 CSV 资金流水审计器
 
-使用 Python 3.11+ 标准库实现命令行工具，读取一份资金流水 CSV，校验每条记录，计算余额，并输出可审计的 JSON 报告。
-
-这个任务用于考察需求理解、边界处理、确定性输出、异常处理、测试设计和交付完整性。
+使用 Python 3.12 标准库实现命令行工具，读取一份资金流水 CSV，校验每条记录，计算余额，并输出可审计的 JSON 报告。
 
 ## 一、任务描述
 
@@ -18,7 +16,7 @@ python ledger_audit.py input.csv report.json
 - `test_ledger_audit.py`
 - `README.md`
 
-依赖范围仅限 Python 3.11+ 标准库。
+依赖范围仅限 Python 3.12 标准库。
 
 ### 输入格式
 
@@ -41,7 +39,7 @@ transaction_id,type,amount,status,created_at
 - `posted + credit`：余额增加。
 - `posted + debit`：余额减少。
 - `reversed`：记录有效，对余额和每日汇总的贡献为 0。
-- 金额计算统一使用 `decimal.Decimal`。
+- 所有金额解析、计算和汇总路径均使用 `decimal.Decimal`，`float` 不参与金额处理。
 - 同一个 `transaction_id` 第一次出现时按正常规则处理，后续记录判定为无效。
 - 无效记录对余额和每日汇总的贡献为 0。
 - 输出采用确定性排序，在不同运行环境中保持一致。
@@ -73,7 +71,7 @@ transaction_id,type,amount,status,created_at
     "balance": "0.00"
   },
   "daily_summary": {
-    "2026-07-01": {
+    "2026-01-01": {
       "credit": "0.00",
       "debit": "0.00",
       "net": "0.00"
@@ -81,9 +79,9 @@ transaction_id,type,amount,status,created_at
   },
   "invalid_records": [
     {
-      "line": 5,
-      "transaction_id": "T002",
-      "reason": "duplicate_transaction_id"
+      "line": 2,
+      "transaction_id": "EXAMPLE-001",
+      "reason": "invalid_type"
     }
   ]
 }
@@ -114,37 +112,6 @@ T007,refund,8.00,posted,2026-07-01T16:00:00Z
 T008,credit,20.00,pending,2026-07-01T17:00:00Z
 T009,credit,30.00,posted,bad-date
 T010,debit,4.50,posted,2026-07-02T09:00:00Z
-```
-
-关键预期结果：
-
-```json
-{
-  "total_rows": 11,
-  "valid_rows": 4,
-  "invalid_rows": 7,
-  "duplicate_rows": 1,
-  "posted_rows": 3,
-  "reversed_rows": 1,
-  "balance": "70.00"
-}
-```
-
-每日汇总：
-
-```json
-{
-  "2026-07-01": {
-    "credit": "100.00",
-    "debit": "25.50",
-    "net": "74.50"
-  },
-  "2026-07-02": {
-    "credit": "0.00",
-    "debit": "4.50",
-    "net": "-4.50"
-  }
-}
 ```
 
 ## 三、实现边界
@@ -184,8 +151,8 @@ T010,debit,4.50,posted,2026-07-02T09:00:00Z
 退出码为 2 时：
 
 - `stderr` 输出明确错误信息。
-- 报告采用成功后发布；致命错误不会发布本次报告。
-- 进程以受控错误结束，错误输出隐藏 Python traceback。
+- 不生成不完整的报告文件。
+- 进程以受控错误结束，不输出 Python traceback。
 
 ## 四、建议完成步骤
 

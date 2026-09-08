@@ -1,0 +1,60 @@
+{
+  "summary": {
+    "total_rows": 11,
+    "valid_rows": 4,
+    "invalid_rows": 7,
+    "duplicate_rows": 1,
+    "posted_rows": 3,
+    "reversed_rows": 1,
+    "balance": "70.00"
+  },
+  "daily_summary": {
+    "2026-07-01": {
+      "credit": "100.00",
+      "debit": "25.50",
+      "net": "74.50"
+    },
+    "2026-07-02": {
+      "credit": "0.00",
+      "debit": "4.50",
+      "net": "-4.50"
+    }
+  },
+  "invalid_records": [
+    {
+      "line": 5,
+      "transaction_id": "T002",
+      "reason": "duplicate_transaction_id"
+    },
+    {
+      "line": 6,
+      "transaction_id": "T004",
+      "reason": "non_positive_amount"
+    },
+    {
+      "line": 7,
+      "transaction_id": "T005",
+      "reason": "too_many_decimal_places"
+    },
+    {
+      "line": 8,
+      "transaction_id": "T006",
+      "reason": "invalid_amount"
+    },
+    {
+      "line": 9,
+      "transaction_id": "T007",
+      "reason": "invalid_type"
+    },
+    {
+      "line": 10,
+      "transaction_id": "T008",
+      "reason": "invalid_status"
+    },
+    {
+      "line": 11,
+      "transaction_id": "T009",
+      "reason": "invalid_created_at"
+    }
+  ]
+}
