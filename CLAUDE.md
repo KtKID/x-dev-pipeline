@@ -27,7 +27,7 @@ x-dev-pipeline/
 ├── skills/x-dev/scripts/xdev.py       # 薄 CLI 路由器
 ├── skills/x-spec/scripts/             # spec 与包校验引擎
 ├── skills/x-req/scripts/              # task 引擎
-├── skills/x-verify/scripts/           # Gate ① 引擎
+├── skills/x-verify-spec/scripts/           # Gate ① 引擎
 ├── skills/x-qa-gate/scripts/          # QA issue 事务引擎
 ├── .claude-plugin/                    # Claude Code marketplace 注册
 ├── .codex-plugin/, .agents/           # Codex 注册
@@ -37,7 +37,7 @@ x-dev-pipeline/
 ## 核心管线
 
 ```
-x-spec ─→ x-adversarial-risk ─→ x-req ─→ x-dev ─→ x-verify ─→ x-qa-gate ─→ x-fix
+x-spec ─→ x-adversarial-risk ─→ x-req ─→ x-dev ─→ x-verify-spec ─→ x-qa-gate ─→ x-fix
 (docs/spec/)   双评分+对抗 Scenario    (task/)       验证是否符合spec.md      批量修+增量复审
                                                    命令+smoke/e2e 风险路由：默认 RC 综合 / 高危 R1→R2→R3
 
@@ -58,22 +58,22 @@ x-spec ─→ x-adversarial-risk ─→ x-req ─→ x-dev ─→ x-verify ─�
 | Spec 风险门禁 | x-spec 写 `adversarial_risk_version: 3`、复杂度/重要性/平均分/预算、`pending` 状态和 `initial-spec` 来源；x-adversarial-risk 完成对抗检查并写审查记录；x-req 复跑 `risk_contract.py validate-spec` 后才拆解 |
 | 风险错题集边界 | `skills/x-adversarial-risk/references/risk-mistakes.md` 只由 x-adversarial-risk 在 deep/full 审查或录入已确认缺口时读取；每项使用唯一 `AR-NNN`，并只保存关键词与 Risk |
 | spec 需求包目录 | x-spec 产出 `docs/spec/<spec-name>/`，`docs/spec/README.md` 汇总 spec 导航。x-req 的 README `spec:` 字段指向 `docs/spec/<spec-name>`，一个 task 只归属一个 spec |
-| `dev-report.md` schema | x-dev 使用 `skills/x-dev/templates/dev-report-template.md`（含 `risk: default/high` 字段，Gate ② 路由依据）；x-verify 的必跑清单 = dev-report 命令表 + task README Smoke/E2E 用例（manual 用例列入待人工验收）；x-qdev 不使用 dev-report，改用 `skills/x-qdev/templates/task.md` 单文档四段式（①需求/②测试用例/③技术实现/④验证结果），建在对应 spec 的 `tasks/` 下 |
+| `dev-report.md` schema | x-dev 使用 `skills/x-dev/templates/dev-report-template.md`（含 `risk: default/high` 字段，Gate ② 路由依据）；x-verify-spec 的必跑清单 = dev-report 命令表 + task README Smoke/E2E 用例（manual 用例列入待人工验收）；x-qdev 不使用 dev-report，改用 `skills/x-qdev/templates/task.md` 单文档四段式（①需求/②测试用例/③技术实现/④验证结果），建在对应 spec 的 `tasks/` 下 |
 | 测试分层契约 | x-spec 写验证策略；x-req README 显式列 smoke/e2e 验收用例；单元/契约/边界测试由 x-dev 按实际改动补齐，并写入 `dev-report.md` 验证命令清单 |
-| `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。语义 = **批量修轮数**（一轮 = 一份 issue 清单的整体修复）。x-verify 首次创建，x-fix 按轮递增，x-qa-gate 在 Gate ② 最终 pass 后重置。**3 轮上限**，三方共享 |
+| `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。语义 = **批量修轮数**（一轮 = 一份 issue 清单的整体修复）。x-verify-spec 首次创建，x-fix 按轮递增，x-qa-gate 在 Gate ② 最终 pass 后重置。**3 轮上限**，三方共享 |
 | reviewer 子 agent | x-qa-gate 按 `risk:` 风险路由：默认线 dispatch 一个综合 reviewer RC（`references/rc-unified.md`），高危线串行 dispatch R1/R2/R3；初始 prompt 预算为 10,000 estimated tokens，使用 manifest + 路径 + diff 命令 + completeness gate |
 | 一轮列全 | 所有 reviewer 穷尽列出全部问题候选后判定；每条返回 task、severity、loc、msg 和证据，并省略编号；回执包含覆盖声明、完整问题候选和穷尽声明；严重度 P0/P1/P2 唯一定义在 `skills/x-qa-gate/SKILL.md` |
 | reviewer 只读 | RC/R1/R2/R3 只输出 review 回执；修改统一走 x-fix |
 | issue 登记与状态写权 | 主 agent 串行逐条调用 `python3 skills/x-dev/scripts/xdev.py flag ... --json`；本轮首条带 `--new-round`。代码分配 `issue-<n>`、写 ledger、把 P0/P1 task 降为 `[!] 🔴`；每个 task 长期只保留一份 `dev-checklist.md`，内容无变化时跳过 checklist 临时文件，实际变更使用固定临时路径并在提交或恢复后清理；`recovered:true` 时主 agent 用原参数再次调用。reviewer、子 agent、x-fix 保持 ledger 与状态列原样 |
 | x-fix 批量修 + 增量复审 | x-fix 一次修完一轮 issue 清单（P0 全修且各固化一条可复跑反例、P1 修或豁免、P2 登记），产出带 issue ID 的逐条处置表；复审尽量由同一个 reviewer 承接，只看 issue 处置 + fix 增量 diff，熔断条件见 `skills/x-qa-gate/SKILL.md` |
-| 门禁回执 | x-verify / x-qa-gate / x-fix 每个节点结束在对话中输出统一回执（P0/P1/P2 计数 + 拦截来源维度 + 处置），零问题也输出；QA Gate issue ledger 由 flag 生成。格式见 `skills/x-qa-gate/SKILL.md`「回执与状态」 |
+| 门禁回执 | x-verify-spec / x-qa-gate / x-fix 每个节点结束在对话中输出统一回执（P0/P1/P2 计数 + 拦截来源维度 + 处置），零问题也输出；QA Gate issue ledger 由 flag 生成。格式见 `skills/x-qa-gate/SKILL.md`「回执与状态」 |
 | x-cr 手动调查 | `skills/x-cr/SKILL.md` 是手动软件正确性调查入口，独立于自动门禁。先读取归属 spec 的“影响边界与不变量”，再登记遗漏候选并做贝叶斯根因调查；task 报告写入 `docs/spec/<spec>/tasks/<task>/reports/cr/`，普通调查写入 `reports/cr/`；x-fix 按稳定 Bn/INV-ID 消费 |
 | 状态码 | ⏳ 未开始 / ▶️ 进行中 / 🟡 待验证 / 🔴 验证失败 / 🟢 证据通过 / ✅ 已完成 / ↗️ 已升级。x-dev 最多到 🟢，✅ 由完整 review 升级；x-qdev 按自检清单（需求全覆盖/测试真实通过/实现在边界内/不变量未破坏）关闭并输出回执，超出小任务范围时提示改走完整流程 |
 
 ## 改 skill 时的注意事项
 
 - **YAML frontmatter 是触发依据**：`description` 里的关键词决定 skill 何时被自动触发。改正文是低风险，**改 description 等于改触发面**——评估全局影响后再改。
-- **report 路径不能乱**：每类 fail 写到固定子目录，旧链路（直接 bug fix）走 `reports/fix/fix-report-*.md` / `fix-note-*.md`，新链路（gate 回流）走 `fix-verify-*.md` / `fix-gate-r<轮次>-*.md`（批量修处置表）。两套路径**并存**，不要合并。
+- **report 路径不能乱**：每类 fail 写到固定子目录，旧链路（直接 bug fix）走 `reports/fix/fix-report-*.md` / `fix-note-*.md`，新链路（gate 回流）走 `fix-verify-spec-*.md` / `fix-gate-r<轮次>-*.md`（批量修处置表）。两套路径**并存**，不要合并。
 - **x-cr 报告交接**：task 内 CR 固定写到 `<task>/reports/cr/`，普通仓库 CR 写到仓库级 `reports/cr/`；`Schema: x-cr-v2`、`不变量覆盖`、`审查结论`、`问题详情` 及 Bn/INV-ID 映射是 x-fix 的消费契约，历史报告继续走兼容解析。
 - **manifest 不显式列 skill**：`.claude-plugin/plugin.json` / `.codex-plugin/plugin.json` 都靠 `./skills/` 目录自动发现，新增 skill 不必改 manifest 字段，除非要更新 `defaultPrompt` 示例。
 - **reference 文件保留制**：`skills/x-cr/references/auto-loop-mode.md` 之类的旧 reference **保留**作历史参考，不要删；新逻辑放到 x-qa-gate / x-fix 的 references。
@@ -119,4 +119,4 @@ claude plugin install x-dev-pipeline@x-dev-pipeline --scope user
 
 ## 用户当前正在做的改造
 
-`dev-pipeline/tasks/qa-gate-pipeline/` 是当前主线改造任务（v0.2 双层 gate 架构）：把老 `x-cr` 单层闭环升级为 `x-verify` (事实) + `x-qa-gate` (R1/R2/R3 评审) 双层 gate，并把 perf/style 剥离成独立 audit。代码改动已落地，**待用户在新会话跑完 5 个 e2e smoke case 才能升 ✅**。看 `dev-pipeline/tasks/qa-gate-pipeline/changelog.md` 了解最新决策。
+`dev-pipeline/tasks/qa-gate-pipeline/` 是当前主线改造任务（v0.2 双层 gate 架构）：把老 `x-cr` 单层闭环升级为 `x-verify-spec` (事实) + `x-qa-gate` (R1/R2/R3 评审) 双层 gate，并把 perf/style 剥离成独立 audit。代码改动已落地，**待用户在新会话跑完 5 个 e2e smoke case 才能升 ✅**。看 `dev-pipeline/tasks/qa-gate-pipeline/changelog.md` 了解最新决策。

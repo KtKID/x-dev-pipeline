@@ -63,7 +63,7 @@ def _engine(module_name: str, skill_name: str):
 flag_engine = _engine("flag", "x-qa-gate")
 req = _engine("req", "x-req")
 validator = _engine("validator", "x-spec")
-verify_engine = _engine("verify", "x-verify")
+verify_engine = _engine("verify", "x-verify-spec")
 
 
 def discover(root: Path) -> list[Path]:

@@ -3,7 +3,7 @@ name: x-cr
 description: |
   软件正确性调查 skill。用于用户说“XX 不太对”“这个功能有 bug”“结果和预期不一致”“帮我查原因”，也用于 review 模块、文件、diff 或 PR 的正确性。遇到已知异常、模块不变量、信任边界、授权范围扩张、服务端校验、租户/会话隔离或持久化一致性问题时优先使用本 skill。
   本 skill 先读取归属 spec 的“影响边界与不变量”，再从模块入口、契约邻居、状态/权限所有者、失败路径和调用方寻找遗漏候选，随后构造最小反例，并用日志、代码路径、测试、diff、spec 等证据做贝叶斯根因调查。
-  x-cr 独立于 x-verify / x-qa-gate 自动门禁，产出 task 内或仓库级 `reports/cr/cr-report-*.md`，x-fix 可按稳定 Bn 问题 ID 继续修复。
+  x-cr 独立于 x-verify-spec / x-qa-gate 自动门禁，产出 task 内或仓库级 `reports/cr/cr-report-*.md`，x-fix 可按稳定 Bn 问题 ID 继续修复。
 ---
 
 # x-cr · 软件正确性调查

@@ -1,6 +1,6 @@
 # x-fix · qa-gate-fix-mode
 
-> 当 x-fix 由 x-verify 或 x-qa-gate reviewer（RC/R1/R2/R3）触发时，进入本模式。
+> 当 x-fix 由 x-verify-spec 或 x-qa-gate reviewer（RC/R1/R2/R3）触发时，进入本模式。
 
 ## 输入识别
 
@@ -16,7 +16,7 @@
 5. 修复触及配置、CLI、公开 API、协议/schema 或落盘布局时，列出修复前已接受的最小输入样本；新增配置字段使用兼容默认值，或按 spec 提供显式迁移验收。
 6. 自跑一个聚焦反例，并用修复前原始样本复跑完整入口 smoke/verify。原始样本保持原样，扩展后的 fixture 作为附加覆盖。
 7. 写 fix 报告（逐条处置表）到对应路径（见 SKILL.md 路径表），记录两条命令的 exit、关键输出和所用输入样本。
-8. 控制权交回主 agent：verify-fix 回 x-verify 复跑；gate-fix 回 x-qa-gate 增量复审（复用已完成回执和证据，省略 reviewer follow-up turn）。
+8. 控制权交回主 agent：verify-fix 回 x-verify-spec 复跑；gate-fix 回 x-qa-gate 增量复审（复用已完成回执和证据，省略 reviewer follow-up turn）。
 9. dev-checklist 状态单元格与 issue ledger 在修复过程中保持原样；主 agent 在增量复审通过后执行升钩。
 
 ## mode 特殊规则
@@ -24,7 +24,7 @@
 ### verify-fix
 
 - 只修让命令 fail 的代码（编译错误 / 测试 fail / lint error / smoke-e2e fail）。
-- 修完触发回流：回 x-verify 复跑本轮 fail 过的命令；最终通关前 x-verify 须完整跑一遍全清单。
+- 修完触发回流：回 x-verify-spec 复跑本轮 fail 过的命令；最终通关前 x-verify-spec 须完整跑一遍全清单。
 - **注意**：不要去改 dev-report.md 里的命令清单或预期 exit！那会绕过验证。
 
 ### gate-fix

@@ -16,7 +16,7 @@ PIPELINE_STAGES = (
     "x-adversarial-risk",
     "x-req",
     "x-dev",
-    "x-verify",
+    "x-verify-spec",
     "x-qa-gate",
     "x-fix",
 )

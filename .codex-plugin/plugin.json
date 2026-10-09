@@ -33,7 +33,7 @@
     "defaultPrompt": [
       "x-req add dark mode toggle to settings page",
       "x-req turn this feature request into a task package",
-      "x-verify run dev-report command list against the latest task",
+      "x-verify-spec run dev-report command list against the latest task",
       "x-qa-gate review the current task with risk-routed reviewers",
       "x-fix fix issues from the latest verify or qa-gate report"
     ],

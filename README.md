@@ -17,7 +17,7 @@
 Large work follows the four-step main line; small tasks close in a single document:
 
 ```text
-Full flow:  x-spec → x-req → x-dev → x-verify (Gate ①) → x-qa-gate (Gate ②) → delivered
+Full flow:  x-spec → x-req → x-dev → x-verify-spec (Gate ①) → x-qa-gate (Gate ②) → delivered
               write       split      line-by-line     delivery            quality
               requirements tasks      TDD              reconciliation      review
 
@@ -84,9 +84,9 @@ x-dev executes a single task: from T1 downward, tests first, implementation seco
 - After every row is 🟢, run the task's full test suite plus one regression pass over existing tests.
 - `dev-report.md` records conclusions only — all green or N 🔴, regression result, high-risk row coverage — never pasted test output.
 
-### 4. x-verify · Gate ① delivery reconciliation
+### 4. x-verify-spec · Gate ① delivery reconciliation
 
-x-verify audits the delivery evidence chain. It does not re-run tests and does not judge implementation quality: with spec scenarios as the source of truth, it reconciles the checklist against the dev-report —
+x-verify-spec audits the delivery evidence chain. It does not re-run tests and does not judge implementation quality: with spec scenarios as the source of truth, it reconciles the checklist against the dev-report —
 
 1. Valid refs: every `featNN scenarioM` exists in the spec;
 2. Tree consistency: no off-tree files, no missing files;
@@ -102,7 +102,7 @@ A full pass prints only a receipt. Problems are returned by origin — spec stru
 
 ## Check flow: two gates
 
-Gate ① (x-verify above) guards the consistency of the document evidence chain; Gate ② (x-qa-gate) guards the quality of the implementation itself. After verify passes, routing follows the task's risk:
+Gate ① (x-verify-spec above) guards the consistency of the document evidence chain; Gate ② (x-qa-gate) guards the quality of the implementation itself. After verify passes, routing follows the task's risk:
 
 | Risk | Typical scope | Gate ② route |
 |------|---------------|--------------|
@@ -165,7 +165,7 @@ x-spec records 1–5 complexity and importance scores; `x-bug2rag/scripts/home_c
 | `/x-spec` | Write requirements as a purely functional spec (feats + GWT scenarios) |
 | `/x-req` | Split feats into tasks and generate scenario-ref dev-checklists |
 | `/x-dev` | Execute one task line by line with TDD and write a conclusions-only dev-report |
-| `/x-verify` | Gate ①: reconcile the delivery evidence chain and triage by origin |
+| `/x-verify-spec` | Gate ①: reconcile the delivery evidence chain and triage by origin |
 | `/x-qa-gate` | Gate ②: tri-lens quality review and flag issue ledgers |
 | `/x-qdev` | Single-doc loop for small tasks: requirements → tests → implementation → verification |
 | `/x-fix` | Batch-fix the issue list found by verify, gates, or CR |
@@ -181,7 +181,7 @@ x-spec records 1–5 complexity and importance scores; `x-bug2rag/scripts/home_c
 `skills/x-dev/scripts/xdev.py` is the thin unified CLI for mechanical rules outside skill prose.
 Its engines live with their owning skills: package validation in
 `skills/x-spec/scripts/validator.py`, task planning in `skills/x-req/scripts/req.py`, verification
-in `skills/x-verify/scripts/verify.py`, and QA issue transactions in
+in `skills/x-verify-spec/scripts/verify.py`, and QA issue transactions in
 `skills/x-qa-gate/scripts/flag.py`:
 
 ```text
@@ -198,7 +198,7 @@ Task commands only accept `docs/spec/<spec-name>/tasks/<task-name>/`. Historical
 `dev-pipeline/tasks/` directories remain readable artifacts and have no runtime validation or
 orchestration support.
 
-As of v1.0.0, Gate ① is the x-verify skill's delivery reconciliation; the verify engine remains for legacy `spec_version: 3` contract packages, while the v6 chain relies on `status` (progress) and `flag` (issue ledger). `flag` coordinates the issue ledger with the single durable `dev-checklist.md` per task through a persistent transaction: unchanged content creates no temp file, a recovered pending transaction returns `recovered:true`, and the caller retries the intended issue.
+As of v1.0.0, Gate ① is the x-verify-spec skill's delivery reconciliation; the verify engine remains for legacy `spec_version: 3` contract packages, while the v6 chain relies on `status` (progress) and `flag` (issue ledger). `flag` coordinates the issue ledger with the single durable `dev-checklist.md` per task through a persistent transaction: unchanged content creates no temp file, a recovered pending transaction returns `recovered:true`, and the caller retries the intended issue.
 
 ## x-spec2 pilot metrics
 

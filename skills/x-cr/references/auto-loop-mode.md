@@ -8,17 +8,17 @@
 |------|------------|
 | 用户说某功能不太对，需要查根因 | x-cr |
 | 用户要求 review 模块、文件、diff、PR 的正确性 | x-cr |
-| x-dev 完成后复跑验证命令 | x-verify |
+| x-dev 完成后复跑验证命令 | x-verify-spec |
 | README risk Q0/Q1 任务收尾 | x-dev → verify → 交付 |
 | README risk Q2 任务收尾 | x-dev → verify → RC |
 | README risk Q3 任务收尾 | x-dev → verify → R1 → R2 → R3 |
-| x-verify 通过后的流水线质量门禁 | x-qa-gate |
+| x-verify-spec 通过后的流水线质量门禁 | x-qa-gate |
 | verify / qa-gate / CR 报告里的问题修复 | x-fix |
 
 当前自动链路：
 
 ```text
-x-dev -> x-verify -> x-qa-gate -> x-fix
+x-dev -> x-verify-spec -> x-qa-gate -> x-fix
 ```
 
 统一开发链路：

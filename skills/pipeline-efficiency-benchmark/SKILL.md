@@ -80,7 +80,7 @@ python3 skills/pipeline-efficiency-benchmark/scripts/prepare_workspace.py \
 - `x-adversarial-risk`
 - `x-req`
 - `x-dev`
-- `x-verify`
+- `x-verify-spec`
 - `x-qa-gate`
 - `x-fix`
 
@@ -139,7 +139,7 @@ x-spec
   → 按风险预算调用 x-adversarial-risk
   → x-req
   → x-dev
-  → x-verify
+  → x-verify-spec
   → x-qa-gate
   → x-fix 与增量复验
 ```

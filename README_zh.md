@@ -17,7 +17,7 @@
 大需求走主线四步，小任务走单文档闭环：
 
 ```text
-完整流程：x-spec → x-req → x-dev → x-verify(Gate ①) → x-qa-gate(Gate ②) → 交付
+完整流程：x-spec → x-req → x-dev → x-verify-spec(Gate ①) → x-qa-gate(Gate ②) → 交付
               写需求     拆任务     逐行TDD      交付对账          质量评审
 
 小任务：x-qdev（一份 task 文档：需求 → 测试 → 实现 → 验证，一次闭环）
@@ -83,9 +83,9 @@ x-dev 一次只执行一个 task：从 T1 开始按行序做，先测试后实�
 - 全部行 🟢 后跑本 task 全量测试 + 一次既有测试回归。
 - `dev-report.md` 只记验证结论：全绿或 N 个 🔴、回归结果、高风险行验证情况，不粘贴测试输出。
 
-### 4. x-verify · Gate ① 交付对账
+### 4. x-verify-spec · Gate ① 交付对账
 
-x-verify 核对的是交付证据链，不重跑测试、不评判实现质量：以 spec 场景为事实源，对账 checklist 与 dev-report 两份文档——
+x-verify-spec 核对的是交付证据链，不重跑测试、不评判实现质量：以 spec 场景为事实源，对账 checklist 与 dev-report 两份文档——
 
 1. 回指有效：每行 `featNN 场景M` 都真实存在于 spec；
 2. 影响树一致：树上没有表外文件，表内文件都在树上；
@@ -101,7 +101,7 @@ x-verify 核对的是交付证据链，不重跑测试、不评判实现质量�
 
 ## 检查流程：两道门禁
 
-Gate ①（上文 x-verify）守住文档证据链的一致性；Gate ②（x-qa-gate）守住实现本身的质量。verify 通过后按 task 的 risk 路由：
+Gate ①（上文 x-verify-spec）守住文档证据链的一致性；Gate ②（x-qa-gate）守住实现本身的质量。verify 通过后按 task 的 risk 路由：
 
 | risk | 典型范围 | Gate ② 路径 |
 |------|----------|-------------|
@@ -164,7 +164,7 @@ x-spec 分别记录 1–5 的复杂度和重要性；`x-bug2rag/scripts/home_cor
 | `/x-spec` | 把需求写成纯功能性 spec（feat + GWT 场景） |
 | `/x-req` | 按 feat 拆 task，生成场景回指式 dev-checklist |
 | `/x-dev` | 逐行 TDD 执行单个 task，写结论式 dev-report |
-| `/x-verify` | Gate ①：交付对账，按来源分诊退回 |
+| `/x-verify-spec` | Gate ①：交付对账，按来源分诊退回 |
 | `/x-qa-gate` | Gate ②：tri-lens 质量评审，flag 登记 issue |
 | `/x-qdev` | 小任务单文档闭环：需求 → 测试 → 实现 → 验证 |
 | `/x-fix` | 批量修复 verify、gate 或 CR 发现的 issue 清单 |
@@ -179,7 +179,7 @@ x-spec 分别记录 1–5 的复杂度和重要性；`x-bug2rag/scripts/home_cor
 
 `skills/x-dev/scripts/xdev.py` 是机械规则的薄 CLI 入口；包校验由
 `skills/x-spec/scripts/validator.py` 负责，spec task 规划由
-`skills/x-req/scripts/req.py` 负责，验证由 `skills/x-verify/scripts/verify.py` 负责，QA issue
+`skills/x-req/scripts/req.py` 负责，验证由 `skills/x-verify-spec/scripts/verify.py` 负责，QA issue
 事务由 `skills/x-qa-gate/scripts/flag.py` 负责：
 
 ```text
@@ -195,7 +195,7 @@ flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-
 task 命令只接收 `docs/spec/<spec-name>/tasks/<task-name>/`。历史
 `dev-pipeline/tasks/` 目录继续作为可读档案保留，不再获得运行时校验或编排支持。
 
-v1.0.0 起 Gate ① 改为 x-verify skill 的交付对账，verify 引擎保留给既有 `spec_version: 3` 契约包；v6 链路日常使用 `status`（进度）与 `flag`（issue 台账）。`flag` 通过持久事务协调 issue ledger 与每个 task 唯一的一份 `dev-checklist.md`：内容无变化不创建临时文件，pending 事务恢复返回 `recovered:true`，调用方重试本条 issue。
+v1.0.0 起 Gate ① 改为 x-verify-spec skill 的交付对账，verify 引擎保留给既有 `spec_version: 3` 契约包；v6 链路日常使用 `status`（进度）与 `flag`（issue 台账）。`flag` 通过持久事务协调 issue ledger 与每个 task 唯一的一份 `dev-checklist.md`：内容无变化不创建临时文件，pending 事务恢复返回 `recovered:true`，调用方重试本条 issue。
 
 ## x-spec2 pilot 计量
 

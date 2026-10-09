@@ -4,7 +4,7 @@ description: |
   Bug 修复执行 skill。分三种入口：
   1. 用户直接报告 Bug → 定位根因 → 修复 → 产出 fix-report-*.md 或 fix-note-*.md（无需 CR 报告）
   2. 有 x-cr 的 CR 报告 → 按稳定 Bn/INV-ID 逐条修复 → 回写同一份 task 内或仓库级 `reports/cr/cr-report-*.md` 主档并产出修复记录
-  3. 有 x-verify / x-qa-gate fail 报告 → 按 issue 清单一次批量修复，产出逐条处置表，交回 gate 增量复审
+  3. 有 x-verify-spec / x-qa-gate fail 报告 → 按 issue 清单一次批量修复，产出逐条处置表，交回 gate 增量复审
   触发方式："x-fix"、"修一下这个 bug"、"这个功能坏了"、
   "按 CR 报告修复"、"把 CR 问题修了"。
 ---
@@ -15,7 +15,7 @@ description: |
 
 按输入来源选择模式：
 
-- **有 x-verify / x-qa-gate fail 报告**（包含 `verify-report-*.md`，或 RC/R1/R2/R3 review 问题映射与 `issue-<n>`）→ 加载 `references/qa-gate-fix-mode.md`
+- **有 x-verify-spec / x-qa-gate fail 报告**（包含 `verify-report-*.md`，或 RC/R1/R2/R3 review 问题映射与 `issue-<n>`）→ 加载 `references/qa-gate-fix-mode.md`
 - **有 x-cr CR 报告**（用户提供 task 内/仓库级 `reports/cr/cr-report-*.md`，或提到"按 CR 报告"、"CR 问题"）→ 加载 `references/cr-fix-mode.md`
 - **用户直接描述 bug 或问题现象** → 加载 `references/bug-fix-mode.md`
 
@@ -84,8 +84,8 @@ description: |
 ## x-cr / x-qa-gate 边界
 
 - x-cr 报告来自手动软件正确性调查，x-fix 按稳定 Bn/INV-ID 修复，并回写同一份 task 内或仓库级 CR 报告。
-- x-verify / x-qa-gate 报告来自自动门禁，x-fix 按 `references/qa-gate-fix-mode.md` 一次批量修复本轮 issue 清单，修完交回触发 gate 做增量复审。
-- 当前自动门禁链路是 `x-dev -> x-verify -> x-qa-gate -> x-fix`。
+- x-verify-spec / x-qa-gate 报告来自自动门禁，x-fix 按 `references/qa-gate-fix-mode.md` 一次批量修复本轮 issue 清单，修完交回触发 gate 做增量复审。
+- 当前自动门禁链路是 `x-dev -> x-verify-spec -> x-qa-gate -> x-fix`。
 - README `risk: Q0/Q1` 在 verify 通过后交付；Q2/Q3 进入对应深度的 tri-lens reviewer。
 - 手动正确性调查和 CR 复查由用户明确触发 x-cr。
 
@@ -99,7 +99,7 @@ description: |
 
 ## Gate 回流：批量修 + 增量复审
 
-x-fix 同时接收 bug 报告、cr-report，以及 x-verify / x-qa-gate reviewer（RC/R1/R2/R3）的 fail 触发。执行结构是**一次批量修完本轮全部 issue，交回 gate 做增量复审**；增量复审与熔断逻辑见 `skills/x-qa-gate/SKILL.md`「回流」。
+x-fix 同时接收 bug 报告、cr-report，以及 x-verify-spec / x-qa-gate reviewer（RC/R1/R2/R3）的 fail 触发。执行结构是**一次批量修完本轮全部 issue，交回 gate 做增量复审**；增量复审与熔断逻辑见 `skills/x-qa-gate/SKILL.md`「回流」。
 
 ### 批量修协议
 
@@ -113,7 +113,7 @@ x-fix 同时接收 bug 报告、cr-report，以及 x-verify / x-qa-gate reviewer
 
 ### fix-attempts 3 轮共享上限
 
-**fix-counter 文件协议**（与 x-verify / x-qa-gate 共享）：
+**fix-counter 文件协议**（与 x-verify-spec / x-qa-gate 共享）：
 
 - 路径：`dev-pipeline/tasks/<task>/reports/.fix-counter`
 - 格式：单行 ASCII 整数 + 行尾换行（如 `2\n`）
@@ -127,7 +127,7 @@ x-fix 同时接收 bug 报告、cr-report，以及 x-verify / x-qa-gate reviewer
 
 | 触发节点 | fix 报告路径 |
 |---------|-------------|
-| x-verify fail | `reports/fix/fix-verify-YYYYMMDD-HHmmss.md` |
+| x-verify-spec fail | `reports/fix/fix-verify-spec-YYYYMMDD-HHmmss.md` |
 | Gate ② reviewer fail（RC/R1/R2/R3）| `reports/fix/fix-gate-r<轮次>-YYYYMMDD-HHmmss.md` |
 
 报告核心是逐条处置表：

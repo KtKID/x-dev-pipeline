@@ -1,14 +1,14 @@
 ---
 name: x-audit-perf
 description: |
-  独立性能巡检 skill。不在 x-dev → x-verify → x-qa-gate 主流程内，由用户手动触发或在大里程碑后调用。
+  独立性能巡检 skill。不在 x-dev → x-verify-spec → x-qa-gate 主流程内，由用户手动触发或在大里程碑后调用。
   调子 agent 做全项目视角的性能审查：N² 嵌套、不必要循环、大对象拷贝、同步阻塞、数据库 N+1、缓存失效、不必要的 await。
   触发：用户说"性能巡检"、"audit perf"、"看看有没有性能问题"、"perf review"，或大版本发布前。
 ---
 
 # x-audit-perf · 性能巡检
 
-x-audit-perf 是独立巡检 skill，**不在 x-dev → x-verify → x-qa-gate 主流程内**。它由用户手动触发或大里程碑后调用，做全项目视角的性能审查。
+x-audit-perf 是独立巡检 skill，**不在 x-dev → x-verify-spec → x-qa-gate 主流程内**。它由用户手动触发或大里程碑后调用，做全项目视角的性能审查。
 
 ## 为什么独立
 

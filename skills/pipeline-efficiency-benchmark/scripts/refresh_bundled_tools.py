@@ -21,7 +21,7 @@ TOOL_SOURCES = {
     "flag.py": ("x-qa-gate", "scripts/flag.py"),
     "req.py": ("x-req", "scripts/req.py"),
     "spec.py": ("x-spec", "scripts/spec.py"),
-    "verify.py": ("x-verify", "scripts/verify.py"),
+    "verify.py": ("x-verify-spec", "scripts/verify.py"),
     "metrics.py": ("pipeline-efficiency-benchmark", "scripts/metrics.py"),
 }
 

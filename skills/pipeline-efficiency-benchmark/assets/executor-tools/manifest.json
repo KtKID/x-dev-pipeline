@@ -6,7 +6,7 @@
     {
       "name": "xdev.py",
       "source": "x-dev/scripts/xdev.py",
-      "sha256": "sha256:94ef8539bdf559f7b5862056f34be883d2ad6a4e1aa63dd3a6d3e63f3caf44bd"
+      "sha256": "sha256:df54574dda93521e79f8d297015e7fc0b9583dc051bc6160f58a5de6f62633bb"
     },
     {
       "name": "validator.py",
@@ -30,7 +30,7 @@
     },
     {
       "name": "verify.py",
-      "source": "x-verify/scripts/verify.py",
+      "source": "x-verify-spec/scripts/verify.py",
       "sha256": "sha256:38494ff515f0e3b53cb3a54c5d25720688db1e977c67d3bdbc076ea013ede52b"
     },
     {
