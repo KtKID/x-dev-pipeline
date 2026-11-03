@@ -1,7 +1,7 @@
 ---
 name: x-dev
 description: |
-  开发任务执行 skill。读取单个 task 的 dev-checklist.md，按行序以"先测试后实现"的方式逐行执行，dev-report 只记验证结论（全绿或 N 个 🔴），全部行验证通过后交付。触发：`x-dev {task-dir}`、用户要求执行/开发某个 task。
+  开发任务执行 skill。读取单个 task 的 dev-checklist.md，按行序先测试后实现；dev-report 用日常语言逐例说明全部测试的过程和结果，附可定位执行记录，全部行验证通过后交付。触发：`x-dev {task-dir}`、用户要求执行/开发某个 task。
 ---
 
 # x-dev — task 执行
@@ -36,7 +36,7 @@ checklist 的约定（由 x-req 生成）：
 
 ## dev-report
 
-`docs/spec/<spec-name>/tasks/<task-name>/dev-report.md`，记简短结论与可定位证据、不贴大段测试输出：全绿或 N 个 🔴、回归结果、高风险行验证情况；红色失败一行一条摘要。完整读取 `templates/dev-report.md` 后填充。
+`docs/spec/<spec-name>/tasks/<task-name>/dev-report.md` 是用户阅读入口。按 [测试报告与证据复查](references/test-reporting.md) 和 `templates/dev-report.md` 填写：简短结论、全部专项/回归/人工用例的日常语言过程及实际结果、适用的逐文件覆盖率、待处理项；执行命令、基线和原始输出放复查附件。长用例列表可按功能折叠，失败和缺证据保留在开头。
 
 ## 自检（交付前）
 
@@ -45,6 +45,7 @@ checklist 的约定（由 x-req 生成）：
 - 高风险行有真实链路验证？
 - 全部改动都在「涉及文件」范围内？
 - 既有测试回归通过？
+- 报告逐例列全本次专项、回归及人工检查，并说明准备、操作、预期和实际结果？静默检查有执行记录及退出码？
 - 每个 🔴 行都在 dev-report 未决节有一行摘要？
 
 ## 回执

@@ -1,0 +1,19 @@
+Use case: infographic-diagram / style-transfer.
+Asset type: GitHub README workflow hero, wide landscape approximately 16:9.
+Input image 1: visual style reference and workflow redesign target. Redesign the diagram content completely while closely preserving its warm scrapbook visual language: cream paper on a beige textured backdrop, pastel blue mint coral ochre, dark brown hand-drawn outlines, white die-cut sticker borders, soft paper shadows, corner washi tapes, restrained tiny stars and stationery doodles, friendly hand-lettered typography.
+
+Primary request: illustrate ONLY the updated x-dev-pipeline workflow from specification through verification. Create a clean, readable, spacious diagram with exactly six named skill nodes. Title text exactly "SPEC TO VERIFY" and small subtitle exactly "x-dev-pipeline". All labels in English with exact skill spelling.
+
+Composition: top row has four evenly spaced large sticker illustrations read left to right:
+1. Open book with magnifying glass. Label "x-spec". Subtitle "Requirements & Constraints".
+2. Architecture blueprint with connected small modules and ruler. Label "x-tech-design". Subtitle "Technical Design".
+3. Mint checklist clipboard. Label "x-req". Subtitle "Task Breakdown".
+4. Blue code braces with a small test tick. Label "x-dev". Subtitle "Implementation & Evidence".
+Brown dashed arrows connect ONLY x-spec -> x-tech-design -> x-req -> x-dev. Small readable checkmark tags on the first two arrows each say exactly "User confirmed".
+
+The spacious lower row has two separate verification endpoints:
+left: a magnifying glass over matching checked documents, label "x-verify-spec", subtitle "Delivery Reconciliation", small line "Scope · Coverage · Evidence".
+right: a shield/checkmark with blueprint and code, label "x-verify-tech", subtitle "Technical Acceptance", small line "Design · Code · Tests".
+A clearly traceable brown dashed connector from x-dev descends into a fork and ends with two distinct directional arrows, one to each verification endpoint. Above the fork place the exact small label "Verification by scope". The two verification endpoints are peers, with no arrow between them.
+
+Maintain six exact skill labels, broad safe margins, accurate arrow direction, large readable typography, and an uncluttered paper layout. Scope ends at the verification endpoints. Exclude the old x-plan, x-qdev, x-cr, x-fix nodes, QA gates, delivery nodes, shortcuts, and return loops. Render a polished opaque raster illustration with the same cozy hand-drawn sticker aesthetic as the reference.

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/pic.png" alt="x-dev-pipeline" />
+  <img src="assets/workflow-spec-verify-qdev.png" alt="x-dev-pipeline: main and quick-development flows to shared verification" />
 </p>
 
 # x-dev-pipeline
@@ -8,170 +8,244 @@
 
 **Current release:** v1.0.0
 
-> An auditable development workflow for AI coding agents: requirement contracts, implementation evidence, deterministic checks, and risk-matched review.
+> An auditable development workflow for AI coding agents: confirm requirements and technical design, trace key constraints, and support delivery conclusions with real evidence.
 
-`x-dev-pipeline` lets a spec own requirement scenarios, a dev-checklist own execution state, and a dev-report own verification conclusions. Every delivery can be traced, reconciled, and returned to the exact step that broke.
+`x-dev-pipeline` organizes development into a traceable delivery chain:
+
+| Artifact | Owns |
+|---|---|
+| `spec.md` | User-visible features, acceptance scenarios, and confirmed key constraints |
+| `tech-design.md` | Modules, protocols, data flows, technical decisions, and numbered test cases |
+| `dev-checklist.md` | Execution scope, scenario and test-case references, and progress for one task |
+| `dev-report.md` | Verification conclusions, actual execution evidence, limitations, and unresolved issues |
+
+Stable IDs connect requirements, design, tasks, and evidence. Each step can be traced to its basis, implementation location, and actual result.
 
 ## Two working paths
 
-Large work follows the four-step main line; small tasks close in a single document:
+Full requirements follow a design-first main line; concrete small changes close in a single document.
 
 ```text
-Full flow:  x-spec → x-req → x-dev → x-verify-spec (Gate ①) → x-qa-gate (Gate ②) → delivered
-              write       split      line-by-line     delivery            quality
-              requirements tasks      TDD              reconciliation      review
+Full flow:
+x-spec → user confirms requirements → x-tech-design → user confirms design
+       → x-req → x-dev
+       → x-verify-spec (Gate ①) → x-qa-gate (Gate ②) → delivery
 
-Small task: x-qdev (one task doc: requirements → tests → implementation → verification)
+Technical acceptance:
+x-verify-tech · check a task / feat / diff against confirmed design
+
+Small task:
+x-qdev · one task document: requirements → local design → tests → implementation → evidence
+       → x-verify-spec / x-verify-tech
 ```
 
-## Main line: spec → req → dev → verify
+`x-tech-design` is a required prerequisite for task decomposition. Invoke `x-verify-tech` separately for an explicit scope, preferably after development and before final delivery. The main agent organizes subsequent work using existing confirmation records and each step's conclusions.
 
-### 1. x-spec · Write requirements
+## Main line: requirements → technical design → tasks → development
 
-Turn an agreed conversation into a purely functional spec: `docs/spec/<spec-name>/spec.md`.
+### 1. x-spec · Write requirements and key constraints
 
-- Fixed structure: title + overview + a `featNN` list, where each feat is a feature the user can name.
-- Every feat carries Given/When/Then scenarios covering normal, boundary, and error cases; THEN describes only what the user can observe.
-- No technical vocabulary anywhere (no "database", "API", "cache") — the user can read every line.
-- Defaults chosen where the request was silent go into a closing "to confirm" list for one-shot review.
-
-```markdown
-## feat02: Search books by title
-
-Users can quickly find books by searching for a title.
-
-Scenario 1: Match found
-- GIVEN the home page lists "Three-Body" and "Three-Body II"
-- WHEN the user types "Three-Body" into the search box
-- THEN both books are shown
-
-Scenario 2: No match
-- GIVEN no book on the home page contains "novel" in its title
-- WHEN the user searches for "novel"
-- THEN a "no matching books" message is shown
-```
-
-### 2. x-req · Split into tasks
-
-Group feats into tasks, one development checklist per task: `docs/spec/<spec-name>/tasks/<task-name>/dev-checklist.md`.
-
-- Task rows only reference scenarios as `featNN scenarioM` and never copy the GIVEN/WHEN/THEN — the spec stays the single source of truth.
-- Row order is implementation order; no dependency graph. Merged together, all task rows cover every feat and every scenario in the spec.
-- Risk column: rows touching auth, persistence, concurrency, or irreversible operations are marked `高:` (high) and demand real-chain verification.
-- Below the table sits an affected-files tree (`U` add / `M` modify / `D` delete) that matches the "files involved" column one to one.
-
-````markdown
-| # | Task | Scenario refs | Files | Risk | Status |
-|---|------|---------------|-------|------|--------|
-| T1 | Group data structure and creation | feat01 sc.1-3 | src/groups.py | None | [ ] ⏳ |
-| T2 | Join group via invite code | feat02 sc.1-5 | src/groups.py, src/join.py | None | [ ] ⏳ |
-
-## Affected files
+Turn the agreed conversation into a functional spec the user can read:
 
 ```text
-reading-club/
-├── src/groups.py        M  # group data structure, creation checks, invite codes
-└── src/join.py          U  # add: join via invite code, nickname checks, limits
+docs/spec/<spec-name>/spec.md
 ```
-````
 
-### 3. x-dev · Line-by-line TDD
+Each `featNN` represents a user-visible feature. Given/When/Then scenarios describe normal, boundary, and error behavior; THEN states an observable result.
 
-x-dev executes a single task: from T1 downward, tests first, implementation second — never the reverse.
+The spec also records user-confirmed key constraints: rules that must hold and outcomes that must be prevented. Stable IDs such as `C1` and `C2` identify their scope, observable criteria, confirmation basis, and related scenarios.
 
-- Mark the current row `[ ] ▶️`, write a test for each scenario it references (the scenario's THEN is the assertion), watch it fail, implement until green, then mark `[x] 🟢`.
-- Changes stay inside the affected-files tree — no drive-by edits. Rows marked `高:` require smoke-or-above real-chain verification.
-- After every row is 🟢, run the task's full test suite plus one regression pass over existing tests.
-- `dev-report.md` records conclusions only — all green or N 🔴, regression result, high-risk row coverage — never pasted test output.
+Agent-proposed constraints, reasonable defaults, and behavior awaiting clarification belong in the confirmation checklist. Technical design follows the user's confirmation of the current content.
 
-### 4. x-verify-spec · Gate ① delivery reconciliation
+### 2. x-tech-design · Produce a technical design for confirmation
 
-x-verify-spec audits the delivery evidence chain. It does not re-run tests and does not judge implementation quality: with spec scenarios as the source of truth, it reconciles the checklist against the dev-report —
-
-1. Valid refs: every `featNN scenarioM` exists in the spec;
-2. Tree consistency: no off-tree files, no missing files;
-3. Closed row state: every task row is `[x] 🟢` with no ⏳ / ▶️ / 🔴 leftovers;
-4. High-risk rows: the dev-report declares real-chain verification;
-5. Consistent conclusions: the dev-report matches the checklist state.
-
-A full pass prints only a receipt. Problems are returned by origin — spec structure to x-spec, refs/tree to x-req, report contradictions to x-dev, known failures to x-fix.
+Read the confirmed spec, existing code, and applicable development rules, then create a design alongside the spec:
 
 ```text
-🛡️ Gate① verify ✅ · task-group-management · rows 3/3 🟢 · refs 8/8 valid · tree consistent · high-risk 1 (declared) · conclusions consistent
+docs/spec/<spec-name>/tech-design.md
 ```
 
-## Check flow: two gates
+The design covers:
 
-Gate ① (x-verify-spec above) guards the consistency of the document evidence chain; Gate ② (x-qa-gate) guards the quality of the implementation itself. After verify passes, routing follows the task's risk:
+- **Modules and dependencies**: responsibilities, directories, public entry points, callers, and allowed dependencies.
+- **Data and protocols**: field semantics, data owners, authoritative storage, schema sources, and boundary validation.
+- **Main data flows**: entry, validation, processing, state changes, persistence, and return, including applicable failure, retry, concurrency, and recovery paths.
+- **Rules and verification**: design items, mechanisms enforcing key constraints, numbered test cases, and planned evidence.
 
-| Risk | Typical scope | Gate ② route |
-|------|---------------|--------------|
-| Q0/Q1 | Single-file tweak / local feature or fix | Deliver directly, no reviewers |
-| Q2 | New feature, multiple files, contract or state change | One lean tri-lens reviewer |
-| Q3 | Security, irreversible writes, public API/schema, concurrency or state-machine change | One full tri-lens reviewer |
-
-### Gate ② x-qa-gate: tri-lens review
-
-A reviewer exhaustively checks three independent lenses in a single round; no lens can substitute for another:
-
-- **q1-intent**: does the implementation align with user intent, acceptance scenarios, existing public contracts, and the declared scope;
-- **q2-correctness**: illegal input, boundaries, failure paths, state transitions, concurrency, idempotency, resource cleanup;
-- **q3-evidence**: do tests and verify evidence truly reach the changed paths, and could the assertions kill a broken implementation.
-
-Reviewers are read-only and return problem candidates only (`lens` + `task` + `severity` P0/P1/P2 + `loc` + `msg`), never edits. The main agent double-checks each candidate, then registers them one by one through `xdev.py flag` into an issue ledger with `issue-<n>` IDs, downgrading checklist rows as it goes: P0/P1 become `[!] 🔴`; P2 is logged without blocking.
-
-### Rework loop: flag → x-fix → incremental review
+Design items use stable IDs such as `D01` and `D02`. Key constraints map to mechanisms and numbered cases:
 
 ```text
-Gate ①/② findings
-   ├─ document inconsistency → returned to x-spec / x-req / x-dev by origin
-   └─ P0/P1 → flag registers issues → x-fix batch-fixes them all at once
-                → focused counterexample + one full verify re-run → incremental review
-                → at most 3 rounds (fix-counter); on pass the checklist rises to [x] ✅
+spec: C1 key constraint
+          ↓
+tech-design: D01 mechanism → test cases T1, T2
+          ↓
+checklist: assignment to a specific task / task row
+          ↓
+dev-report: actual results and locatable evidence
 ```
 
-- x-fix processes the complete issue list in one batch — no drip-feeding; every P0 solidifies one re-runnable counterexample.
-- The main agent closes issues with regression evidence and never sends fixes back to the original reviewer.
-- When a fix expands into new files or public API signatures, a trimmed reviewer checks only the new boundary.
-- Gate ① and Gate ② share the three-round fix counter; it resets to zero after a final quality-review pass.
+Each case defines its basis, preconditions, trigger, expected and forbidden outcomes, and verification level. `tech-design.md` owns the test-case definitions; downstream artifacts reference their IDs.
 
-## x-qdev: single-doc loop for small tasks
+The default design status is "awaiting user confirmation." After the user confirms key architecture, protocols, data ownership, and impact decisions, record the confirmation basis and content baseline, then hand the design to x-req.
 
-Concrete, well-scoped single changes — "add a search box", "fix the export bug" — skip the four-step main line. x-qdev first searches `docs/spec/*/spec.md` for an owning spec: if found, the task doc lives at `docs/spec/<spec-name>/tasks/task-<task-name>.md` and references its feat; if the user confirms no spec is needed, it creates a standalone doc at `docs/task/task-<task-name>.md`.
+### 3. x-req · Split tasks from requirements and design
 
-It then completes four sections in **one task document** — the document is the deliverable:
-
-1. **① Requirements** — functional language: direction, boundaries (do / don't), invariants that must not break;
-2. **② Test cases** — written first and failing at this point: unit + smoke, e2e as needed, boundaries mandatory;
-3. **③ Implementation** — steps and files involved, turning ② green;
-4. **④ Verification results** — real pasted output plus invariant regression results; the four conclusion checkboxes must match the actual content.
-
-Before delivery it runs a five-item self-check gate on the document itself: structure, valid refs, closed coverage, consistent conclusions, boundary audit — no other skill required. Out-of-scope tasks (multi-module, requirements still open, high risk) are redirected to the full x-spec + x-req flow.
+Group feats into tasks and create a development checklist for each task:
 
 ```text
-✅ x-qdev done · task-todo-search · tests 5/5 passed · invariant regression passed · files changed 1
+docs/spec/<spec-name>/tasks/<task-name>/dev-checklist.md
 ```
+
+Before decomposition, check the spec, technical design, and related confirmation records. The design must cover the current feats, with mechanisms and complete test cases for all applicable key constraints.
+
+Task rows reference functional expectations through `featNN 场景M` (feat and scenario IDs), and cite `C`, `D`, and test-case IDs in their descriptions. For example:
+
+```text
+T3 · Integration check of retry results (C1; D01; test cases T1, T2)
+```
+
+"Task row T1" belongs to the checklist; "test case T1" belongs to the technical design.
+
+All tasks together cover every spec scenario and every test case for applicable key constraints. Each checklist follows implementation order. The design determines the affected files, and the affected-files tree matches the files column one to one.
+
+Rows involving authorization, persistence, migration, concurrency, or irreversible operations carry `高:<reason>` (high risk) and include smoke-or-above verification through the real path.
+
+### 4. x-dev · Develop row by row and retain evidence
+
+x-dev executes one task at a time. It follows the checklist's spec and design pointers to read scenarios, constraints, mechanisms, and authoritative test-case definitions.
+
+New behavior suitable for automation follows TDD:
+
+1. Write a test and obtain a valid failing result caused by the target behavior being absent or violating its contract.
+2. Implement within the declared file scope until the test passes.
+3. Retain actual results and locatable evidence, then mark the task row `[x] 🟢`.
+
+When existing code already satisfies the requirement, run the relevant cases and fill coverage gaps. Manual verification records its rationale, reproducible steps, and actual observations. Verification preserves the real processing path of the mechanism under examination.
+
+After completing all rows, run the task's full test suite and a regression pass over existing functionality.
+
+`dev-report.md` is the user-facing reading entry: list every task, regression, and manual test case with plain-language setup, actions, expectations, and actual results. Long lists may be grouped in collapsible sections. When coverage is collected, show each file's line/branch coverage, uncovered locations, and measured scope. Keep commands, baselines, exit codes, failing-result reasons, and raw output as AI review attachments; record empty output and the actual exit code for silent checks. Retain failures, blockers, and missing evidence item by item.
+
+## Delivery checks: record reconciliation, technical acceptance, and quality review
+
+| Step | Core responsibility | Outcome |
+|---|---|---|
+| `x-verify-spec` · Gate ① | Reconcile a conventional task or qdev document's scope, coverage, baselines, execution records, and conclusions | Reconciliation passed / incomplete / failed |
+| `x-verify-tech` | Check code against confirmed design and rules, and run relevant checks and tests | Passed / failed / unverified |
+| `x-qa-gate` · Gate ② | Review intent, correctness, and evidence quality according to risk | Quality review passed / findings |
+
+### x-verify-spec · Gate ① delivery reconciliation
+
+The former `x-verify` skill is now named `x-verify-spec`.
+
+The spec supplies expectations, req assignment records establish responsibility, and development records supply execution results. Reconciliation covers nine items:
+
+1. **Structure and location**: readable files, consistent pointers, and uniquely identifiable scenarios.
+2. **Content baselines**: current requirements, constraints, and cases correspond to the content used during decomposition and verification; changes have realignment evidence.
+3. **Scenario references**: fully parse IDs, multiple references, and ranges, then validate each member.
+4. **Task coverage**: actual references cover assigned scenarios, key constraints, and all applicable cases.
+5. **Technical support and design references**: `None` rows have a rationale and check results; referenced D IDs exist.
+6. **Result-to-evidence mapping**: each expected and forbidden outcome has an actual, locatable execution record.
+7. **Manual and high-risk records**: complete manual steps and observations; real-path verification methods and results for high-risk rows.
+8. **Affected-files tree**: the tree corresponds to the files column, using U/M/D markers.
+9. **States and conclusions**: row states, regression results, failure records, and report conclusions agree.
+
+Reconciliation uses existing execution records. A pass establishes closure of the delivery records; x-verify-tech performs independent technical acceptance.
+
+Verifiers follow the [test reporting and evidence review contract](skills/x-dev/references/test-reporting.md), open the relevant execution attachments, and reconcile the complete case list, results, baselines, and applicable per-file coverage. Receipts identify the reviewed sources and remaining gaps. Section ⑤ of qdev follows the same contract.
+
+Missing material, blockers, pending execution, or requirements awaiting clarification yield "reconciliation incomplete." Definite contradictions, coverage omissions, or execution failures yield "reconciliation failed." Return the complete findings together with their source owners.
+
+### x-verify-tech · Technical conformity acceptance
+
+Extract constraints from confirmed technical design and applicable rules, then locate the actual code and tests and check each constraint's implementation.
+
+Checks cover module boundaries, protocols and runtime validation, cross-language protocol sources, data ownership, concept naming, named configuration, data flows, and state handling.
+
+Reuse existing project checks and design cases first. Verify illegal inputs, failures, duplicates, concurrency, or recovery according to relevant risks. Within the authorized scope, a small number of targeted acceptance tests may be added.
+
+Each evidence item identifies its design basis, code location, check method, actual result, content baseline, and limitations. Dynamic mechanisms require execution evidence; semantic judgments provide locatable code-review evidence.
+
+The overall outcome follows these rules:
+
+- Any applicable item fails: **failed**, retaining the unverified list as well.
+- Applicable items still have evidence gaps: **unverified**.
+- All applicable items pass and the scope and baseline are verifiable: **passed**.
+
+Return evidence and gaps for findings; the main agent arranges subsequent handling.
+
+### x-qa-gate · Gate ② risk-matched quality review
+
+After delivery reconciliation passes, route by task risk:
+
+| Risk | Typical scope | Review route |
+|---|---|---|
+| Q0/Q1 | Single-file changes, local features or fixes | Proceed directly to delivery |
+| Q2 | New features, multiple files, contract or state changes | One lean tri-lens reviewer |
+| Q3 | Security, irreversible writes, public protocols, concurrency or state-machine changes | One full tri-lens reviewer |
+
+The reviewer checks each lens separately in one round:
+
+- **q1-intent**: user intent, confirmed requirements, public contracts, and change scope.
+- **q2-correctness**: illegal inputs, boundaries, failure paths, state transitions, concurrency, idempotency, and resource cleanup.
+- **q3-evidence**: real paths reached by tests, assertion bases, and the ability to detect faulty implementations.
+
+The reviewer returns candidate findings. The main agent confirms them and registers issues through `xdev.py flag`: P0/P1 downgrade the affected task rows; P2 are recorded as non-blocking issues.
+
+x-fix handles the complete issue list in one batch, followed by focused counterexample and regression evidence. The main agent closes issues and organizes subsequent checks. A shared fix-counter governs gate repair rounds, with a maximum of three.
+
+## x-qdev · A single-document reduced flow for small tasks
+
+x-qdev records local design, test-case changes, implementation, and evidence for a small change in one task document, then enters the shared verification steps. The owning spec or module documentation maintains the functional definition, with a changelog linking to each change's task.
+
+The default collaboration flow is “briefly explain the approach → record it → implement and verify continuously → report results.” The user's explicit task request authorizes the small-task scope. The agent handles functional-document updates, the local plan, tests, and both verifiers automatically. Keep the five sections proportional to the task; a simple plan can take a few lines. Staged requirement/design approval applies after moving into the full flow.
+
+1. **① Requirements and changes**: direction, boundaries, invariants, and task authorization source; reference the owning spec's feats/scenarios/constraints or module sections, recording additions, modifications, removals, and before/after baselines.
+2. **② Concise technical design**: reuse basis, local D items, public module boundaries, protocol/data impact, planned files, and applicable rules.
+3. **③ Test cases and changes**: scenario/section/C/D references, preconditions, triggers, expected and forbidden outcomes, plus added, modified, removed, and reused regression cases; reference authoritative cases by path/ID and maintain local case definitions here.
+4. **④ Implementation**: steps and actual affected files, with the basis for differences from the plan.
+5. **⑤ Verification results**: actual execution evidence, content and code baselines, regression results, both verifier receipts, conclusions, and unresolved items.
+
+```text
+functional definition/changelog ↔ x-qdev (local design → case changes → implementation → evidence)
+                      ├→ x-verify-spec: single-document delivery reconciliation
+                      └→ x-verify-tech: local design and development-rule acceptance
+```
+
+Find a directly related or broader spec by functional responsibility, adding new behavior to an existing spec whose scope owns the change. When an owning spec is missing, update the module's README or functional documentation; when documentation is missing, add a minimal description of the affected behavior. With an owning spec, the task lives at `docs/spec/<spec-name>/tasks/task-<task-name>.md`; with module documentation, it lives at `docs/task/task-<task-name>.md`. Maintain the functional definition in its owning document, reference stable IDs or sections from the task, and link back to the task from the document's changelog.
+
+Add feats/scenarios to the functional definition, update existing definitions for behavior changes, and retain original IDs/locations, history, and removal requirements for deleted behavior. Record the user's original request or an existing explicit decision and its scope for each change. Mark target changes as planned/in progress, then synchronize delivery status after verification passes. Track case changes separately from execution counts; feature removal includes checks of removal outcomes and retained behavior.
+
+Ordinary local arrangements follow the current task authorization, explicit requirements, and reused design. Clarify ambiguity that materially changes results and cannot be inferred, along with key matters outside existing authorization; changes exceeding the small-task scope move to the full flow. Retain readable requirement, design, and case baselines before implementation, then collect evidence from execution.
+
+Before delivery, self-check structure, references, coverage, conclusions, and boundaries, then explicitly invoke both verifiers. x-verify-spec reconciles the five-section document; x-verify-tech runs relevant checks against section ② or external design and the cases in section ③. Conventional task inputs remain supported. Section ⑤ retains actual receipts and itemizes failures, blockers, missing evidence, and unverified items.
 
 ## Optional: adversarial spec risk review
 
-A spec package can pass an independent risk gate before task decomposition (`x-spec → x-adversarial-risk → x-req`):
+`x-adversarial-risk` reviews a spec's risk assumptions before task decomposition. It uses prior failure experience to construct minimal counterexamples and adds scenarios with traceable provenance to the spec.
 
-x-spec records 1–5 complexity and importance scores; `x-bug2rag/scripts/home_corpus.py` initializes `~/.x-dev-pipeline/rag/` and copies the plugin seed corpus to `risk-catalog.md` as a separate operation. Risk review and bug ingestion share that user-global corpus across projects, and an explicit caller path can override it. `x-adversarial-risk` performs one Top5 vector lookup per budget, using retrieved experience to build minimal counterexamples that distinguish a correct implementation from a common wrong one, and adds scenarios with `adversarial-review` provenance to the spec. x-req blocks decomposition while the versioned spec's review status is still pending.
+```text
+x-spec → x-adversarial-risk → requirement confirmation → x-tech-design → design confirmation → x-req
+```
+
+Risk review and bug ingestion share a user-global corpus, with a caller-selected path available. Confirm added behavior or constraints and align the affected design accordingly. For specs carrying the risk-version marker, a pending review status blocks x-req decomposition.
 
 ## Commands
 
 | Command | Purpose |
-|---------|---------|
-| `/x-spec` | Write requirements as a purely functional spec (feats + GWT scenarios) |
-| `/x-req` | Split feats into tasks and generate scenario-ref dev-checklists |
-| `/x-dev` | Execute one task line by line with TDD and write a conclusions-only dev-report |
-| `/x-verify-spec` | Gate ①: reconcile the delivery evidence chain and triage by origin |
-| `/x-qa-gate` | Gate ②: tri-lens quality review and flag issue ledgers |
-| `/x-qdev` | Single-doc loop for small tasks: requirements → tests → implementation → verification |
-| `/x-fix` | Batch-fix the issue list found by verify, gates, or CR |
-| `/x-cr` | Investigate a reported correctness issue, module, diff, or PR |
-| `/x-adversarial-risk` | Challenge a spec's risk assumptions and add traceable counterexample scenarios |
-| `/x-multi-llm-align` | Align a protocol, data structure, or process across agents |
+|---|---|
+| `/x-spec` | Write a functional spec, GWT scenarios, and key constraints for confirmation |
+| `/x-tech-design` | Produce a design draft from a confirmed spec, defining mechanisms and numbered cases |
+| `/x-req` | Split tasks from confirmed requirements and design; assign scenarios, constraints, and cases |
+| `/x-dev` | Execute one task and record verification conclusions with locatable evidence |
+| `/x-verify-spec` | Gate ①: reconcile delivery scope, coverage, baselines, execution records, and conclusions |
+| `/x-verify-tech` | Verify implementation conformity to confirmed technical design and development rules |
+| `/x-qa-gate` | Gate ②: review intent, correctness, and evidence quality according to risk |
+| `/x-qdev` | Small-task reduced flow in one document: feats/local design/tests/implementation/evidence → both verifiers |
+| `/x-fix` | Batch-fix findings from verification, review, or correctness investigation |
+| `/x-cr` | Investigate correctness issues, modules, diffs, or PRs |
+| `/x-adversarial-risk` | Review spec risk assumptions and add traceable counterexample scenarios |
+| `/x-multi-llm-align` | Align protocols, data structures, or processes |
 | `/x-audit-perf` | Run an independent performance audit |
 | `/x-audit-style` | Run an independent style audit |
 | `/x-audit-arch` | Run an independent architecture audit |
