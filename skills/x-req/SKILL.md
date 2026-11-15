@@ -10,6 +10,8 @@ description: |
 
 ## 产物
 
+开发验证产物统一遵循 [共用报告约定](../x-dev/references/test-reporting.md)：任务记录链接一份当次代码改动测试报告，完整用例结果、改动覆盖率与未覆盖位置在该报告维护，原始证据集中放附件。拆解时只分配用例与责任范围。
+
 在 `docs/spec/<spec-name>/tasks/<task-name>/dev-checklist.md` 生成——task 归属 spec，一个 task 一份 checklist，task 目录名用 `task-<功能名>`。全部 task 的 checklist 合并后覆盖 spec 的每个 feat、每个场景及其全部承接用例，以及适用关键约束的全部编号用例。每份 checklist 在任务表下方带一棵**影响文件树**：用简化树状图标出本 task 在仓库中要改动的全部文件，`U` 新增 / `M` 修改 / `D` 删除。
 
 ## 核心原则

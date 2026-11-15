@@ -2,7 +2,7 @@
 
 ## 输入
 
-- 当前 diff、README `验收` 与 `架构拆分策略`、dev-report verify 块。
+- 当前 diff、README `验收` 与 `架构拆分策略`、任务指向的统一测试报告及相关原始附件；旧契约包沿用 dev-report verify 块。
 - 需要定位时按只读命令读取调用方、实现与测试。
 
 ## 检查

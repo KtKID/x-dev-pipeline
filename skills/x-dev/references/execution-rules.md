@@ -11,7 +11,7 @@
 | `[x] 🟢` | 测试通过 | 等待 risk 路由结束 |
 | `[x] ✅` | 已完成 | Gate ② 通过，或 Q0/Q1 verify 通过 |
 
-`status` 与 `graph` 以 token 判定；纯 emoji 历史 checklist 按引擎兼容规则读取。每次变更状态立即回写 checklist；实现与验证事实回写 dev-report。
+`status` 与 `graph` 以 token 判定；纯 emoji 历史 checklist 按引擎兼容规则读取。每次变更状态立即回写 checklist；dev-report 保存交付摘要与统一测试报告入口，验证明细、改动覆盖率及原始附件遵循 [共用报告约定](test-reporting.md)。
 
 ### QA Gate 写权
 

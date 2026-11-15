@@ -28,24 +28,24 @@ verify exit 0 后进入质量审查。读取 task `dev-checklist.md` 头部的 `
 
 检查测试和 verify 证据是否真实触达改动路径，断言是否独立于实现，mock 是否保留真实契约，证据是否能击穿错误实现。
 
-按 [测试报告与证据复查](../x-dev/references/test-reporting.md) 对照完整用例过程，实际读取相关执行附件；已有覆盖率时核对逐文件范围与结果。回执列明复查来源及缺口；保持本技能既有风险路由。
+按 [共用报告约定](../x-dev/references/test-reporting.md) 读取统一测试报告及相关原始附件，核对完整用例、当次改动覆盖率和未覆盖位置。回执返回复查来源、风险缺口及问题定位，由主 agent 收录同一报告；问题 ledger 保持既有消费契约。
 
 ## 事实源
 
 1. 用户原始请求、已确认 spec、既有公开契约。
 2. 真实调用方、schema/数据约束、改动前测试契约。
 3. spec 的目标、影响边界与不变量、判断依据、建模覆盖和直接 Scenarios。
-4. dev-report verify 块、verify JSON 或失败报告、当前 diff。
+4. 任务记录指向的统一测试报告、集中执行/覆盖率附件、当前 diff；旧契约包沿用 dev-report verify 块与 verify JSON/失败报告。
 
 ## 输入裁剪
 
 | Lens / reviewer | 必读输入 |
 |---|---|
-| Q2 tri-lens | diff + task 引用的 Scenario + 相关边界/不变量 + dev-report + 测试文件 |
-| Q3 tri-lens | diff + 目标/Requirement + task 引用的 Scenario + 影响边界/不变量/建模覆盖 + dev-report + 测试文件 |
+| Q2 tri-lens | diff + task 引用的 Scenario + 相关边界/不变量 + 统一测试报告及相关附件 + 测试文件 |
+| Q3 tri-lens | diff + 目标/Requirement + task 引用的 Scenario + 影响边界/不变量/建模覆盖 + 统一测试报告及相关附件 + 测试文件 |
 | q1-intent | diff + 目标/Requirement + task 引用的 Scenario |
 | q2-correctness | diff + 影响边界、不变量、建模覆盖及相关 modules/design |
-| q3-evidence | diff + dev-report verify 块 + 测试文件 |
+| q3-evidence | diff + 统一测试报告的用例/改动覆盖率/未覆盖位置 + 相关原始附件 + 测试文件 |
 
 主 agent 提供文件路径、节名、`git diff --stat`、`git diff --name-only` 和按需 diff 命令。reviewer 按需读取源代码与测试文件。
 

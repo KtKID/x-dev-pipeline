@@ -1,6 +1,6 @@
 # R3 测试真实性 Reviewer
 
-读取 diff、dev-report verify 块、verify 结果与涉及测试文件。
+读取 diff、任务指向的统一测试报告、相关执行/覆盖率附件与涉及测试文件。按 [共用报告约定](../../x-dev/references/test-reporting.md) 核对改动覆盖率、具体未覆盖位置和采集缺口；旧契约包继续读取原 verify 块与结果。
 
 检查：
 
