@@ -17,17 +17,19 @@
 | `spec.md` | User-visible features, acceptance scenarios, and confirmed key constraints |
 | `tech-design.md` | Modules, protocols, data flows, technical decisions, and numbered test cases |
 | `dev-checklist.md` | Execution scope, scenario and test-case references, and progress for one task |
-| `dev-report.md` | Verification conclusions, actual execution evidence, limitations, and unresolved issues |
+| `dev-report.md` / qdev⑤ | Delivery summary, status, and the single test report link |
+| `test-report.md` | Case details, coverage of the current code change, uncovered locations, and verification conclusions |
+| `evidence/` | Collected execution metadata, raw output, coverage data, and specialized attachments |
 
 Stable IDs connect requirements, design, tasks, and evidence. Each step can be traced to its basis, implementation location, and actual result.
 
 ## Two working paths
 
-Full requirements follow a design-first main line; concrete small changes close in a single document.
+Full requirements follow a design-first main line; concrete small changes use a concise task record. Both paths share one test report for the current change.
 
 ```text
 Full flow:
-x-spec → user confirms requirements → x-tech-design → user confirms design
+x-explore-for-spec (as needed) → x-spec → x-tech-design → user confirms design
        → x-req → x-dev
        → x-verify-spec (Gate ①) → x-qa-gate (Gate ②) → delivery
 
@@ -55,7 +57,7 @@ Each `featNN` represents a user-visible feature. Given/When/Then scenarios descr
 
 The spec also records user-confirmed key constraints: rules that must hold and outcomes that must be prevented. Stable IDs such as `C1` and `C2` identify their scope, observable criteria, confirmation basis, and related scenarios.
 
-Agent-proposed constraints, reasonable defaults, and behavior awaiting clarification belong in the confirmation checklist. Technical design follows the user's confirmation of the current content.
+Use `x-explore-for-spec` to group features and resolve open product decisions with interactive choices before writing the spec. `x-spec` records the agreed behavior and acceptance criteria. Technical design uses that confirmed baseline.
 
 ### 2. x-tech-design · Produce a technical design for confirmation
 
@@ -65,12 +67,7 @@ Read the confirmed spec, existing code, and applicable development rules, then c
 docs/spec/<spec-name>/tech-design.md
 ```
 
-The design covers:
-
-- **Modules and dependencies**: responsibilities, directories, public entry points, callers, and allowed dependencies.
-- **Data and protocols**: field semantics, data owners, authoritative storage, schema sources, and boundary validation.
-- **Main data flows**: entry, validation, processing, state changes, persistence, and return, including applicable failure, retry, concurrency, and recovery paths.
-- **Rules and verification**: design items, mechanisms enforcing key constraints, numbered test cases, and planned evidence.
+The design covers the features in scope and the modules they directly affect. It sets the change boundary, required interface and state constraints, and observable acceptance criteria. Developers choose the internal implementation. Every feature's main path needs Smoke coverage, and one Smoke case can cover multiple features.
 
 Design items use stable IDs such as `D01` and `D02`. Key constraints map to mechanisms and numbered cases:
 
@@ -81,12 +78,12 @@ tech-design: D01 mechanism → test cases T1, T2
           ↓
 checklist: assignment to a specific task / task row
           ↓
-dev-report: actual results and locatable evidence
+test-report: actual case results, change coverage, and collected evidence
 ```
 
 Each case defines its basis, preconditions, trigger, expected and forbidden outcomes, and verification level. `tech-design.md` owns the test-case definitions; downstream artifacts reference their IDs.
 
-The default design status is "awaiting user confirmation." After the user confirms key architecture, protocols, data ownership, and impact decisions, record the confirmation basis and content baseline, then hand the design to x-req.
+The default design status is "awaiting user confirmation." Confirm the technical boundaries and complete the acceptance cases before recording the confirmation basis and content baseline for x-req.
 
 ### 3. x-req · Split tasks from requirements and design
 
@@ -124,7 +121,7 @@ When existing code already satisfies the requirement, run the relevant cases and
 
 After completing all rows, run the task's full test suite and a regression pass over existing functionality.
 
-`dev-report.md` is the user-facing reading entry: list every task, regression, and manual test case with plain-language setup, actions, expectations, and actual results. Long lists may be grouped in collapsible sections. When coverage is collected, show each file's line/branch coverage, uncovered locations, and measured scope. Keep commands, baselines, exit codes, failing-result reasons, and raw output as AI review attachments; record empty output and the actual exit code for silent checks. Retain failures, blockers, and missing evidence item by item.
+`dev-report.md` keeps the delivery summary, status, and a link to the single test report at `reports/<task-name>/<batch-id>/test-report.md`. The report combines change baselines, complete case details, per-file changed-line and relevant-branch coverage, uncovered source locations, and verification conclusions. Commands, execution metadata, raw output, and native coverage data live together in `evidence/`. Separate pre-existing edits from the task diff and calculate coverage against the tested source version. Explain zero-executable-change applicability and keep collection gaps visible.
 
 ## Delivery checks: record reconciliation, technical acceptance, and quality review
 
@@ -152,7 +149,7 @@ The spec supplies expectations, req assignment records establish responsibility,
 
 Reconciliation uses existing execution records. A pass establishes closure of the delivery records; x-verify-tech performs independent technical acceptance.
 
-Verifiers follow the [test reporting and evidence review contract](skills/x-dev/references/test-reporting.md), open the relevant execution attachments, and reconcile the complete case list, results, baselines, and applicable per-file coverage. Receipts identify the reviewed sources and remaining gaps. Section ⑤ of qdev follows the same contract.
+Development, fixes, and verification share the [test report contract](skills/x-dev/references/test-reporting.md) and [report template](skills/x-dev/templates/test-report.md). Both verifiers and QA read the same report and evidence. The main agent merges their incremental results and receipts into that report; standalone technical verification creates or updates it. Task records retain a summary and report link.
 
 Missing material, blockers, pending execution, or requirements awaiting clarification yield "reconciliation incomplete." Definite contradictions, coverage omissions, or execution failures yield "reconciliation failed." Return the complete findings together with their source owners.
 
@@ -194,9 +191,9 @@ The reviewer returns candidate findings. The main agent confirms them and regist
 
 x-fix handles the complete issue list in one batch, followed by focused counterexample and regression evidence. The main agent closes issues and organizes subsequent checks. A shared fix-counter governs gate repair rounds, with a maximum of three.
 
-## x-qdev · A single-document reduced flow for small tasks
+## x-qdev · A reduced flow for small tasks
 
-x-qdev records local design, test-case changes, implementation, and evidence for a small change in one task document, then enters the shared verification steps. The owning spec or module documentation maintains the functional definition, with a changelog linking to each change's task.
+x-qdev records local design, test-case changes, implementation, and a delivery summary in one task document. Full test and verification details live in the shared test report. The owning spec or module documentation maintains the functional definition, with a changelog linking to each change's task.
 
 The default collaboration flow is “briefly explain the approach → record it → implement and verify continuously → report results.” The user's explicit task request authorizes the small-task scope. The agent handles functional-document updates, the local plan, tests, and both verifiers automatically. Keep the five sections proportional to the task; a simple plan can take a few lines. Staged requirement/design approval applies after moving into the full flow.
 
@@ -204,7 +201,7 @@ The default collaboration flow is “briefly explain the approach → record it 
 2. **② Concise technical design**: reuse basis, local D items, public module boundaries, protocol/data impact, planned files, and applicable rules.
 3. **③ Test cases and changes**: scenario/section/C/D references, preconditions, triggers, expected and forbidden outcomes, plus added, modified, removed, and reused regression cases; reference authoritative cases by path/ID and maintain local case definitions here.
 4. **④ Implementation**: steps and actual affected files, with the basis for differences from the plan.
-5. **⑤ Verification results**: actual execution evidence, content and code baselines, regression results, both verifier receipts, conclusions, and unresolved items.
+5. **⑤ Verification results**: a short conclusion, the single test report link, documentation/delivery status, and unresolved-item references. Full case details, change coverage, uncovered locations, and verifier receipts live in the test report.
 
 ```text
 functional definition/changelog ↔ x-qdev (local design → case changes → implementation → evidence)
@@ -218,23 +215,24 @@ Add feats/scenarios to the functional definition, update existing definitions fo
 
 Ordinary local arrangements follow the current task authorization, explicit requirements, and reused design. Clarify ambiguity that materially changes results and cannot be inferred, along with key matters outside existing authorization; changes exceeding the small-task scope move to the full flow. Retain readable requirement, design, and case baselines before implementation, then collect evidence from execution.
 
-Before delivery, self-check structure, references, coverage, conclusions, and boundaries, then explicitly invoke both verifiers. x-verify-spec reconciles the five-section document; x-verify-tech runs relevant checks against section ② or external design and the cases in section ③. Conventional task inputs remain supported. Section ⑤ retains actual receipts and itemizes failures, blockers, missing evidence, and unverified items.
+Before delivery, self-check structure, references, coverage, conclusions, and boundaries, then explicitly invoke both verifiers. x-verify-spec reconciles the five-section document; x-verify-tech runs relevant checks against section ② or external design and the cases in section ③. Conventional task inputs remain supported. The same test report collects new executions and receipts; section ⑤ retains status and a report link. The report itemizes failures, blockers, uncovered locations, collection gaps, and unverified items.
 
 ## Optional: adversarial spec risk review
 
 `x-adversarial-risk` reviews a spec's risk assumptions before task decomposition. It uses prior failure experience to construct minimal counterexamples and adds scenarios with traceable provenance to the spec.
 
 ```text
-x-spec → x-adversarial-risk → requirement confirmation → x-tech-design → design confirmation → x-req
+x-spec → x-adversarial-risk → x-explore-for-spec (for new decisions) → x-tech-design → design confirmation → x-req
 ```
 
-Risk review and bug ingestion share a user-global corpus, with a caller-selected path available. Confirm added behavior or constraints and align the affected design accordingly. For specs carrying the risk-version marker, a pending review status blocks x-req decomposition.
+Risk review and bug ingestion share a user-global corpus, with a caller-selected path available. Confirm any new behavior or constraints in `x-explore-for-spec` before updating the functional spec and affected design. For specs carrying the risk-version marker, a pending review status blocks x-req decomposition.
 
 ## Commands
 
 | Command | Purpose |
 |---|---|
-| `/x-spec` | Write a functional spec, GWT scenarios, and key constraints for confirmation |
+| `/x-explore-for-spec` | Split requirements into features and settle open decisions with interactive choices before writing the spec |
+| `/x-spec` | Record agreed features, GWT scenarios, and key constraints in the spec |
 | `/x-tech-design` | Produce a design draft from a confirmed spec, defining mechanisms and numbered cases |
 | `/x-req` | Split tasks from confirmed requirements and design; assign scenarios, constraints, and cases |
 | `/x-dev` | Execute one task and record verification conclusions with locatable evidence |

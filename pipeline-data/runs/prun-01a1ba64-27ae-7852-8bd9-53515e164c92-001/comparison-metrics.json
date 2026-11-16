@@ -1,0 +1,55 @@
+{
+  "../prun-01a1ba4e-490e-7e42-8eb6-fa8b5323d96b-001/artifacts/tech-design.md": {
+    "lines": 484,
+    "body_lines": 228,
+    "body_prose_chars": 3331,
+    "body_table_lines": 30,
+    "markdown_chars": 26348,
+    "mermaid": 5,
+    "mermaid_types": {
+      "flowchart": 2,
+      "sequenceDiagram": 2,
+      "stateDiagram-v2": 1
+    },
+    "code_blocks": {
+      "ts": 3
+    },
+    "case_headings": [
+      "#### T1 初始化和有效创建",
+      "#### T2 并发创建/恢复与目录拒绝",
+      "#### T3 文本输入整体校验和顺序",
+      "#### T4 正文/思考/工具事件及终结顺序",
+      "#### T6 取消、空闲取消和串行请求",
+      "#### T8 客户端断开清理",
+      "#### T7 完成、上限和模型失败结算",
+      "#### T9 JSONL 恢复、历史回放及继续"
+    ]
+  },
+  "artifacts/tech-design.md": {
+    "lines": 504,
+    "body_lines": 207,
+    "body_prose_chars": 3197,
+    "body_table_lines": 28,
+    "markdown_chars": 27777,
+    "mermaid": 5,
+    "mermaid_types": {
+      "flowchart": 3,
+      "sequenceDiagram": 2
+    },
+    "code_blocks": {
+      "ts": 1
+    },
+    "case_headings": [
+      "#### 用例 T1：版本协商、能力声明与 JSON-RPC 路由",
+      "#### 用例 T2：有效创建和单会话目录约束",
+      "#### 用例 T3：恢复前置条件失败并释放 opening 状态",
+      "#### 用例 T4：有效文本顺序与拒绝输入原子性",
+      "#### 用例 T5：单 prompt 槽位拒绝并发请求",
+      "#### 用例 T6：正文、思考与工具状态顺序",
+      "#### 用例 T7：结束原因映射与模型失败更新顺序",
+      "#### 用例 T8：活动取消、空闲取消和后续恢复提问",
+      "#### 用例 T9：stdin EOF 时取消并回收活动 Agent",
+      "#### 用例 T10：跨进程恢复历史、避免模型重放并继续对话"
+    ]
+  }
+}

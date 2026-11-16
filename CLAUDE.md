@@ -23,6 +23,9 @@ x-dev-pipeline/
 │       ├── verify/*.md, qa-gate/*.md  # Gate ①② 报告
 │       ├── fix/*.md                   # 修复报告（按触发节点分类）
 │       └── audit/*.md                 # 独立巡检报告
+├── reports/<task-name>/<batch-id>/   # 当次代码基线的统一测试产物
+│   ├── test-report.md                # 用例明细、改动覆盖率、未覆盖位置与验收结论
+│   └── evidence/                    # 集中执行记录、原始覆盖数据与专项附件
 ├── dev-pipeline/tasks/                # 历史 task 档案；工具不再识别、校验或编排
 ├── skills/x-dev/scripts/xdev.py       # 薄 CLI 路由器
 ├── skills/x-spec/scripts/             # spec 与包校验引擎
@@ -58,9 +61,9 @@ x-spec ─→ x-adversarial-risk ─→ x-req ─→ x-dev ─→ x-verify-spec 
 | Spec 风险门禁 | x-spec 写 `adversarial_risk_version: 3`、复杂度/重要性/平均分/预算、`pending` 状态和 `initial-spec` 来源；x-adversarial-risk 完成对抗检查并写审查记录；x-req 复跑 `risk_contract.py validate-spec` 后才拆解 |
 | 风险错题集边界 | `skills/x-adversarial-risk/references/risk-mistakes.md` 只由 x-adversarial-risk 在 deep/full 审查或录入已确认缺口时读取；每项使用唯一 `AR-NNN`，并只保存关键词与 Risk |
 | spec 需求包目录 | x-spec 产出 `docs/spec/<spec-name>/`，`docs/spec/README.md` 汇总 spec 导航。x-req 的 README `spec:` 字段指向 `docs/spec/<spec-name>`，一个 task 只归属一个 spec |
-| 交付记录与核查 | x-dev 使用 `skills/x-dev/templates/dev-report.md`；按 `skills/x-dev/references/test-reporting.md` 逐例列全专项、回归及人工检查，用日常语言说明过程与结果，适用时列逐文件覆盖率；AI 实际读取执行附件并在回执说明复查来源与缺口。x-verify-spec 核对已有执行记录，x-verify-tech 根据设计与规范实际检查。x-qdev 使用 `skills/x-qdev/templates/task.md` 五段式（①需求与变更/②精简技术设计/③测试用例与变化/④技术实现/⑤验证结果）；功能正文和 changelog 归属 spec 或模块说明，task 双向回链并记录新增/修改/删除及用例变化。有归属 spec 时 task 建在其 `tasks/` 下，模块说明承载时建在 `docs/task/`；两类公共核查支持该单文档 |
+| 交付记录与核查 | x-dev 的 dev-report 与 x-qdev 的⑤保存交付摘要、状态及唯一测试报告入口；当次代码基线的用例明细、改动行/相关分支覆盖率、未覆盖位置和验收结论统一维护在 `reports/<task-name>/<batch-id>/test-report.md`，原始证据集中放同目录 `evidence/`。共用约定与模板位于 `skills/x-dev/references/test-reporting.md`、`skills/x-dev/templates/test-report.md`。两类 verify/QA 返回增量回执，由主 agent 收录；技术验收的独立执行按编号区分。qdev 保持五段 task，功能正文和 changelog 归属 spec/模块说明，双向回链与新增/修改/删除及用例责任继续核对 |
 | qdev 执行授权 | 用户本轮明确要求即小任务范围内的执行授权。agent 简短告知改法后落盘并连续完成实现、文档同步与公共验收；局部方案按任务规模简写。实质性歧义和超出授权的关键事项集中澄清，分阶段需求/设计审批在转入完整主线后适用 |
-| 测试分层契约 | x-spec 写验证策略；x-req README 显式列 smoke/e2e 验收用例；单元/契约/边界测试由 x-dev 按实际改动补齐，并写入 `dev-report.md` 验证命令清单 |
+| 测试分层契约 | x-spec 写验证策略；x-req 分配场景/用例与任务责任，x-dev 补齐单元/契约/边界测试。测试执行与当次改动覆盖率集中到统一测试报告，命令、基线和原始数据集中在附件；旧 v3 verify 块保留原消费位置 |
 | `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。语义 = **批量修轮数**（一轮 = 一份 issue 清单的整体修复）。x-verify-spec 首次创建，x-fix 按轮递增，x-qa-gate 在 Gate ② 最终 pass 后重置。**3 轮上限**，三方共享 |
 | reviewer 子 agent | x-qa-gate 按 `risk:` 风险路由：默认线 dispatch 一个综合 reviewer RC（`references/rc-unified.md`），高危线串行 dispatch R1/R2/R3；初始 prompt 预算为 10,000 estimated tokens，使用 manifest + 路径 + diff 命令 + completeness gate |
 | 一轮列全 | 所有 reviewer 穷尽列出全部问题候选后判定；每条返回 task、severity、loc、msg 和证据，并省略编号；回执包含覆盖声明、完整问题候选和穷尽声明；严重度 P0/P1/P2 唯一定义在 `skills/x-qa-gate/SKILL.md` |

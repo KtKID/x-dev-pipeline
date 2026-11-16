@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-01a1b509-7fed-7d41-947f-f1e16955ad5f-001",
+  "rubric": "/Volumes/machub_app/proj/x-dev-pipeline/evals/answers/deepseek-acp/RUBRIC.md",
+  "rubric_sha256": "6a43bdb73d859fa2b413d42dc95057c86fb02921fd782f194e42d8743e73f440",
+  "status": "manual_review_complete",
+  "expectations": [
+    {
+      "id": "ACP-01",
+      "text": "ACP wire behavior",
+      "severity": "P0",
+      "passed": true,
+      "evidence": [
+        "wire-evidence.json#ACP-01"
+      ],
+      "score_impact": 0
+    },
+    {
+      "id": "ACP-02",
+      "text": "ACP wire behavior",
+      "severity": "P0",
+      "passed": true,
+      "evidence": [
+        "wire-evidence.json#ACP-02"
+      ],
+      "score_impact": 0
+    },
+    {
+      "id": "ACP-03",
+      "text": "ACP wire behavior",
+      "severity": "P0",
+      "passed": true,
+      "evidence": [
+        "wire-evidence.json#ACP-03"
+      ],
+      "score_impact": 0
+    },
+    {
+      "id": "ACP-04",
+      "text": "ACP wire behavior",
+      "severity": "P1",
+      "passed": true,
+      "evidence": [
+        "wire-evidence.json#ACP-04"
+      ],
+      "score_impact": 0
+    },
+    {
+      "id": "ACP-05",
+      "text": "ACP wire behavior",
+      "severity": "P0",
+      "passed": true,
+      "evidence": [
+        "wire-evidence.json#ACP-05"
+      ],
+      "score_impact": 0
+    },
+    {
+      "id": "ACP-06",
+      "text": "ACP wire behavior",
+      "severity": "P0",
+      "passed": true,
+      "evidence": [
+        "wire-evidence.json#ACP-06"
+      ],
+      "score_impact": 0
+    },
+    {
+      "id": "ACP-07",
+      "text": "ACP wire behavior",
+      "severity": "P0",
+      "passed": true,
+      "evidence": [
+        "wire-evidence.json#ACP-07"
+      ],
+      "score_impact": 0
+    },
+    {
+      "id": "ACP-08",
+      "text": "ACP wire behavior",
+      "severity": "P0",
+      "passed": true,
+      "evidence": [
+        "wire-evidence.json#ACP-08"
+      ],
+      "score_impact": 0
+    },
+    {
+      "id": "PL-01",
+      "text": "Confirmed Spec preserves the public scope",
+      "passed": true,
+      "severity": "P0",
+      "evidence": [
+        "artifacts/spec-approved.md",
+        "events.jsonl"
+      ],
+      "score_impact": 0
+    },
+    {
+      "id": "PL-02",
+      "text": "Technical design and its test cases are confirmed before Req",
+      "passed": true,
+      "severity": "P0",
+      "evidence": [
+        "artifacts/tech-design-approved.md",
+        "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task/docs/spec/acp-editor/tasks/task-acp-editor-bridge/dev-checklist.md"
+      ],
+      "score_impact": 0
+    },
+    {
+      "id": "PL-03",
+      "text": "Task, implementation and claimed test evidence match",
+      "passed": false,
+      "severity": "P1",
+      "evidence": [
+        "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task/reports/task-acp-editor-bridge/20261107-01/test-report.md",
+        "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task/reports/task-acp-editor-bridge/20261107-01/evidence/execution.log"
+      ],
+      "reason_code": "VERIFY_COVERAGE_GAP",
+      "origin_stage": "x-dev",
+      "detected_stage": "x-verify-spec",
+      "score_impact": 5
+    },
+    {
+      "id": "PL-04",
+      "text": "Verification blocks formal QA on the recorded evidence gap",
+      "passed": true,
+      "severity": "P0",
+      "evidence": [
+        "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task/reports/task-acp-editor-bridge/20261107-01/test-report.md",
+        "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task/reports/task-acp-editor-bridge/20261107-01/evidence/Q3-bypass-review.md",
+        "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task/reports/fix/fix-gate-r1-20261107-090136.md"
+      ],
+      "score_impact": 0
+    }
+  ],
+  "quality_score": 95,
+  "rubric_version": "deepseek-acp-v1",
+  "critical_gate_passed": true,
+  "summary": {
+    "passed": 11,
+    "failed": 1,
+    "total": 12,
+    "pass_rate": 0.9166666666666666,
+    "score": 95,
+    "score_max": 100
+  },
+  "decision": {
+    "execution_outcome": "completed",
+    "quality_gate": "failed",
+    "accepted_delivery": false,
+    "next_stage": "retain_failed_gate_and_record_pilot"
+  },
+  "evaluator_gaps": []
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-01a1ba4e-490e-7e42-8eb6-fa8b5323d96b-001",
+  "run_kind": "evaluation",
+  "scope": "tech_design_only",
+  "objective": "比较同一 ACP Spec 的历史确认技术设计和新版 skill 单阶段草案",
+  "parent_run_id": "prun-01a1b509-7fed-7d41-947f-f1e16955ad5f-001",
+  "source": {
+    "kind": "codex_rollout",
+    "id": "01a1ba4e-490e-7e42-8eb6-fa8b5323d96b",
+    "rollout": "/Users/kid/.codex/sessions/2026/11/08/rollout-2026-11-08T16-37-35-01a1ba4e-490e-7e42-8eb6-fa8b5323d96b.jsonl"
+  },
+  "task": {
+    "source_commit": "add59a3336f0ab61c55499418081aab76cb550f8",
+    "spec_sha256": "ff4a5d3fb04e6bbe7ece2b989537303e5756a6c50408c311c4fbed066d7df942",
+    "spec_confirmed_by_event": "evt-005"
+  },
+  "executor": {
+    "model": "gpt-6-luna",
+    "reasoning_effort": "high",
+    "skill_sha256": "sha256:95c5722864edfbf94bd85fae3a639836bed4a8055ce1564d15583e09ae88535f",
+    "template_sha256": "sha256:24a3ca5a2dfc009b2675310e23a4eb5163028838d6636b509cd82fb2e9a6ecf2"
+  },
+  "baseline": {
+    "path": "/Volumes/machub_app/proj/x-dev-pipeline/pipeline-data/runs/prun-01a1b509-7fed-7d41-947f-f1e16955ad5f-001/artifacts/tech-design-approved.md",
+    "sha256": "9c56f3b52d0b2311ea68e74e0e99a9c99ae7a6669cb589afdeec15ae6e943048",
+    "kind": "historical_approved_artifact"
+  },
+  "candidate": {
+    "path": "artifacts/tech-design.md",
+    "sha256": "b3570ccdde0ea01cc13cd888c0cafa239960343f3e3fb5d120f83c22953631db",
+    "status": "pending_confirmation"
+  },
+  "started_at": "2026-11-08T08:37:35.325Z",
+  "finished_at": "2026-11-08T08:43:08.716Z"
+}

@@ -1,0 +1,57 @@
+{
+  "rubric": "deepseek-acp-v1",
+  "runtime_passed": true,
+  "critical_gate": true,
+  "passed": 8,
+  "total": 8,
+  "assertions": [
+    {
+      "id": "ACP-01",
+      "severity": "P0",
+      "evidence": "wire-evidence.json#ACP-01",
+      "passed": true
+    },
+    {
+      "id": "ACP-02",
+      "severity": "P0",
+      "evidence": "wire-evidence.json#ACP-02",
+      "passed": true
+    },
+    {
+      "id": "ACP-03",
+      "severity": "P0",
+      "evidence": "wire-evidence.json#ACP-03",
+      "passed": true
+    },
+    {
+      "id": "ACP-04",
+      "severity": "P1",
+      "evidence": "wire-evidence.json#ACP-04",
+      "passed": true
+    },
+    {
+      "id": "ACP-05",
+      "severity": "P0",
+      "evidence": "wire-evidence.json#ACP-05",
+      "passed": true
+    },
+    {
+      "id": "ACP-06",
+      "severity": "P0",
+      "evidence": "wire-evidence.json#ACP-06",
+      "passed": true
+    },
+    {
+      "id": "ACP-07",
+      "severity": "P0",
+      "evidence": "wire-evidence.json#ACP-07",
+      "passed": true
+    },
+    {
+      "id": "ACP-08",
+      "severity": "P0",
+      "evidence": "wire-evidence.json#ACP-08",
+      "passed": true
+    }
+  ]
+}

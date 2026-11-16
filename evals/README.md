@@ -1,4 +1,24 @@
-# x-spec2 eval 运行协议
+# Eval 运行协议
+
+## x-dev 交付冒烟测试
+
+每次修改 `skills/x-dev/` 后跑一遍「待办清单只看已完成」。任务只执行 x-dev 阶段。独立执行器读取公开题面和当前工作区的 x-dev，评分脚本留在执行目录外。
+
+环境需有可登录的 Codex CLI、Python 3、Node.js、可由 `require('playwright')` 加载的 Playwright 及其 Chromium。Playwright 已装在其他目录时，用 `NODE_PATH` 指向对应 `node_modules`。
+
+```bash
+bash evals/scripts/run_x_dev_receipt.sh
+```
+
+结果在命令打印的 `evals/x-dev-receipt-runs/run-…/` 中。先看 `receipt.md` 和其中的截图，再看 `grading.json`。评分脚本独立在浏览器操作筛选和恢复，并核对回执中的文件、函数名和截图附件。说明是否通俗、截图是否拍到对应状态由人对照回执检查。
+
+CLI 无法连接时，可用同一命令加 `--prepare-only` 生成并校验独立输入。让无历史上下文的执行器在生成的 `workspace/` 中按 `PROMPT.md` 完成任务，把它的原始最终回复存为 run 目录下的 `receipt.md`，再执行 `node evals/answers/x-dev-receipt/grade.cjs <run-dir>`。
+
+## DeepSeek Harness ACP 配对评测
+
+使用同一份真实 Harness 源码和 [ACP 题面](problems/deepseek-acp/PROMPT.md)，对比冻结版与当前 pipeline。考生在干净工作区实现 ACP 服务；评审独立验收运行行为、阶段交接和 Token。准备命令、评分与预算见 [操作协议](answers/deepseek-acp/BENCHMARK.md)（评审侧）。
+
+## x-spec2 eval 运行协议
 
 ## 输入隔离
 

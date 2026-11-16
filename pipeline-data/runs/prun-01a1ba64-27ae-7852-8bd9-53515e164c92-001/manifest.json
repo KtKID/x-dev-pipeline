@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-01a1ba64-27ae-7852-8bd9-53515e164c92-001",
+  "run_kind": "evaluation",
+  "scope": "tech_design_only",
+  "objective": "在同一份已确认 ACP Spec 上对照 V2 和 V3 技术设计草案",
+  "parent_run_id": "prun-01a1ba4e-490e-7e42-8eb6-fa8b5323d96b-001",
+  "source": {
+    "kind": "codex_rollout",
+    "id": "01a1ba64-27ae-7852-8bd9-53515e164c92",
+    "rollout": "/Users/kid/.codex/sessions/2026/11/08/rollout-2026-11-08T17-01-28-01a1ba64-27ae-7852-8bd9-53515e164c92.jsonl"
+  },
+  "task": {
+    "source_commit": "add59a3336f0ab61c55499418081aab76cb550f8",
+    "spec_sha256": "ff4a5d3fb04e6bbe7ece2b989537303e5756a6c50408c311c4fbed066d7df942",
+    "confirmed_by_event": "evt-005"
+  },
+  "executor": {
+    "model": "gpt-6-luna",
+    "reasoning_effort": "high",
+    "fork_turns": "none",
+    "skill_sha256": "sha256:3f45d1e9f455070d778d7e51bb991ef733b6a9b5536691d754e8c1ab04e40697",
+    "template_sha256": "sha256:0acb9c4b73c375052092a8d387795fe0452b08031b3e8c65fa33e5659cb19480"
+  },
+  "baseline": {
+    "path": "../prun-01a1ba4e-490e-7e42-8eb6-fa8b5323d96b-001/artifacts/tech-design.md",
+    "sha256": "b3570ccdde0ea01cc13cd888c0cafa239960343f3e3fb5d120f83c22953631db",
+    "kind": "prior_tech_design_replay"
+  },
+  "historical_approved": {
+    "path": "../prun-01a1b509-7fed-7d41-947f-f1e16955ad5f-001/artifacts/tech-design-approved.md",
+    "sha256": "9c56f3b52d0b2311ea68e74e0e99a9c99ae7a6669cb589afdeec15ae6e943048"
+  },
+  "candidate": {
+    "path": "artifacts/tech-design.md",
+    "sha256": "04adcefa2ce91a6e70c0c7b2dc2af8ba07e51418dd592f5b9829e0fe4fe2407c",
+    "status": "pending_confirmation"
+  },
+  "started_at": "2026-11-08T09:01:28.440Z",
+  "finished_at": "2026-11-08T09:07:53.044Z"
+}

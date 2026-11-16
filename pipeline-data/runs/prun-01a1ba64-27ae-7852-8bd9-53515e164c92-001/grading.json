@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-01a1ba64-27ae-7852-8bd9-53515e164c92-001",
+  "expectations": [
+    {
+      "id": "TD-01",
+      "passed": true,
+      "severity": "P0",
+      "text": "同一已确认 Spec 和起始源码，仅替换 skill 与模板。子会话只新增待确认技术设计。",
+      "evidence": [
+        "input-manifest.json",
+        "artifacts/tech-design.md:3"
+      ]
+    },
+    {
+      "id": "TD-02",
+      "passed": false,
+      "severity": "P1",
+      "text": "五张 Mermaid 图有四张通过解析，断连图的 abort 节点标签触发语法错误。",
+      "evidence": [
+        "mermaid-validation.json",
+        "artifacts/tech-design.md:192"
+      ],
+      "reason_code": "DESIGN_MERMAID_PARSE_ERROR"
+    },
+    {
+      "id": "TD-03",
+      "passed": true,
+      "severity": "P1",
+      "text": "按 id 字段是否存在分流，明确覆盖 0。T1 有回显与通知无响应断言。",
+      "evidence": [
+        "artifacts/tech-design.md:63",
+        "artifacts/tech-design.md:315"
+      ]
+    },
+    {
+      "id": "TD-04",
+      "passed": false,
+      "severity": "P0",
+      "text": "C1 要求创建和恢复均拒绝非空额外目录。两条入口的设计与用例均漏掉这个条件。",
+      "evidence": [
+        "input-manifest.json",
+        "artifacts/tech-design.md:104",
+        "artifacts/tech-design.md:330",
+        "artifacts/tech-design.md:341"
+      ],
+      "reason_code": "DESIGN_SCOPE_GAP"
+    },
+    {
+      "id": "TD-05",
+      "passed": false,
+      "severity": "P1",
+      "text": "相对已确认设计，响应可早于现有 flush。候选用例缺少挂起 flush 时响应仍须等待的断言。",
+      "evidence": [
+        "artifacts/tech-design.md:119",
+        "artifacts/tech-design.md:133",
+        "artifacts/tech-design.md:138",
+        "artifacts/tech-design.md:389",
+        "../prun-01a1b509-7fed-7d41-947f-f1e16955ad5f-001/artifacts/tech-design-approved.md:352"
+      ],
+      "reason_code": "DESIGN_DURABILITY_EVIDENCE_GAP"
+    },
+    {
+      "id": "TD-06",
+      "passed": false,
+      "severity": "P1",
+      "text": "路由图把 JSON 解码失败和信封无效归入同一返回。已确认设计对 JSON 解码失败规定 -32700。",
+      "evidence": [
+        "artifacts/tech-design.md:61",
+        "../prun-01a1b509-7fed-7d41-947f-f1e16955ad5f-001/artifacts/tech-design-approved.md:47"
+      ],
+      "reason_code": "DESIGN_FRAME_ERROR_MERGED"
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 4,
+    "total": 6,
+    "pass_rate": 0.3333333333333333
+  },
+  "decision": {
+    "execution_outcome": "completed",
+    "quality_gate": "failed",
+    "accepted_delivery": false,
+    "next_stage": "technical_design_review"
+  }
+}

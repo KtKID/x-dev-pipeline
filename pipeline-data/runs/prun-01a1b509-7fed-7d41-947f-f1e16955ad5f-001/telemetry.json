@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-01a1b509-7fed-7d41-947f-f1e16955ad5f-001",
+  "source": {
+    "kind": "codex_rollout_tree",
+    "session_id": "01a1b509-7fed-7d41-947f-f1e16955ad5f"
+  },
+  "model": "gpt-6-luna",
+  "reasoning_effort": "high",
+  "tokens": {
+    "input": 599919,
+    "output": 102316,
+    "reasoning": 85253,
+    "cache_read": 27559808,
+    "cache_write": 0,
+    "total_without_cache_read": 787488,
+    "total_with_cache": 28347296,
+    "cost_usd": null
+  },
+  "provider_usage": {
+    "input_tokens": 28159727,
+    "cached_input_tokens": 27559808,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 187569,
+    "reasoning_output_tokens": 85253,
+    "total_tokens": 28347296
+  },
+  "rollouts": [
+    {
+      "session_id": "01a1b509-7fed-7d41-947f-f1e16955ad5f",
+      "rollout": "/Users/kid/.codex/sessions/2026/11/07/rollout-2026-11-07T16-04-21-01a1b509-7fed-7d41-947f-f1e16955ad5f.jsonl",
+      "started": "2026-11-07T08:04:21.177Z",
+      "completed": "2026-11-07T09:09:01.073Z",
+      "complete": true,
+      "tool_calls": 185,
+      "usage": {
+        "input_tokens": 27794453,
+        "cached_input_tokens": 27252352,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 182872,
+        "reasoning_output_tokens": 82192,
+        "total_tokens": 27977325
+      },
+      "cumulative_cross_check": true,
+      "cumulative_event_delta": 497892,
+      "compactions": [
+        {
+          "timestamp": "2026-11-07T08:35:02.211Z",
+          "preceding_usage_record": {
+            "response_id": "resp_0dc230f7316cd9b5016aeee283a2e487d28e7b011f552b519a",
+            "timestamp": "2026-11-07T08:35:02.208Z",
+            "usage": {
+              "input_tokens": 247355,
+              "cached_input_tokens": 243456,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 2916,
+              "reasoning_output_tokens": 0,
+              "total_tokens": 250271
+            }
+          }
+        },
+        {
+          "timestamp": "2026-11-07T09:08:16.895Z",
+          "preceding_usage_record": {
+            "response_id": "resp_0dc230f7316cd9b5016aeeea55aef487d29075df6689dd9fa7",
+            "timestamp": "2026-11-07T09:08:16.891Z",
+            "usage": {
+              "input_tokens": 245059,
+              "cached_input_tokens": 243968,
+              "cache_write_input_tokens": 0,
+              "output_tokens": 2562,
+              "reasoning_output_tokens": 0,
+              "total_tokens": 247621
+            }
+          }
+        }
+      ],
+      "turns": [
+        {
+          "turn_id": "01a1b509-8019-76e3-9819-9a42d2fcc038",
+          "model": "gpt-6-luna",
+          "reasoning_effort": "high",
+          "usage": {
+            "input_tokens": 483210,
+            "cached_input_tokens": 431744,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 6237,
+            "reasoning_output_tokens": 1862,
+            "total_tokens": 489447
+          },
+          "completed": "2026-11-07T08:06:29.835Z",
+          "receipt": "Spec checkpoint is ready at `task/docs/spec/acp-editor/spec.md` (SHA-256: `614fc37aab928a73da273ff530feaa684b986a6c9fb0b7ce139d44a6dcc45c80`). It contains 3 features and 10 scenarios. Awaiting review before proceeding."
+        },
+        {
+          "turn_id": "01a1b50b-98a3-79b3-a233-2224318fa78e",
+          "model": "gpt-6-luna",
+          "reasoning_effort": "high",
+          "usage": {
+            "input_tokens": 367139,
+            "cached_input_tokens": 359936,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 2386,
+            "reasoning_output_tokens": 952,
+            "total_tokens": 369525
+          },
+          "completed": "2026-11-07T08:07:28.769Z",
+          "receipt": "Revised only `task/docs/spec/acp-editor/spec.md`; SHA-256: `4e7404e85cb93ded578264ac19110fe872564869dd86b59bd6ba9cfd27376752`. It retains 10 scenarios and adds the requested observable outcomes. Awaiting confirmation before Tech Design."
+        },
+        {
+          "turn_id": "01a1b50c-b961-7220-9e71-3df0372acd67",
+          "model": "gpt-6-luna",
+          "reasoning_effort": "high",
+          "usage": {
+            "input_tokens": 2953892,
+            "cached_input_tokens": 2864000,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 32855,
+            "reasoning_output_tokens": 11312,
+            "total_tokens": 2986747
+          },
+          "completed": "2026-11-07T08:18:17.931Z",
+          "receipt": "Tech Design draft: `task/docs/spec/acp-editor/tech-design.md`  \nSHA-256: `3011ef3e6fbd2a43a0cfabb12ef42789f5e75e1f4c0e8ae972fd326ed113bd4d`\n\nD01 and T1 reflect ACP v1 version negotiation. The approved Spec hash remains unchanged. Awaiting design confirmation; Req has not started."
+        },
+        {
+          "turn_id": "01a1b516-7e52-7370-8219-1326c26e357c",
+          "model": "gpt-6-luna",
+          "reasoning_effort": "high",
+          "usage": {
+            "input_tokens": 23990212,
+            "cached_input_tokens": 23596672,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 141394,
+            "reasoning_output_tokens": 68066,
+            "total_tokens": 24131606
+          },
+          "completed": "2026-11-07T09:09:01.073Z",
+          "receipt": "完成 ACP x-dev、Verify 与 QA 诊断记录。报告位于 [test-report.md](/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task/reports/task-acp-editor-bridge/20261107-01/test-report.md)。\n\nE020 ACP 测试 17/17 通过，E013 session 回归 20/20 通过。TDD 红灯证据缺口仍在，`x-verify-spec` 未完成，正式 QA 门禁因此阻塞；旁路 tri-lens 记录见 [Q3-bypass-review.md](/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task/reports/task-acp-editor-bridge/20261107-01/evidence/Q3-bypass-review.md)，不构成正式通过。评测支持文件哈希未变，暂存与工作区差异检查均通过。"
+        }
+      ]
+    },
+    {
+      "session_id": "01a1b53a-03c1-7ca1-b765-077d55a81eb4",
+      "rollout": "/Users/kid/.codex/sessions/2026/11/07/rollout-2026-11-07T16-57-20-01a1b53a-03c1-7ca1-b765-077d55a81eb4.jsonl",
+      "started": "2026-11-07T08:57:20.665Z",
+      "completed": "2026-11-07T08:58:57.837Z",
+      "complete": true,
+      "tool_calls": 6,
+      "usage": {
+        "input_tokens": 365274,
+        "cached_input_tokens": 307456,
+        "cache_write_input_tokens": 0,
+        "output_tokens": 4697,
+        "reasoning_output_tokens": 3061,
+        "total_tokens": 369971
+      },
+      "cumulative_cross_check": true,
+      "cumulative_event_delta": 0,
+      "compactions": [],
+      "turns": [
+        {
+          "turn_id": "01a1b53a-03ee-7633-88c6-44ab6eeadd0e",
+          "model": "gpt-6-luna",
+          "reasoning_effort": "high",
+          "usage": {
+            "input_tokens": 365274,
+            "cached_input_tokens": 307456,
+            "cache_write_input_tokens": 0,
+            "output_tokens": 4697,
+            "reasoning_output_tokens": 3061,
+            "total_tokens": 369971
+          },
+          "completed": "2026-11-07T08:58:57.837Z",
+          "receipt": "## q1-intent\n\nchecked scope: `PROMPT.md`, confirmed Spec C1–C8 and feat01–feat03 scenarios, ACP protocol summary, staged change set, and implementation scope.\n\n- lens: q1-intent; task: `packages/acp`; severity: P1; loc: `packages/acp/src/index.ts:21`; msg: RPC envelope schema requires `id`, so valid notifications without an ID are rejected as invalid requests. This breaks the specified `session/cancel` notification contract.\n- 其他意图范围已检查，已检查范围内无其他 P0/P1。\n\n## q2-correctness\n\nchecked scope: input validation, session reservation and replay, prompt concurrency, cancellation, settlement ordering, failure handling, cleanup, and lifecycle paths.\n\n- lens: q2-correctness; task: T1,T5; severity: P1; loc: `packages/acp/src/index.ts:21`; msg: A notification lacks `id`, but the required-ID schema rejects it before `session/cancel` dispatch. `handleLine` then emits an invalid-request response with `id: null`; cancellation notifications therefore fail the contract.\n- 其他正确性范围已检查，已检查范围内无其他 P0/P1。\n\n## q3-evidence\n\nchecked scope: E017 raw output and assertions, unified report mappings, E017 coverage data and uncovered lines, E013 regression evidence, implementation-before red evidence, and the recorded typecheck limitation.\n\n- lens: q3-evidence; task: T11; severity: P1; loc: `packages/acp/tests/index.spec.ts:546`; msg: The notification test checks only `malformedStdout`; it does not assert that no protocol response was emitted. The invalid-request JSON response from the required-ID schema remains unobserved, while the report claims notification silence.\n- lens: q3-evidence; task: T1–T5; severity: P1; loc: `docs/spec/acp-editor/tasks/task-acp-editor-bridge/dev-checklist.md:17`; msg: Tasks require tests before implementation, but E001 is an import failure and supplies no valid implementation-before red evidence. The report acknowledges this, and x-verify-spec remains incomplete.\n- lens: q3-evidence; task: `packages/acp`; severity: P2; loc: `packages/acp/src/index.ts:140`; msg: Strict TypeScript typecheck was not run because `tsc` was unavailable. E017 establishes runtime behavior, while static type correctness remains unverified.\n- 其他证据范围已检查，已检查范围内无其他 P0/P1。\n\n本回执是旁路诊断，不构成正式 QA 通过。"
+        }
+      ]
+    }
+  ],
+  "tools": {
+    "total": 191,
+    "failures": null
+  },
+  "duration": {
+    "executor_tree_wall_seconds": 3879.896
+  },
+  "phase_allocation": {
+    "method": "exact turn totals in rollouts; Req through QA can share one turn",
+    "phases": []
+  },
+  "measurement_notes": [
+    "Only the executor and its descendants are included.",
+    "Distinct response usage is cross-checked against thread_token_usage and includes compaction calls that event_msg.token_count can omit.",
+    "Input and output fields are disjoint of cache and reasoning for the run validator."
+  ],
+  "grader_marker_hits": []
+}

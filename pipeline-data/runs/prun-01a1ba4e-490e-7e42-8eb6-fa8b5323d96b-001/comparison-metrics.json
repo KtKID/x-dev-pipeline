@@ -1,0 +1,58 @@
+{
+  "tech-design-approved.md": {
+    "lines": 439,
+    "body_lines": 162,
+    "body_prose_chars": 3646,
+    "body_table_lines": 42,
+    "markdown_chars": 27589,
+    "mermaid": 3,
+    "mermaid_types": {
+      "flowchart": 1,
+      "sequenceDiagram": 2
+    },
+    "code_blocks": {},
+    "case_headings": [
+      "#### T1 初始化版本 1 并创建会话",
+      "#### T2 首次无效请求、重叠会话操作和已占用会话",
+      "#### T3 恢复已提交历史并继续",
+      "#### T4 文本、增量、思考和工具状态",
+      "#### T5 无效 prompt 原子拒绝",
+      "#### T6 同一会话 prompt 并发拒绝",
+      "#### T7 正常、max_tokens 与 provider error 区分",
+      "#### T8 运行中取消、唯一结算和继续提问",
+      "#### T9 空闲或未知 session cancel",
+      "#### T10 客户端断开时回收 prompt",
+      "#### T11 JSON 行解析和 request/notification 响应规则",
+      "#### T12 恢复跨 cwd 和未知 ID 拒绝",
+      "#### T13 工具失败状态和恢复配对",
+      "#### T14 夹具或桥接日志不污染 stdout",
+      "#### T15 事件响应先后和 flush 边界"
+    ]
+  },
+  "tech-design.md": {
+    "lines": 484,
+    "body_lines": 228,
+    "body_prose_chars": 3331,
+    "body_table_lines": 30,
+    "markdown_chars": 26348,
+    "mermaid": 5,
+    "mermaid_types": {
+      "flowchart": 2,
+      "sequenceDiagram": 2,
+      "stateDiagram-v2": 1
+    },
+    "code_blocks": {
+      "ts": 3
+    },
+    "case_headings": [
+      "#### T1 初始化和有效创建",
+      "#### T2 并发创建/恢复与目录拒绝",
+      "#### T3 文本输入整体校验和顺序",
+      "#### T4 正文/思考/工具事件及终结顺序",
+      "#### T6 取消、空闲取消和串行请求",
+      "#### T8 客户端断开清理",
+      "#### T7 完成、上限和模型失败结算",
+      "#### T9 JSONL 恢复、历史回放及继续"
+    ]
+  }
+}

@@ -19,6 +19,7 @@ deprecated/x-spec-workspace/
 /skills/*.skill
 
 # Benchmark runner sandboxes and local runtime state
+/evals/x-dev-receipt-runs/
 evals/x-pipeline-efficiency-workspace/**/run-*/workspace/
 evals/x-pipeline-efficiency-workspace/**/full-pipeline-run-*/workspace/
 evals/x-pipeline-efficiency-workspace/invalid-attempts/**/workspace/

@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-01a1ba4e-490e-7e42-8eb6-fa8b5323d96b-001",
+  "expectations": [
+    {
+      "id": "TD-01",
+      "passed": true,
+      "severity": "P0",
+      "text": "同一份已确认 Spec 和起始源码，只新增待确认技术设计。",
+      "evidence": [
+        "input-manifest.json",
+        "artifacts/tech-design.md:3"
+      ]
+    },
+    {
+      "id": "TD-02",
+      "passed": true,
+      "severity": "P1",
+      "text": "5 张 Mermaid 图均通过同一解析器，新增桥接类型带中文注释。",
+      "evidence": [
+        "mermaid-validation.json",
+        "artifacts/tech-design.md:78",
+        "artifacts/tech-design.md:237"
+      ]
+    },
+    {
+      "id": "TD-03",
+      "passed": false,
+      "severity": "P1",
+      "text": "请求与通知仍靠文字区分。图合并了解析失败和参数错误，缺少按 id 是否存在分流和 id=0 的验收样例。",
+      "evidence": [
+        "artifacts/tech-design.md:117",
+        "artifacts/tech-design.md:142",
+        "artifacts/tech-design.md:301"
+      ],
+      "reason_code": "DESIGN_VISUAL_RULE_GAP"
+    },
+    {
+      "id": "TD-04",
+      "passed": false,
+      "severity": "P0",
+      "text": "C1 要求创建和恢复都拒绝非空额外目录。新版图仅在 new 检查，load 参数表和 T2 测试输入缺少该分支。",
+      "evidence": [
+        "artifacts/tech-design.md:53",
+        "artifacts/tech-design.md:262",
+        "artifacts/tech-design.md:318"
+      ],
+      "reason_code": "DESIGN_SCOPE_GAP"
+    },
+    {
+      "id": "TD-05",
+      "passed": false,
+      "severity": "P1",
+      "text": "新稿提出重复 flush 和等待 Agent done，未闭合公开接口及失败行为。旧 T15 的挂起 flush 时不得响应断言没有对应新用例。",
+      "evidence": [
+        "artifacts/tech-design.md:138",
+        "artifacts/tech-design.md:185",
+        "artifacts/tech-design.md:385",
+        "/Volumes/machub_app/proj/x-dev-pipeline/pipeline-data/runs/prun-01a1b509-7fed-7d41-947f-f1e16955ad5f-001/artifacts/tech-design-approved.md:352"
+      ],
+      "reason_code": "DESIGN_DURABILITY_EVIDENCE_GAP"
+    }
+  ],
+  "summary": {
+    "passed": 2,
+    "failed": 3,
+    "total": 5,
+    "pass_rate": 0.4
+  },
+  "decision": {
+    "execution_outcome": "completed",
+    "quality_gate": "failed",
+    "accepted_delivery": false,
+    "next_stage": "technical_design_review"
+  }
+}

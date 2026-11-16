@@ -1,0 +1,1222 @@
+{
+  "ACP-01": {
+    "processes": [
+      {
+        "cwd": "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task",
+        "stdout": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "protocolVersion": 1,
+              "agentCapabilities": {
+                "loadSession": true
+              },
+              "authMethods": []
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "error": {
+              "code": -32602,
+              "message": "cwd must be the absolute startup directory"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "error": {
+              "code": -32602,
+              "message": "cwd must be the absolute startup directory"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 4,
+            "error": {
+              "code": -32602,
+              "message": "additionalDirectories must be empty"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "result": {
+              "sessionId": "session-28daab14-84c2-4f9f-af7c-41c2669d421a"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 6,
+            "error": {
+              "code": -32602,
+              "message": "this process already owns a session or session operation"
+            }
+          }
+        ],
+        "stderr": ""
+      }
+    ],
+    "fixture_events": "",
+    "session_logs": {}
+  },
+  "ACP-02": {
+    "processes": [
+      {
+        "cwd": "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task",
+        "stdout": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "protocolVersion": 1,
+              "agentCapabilities": {
+                "loadSession": true
+              },
+              "authMethods": []
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "result": {
+              "sessionId": "session-70cfd295-4935-4a2c-b9c5-26b8321c5b37"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-70cfd295-4935-4a2c-b9c5-26b8321c5b37",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "你好\n"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-70cfd295-4935-4a2c-b9c5-26b8321c5b37",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "976b1d4a1ee9"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-70cfd295-4935-4a2c-b9c5-26b8321c5b37",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-70cfd295-4935-4a2c-b9c5-26b8321c5b37",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Reply: "
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-70cfd295-4935-4a2c-b9c5-26b8321c5b37",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "你好\n976b1d4a1ee9"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "result": {
+              "stopReason": "end_turn"
+            }
+          }
+        ],
+        "stderr": ""
+      }
+    ],
+    "fixture_events": "{\"type\":\"generate\",\"text\":\"你好\\n976b1d4a1ee9\"}\n",
+    "session_logs": {
+      "sessions/cwd-67c7eaa5c9b1/session-70cfd295-4935-4a2c-b9c5-26b8321c5b37.jsonl": "{\"type\":\"session\",\"version\":1,\"id\":\"session-70cfd295-4935-4a2c-b9c5-26b8321c5b37\",\"createdAt\":1794042220131,\"cwd\":\"/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task\"}\n{\"type\":\"turn/start\",\"seq\":0,\"time\":1794042220131,\"data\":{\"turn\":1,\"trigger\":{\"kind\":\"message\",\"source\":{\"kind\":\"user\"}}}}\n{\"type\":\"user/message\",\"seq\":1,\"time\":1794042220131,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"你好\\n\"},{\"type\":\"text\",\"text\":\"976b1d4a1ee9\"}],\"source\":{\"kind\":\"user\"}}}\n{\"type\":\"step/start\",\"seq\":2,\"time\":1794042220131,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"assistant/chunk\",\"seq\":3,\"time\":1794042220132,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"reasoning\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":4,\"time\":1794042220132,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"reasoning-delta\",\"index\":0,\"text\":\"Fixture thought\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":5,\"time\":1794042220133,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"reasoning\",\"text\":\"Fixture thought\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":6,\"time\":1794042220133,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":1,\"blockType\":\"text\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":7,\"time\":1794042220133,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"Reply: \"}}}\n{\"type\":\"assistant/chunk\",\"seq\":8,\"time\":1794042220133,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"你好\\n976b1d4a1ee9\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":9,\"time\":1794042220133,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":1,\"block\":{\"type\":\"text\",\"text\":\"Reply: 你好\\n976b1d4a1ee9\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":10,\"time\":1794042220133,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"usage\",\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}}\n{\"type\":\"assistant/chunk\",\"seq\":11,\"time\":1794042220133,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"finish\",\"reason\":{\"kind\":\"stop\"}}}}\n{\"type\":\"assistant/message\",\"seq\":12,\"time\":1794042220133,\"data\":{\"turn\":1,\"step\":1,\"content\":[{\"type\":\"reasoning\",\"text\":\"Fixture thought\"},{\"type\":\"text\",\"text\":\"Reply: 你好\\n976b1d4a1ee9\"}]}}\n{\"type\":\"usage\",\"seq\":13,\"time\":1794042220133,\"data\":{\"turn\":1,\"step\":1,\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}\n{\"type\":\"step/end\",\"seq\":14,\"time\":1794042220133,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"turn/end\",\"seq\":15,\"time\":1794042220133,\"data\":{\"turn\":1,\"reason\":{\"kind\":\"completed\"}}}\n"
+    }
+  },
+  "ACP-03": {
+    "processes": [
+      {
+        "cwd": "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task",
+        "stdout": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "protocolVersion": 1,
+              "agentCapabilities": {
+                "loadSession": true
+              },
+              "authMethods": []
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "result": {
+              "sessionId": "session-877b84d6-efee-4c1f-8554-95bff72f2a1b"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "error": {
+              "code": -32602,
+              "message": "prompt must contain non-empty text blocks"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 4,
+            "error": {
+              "code": -32602,
+              "message": "prompt must contain non-empty text blocks"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "error": {
+              "code": -32602,
+              "message": "$.prompt[1].type expected text but got image"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 6,
+            "error": {
+              "code": -32602,
+              "message": "unknown session"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-877b84d6-efee-4c1f-8554-95bff72f2a1b",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "a8de2128e0f5"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-877b84d6-efee-4c1f-8554-95bff72f2a1b",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-877b84d6-efee-4c1f-8554-95bff72f2a1b",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Reply: "
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-877b84d6-efee-4c1f-8554-95bff72f2a1b",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "a8de2128e0f5"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 7,
+            "result": {
+              "stopReason": "end_turn"
+            }
+          }
+        ],
+        "stderr": ""
+      }
+    ],
+    "fixture_events": "{\"type\":\"generate\",\"text\":\"a8de2128e0f5\"}\n",
+    "session_logs": {
+      "sessions/cwd-67c7eaa5c9b1/session-877b84d6-efee-4c1f-8554-95bff72f2a1b.jsonl": "{\"type\":\"session\",\"version\":1,\"id\":\"session-877b84d6-efee-4c1f-8554-95bff72f2a1b\",\"createdAt\":1794042220260,\"cwd\":\"/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task\"}\n{\"type\":\"turn/start\",\"seq\":0,\"time\":1794042220261,\"data\":{\"turn\":1,\"trigger\":{\"kind\":\"message\",\"source\":{\"kind\":\"user\"}}}}\n{\"type\":\"user/message\",\"seq\":1,\"time\":1794042220261,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"a8de2128e0f5\"}],\"source\":{\"kind\":\"user\"}}}\n{\"type\":\"step/start\",\"seq\":2,\"time\":1794042220261,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"assistant/chunk\",\"seq\":3,\"time\":1794042220262,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"reasoning\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":4,\"time\":1794042220262,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"reasoning-delta\",\"index\":0,\"text\":\"Fixture thought\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":5,\"time\":1794042220262,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"reasoning\",\"text\":\"Fixture thought\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":6,\"time\":1794042220262,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":1,\"blockType\":\"text\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":7,\"time\":1794042220262,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"Reply: \"}}}\n{\"type\":\"assistant/chunk\",\"seq\":8,\"time\":1794042220262,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"a8de2128e0f5\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":9,\"time\":1794042220262,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":1,\"block\":{\"type\":\"text\",\"text\":\"Reply: a8de2128e0f5\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":10,\"time\":1794042220262,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"usage\",\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}}\n{\"type\":\"assistant/chunk\",\"seq\":11,\"time\":1794042220262,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"finish\",\"reason\":{\"kind\":\"stop\"}}}}\n{\"type\":\"assistant/message\",\"seq\":12,\"time\":1794042220262,\"data\":{\"turn\":1,\"step\":1,\"content\":[{\"type\":\"reasoning\",\"text\":\"Fixture thought\"},{\"type\":\"text\",\"text\":\"Reply: a8de2128e0f5\"}]}}\n{\"type\":\"usage\",\"seq\":13,\"time\":1794042220262,\"data\":{\"turn\":1,\"step\":1,\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}\n{\"type\":\"step/end\",\"seq\":14,\"time\":1794042220262,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"turn/end\",\"seq\":15,\"time\":1794042220262,\"data\":{\"turn\":1,\"reason\":{\"kind\":\"completed\"}}}\n"
+    }
+  },
+  "ACP-04": {
+    "processes": [
+      {
+        "cwd": "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task",
+        "stdout": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "protocolVersion": 1,
+              "agentCapabilities": {
+                "loadSession": true
+              },
+              "authMethods": []
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "result": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "tool 82c559995893"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405",
+              "update": {
+                "sessionUpdate": "tool_call",
+                "toolCallId": "fixture-echo",
+                "title": "fixture_echo",
+                "status": "in_progress"
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405",
+              "update": {
+                "sessionUpdate": "tool_call_update",
+                "toolCallId": "fixture-echo",
+                "status": "completed"
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Tool ro"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "und: "
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "result": {
+              "stopReason": "end_turn"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "tool fail 82c559995893"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405",
+              "update": {
+                "sessionUpdate": "tool_call",
+                "toolCallId": "fixture-echo",
+                "title": "fixture_echo",
+                "status": "in_progress"
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405",
+              "update": {
+                "sessionUpdate": "tool_call_update",
+                "toolCallId": "fixture-echo",
+                "status": "failed"
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Tool ro"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c2a9b2e1-21f3-4601-8215-547357c80405",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "und: "
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 4,
+            "result": {
+              "stopReason": "end_turn"
+            }
+          }
+        ],
+        "stderr": ""
+      }
+    ],
+    "fixture_events": "{\"type\":\"generate\",\"text\":\"tool 82c559995893\"}\n{\"type\":\"tool\",\"text\":\"82c559995893\"}\n{\"type\":\"generate\",\"text\":\"\"}\n{\"type\":\"generate\",\"text\":\"tool fail 82c559995893\"}\n{\"type\":\"tool\",\"text\":\"fail 82c559995893\"}\n{\"type\":\"generate\",\"text\":\"\"}\n",
+    "session_logs": {
+      "sessions/cwd-67c7eaa5c9b1/session-c2a9b2e1-21f3-4601-8215-547357c80405.jsonl": "{\"type\":\"session\",\"version\":1,\"id\":\"session-c2a9b2e1-21f3-4601-8215-547357c80405\",\"createdAt\":1794042220390,\"cwd\":\"/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task\"}\n{\"type\":\"turn/start\",\"seq\":0,\"time\":1794042220390,\"data\":{\"turn\":1,\"trigger\":{\"kind\":\"message\",\"source\":{\"kind\":\"user\"}}}}\n{\"type\":\"user/message\",\"seq\":1,\"time\":1794042220391,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"tool 82c559995893\"}],\"source\":{\"kind\":\"user\"}}}\n{\"type\":\"step/start\",\"seq\":2,\"time\":1794042220391,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"assistant/chunk\",\"seq\":3,\"time\":1794042220391,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"tool-call\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":4,\"time\":1794042220392,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"tool-call-delta\",\"index\":0,\"id\":\"fixture-echo\",\"name\":\"fixture_echo\",\"argumentsDelta\":\"{\\\"text\\\":\\\"82c559995893\\\"}\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":5,\"time\":1794042220392,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"tool-call\",\"id\":\"fixture-echo\",\"name\":\"fixture_echo\",\"arguments\":\"{\\\"text\\\":\\\"82c559995893\\\"}\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":6,\"time\":1794042220392,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"finish\",\"reason\":{\"kind\":\"tool-calls\"}}}}\n{\"type\":\"assistant/message\",\"seq\":7,\"time\":1794042220392,\"data\":{\"turn\":1,\"step\":1,\"content\":[{\"type\":\"tool-call\",\"id\":\"fixture-echo\",\"name\":\"fixture_echo\",\"arguments\":\"{\\\"text\\\":\\\"82c559995893\\\"}\"}]}}\n{\"type\":\"tool/call\",\"seq\":8,\"time\":1794042220392,\"data\":{\"turn\":1,\"step\":1,\"callId\":\"fixture-echo\",\"name\":\"fixture_echo\",\"arguments\":\"{\\\"text\\\":\\\"82c559995893\\\"}\"}}\n{\"type\":\"tool/result\",\"seq\":9,\"time\":1794042220392,\"data\":{\"turn\":1,\"step\":1,\"callId\":\"fixture-echo\",\"content\":[{\"type\":\"text\",\"text\":\"82c559995893\"}],\"isError\":false}}\n{\"type\":\"step/end\",\"seq\":10,\"time\":1794042220392,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"step/start\",\"seq\":11,\"time\":1794042220392,\"data\":{\"turn\":1,\"step\":2}}\n{\"type\":\"assistant/chunk\",\"seq\":12,\"time\":1794042220392,\"data\":{\"turn\":1,\"step\":2,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"reasoning\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":13,\"time\":1794042220392,\"data\":{\"turn\":1,\"step\":2,\"chunk\":{\"type\":\"reasoning-delta\",\"index\":0,\"text\":\"Fixture thought\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":14,\"time\":1794042220392,\"data\":{\"turn\":1,\"step\":2,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"reasoning\",\"text\":\"Fixture thought\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":15,\"time\":1794042220392,\"data\":{\"turn\":1,\"step\":2,\"chunk\":{\"type\":\"block-start\",\"index\":1,\"blockType\":\"text\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":16,\"time\":1794042220393,\"data\":{\"turn\":1,\"step\":2,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"Tool ro\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":17,\"time\":1794042220393,\"data\":{\"turn\":1,\"step\":2,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"und: \"}}}\n{\"type\":\"assistant/chunk\",\"seq\":18,\"time\":1794042220393,\"data\":{\"turn\":1,\"step\":2,\"chunk\":{\"type\":\"block-end\",\"index\":1,\"block\":{\"type\":\"text\",\"text\":\"Tool round: \"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":19,\"time\":1794042220393,\"data\":{\"turn\":1,\"step\":2,\"chunk\":{\"type\":\"usage\",\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}}\n{\"type\":\"assistant/chunk\",\"seq\":20,\"time\":1794042220393,\"data\":{\"turn\":1,\"step\":2,\"chunk\":{\"type\":\"finish\",\"reason\":{\"kind\":\"stop\"}}}}\n{\"type\":\"assistant/message\",\"seq\":21,\"time\":1794042220393,\"data\":{\"turn\":1,\"step\":2,\"content\":[{\"type\":\"reasoning\",\"text\":\"Fixture thought\"},{\"type\":\"text\",\"text\":\"Tool round: \"}]}}\n{\"type\":\"usage\",\"seq\":22,\"time\":1794042220393,\"data\":{\"turn\":1,\"step\":2,\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}\n{\"type\":\"step/end\",\"seq\":23,\"time\":1794042220393,\"data\":{\"turn\":1,\"step\":2}}\n{\"type\":\"turn/end\",\"seq\":24,\"time\":1794042220393,\"data\":{\"turn\":1,\"reason\":{\"kind\":\"completed\"}}}\n{\"type\":\"turn/start\",\"seq\":25,\"time\":1794042220404,\"data\":{\"turn\":2,\"trigger\":{\"kind\":\"message\",\"source\":{\"kind\":\"user\"}}}}\n{\"type\":\"user/message\",\"seq\":26,\"time\":1794042220404,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"tool fail 82c559995893\"}],\"source\":{\"kind\":\"user\"}}}\n{\"type\":\"step/start\",\"seq\":27,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":1}}\n{\"type\":\"assistant/chunk\",\"seq\":28,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"tool-call\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":29,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"tool-call-delta\",\"index\":0,\"id\":\"fixture-echo\",\"name\":\"fixture_echo\",\"argumentsDelta\":\"{\\\"text\\\":\\\"fail 82c559995893\\\"}\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":30,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"tool-call\",\"id\":\"fixture-echo\",\"name\":\"fixture_echo\",\"arguments\":\"{\\\"text\\\":\\\"fail 82c559995893\\\"}\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":31,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"finish\",\"reason\":{\"kind\":\"tool-calls\"}}}}\n{\"type\":\"assistant/message\",\"seq\":32,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":1,\"content\":[{\"type\":\"tool-call\",\"id\":\"fixture-echo\",\"name\":\"fixture_echo\",\"arguments\":\"{\\\"text\\\":\\\"fail 82c559995893\\\"}\"}]}}\n{\"type\":\"tool/call\",\"seq\":33,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":1,\"callId\":\"fixture-echo\",\"name\":\"fixture_echo\",\"arguments\":\"{\\\"text\\\":\\\"fail 82c559995893\\\"}\"}}\n{\"type\":\"tool/result\",\"seq\":34,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":1,\"callId\":\"fixture-echo\",\"content\":[{\"type\":\"text\",\"text\":\"Error: fixture tool failure\"}],\"isError\":true}}\n{\"type\":\"step/end\",\"seq\":35,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":1}}\n{\"type\":\"step/start\",\"seq\":36,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":2}}\n{\"type\":\"assistant/chunk\",\"seq\":37,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":2,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"reasoning\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":38,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":2,\"chunk\":{\"type\":\"reasoning-delta\",\"index\":0,\"text\":\"Fixture thought\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":39,\"time\":1794042220404,\"data\":{\"turn\":2,\"step\":2,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"reasoning\",\"text\":\"Fixture thought\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":40,\"time\":1794042220405,\"data\":{\"turn\":2,\"step\":2,\"chunk\":{\"type\":\"block-start\",\"index\":1,\"blockType\":\"text\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":41,\"time\":1794042220405,\"data\":{\"turn\":2,\"step\":2,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"Tool ro\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":42,\"time\":1794042220405,\"data\":{\"turn\":2,\"step\":2,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"und: \"}}}\n{\"type\":\"assistant/chunk\",\"seq\":43,\"time\":1794042220405,\"data\":{\"turn\":2,\"step\":2,\"chunk\":{\"type\":\"block-end\",\"index\":1,\"block\":{\"type\":\"text\",\"text\":\"Tool round: \"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":44,\"time\":1794042220405,\"data\":{\"turn\":2,\"step\":2,\"chunk\":{\"type\":\"usage\",\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}}\n{\"type\":\"assistant/chunk\",\"seq\":45,\"time\":1794042220405,\"data\":{\"turn\":2,\"step\":2,\"chunk\":{\"type\":\"finish\",\"reason\":{\"kind\":\"stop\"}}}}\n{\"type\":\"assistant/message\",\"seq\":46,\"time\":1794042220405,\"data\":{\"turn\":2,\"step\":2,\"content\":[{\"type\":\"reasoning\",\"text\":\"Fixture thought\"},{\"type\":\"text\",\"text\":\"Tool round: \"}]}}\n{\"type\":\"usage\",\"seq\":47,\"time\":1794042220405,\"data\":{\"turn\":2,\"step\":2,\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}\n{\"type\":\"step/end\",\"seq\":48,\"time\":1794042220405,\"data\":{\"turn\":2,\"step\":2}}\n{\"type\":\"turn/end\",\"seq\":49,\"time\":1794042220405,\"data\":{\"turn\":2,\"reason\":{\"kind\":\"completed\"}}}\n"
+    }
+  },
+  "ACP-05": {
+    "processes": [
+      {
+        "cwd": "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task",
+        "stdout": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "protocolVersion": 1,
+              "agentCapabilities": {
+                "loadSession": true
+              },
+              "authMethods": []
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "result": {
+              "sessionId": "session-a89b718b-7b9e-4c0a-8632-e691bbd6657e"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-a89b718b-7b9e-4c0a-8632-e691bbd6657e",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "limit 016d3ad90bfe"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-a89b718b-7b9e-4c0a-8632-e691bbd6657e",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-a89b718b-7b9e-4c0a-8632-e691bbd6657e",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Reply: "
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-a89b718b-7b9e-4c0a-8632-e691bbd6657e",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "limit 016d3ad90bfe"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "result": {
+              "stopReason": "max_tokens"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-a89b718b-7b9e-4c0a-8632-e691bbd6657e",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "error 016d3ad90bfe"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-a89b718b-7b9e-4c0a-8632-e691bbd6657e",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-a89b718b-7b9e-4c0a-8632-e691bbd6657e",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Reply: "
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 4,
+            "error": {
+              "code": -32000,
+              "message": "fixture provider failure",
+              "data": {
+                "code": "FIXTURE_FAILURE"
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-a89b718b-7b9e-4c0a-8632-e691bbd6657e",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "016d3ad90bfe"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-a89b718b-7b9e-4c0a-8632-e691bbd6657e",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-a89b718b-7b9e-4c0a-8632-e691bbd6657e",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Reply: "
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-a89b718b-7b9e-4c0a-8632-e691bbd6657e",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "016d3ad90bfe"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "result": {
+              "stopReason": "end_turn"
+            }
+          }
+        ],
+        "stderr": ""
+      }
+    ],
+    "fixture_events": "{\"type\":\"generate\",\"text\":\"limit 016d3ad90bfe\"}\n{\"type\":\"generate\",\"text\":\"error 016d3ad90bfe\"}\n{\"type\":\"generate\",\"text\":\"016d3ad90bfe\"}\n",
+    "session_logs": {
+      "sessions/cwd-67c7eaa5c9b1/session-a89b718b-7b9e-4c0a-8632-e691bbd6657e.jsonl": "{\"type\":\"session\",\"version\":1,\"id\":\"session-a89b718b-7b9e-4c0a-8632-e691bbd6657e\",\"createdAt\":1794042220532,\"cwd\":\"/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task\"}\n{\"type\":\"turn/start\",\"seq\":0,\"time\":1794042220532,\"data\":{\"turn\":1,\"trigger\":{\"kind\":\"message\",\"source\":{\"kind\":\"user\"}}}}\n{\"type\":\"user/message\",\"seq\":1,\"time\":1794042220532,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"limit 016d3ad90bfe\"}],\"source\":{\"kind\":\"user\"}}}\n{\"type\":\"step/start\",\"seq\":2,\"time\":1794042220533,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"assistant/chunk\",\"seq\":3,\"time\":1794042220533,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"reasoning\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":4,\"time\":1794042220533,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"reasoning-delta\",\"index\":0,\"text\":\"Fixture thought\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":5,\"time\":1794042220534,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"reasoning\",\"text\":\"Fixture thought\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":6,\"time\":1794042220534,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":1,\"blockType\":\"text\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":7,\"time\":1794042220534,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"Reply: \"}}}\n{\"type\":\"assistant/chunk\",\"seq\":8,\"time\":1794042220534,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"limit 016d3ad90bfe\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":9,\"time\":1794042220534,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":1,\"block\":{\"type\":\"text\",\"text\":\"Reply: limit 016d3ad90bfe\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":10,\"time\":1794042220534,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"usage\",\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}}\n{\"type\":\"assistant/chunk\",\"seq\":11,\"time\":1794042220534,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"finish\",\"reason\":{\"kind\":\"max-tokens\"}}}}\n{\"type\":\"assistant/message\",\"seq\":12,\"time\":1794042220534,\"data\":{\"turn\":1,\"step\":1,\"content\":[{\"type\":\"reasoning\",\"text\":\"Fixture thought\"},{\"type\":\"text\",\"text\":\"Reply: limit 016d3ad90bfe\"}]}}\n{\"type\":\"usage\",\"seq\":13,\"time\":1794042220534,\"data\":{\"turn\":1,\"step\":1,\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}\n{\"type\":\"step/end\",\"seq\":14,\"time\":1794042220534,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"turn/end\",\"seq\":15,\"time\":1794042220534,\"data\":{\"turn\":1,\"reason\":{\"kind\":\"max-tokens\"}}}\n{\"type\":\"turn/start\",\"seq\":16,\"time\":1794042220544,\"data\":{\"turn\":2,\"trigger\":{\"kind\":\"message\",\"source\":{\"kind\":\"user\"}}}}\n{\"type\":\"user/message\",\"seq\":17,\"time\":1794042220544,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"error 016d3ad90bfe\"}],\"source\":{\"kind\":\"user\"}}}\n{\"type\":\"step/start\",\"seq\":18,\"time\":1794042220544,\"data\":{\"turn\":2,\"step\":1}}\n{\"type\":\"assistant/chunk\",\"seq\":19,\"time\":1794042220544,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"reasoning\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":20,\"time\":1794042220544,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"reasoning-delta\",\"index\":0,\"text\":\"Fixture thought\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":21,\"time\":1794042220544,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"reasoning\",\"text\":\"Fixture thought\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":22,\"time\":1794042220544,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":1,\"blockType\":\"text\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":23,\"time\":1794042220544,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"Reply: \"}}}\n{\"type\":\"assistant/chunk\",\"seq\":24,\"time\":1794042220544,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"finish\",\"reason\":{\"kind\":\"error\",\"message\":\"fixture provider failure\",\"code\":\"FIXTURE_FAILURE\"}}}}\n{\"type\":\"step/end\",\"seq\":25,\"time\":1794042220544,\"data\":{\"turn\":2,\"step\":1}}\n{\"type\":\"error\",\"seq\":26,\"time\":1794042220544,\"data\":{\"turn\":2,\"step\":1,\"message\":\"fixture provider failure\",\"code\":\"FIXTURE_FAILURE\"}}\n{\"type\":\"turn/end\",\"seq\":27,\"time\":1794042220544,\"data\":{\"turn\":2,\"reason\":{\"kind\":\"error\",\"message\":\"fixture provider failure\",\"code\":\"FIXTURE_FAILURE\"}}}\n{\"type\":\"turn/start\",\"seq\":28,\"time\":1794042220549,\"data\":{\"turn\":3,\"trigger\":{\"kind\":\"message\",\"source\":{\"kind\":\"user\"}}}}\n{\"type\":\"user/message\",\"seq\":29,\"time\":1794042220549,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"016d3ad90bfe\"}],\"source\":{\"kind\":\"user\"}}}\n{\"type\":\"step/start\",\"seq\":30,\"time\":1794042220549,\"data\":{\"turn\":3,\"step\":1}}\n{\"type\":\"assistant/chunk\",\"seq\":31,\"time\":1794042220549,\"data\":{\"turn\":3,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"reasoning\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":32,\"time\":1794042220549,\"data\":{\"turn\":3,\"step\":1,\"chunk\":{\"type\":\"reasoning-delta\",\"index\":0,\"text\":\"Fixture thought\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":33,\"time\":1794042220549,\"data\":{\"turn\":3,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"reasoning\",\"text\":\"Fixture thought\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":34,\"time\":1794042220549,\"data\":{\"turn\":3,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":1,\"blockType\":\"text\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":35,\"time\":1794042220549,\"data\":{\"turn\":3,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"Reply: \"}}}\n{\"type\":\"assistant/chunk\",\"seq\":36,\"time\":1794042220549,\"data\":{\"turn\":3,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"016d3ad90bfe\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":37,\"time\":1794042220549,\"data\":{\"turn\":3,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":1,\"block\":{\"type\":\"text\",\"text\":\"Reply: 016d3ad90bfe\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":38,\"time\":1794042220549,\"data\":{\"turn\":3,\"step\":1,\"chunk\":{\"type\":\"usage\",\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}}\n{\"type\":\"assistant/chunk\",\"seq\":39,\"time\":1794042220549,\"data\":{\"turn\":3,\"step\":1,\"chunk\":{\"type\":\"finish\",\"reason\":{\"kind\":\"stop\"}}}}\n{\"type\":\"assistant/message\",\"seq\":40,\"time\":1794042220549,\"data\":{\"turn\":3,\"step\":1,\"content\":[{\"type\":\"reasoning\",\"text\":\"Fixture thought\"},{\"type\":\"text\",\"text\":\"Reply: 016d3ad90bfe\"}]}}\n{\"type\":\"usage\",\"seq\":41,\"time\":1794042220550,\"data\":{\"turn\":3,\"step\":1,\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}\n{\"type\":\"step/end\",\"seq\":42,\"time\":1794042220550,\"data\":{\"turn\":3,\"step\":1}}\n{\"type\":\"turn/end\",\"seq\":43,\"time\":1794042220550,\"data\":{\"turn\":3,\"reason\":{\"kind\":\"completed\"}}}\n"
+    }
+  },
+  "ACP-06": {
+    "processes": [
+      {
+        "cwd": "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task",
+        "stdout": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "protocolVersion": 1,
+              "agentCapabilities": {
+                "loadSession": true
+              },
+              "authMethods": []
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "result": {
+              "sessionId": "session-c80cf8b7-dade-47b4-b093-92a5a0dc1c42"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c80cf8b7-dade-47b4-b093-92a5a0dc1c42",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "hang 9ad3828ec200"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c80cf8b7-dade-47b4-b093-92a5a0dc1c42",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c80cf8b7-dade-47b4-b093-92a5a0dc1c42",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Reply: "
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 4,
+            "error": {
+              "code": -32602,
+              "message": "a prompt is already running for this session"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "result": {
+              "stopReason": "cancelled"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c80cf8b7-dade-47b4-b093-92a5a0dc1c42",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "9ad3828ec200"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c80cf8b7-dade-47b4-b093-92a5a0dc1c42",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c80cf8b7-dade-47b4-b093-92a5a0dc1c42",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Reply: "
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-c80cf8b7-dade-47b4-b093-92a5a0dc1c42",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "9ad3828ec200"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "result": {
+              "stopReason": "end_turn"
+            }
+          }
+        ],
+        "stderr": ""
+      }
+    ],
+    "fixture_events": "{\"type\":\"generate\",\"text\":\"hang 9ad3828ec200\"}\n{\"type\":\"aborted\",\"text\":\"hang 9ad3828ec200\"}\n{\"type\":\"generate\",\"text\":\"9ad3828ec200\"}\n",
+    "session_logs": {
+      "sessions/cwd-67c7eaa5c9b1/session-c80cf8b7-dade-47b4-b093-92a5a0dc1c42.jsonl": "{\"type\":\"session\",\"version\":1,\"id\":\"session-c80cf8b7-dade-47b4-b093-92a5a0dc1c42\",\"createdAt\":1794042220669,\"cwd\":\"/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task\"}\n{\"type\":\"turn/start\",\"seq\":0,\"time\":1794042220670,\"data\":{\"turn\":1,\"trigger\":{\"kind\":\"message\",\"source\":{\"kind\":\"user\"}}}}\n{\"type\":\"user/message\",\"seq\":1,\"time\":1794042220670,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"hang 9ad3828ec200\"}],\"source\":{\"kind\":\"user\"}}}\n{\"type\":\"step/start\",\"seq\":2,\"time\":1794042220670,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"assistant/chunk\",\"seq\":3,\"time\":1794042220671,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"reasoning\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":4,\"time\":1794042220671,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"reasoning-delta\",\"index\":0,\"text\":\"Fixture thought\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":5,\"time\":1794042220671,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"reasoning\",\"text\":\"Fixture thought\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":6,\"time\":1794042220671,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":1,\"blockType\":\"text\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":7,\"time\":1794042220671,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"Reply: \"}}}\n{\"type\":\"step/end\",\"seq\":8,\"time\":1794042220672,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"turn/end\",\"seq\":9,\"time\":1794042220672,\"data\":{\"turn\":1,\"reason\":{\"kind\":\"aborted\",\"reason\":\"ACP session/cancel\"}}}\n{\"type\":\"turn/start\",\"seq\":10,\"time\":1794042220683,\"data\":{\"turn\":2,\"trigger\":{\"kind\":\"message\",\"source\":{\"kind\":\"user\"}}}}\n{\"type\":\"user/message\",\"seq\":11,\"time\":1794042220683,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"9ad3828ec200\"}],\"source\":{\"kind\":\"user\"}}}\n{\"type\":\"step/start\",\"seq\":12,\"time\":1794042220683,\"data\":{\"turn\":2,\"step\":1}}\n{\"type\":\"assistant/chunk\",\"seq\":13,\"time\":1794042220684,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"reasoning\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":14,\"time\":1794042220684,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"reasoning-delta\",\"index\":0,\"text\":\"Fixture thought\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":15,\"time\":1794042220684,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"reasoning\",\"text\":\"Fixture thought\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":16,\"time\":1794042220684,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":1,\"blockType\":\"text\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":17,\"time\":1794042220684,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"Reply: \"}}}\n{\"type\":\"assistant/chunk\",\"seq\":18,\"time\":1794042220684,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"9ad3828ec200\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":19,\"time\":1794042220684,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":1,\"block\":{\"type\":\"text\",\"text\":\"Reply: 9ad3828ec200\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":20,\"time\":1794042220684,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"usage\",\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}}\n{\"type\":\"assistant/chunk\",\"seq\":21,\"time\":1794042220684,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"finish\",\"reason\":{\"kind\":\"stop\"}}}}\n{\"type\":\"assistant/message\",\"seq\":22,\"time\":1794042220684,\"data\":{\"turn\":2,\"step\":1,\"content\":[{\"type\":\"reasoning\",\"text\":\"Fixture thought\"},{\"type\":\"text\",\"text\":\"Reply: 9ad3828ec200\"}]}}\n{\"type\":\"usage\",\"seq\":23,\"time\":1794042220684,\"data\":{\"turn\":2,\"step\":1,\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}\n{\"type\":\"step/end\",\"seq\":24,\"time\":1794042220684,\"data\":{\"turn\":2,\"step\":1}}\n{\"type\":\"turn/end\",\"seq\":25,\"time\":1794042220684,\"data\":{\"turn\":2,\"reason\":{\"kind\":\"completed\"}}}\n"
+    }
+  },
+  "ACP-07": {
+    "processes": [
+      {
+        "cwd": "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task",
+        "stdout": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "protocolVersion": 1,
+              "agentCapabilities": {
+                "loadSession": true
+              },
+              "authMethods": []
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "result": {
+              "sessionId": "session-499c8983-0304-411a-be67-4c23e8fe23d2"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-499c8983-0304-411a-be67-4c23e8fe23d2",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "hang b7b39bab6935"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-499c8983-0304-411a-be67-4c23e8fe23d2",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-499c8983-0304-411a-be67-4c23e8fe23d2",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Reply: "
+                }
+              }
+            }
+          }
+        ],
+        "stderr": ""
+      }
+    ],
+    "fixture_events": "{\"type\":\"generate\",\"text\":\"hang b7b39bab6935\"}\n{\"type\":\"aborted\",\"text\":\"hang b7b39bab6935\"}\n",
+    "session_logs": {
+      "sessions/cwd-67c7eaa5c9b1/session-499c8983-0304-411a-be67-4c23e8fe23d2.jsonl": "{\"type\":\"session\",\"version\":1,\"id\":\"session-499c8983-0304-411a-be67-4c23e8fe23d2\",\"createdAt\":1794042220802,\"cwd\":\"/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task\"}\n{\"type\":\"turn/start\",\"seq\":0,\"time\":1794042220803,\"data\":{\"turn\":1,\"trigger\":{\"kind\":\"message\",\"source\":{\"kind\":\"user\"}}}}\n{\"type\":\"user/message\",\"seq\":1,\"time\":1794042220803,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"hang b7b39bab6935\"}],\"source\":{\"kind\":\"user\"}}}\n{\"type\":\"step/start\",\"seq\":2,\"time\":1794042220803,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"assistant/chunk\",\"seq\":3,\"time\":1794042220804,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"reasoning\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":4,\"time\":1794042220804,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"reasoning-delta\",\"index\":0,\"text\":\"Fixture thought\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":5,\"time\":1794042220804,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"reasoning\",\"text\":\"Fixture thought\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":6,\"time\":1794042220804,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":1,\"blockType\":\"text\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":7,\"time\":1794042220804,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"Reply: \"}}}\n{\"type\":\"step/end\",\"seq\":8,\"time\":1794042220805,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"turn/end\",\"seq\":9,\"time\":1794042220805,\"data\":{\"turn\":1,\"reason\":{\"kind\":\"aborted\",\"reason\":\"ACP client disconnected\"}}}\n"
+    }
+  },
+  "ACP-08": {
+    "processes": [
+      {
+        "cwd": "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task",
+        "stdout": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "protocolVersion": 1,
+              "agentCapabilities": {
+                "loadSession": true
+              },
+              "authMethods": []
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "result": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "9ebd457d3082"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Reply: "
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "9ebd457d3082"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "result": {
+              "stopReason": "end_turn"
+            }
+          }
+        ],
+        "stderr": ""
+      },
+      {
+        "cwd": "/private/var/folders/53/ck73s8_90tl1y6q2r43hj76m0000gn/T/acp-other-cwd-mm3r2hby",
+        "stdout": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "protocolVersion": 1,
+              "agentCapabilities": {
+                "loadSession": true
+              },
+              "authMethods": []
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "error": {
+              "code": -32602,
+              "message": "session belongs to a different working directory"
+            }
+          }
+        ],
+        "stderr": ""
+      },
+      {
+        "cwd": "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task",
+        "stdout": [
+          {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "result": {
+              "protocolVersion": 1,
+              "agentCapabilities": {
+                "loadSession": true
+              },
+              "authMethods": []
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 2,
+            "error": {
+              "code": -32602,
+              "message": "unknown session"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 4,
+            "error": {
+              "code": -32602,
+              "message": "this process already owns a session or session operation"
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "9ebd457d3082"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Reply: "
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "9ebd457d3082"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "result": {}
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7",
+              "update": {
+                "sessionUpdate": "user_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "after 9ebd457d3082"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7",
+              "update": {
+                "sessionUpdate": "agent_thought_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Fixture thought"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "Reply: "
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "method": "session/update",
+            "params": {
+              "sessionId": "session-37de66e8-18d3-4ac1-bf3d-731441458df7",
+              "update": {
+                "sessionUpdate": "agent_message_chunk",
+                "content": {
+                  "type": "text",
+                  "text": "after 9ebd457d3082"
+                }
+              }
+            }
+          },
+          {
+            "jsonrpc": "2.0",
+            "id": 5,
+            "result": {
+              "stopReason": "end_turn"
+            }
+          }
+        ],
+        "stderr": ""
+      }
+    ],
+    "fixture_events": "{\"type\":\"generate\",\"text\":\"9ebd457d3082\"}\n{\"type\":\"generate\",\"text\":\"after 9ebd457d3082\"}\n",
+    "session_logs": {
+      "sessions/cwd-67c7eaa5c9b1/session-37de66e8-18d3-4ac1-bf3d-731441458df7.jsonl": "{\"type\":\"session\",\"version\":1,\"id\":\"session-37de66e8-18d3-4ac1-bf3d-731441458df7\",\"createdAt\":1794042220928,\"cwd\":\"/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/task\"}\n{\"type\":\"turn/start\",\"seq\":0,\"time\":1794042220929,\"data\":{\"turn\":1,\"trigger\":{\"kind\":\"message\",\"source\":{\"kind\":\"user\"}}}}\n{\"type\":\"user/message\",\"seq\":1,\"time\":1794042220929,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"9ebd457d3082\"}],\"source\":{\"kind\":\"user\"}}}\n{\"type\":\"step/start\",\"seq\":2,\"time\":1794042220929,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"assistant/chunk\",\"seq\":3,\"time\":1794042220930,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"reasoning\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":4,\"time\":1794042220930,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"reasoning-delta\",\"index\":0,\"text\":\"Fixture thought\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":5,\"time\":1794042220930,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"reasoning\",\"text\":\"Fixture thought\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":6,\"time\":1794042220930,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":1,\"blockType\":\"text\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":7,\"time\":1794042220930,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"Reply: \"}}}\n{\"type\":\"assistant/chunk\",\"seq\":8,\"time\":1794042220930,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"9ebd457d3082\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":9,\"time\":1794042220930,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":1,\"block\":{\"type\":\"text\",\"text\":\"Reply: 9ebd457d3082\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":10,\"time\":1794042220930,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"usage\",\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}}\n{\"type\":\"assistant/chunk\",\"seq\":11,\"time\":1794042220930,\"data\":{\"turn\":1,\"step\":1,\"chunk\":{\"type\":\"finish\",\"reason\":{\"kind\":\"stop\"}}}}\n{\"type\":\"assistant/message\",\"seq\":12,\"time\":1794042220930,\"data\":{\"turn\":1,\"step\":1,\"content\":[{\"type\":\"reasoning\",\"text\":\"Fixture thought\"},{\"type\":\"text\",\"text\":\"Reply: 9ebd457d3082\"}]}}\n{\"type\":\"usage\",\"seq\":13,\"time\":1794042220930,\"data\":{\"turn\":1,\"step\":1,\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}\n{\"type\":\"step/end\",\"seq\":14,\"time\":1794042220930,\"data\":{\"turn\":1,\"step\":1}}\n{\"type\":\"turn/end\",\"seq\":15,\"time\":1794042220930,\"data\":{\"turn\":1,\"reason\":{\"kind\":\"completed\"}}}\n{\"type\":\"turn/start\",\"seq\":16,\"time\":1794042221183,\"data\":{\"turn\":2,\"trigger\":{\"kind\":\"message\",\"source\":{\"kind\":\"user\"}}}}\n{\"type\":\"user/message\",\"seq\":17,\"time\":1794042221183,\"data\":{\"content\":[{\"type\":\"text\",\"text\":\"after 9ebd457d3082\"}],\"source\":{\"kind\":\"user\"}}}\n{\"type\":\"step/start\",\"seq\":18,\"time\":1794042221183,\"data\":{\"turn\":2,\"step\":1}}\n{\"type\":\"assistant/chunk\",\"seq\":19,\"time\":1794042221184,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":0,\"blockType\":\"reasoning\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":20,\"time\":1794042221184,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"reasoning-delta\",\"index\":0,\"text\":\"Fixture thought\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":21,\"time\":1794042221184,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":0,\"block\":{\"type\":\"reasoning\",\"text\":\"Fixture thought\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":22,\"time\":1794042221184,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-start\",\"index\":1,\"blockType\":\"text\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":23,\"time\":1794042221184,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"Reply: \"}}}\n{\"type\":\"assistant/chunk\",\"seq\":24,\"time\":1794042221184,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"text-delta\",\"index\":1,\"text\":\"after 9ebd457d3082\"}}}\n{\"type\":\"assistant/chunk\",\"seq\":25,\"time\":1794042221184,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"block-end\",\"index\":1,\"block\":{\"type\":\"text\",\"text\":\"Reply: after 9ebd457d3082\"}}}}\n{\"type\":\"assistant/chunk\",\"seq\":26,\"time\":1794042221184,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"usage\",\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}}\n{\"type\":\"assistant/chunk\",\"seq\":27,\"time\":1794042221184,\"data\":{\"turn\":2,\"step\":1,\"chunk\":{\"type\":\"finish\",\"reason\":{\"kind\":\"stop\"}}}}\n{\"type\":\"assistant/message\",\"seq\":28,\"time\":1794042221184,\"data\":{\"turn\":2,\"step\":1,\"content\":[{\"type\":\"reasoning\",\"text\":\"Fixture thought\"},{\"type\":\"text\",\"text\":\"Reply: after 9ebd457d3082\"}]}}\n{\"type\":\"usage\",\"seq\":29,\"time\":1794042221184,\"data\":{\"turn\":2,\"step\":1,\"usage\":{\"inputTokens\":5,\"outputTokens\":3}}}\n{\"type\":\"step/end\",\"seq\":30,\"time\":1794042221184,\"data\":{\"turn\":2,\"step\":1}}\n{\"type\":\"turn/end\",\"seq\":31,\"time\":1794042221185,\"data\":{\"turn\":2,\"reason\":{\"kind\":\"completed\"}}}\n"
+    }
+  }
+}

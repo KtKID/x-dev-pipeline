@@ -1,0 +1,32 @@
+[
+  {
+    "path": "artifacts/tech-design.md",
+    "line": 20,
+    "diagramType": "flowchart-v2",
+    "valid": true
+  },
+  {
+    "path": "artifacts/tech-design.md",
+    "line": 59,
+    "diagramType": "flowchart-v2",
+    "valid": true
+  },
+  {
+    "path": "artifacts/tech-design.md",
+    "line": 98,
+    "diagramType": "sequence",
+    "valid": true
+  },
+  {
+    "path": "artifacts/tech-design.md",
+    "line": 154,
+    "diagramType": "sequence",
+    "valid": true
+  },
+  {
+    "path": "artifacts/tech-design.md",
+    "line": 188,
+    "valid": false,
+    "error": "Parse error on line 4:\n...是| abort[Agent.abort(disconnect)]    ru\n-----------------------^\nExpecting 'SQE', 'DOUBLECIRCLEEND', 'PE', '-)', 'STADIUMEND', 'SUBROUTINEEND', 'PIPE', 'CYLINDEREND', 'DIAMOND_STOP', 'TAGEND', 'TRAPEND', 'INVTRAPEND', 'UNICODE_TEXT', 'TEXT', 'TAGSTART', got 'PS'"
+  }
+]

@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-01a1ba64-27ae-7852-8bd9-53515e164c92-001",
+  "source": {
+    "kind": "codex_rollout",
+    "id": "01a1ba64-27ae-7852-8bd9-53515e164c92"
+  },
+  "tokens": {
+    "input": 108645,
+    "output": 16326,
+    "reasoning": 3739,
+    "cache_read": 996608,
+    "cache_write": 0,
+    "total_without_cache_read": 128710,
+    "total_with_cache": 1125318
+  },
+  "provider_usage": {
+    "input_tokens": 1105253,
+    "cached_input_tokens": 996608,
+    "cache_write_input_tokens": 0,
+    "output_tokens": 20065,
+    "reasoning_output_tokens": 3739,
+    "total_tokens": 1125318
+  },
+  "usage_records": 17,
+  "duration": {
+    "executor_session_seconds": 384.604
+  },
+  "phase_allocation": {
+    "method": "single completed x-tech-design turn",
+    "phases": [
+      {
+        "stage": "x-tech-design",
+        "input": 108645,
+        "output": 16326,
+        "reasoning": 3739,
+        "cache_read": 996608,
+        "cache_write": 0,
+        "total_without_cache_read": 128710,
+        "total_with_cache": 1125318
+      }
+    ]
+  }
+}

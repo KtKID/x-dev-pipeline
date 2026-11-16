@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "pipeline_run_id": "prun-01a1b509-7fed-7d41-947f-f1e16955ad5f-001",
+  "run_kind": "evaluation",
+  "objective": "用 Luna high 验证当前工作区的 DeepSeek ACP 完整 pipeline",
+  "parent_run_id": null,
+  "source": {
+    "kind": "codex_rollout",
+    "id": "01a1b509-7fed-7d41-947f-f1e16955ad5f",
+    "rollout": "/Users/kid/.codex/sessions/2026/11/07/rollout-2026-11-07T16-04-21-01a1b509-7fed-7d41-947f-f1e16955ad5f.jsonl",
+    "workspace_dir": "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace"
+  },
+  "task": {
+    "path": "/private/tmp/dsh-acp-luna.6lv2ym/candidate/workspace/PROMPT.md",
+    "sha256": "sha256:9c41835c1220dfda0fde6370790939893288d0c07c68823e8ebcdb57400780cf",
+    "rubric": "/Volumes/machub_app/proj/x-dev-pipeline/evals/answers/deepseek-acp/RUBRIC.md",
+    "rubric_sha256": "6a43bdb73d859fa2b413d42dc95057c86fb02921fd782f194e42d8743e73f440",
+    "rubric_sent_to_executor": false
+  },
+  "repository": {
+    "sha": "ee266e8df362e5f235d980437ad45f890e5bdedf",
+    "pipeline_input": "worktree",
+    "task_commit": "add59a3336f0ab61c55499418081aab76cb550f8",
+    "package_manifest_sha256": "e6c71a8f4307183b1f337db424c406c95e9cb0788c229de52e6dd78d779c667e"
+  },
+  "executor": {
+    "model": "gpt-6-luna",
+    "reasoning_effort": "high",
+    "skills": [
+      {
+        "name": "x-spec",
+        "sha256": "sha256:a9a2240b87439308290478a5793c03f14904fe6ef01f1cf838f0def8e769e7d2"
+      },
+      {
+        "name": "x-adversarial-risk",
+        "sha256": "sha256:7461f0585912acecd4dfacd82534cf8ecbfa3ff6da7b02cc7488eb1ac404067f"
+      },
+      {
+        "name": "x-req",
+        "sha256": "sha256:93db0d5df427f0863659b753b5be30a9959ae31e1a997e529c8fead93c4256ee"
+      },
+      {
+        "name": "x-dev",
+        "sha256": "sha256:73005ad8ab861c1b22f1658c3d58e6b0b757c6d3bf25f65646e24c26d43fb8c9"
+      },
+      {
+        "name": "x-verify-spec",
+        "sha256": "sha256:ebd2af56381b6490e09224b58e7258d404d2bb6d77c45067965be2f39697a196"
+      },
+      {
+        "name": "x-qa-gate",
+        "sha256": "sha256:f9820dfab835e7c2d0618a2ea181de2156e6ff50e4b79982248c89fa399d0295"
+      },
+      {
+        "name": "x-fix",
+        "sha256": "sha256:05133f1566fa1b7afe974e0a275ab06d5620f2895b40188fbd143af33ef4934f"
+      },
+      {
+        "name": "x-dev-rag-call",
+        "sha256": "sha256:fc68ec4c955a8ce7887418c3c4bbf3be5f514f71b01f55c4329e6978661f469a"
+      },
+      {
+        "name": "x-explore",
+        "sha256": "sha256:142800af8cfbd4f95620a12c45322ee6caf7d86ecabaa8ebfbd8fea8d7d800cc"
+      },
+      {
+        "name": "x-tech-design",
+        "sha256": "sha256:534a6702562b4e61da6f43c1028ee9f14a0c8e85f320845eb381491a3980fd97"
+      },
+      {
+        "name": "x-verify-tech",
+        "sha256": "sha256:2c36163b535ed91c65144ee881233b743a997862923bda19d546594b488345ce"
+      }
+    ],
+    "context": "fresh no-fork child",
+    "filesystem": "workspace-only instructions with shared host sandbox"
+  },
+  "pipeline": {
+    "phases": [
+      "x-spec",
+      "x-tech-design",
+      "x-req",
+      "x-dev",
+      "x-verify-spec",
+      "x-verify-tech",
+      "x-qa-gate"
+    ],
+    "scope": "full_pipeline"
+  },
+  "started_at": "2026-11-07T08:04:21.177Z",
+  "status_source": "events.jsonl"
+}
