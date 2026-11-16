@@ -25,8 +25,10 @@ qdev 范围内，spec/模块正文回写、局部方案、用例调整、实现�
 | 已有资料 | 功能定义放在哪里 | task 放在哪里 |
 |---|---|---|
 | 已有相关 spec，或上层功能 spec 的职责范围包含本次变化 | 更新该 spec 的 feat/场景 | `docs/spec/<spec-name>/tasks/task-<task-name>.md` |
-| 已查对应及上层 spec，尚无可归属 spec；已有模块 README/功能说明 | 更新模块说明中的功能章节 | `docs/task/task-<task-name>.md` |
-| 所属模块已有代码，功能文档尚缺 | 在模块现有文档位置补一份最小功能说明，沿用项目命名习惯 | `docs/task/task-<task-name>.md` |
+| 已查对应及上层 spec，尚无可归属 spec（模块已有 README/功能说明，或连功能文档也没有） | 先在对应模块建最小 spec `docs/spec/<模块名>/spec.md`：按 [spec 模板](../x-spec/templates/spec.md) 写标题和模块头部四行；已有模块说明时正文链到原文件、原文件原地维护，没有时在新 spec 写本次行为的最小功能说明 | `docs/spec/<模块名>/tasks/task-<task-name>.md` |
+| 不改变用户可见功能的工程改动（挪目录、依赖、构建、CI、部署脚本） | 仓库统一的工程杂活 spec `docs/spec/engineering/spec.md`，没有时按上一行建最小 spec | `docs/spec/engineering/tasks/task-<task-name>.md` |
+
+每个 task 都放在某个 spec 的 `tasks/` 下，不再新建 `docs/task/`；历史 `docs/task/` 下的旧 task 保持原位，按原位置读取。spec 以一个模块功能为单位长期更新，模块名用英文小写加横线，不带版本号。
 
 最小功能说明写清模块归属、本次行为的触发条件、可观察结果和相关边界，并提供稳定章节定位。补充范围围绕本次任务，其他历史功能沿用已有资料。
 

@@ -3,7 +3,7 @@
 <!--
 填写后删除本注释和占位行。
 - 本文件位于 docs/spec/<spec-name>/tasks/<task-name>/dev-checklist.md，一个 task 一份。
-- spec 指向 v6 格式的 spec.md（标题 + 概述 + feat 列表，无元数据头）。
+- spec 指向 v6 格式的 spec.md（标题 + 模块头部四行 + 概述 + feat 列表）。
 - 场景回指写 featNN 场景M，如 `feat02 场景3`；同行多场景逗号分隔；纯技术支撑行写 None。
 - 风险列：鉴权/持久化或迁移/并发/不可逆写 `高:<一句依据>`，其余写 None。
 - 不建依赖图：行序即实现顺序，先做被别人依赖的。
@@ -15,6 +15,8 @@
 -->
 
 > spec: docs/spec/<spec-name>/spec.md
+> 状态：<待实现/进行中/待验证/已完成>
+> 执行者：<kid / kongming / junji-<大臣名> / session-codex / session-zcode / bot-<名字>；不清楚写“未知”>
 > tech-design: docs/spec/<spec-name>/tech-design.md
 > 创建: YYYY-MM-DD
 

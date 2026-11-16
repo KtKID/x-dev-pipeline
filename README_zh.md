@@ -209,7 +209,7 @@ x-qdev 用一份任务文档记录小改动的局部设计、用例变化、实�
                     └→ x-verify-tech：局部设计与规范验收
 ```
 
-先按功能职责查找对应及上层 spec，新增行为归入职责范围匹配的既有 spec；尚无可归属 spec 时，更新所属模块 README/功能说明，文档缺失时补本次行为的最小说明。有归属 spec 时，task 位于 `docs/spec/<spec-name>/tasks/task-<task-name>.md`；模块说明承载时，位于 `docs/task/task-<task-name>.md`。需求正文在功能文档唯一维护，task 回指稳定编号或章节；功能文档的 changelog 回链 task。
+先按功能职责查找对应及上层 spec，新增行为归入职责范围匹配的既有 spec；尚无可归属 spec 时，先在对应模块建最小 spec（已有模块 README/功能说明时正文链过去、原文件原地维护；文档缺失时在新 spec 补本次行为的最小说明），纯工程改动归 `docs/spec/engineering/`。task 一律位于 `docs/spec/<模块名>/tasks/task-<task-name>.md`，头部必填所属 spec、状态、执行者、创建四行。需求正文在功能文档唯一维护，task 回指稳定编号或章节；功能文档的 changelog 回链 task。
 
 新增 feat/场景补入正文，修改行为更新原定义，删除项保留原编号/定位、历史来源和移除要求。每项变化记录用户原始要求或已有明确结论及适用范围；目标变化标为待实现/变更中，验证通过后同步交付状态。用例变化和实际执行分别统计，功能删除同时验证移除结果及保留行为。
 
