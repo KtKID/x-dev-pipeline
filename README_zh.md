@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/workflow-spec-verify-qdev.png" alt="x-dev-pipeline：主线与快速开发共用 verify" />
-</p>
-
 # x-dev-pipeline
 
 [English](./README.md)
@@ -27,12 +23,17 @@
 
 完整需求走设计先行的主线，具体小改动走精简 task 闭环，两条路径共用一份当次改动测试报告。
 
-```text
-完整主线：
-x-explore-for-spec（按需）→ x-spec → x-tech-design → 用户确认设计
-       → x-req → x-dev
-       → x-verify-spec（Gate ①）→ x-qa-gate（Gate ②）→ 交付
+```mermaid
+flowchart LR
+    A["x-explore-for-spec<br/>探索并维护需求"] --> B["x-tech-design"]
+    B -->|用户确认设计| C["x-req"]
+    C --> D["x-dev"]
+    D --> E["x-verify-spec · Gate ①"]
+    E --> F["x-qa-gate · Gate ②"]
+    F --> G["交付"]
+```
 
+```text
 技术验收：
 x-verify-tech · 按已确认设计验收 task / feat / diff
 
@@ -45,19 +46,23 @@ x-qdev · 一份 task 文档：需求 → 局部设计 → 测试 → 实现 →
 
 ## 主线：需求 → 技术设计 → 任务 → 开发
 
-### 1. x-spec · 写需求与关键约束
+### 1. x-explore-for-spec · 探索并增量维护需求
 
-把沟通结果写成用户能读懂的功能 spec：
+需求入口统一为 `x-explore-for-spec`，合并开放探索、需求确认和 spec 编写。探索是每次需求的必经核对：结合现有文档、代码和实际场景明确目标、范围与验收依据；用户已明确的结论直接沿用，影响结果的实际取舍通过提问确认。
+
+一个模块维护一份长期 spec，新 feat 随时间追加，已有行为在原位置更新：
 
 ```text
-docs/spec/<spec-name>/spec.md
+docs/spec/<模块名>/spec.md
 ```
 
-每个 `featNN` 对应一个用户可感知的功能，通过 Given/When/Then 场景描述正常、边界和异常行为。THEN 写用户可以观察到的结果。
+每确认一批对功能定义、范围、约束或验收有价值的结论，就局部写回所属 spec。文档保留结论、必要依据和可观察结果；临时推演留在对话中。其他待决问题继续探索，用户明确保留的后续功能进入长期待办。
+
+每个 `featNN` 对应一个用户可感知的功能，通过 Given/When/Then 场景描述本次目标所需的正常、边界和异常行为。THEN 写用户可以观察到的结果。feat 和场景编号长期稳定，新增接续编号，修改沿用原编号，移除保留可追溯记录。
 
 spec 同时记录用户已确认的关键约束：哪些规则必须持续成立，哪些结果必须避免。约束使用稳定编号 `C1`、`C2` 等，写清适用范围、可观察判据、确认依据与关联场景。
 
-需求落盘前由 `x-explore-for-spec` 拆分 feat，通过提问工具确认本次范围内的行为取舍。`x-spec` 写入已明确的功能与验收条件，技术设计沿用该确认基线。
+本次选定范围明确列出交给技术设计和开发的 feat、场景及完成条件；长期待办保留后续推进状态。每轮审阅建议聚焦最多 3 个 feat、10 个场景，范围较大时分批审阅并继续更新同一模块 spec。技术设计承接本轮已确认范围与内容基线。
 
 ### 2. x-tech-design · 形成待确认技术设计
 
@@ -103,7 +108,7 @@ T3 · 集成验证重试结果（C1；D01；用例 T1、T2）
 
 “任务行 T1”与“用例 T1”分别属于 checklist 和技术设计。
 
-全部 task 合并覆盖 spec 的所有场景，以及适用关键约束的全部用例。单个 checklist 按实现顺序排列，涉及文件依据设计确定，影响文件树与文件列一一对应。
+全部 task 合并覆盖本轮选定范围的所有场景，以及适用关键约束的全部用例。长期待办按后续选定范围继续拆解。单个 checklist 按实现顺序排列，涉及文件依据设计确定，影响文件树与文件列一一对应。
 
 涉及鉴权、持久化、迁移、并发或不可逆操作的行标记为 `高:<依据>`，验证包含 smoke 或以上真实链路。
 
@@ -195,6 +200,8 @@ reviewer 返回问题候选。主 agent 复核后通过 `xdev.py flag` 登记 is
 
 x-qdev 用一份任务文档记录小改动的局部设计、用例变化、实现与交付摘要，完整测试及验收内容集中到统一测试报告。功能正文随所属 spec 或模块说明持续维护，changelog 提供每次变化的任务索引。
 
+需求核对沿用 `x-explore-for-spec`：明确结论直接采用，有价值的行为变化增量回写所属模块 spec，待决取舍集中澄清。
+
 默认协作方式是“简短告知改法 → 落盘 → 连续实现与验证 → 汇报结果”。用户本轮明确要求就是小任务执行授权；功能文档回写、局部方案、测试和两类 verify 由 agent 自动衔接。五段按任务规模简写，简单方案可用几行说明；分阶段需求/设计审批用于转入完整主线后的任务。
 
 1. **①需求与变更**：功能方向、边界、不变量及任务授权来源；回指所属 spec 的 feat/场景/C 或模块功能章节，记录新增、修改、删除及前后基线。
@@ -222,7 +229,7 @@ x-qdev 用一份任务文档记录小改动的局部设计、用例变化、实�
 `x-adversarial-risk` 在任务拆解前复核 spec 的风险假设，利用历史失败经验构造最小反例，将补充场景以可追溯来源写入 spec。
 
 ```text
-x-spec → x-adversarial-risk → x-explore-for-spec（有新取舍时）→ x-tech-design → 设计确认 → x-req
+x-explore-for-spec → x-adversarial-risk → x-tech-design → 设计确认 → x-req
 ```
 
 风险审查与 Bug 沉淀共享用户级语料，调用方可指定其他路径。新增行为或约束由 `x-explore-for-spec` 确认后回写功能 spec，同步相关设计。带风险版本标记的 spec 审查仍为 pending 时，x-req 阻断拆解。
@@ -231,8 +238,7 @@ x-spec → x-adversarial-risk → x-explore-for-spec（有新取舍时）→ x-t
 
 | 命令 | 职责 |
 |---|---|
-| `/x-explore-for-spec` | 按 feat 拆分需求，通过提问工具逐项确认取舍，再写入 spec |
-| `/x-spec` | 将已明确的功能、GWT 场景和关键约束写入 spec |
+| `/x-explore-for-spec` | 统一需求入口：探索并确认行为，筛选有价值的结论，增量维护模块 spec 和本轮范围 |
 | `/x-tech-design` | 基于已确认 spec 生成技术设计草案，定义机制与编号用例 |
 | `/x-req` | 基于已确认需求和设计拆 task，分配场景、约束与用例 |
 | `/x-dev` | 执行单个 task，记录验证结论与可定位证据 |
@@ -253,7 +259,9 @@ x-spec → x-adversarial-risk → x-explore-for-spec（有新取舍时）→ x-t
 `skills/x-dev/scripts/xdev.py` 是机械规则的薄 CLI 入口；包校验由
 `skills/x-spec/scripts/validator.py` 负责，spec task 规划由
 `skills/x-req/scripts/req.py` 负责，验证由 `skills/x-verify-spec/scripts/verify.py` 负责，QA issue
-事务由 `skills/x-qa-gate/scripts/flag.py` 负责：
+事务由 `skills/x-qa-gate/scripts/flag.py` 负责。
+
+`skills/x-spec/scripts/` 保留现有 CLI 和测试的兼容加载路径；需求编写统一由 `x-explore-for-spec` 承担。
 
 ```text
 validate [pkg...]                 校验 spec、change、task 契约

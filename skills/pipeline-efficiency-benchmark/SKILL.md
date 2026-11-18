@@ -76,8 +76,9 @@ python3 skills/pipeline-efficiency-benchmark/scripts/prepare_workspace.py \
 
 `--skills-root` 目录必须包含：
 
-- `x-spec`
+- `x-explore-for-spec`
 - `x-adversarial-risk`
+- `x-tech-design`
 - `x-req`
 - `x-dev`
 - `x-verify-spec`
@@ -135,8 +136,9 @@ exit 0 才能启动执行器。exit 1 保持阻断并修复打包问题。
 运行链：
 
 ```text
-x-spec
+x-explore-for-spec
   → 按风险预算调用 x-adversarial-risk
+  → x-tech-design
   → x-req
   → x-dev
   → x-verify-spec

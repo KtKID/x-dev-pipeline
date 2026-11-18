@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 仓库性质
 
-这不是应用代码仓库，而是一个 **AI 开发工作流 skill 集合**——为 Claude Code / Codex 提供 `/x-*` 系列 slash command 的 plugin。仓库本身**不包含可运行代码、没有 build、没有测试套件**，所有"产物"都是 markdown skill 文件。
+这是一个 **AI 开发工作流 skill 集合**，为 Claude Code / Codex 提供 `/x-*` 系列命令，并维护 Python/Go 确定性工具及相应测试。
 
 **方案讲解要通俗**: 不要自己乱造词汇，用大白话和用户套路方案，用户偏好费曼学习法，要多使用。
 ⚠️ **命名陷阱**：仓库叫 `x-dev-pipeline`；仓库内部的 `dev-pipeline/tasks/` 保存历史 task
@@ -40,17 +40,18 @@ x-dev-pipeline/
 ## 核心管线
 
 ```
-x-spec ─→ x-adversarial-risk ─→ x-req ─→ x-dev ─→ x-verify-spec ─→ x-qa-gate ─→ x-fix
-(docs/spec/)   双评分+对抗 Scenario    (task/)       验证是否符合spec.md      批量修+增量复审
-                                                   命令+smoke/e2e 风险路由：默认 RC 综合 / 高危 R1→R2→R3
+x-explore-for-spec → x-tech-design → x-req → x-dev → x-verify-spec → x-qa-gate
+探索与增量 spec        技术设计        task     实现      交付对账         质量审查
+需求风险复核按需调用 x-adversarial-risk；技术验收调用 x-verify-tech；问题修复交 x-fix。
 
 ```
 
-- x-spec 产出 `docs/spec/<spec-name>/spec.md` 第一版，记录复杂度/重要性、预算和 `initial-spec` Scenario
-- x-adversarial-risk 按预算检查第一版；standard 不读错题集，deep/full 才读取自身独立错题集并补 `adversarial-review` Scenario
-- x-req 只接收风险状态为 `skipped-standard` 或 `complete` 的新风险契约，产出 `docs/spec/<spec-name>/tasks/<task>/`
+- x-explore-for-spec 合并原 x-explore 与 x-spec：每次核对目标、现状、范围、约束与验收，逐批把已确认且有价值的结论写入模块长期 spec，已有明确答案直接采用。
+- x-tech-design 与 x-req 只承接本轮选中的已确认场景，模块其他计划项保持原状态；一个 feat 可以分批交付，3 feat / 10 场景是单轮审阅建议。
+- x-adversarial-risk 按适用预算复核需求；带风险版本标记的旧契约沿用相应风险门禁。
 - `skills/x-dev/scripts/xdev.py` 只做 CLI 分流；package、task、verify、flag 逻辑分别归各自 skill 引擎
 - x-plan 已废弃，功能合并到 x-req
+- 当前需求模板位于 `skills/x-explore-for-spec/templates/spec.md`。`skills/x-spec/scripts/` 保留给现有 CLI 和历史 v3 契约使用。
 
 独立巡检（不在主流程）：`x-audit-perf` / `x-audit-style` / `x-audit-arch`，由用户手动触发或里程碑后跑。`x-audit-arch` 聚焦架构一致性 + 单一事实源（结构性视角），与 `x-audit-style`（表层规范）、`x-qa-gate` R1（spec 正确性）不重叠，边界见 `skills/x-audit-arch/SKILL.md`。
 
@@ -58,12 +59,12 @@ x-spec ─→ x-adversarial-risk ─→ x-req ─→ x-dev ─→ x-verify-spec 
 
 | 契约 | 内容 |
 |------|------|
-| Spec 风险门禁 | x-spec 写 `adversarial_risk_version: 3`、复杂度/重要性/平均分/预算、`pending` 状态和 `initial-spec` 来源；x-adversarial-risk 完成对抗检查并写审查记录；x-req 复跑 `risk_contract.py validate-spec` 后才拆解 |
+| Spec 风险门禁 | 带 `adversarial_risk_version: 3` 的旧契约继续保留分数、预算、审查状态和来源；x-adversarial-risk 更新审查记录，x-req 按对应风险门禁核对。当前模块 spec 由 x-explore-for-spec 增量维护 |
 | 风险错题集边界 | `skills/x-adversarial-risk/references/risk-mistakes.md` 只由 x-adversarial-risk 在 deep/full 审查或录入已确认缺口时读取；每项使用唯一 `AR-NNN`，并只保存关键词与 Risk |
-| spec 需求包目录 | 一个模块功能一份 spec，长期更新：x-spec 产出 `docs/spec/<模块名>/`（不带版本号，同模块已有时更新），`docs/spec/README.md` 汇总 spec 导航。x-req 的 README `spec:` 字段指向 `docs/spec/<spec-name>`，一个 task 只归属一个 spec |
+| spec 需求包目录 | 一个模块长期维护一份 `docs/spec/<模块名>/spec.md`。x-explore-for-spec 局部更新已确认行为，保留稳定编号、有效历史内容及关键约束；本轮场景、待开发 feat 和待决项分别表达。任务归属模块 spec，本轮承接范围单独记录 |
 | 交付记录与核查 | x-dev 的 dev-report 与 x-qdev 的⑤保存交付摘要、状态及唯一测试报告入口；当次代码基线的用例明细、改动行/相关分支覆盖率、未覆盖位置和验收结论统一维护在 `reports/<task-name>/<batch-id>/test-report.md`，原始证据集中放同目录 `evidence/`。共用约定与模板位于 `skills/x-dev/references/test-reporting.md`、`skills/x-dev/templates/test-report.md`。两类 verify/QA 返回增量回执，由主 agent 收录；技术验收的独立执行按编号区分。qdev 保持五段 task，功能正文和 changelog 归属 spec/模块说明，双向回链与新增/修改/删除及用例责任继续核对。task 建在所属 spec 的 `tasks/` 下；尚无 spec 时先在对应模块建最小 spec（正文可链到原模块说明），纯工程改动归 `docs/spec/engineering/`；task 头部填写所属 spec、状态、执行者、创建四行 |
 | qdev 执行授权 | 用户本轮明确要求即小任务范围内的执行授权。agent 简短告知改法后落盘并连续完成实现、文档同步与公共验收；局部方案按任务规模简写。实质性歧义和超出授权的关键事项集中澄清，分阶段需求/设计审批在转入完整主线后适用 |
-| 测试分层契约 | x-spec 写验证策略；x-req 分配场景/用例与任务责任，x-dev 补齐单元/契约/边界测试。测试执行与当次改动覆盖率集中到统一测试报告，命令、基线和原始数据集中在附件；旧 v3 verify 块保留原消费位置 |
+| 测试分层契约 | x-explore-for-spec 明确验收场景，x-tech-design 定义验证用例；x-req 分配本轮场景/用例与任务责任，x-dev 补齐单元/契约/边界测试。测试执行与当次改动覆盖率集中到统一测试报告，命令、基线和原始数据集中在附件；旧 v3 verify 块保留原消费位置 |
 | `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。语义 = **批量修轮数**（一轮 = 一份 issue 清单的整体修复）。x-verify-spec 首次创建，x-fix 按轮递增，x-qa-gate 在 Gate ② 最终 pass 后重置。**3 轮上限**，三方共享 |
 | reviewer 子 agent | x-qa-gate 按 `risk:` 风险路由：默认线 dispatch 一个综合 reviewer RC（`references/rc-unified.md`），高危线串行 dispatch R1/R2/R3；初始 prompt 预算为 10,000 estimated tokens，使用 manifest + 路径 + diff 命令 + completeness gate |
 | 一轮列全 | 所有 reviewer 穷尽列出全部问题候选后判定；每条返回 task、severity、loc、msg 和证据，并省略编号；回执包含覆盖声明、完整问题候选和穷尽声明；严重度 P0/P1/P2 唯一定义在 `skills/x-qa-gate/SKILL.md` |
@@ -119,7 +120,7 @@ claude plugin install x-dev-pipeline@x-dev-pipeline --scope user
 ./install-codex.ps1
 ```
 
-仓库本身没有 lint / test / build——所有"质量"靠 skill 文档之间的契约 + 用户跑 `_e2e-smoke/` 五个用例做端到端验收。
+确定性工具测试位于 `test/`、`cli/` 及相应 skill 的 `tests/`。技能行为通过隔离任务验证；修改 `skills/x-dev/` 时按 `evals/README.md` 执行交付冒烟测试。
 
 ## 用户当前正在做的改造
 

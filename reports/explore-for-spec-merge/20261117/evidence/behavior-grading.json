@@ -1,0 +1,20 @@
+{
+  "scope": "Two independent subagents with no conversation history; one incremental-writing run and one discussion-only run.",
+  "checks": {
+    "original_four_feats_unchanged": true,
+    "confirmed_constraint_meaning_preserved": true,
+    "author_draft_preserved": true,
+    "one_module_spec_and_stable_ids": true,
+    "application_unchanged": true,
+    "explicit_input_no_redundant_questions": true,
+    "future_history_marked_planned_and_deferred": true,
+    "retry_suggestion_kept_out_of_confirmed_requirements": true,
+    "special_character_scenario_grounded_in_fixture": true,
+    "discussion_only_no_file_changes": true,
+    "discussion_questions_actual_export_scope": true
+  },
+  "limits": [
+    "Small forward-test sample; no claim of universal model reliability.",
+    "The current v3 CLI has not gained semantic drift detection."
+  ]
+}

@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/workflow-spec-verify-qdev.png" alt="x-dev-pipeline: main and quick-development flows to shared verification" />
-</p>
-
 # x-dev-pipeline
 
 [中文说明](./README_zh.md)
@@ -27,12 +23,17 @@ Stable IDs connect requirements, design, tasks, and evidence. Each step can be t
 
 Full requirements follow a design-first main line; concrete small changes use a concise task record. Both paths share one test report for the current change.
 
-```text
-Full flow:
-x-explore-for-spec (as needed) → x-spec → x-tech-design → user confirms design
-       → x-req → x-dev
-       → x-verify-spec (Gate ①) → x-qa-gate (Gate ②) → delivery
+```mermaid
+flowchart LR
+    A["x-explore-for-spec<br/>Explore and maintain requirements"] --> B["x-tech-design"]
+    B -->|User confirms design| C["x-req"]
+    C --> D["x-dev"]
+    D --> E["x-verify-spec · Gate ①"]
+    E --> F["x-qa-gate · Gate ②"]
+    F --> G["Delivery"]
+```
 
+```text
 Technical acceptance:
 x-verify-tech · check a task / feat / diff against confirmed design
 
@@ -45,19 +46,23 @@ x-qdev · one task document: requirements → local design → tests → impleme
 
 ## Main line: requirements → technical design → tasks → development
 
-### 1. x-spec · Write requirements and key constraints
+### 1. x-explore-for-spec · Explore and incrementally maintain requirements
 
-Turn the agreed conversation into a functional spec the user can read:
+`x-explore-for-spec` is the single requirements entry point, combining open exploration, requirement confirmation, and spec writing. Every request includes an exploration check against existing documentation, code, and concrete scenarios to establish its goal, scope, and acceptance basis. Reuse explicit decisions directly and ask about unresolved choices that affect actual outcomes.
+
+Maintain one lasting spec per module. Add new features over time and update existing behavior in place:
 
 ```text
-docs/spec/<spec-name>/spec.md
+docs/spec/<module-name>/spec.md
 ```
 
-Each `featNN` represents a user-visible feature. Given/When/Then scenarios describe normal, boundary, and error behavior; THEN states an observable result.
+After confirming a useful batch of conclusions about behavior, scope, constraints, or acceptance, update the relevant parts of the owning spec. Keep conclusions, essential rationale, and observable results in the document; keep temporary reasoning in the conversation. Continue exploring open decisions and retain explicitly deferred features in the long-term backlog.
+
+Each `featNN` represents a user-visible feature. Given/When/Then scenarios describe the normal, boundary, and error behavior needed for the current goal; THEN states an observable result. Feature and scenario IDs remain stable: append new IDs, reuse IDs for edits, and retain traceable records for removals.
 
 The spec also records user-confirmed key constraints: rules that must hold and outcomes that must be prevented. Stable IDs such as `C1` and `C2` identify their scope, observable criteria, confirmation basis, and related scenarios.
 
-Use `x-explore-for-spec` to group features and resolve open product decisions with interactive choices before writing the spec. `x-spec` records the agreed behavior and acceptance criteria. Technical design uses that confirmed baseline.
+The current selection explicitly identifies the features, scenarios, and completion criteria handed to design and development. The long-term backlog retains future work. A review batch should generally focus on up to 3 features and 10 scenarios; larger scopes can be reviewed in batches within the same module spec. Technical design consumes the confirmed current scope and content baseline.
 
 ### 2. x-tech-design · Produce a technical design for confirmation
 
@@ -103,7 +108,7 @@ T3 · Integration check of retry results (C1; D01; test cases T1, T2)
 
 "Task row T1" belongs to the checklist; "test case T1" belongs to the technical design.
 
-All tasks together cover every spec scenario and every test case for applicable key constraints. Each checklist follows implementation order. The design determines the affected files, and the affected-files tree matches the files column one to one.
+All tasks together cover every scenario in the current selected scope and every test case for applicable key constraints. Backlog items enter task decomposition when selected in a later round. Each checklist follows implementation order. The design determines the affected files, and the affected-files tree matches the files column one to one.
 
 Rows involving authorization, persistence, migration, concurrency, or irreversible operations carry `高:<reason>` (high risk) and include smoke-or-above verification through the real path.
 
@@ -195,6 +200,8 @@ x-fix handles the complete issue list in one batch, followed by focused countere
 
 x-qdev records local design, test-case changes, implementation, and a delivery summary in one task document. Full test and verification details live in the shared test report. The owning spec or module documentation maintains the functional definition, with a changelog linking to each change's task.
 
+Requirements follow the `x-explore-for-spec` check: reuse explicit decisions, incrementally record useful behavior changes in the owning module spec, and clarify unresolved choices.
+
 The default collaboration flow is “briefly explain the approach → record it → implement and verify continuously → report results.” The user's explicit task request authorizes the small-task scope. The agent handles functional-document updates, the local plan, tests, and both verifiers automatically. Keep the five sections proportional to the task; a simple plan can take a few lines. Staged requirement/design approval applies after moving into the full flow.
 
 1. **① Requirements and changes**: direction, boundaries, invariants, and task authorization source; reference the owning spec's feats/scenarios/constraints or module sections, recording additions, modifications, removals, and before/after baselines.
@@ -222,7 +229,7 @@ Before delivery, self-check structure, references, coverage, conclusions, and bo
 `x-adversarial-risk` reviews a spec's risk assumptions before task decomposition. It uses prior failure experience to construct minimal counterexamples and adds scenarios with traceable provenance to the spec.
 
 ```text
-x-spec → x-adversarial-risk → x-explore-for-spec (for new decisions) → x-tech-design → design confirmation → x-req
+x-explore-for-spec → x-adversarial-risk → x-tech-design → design confirmation → x-req
 ```
 
 Risk review and bug ingestion share a user-global corpus, with a caller-selected path available. Confirm any new behavior or constraints in `x-explore-for-spec` before updating the functional spec and affected design. For specs carrying the risk-version marker, a pending review status blocks x-req decomposition.
@@ -231,8 +238,7 @@ Risk review and bug ingestion share a user-global corpus, with a caller-selected
 
 | Command | Purpose |
 |---|---|
-| `/x-explore-for-spec` | Split requirements into features and settle open decisions with interactive choices before writing the spec |
-| `/x-spec` | Record agreed features, GWT scenarios, and key constraints in the spec |
+| `/x-explore-for-spec` | Unified requirements entry: explore and confirm behavior, select useful conclusions, and incrementally maintain the module spec and current scope |
 | `/x-tech-design` | Produce a design draft from a confirmed spec, defining mechanisms and numbered cases |
 | `/x-req` | Split tasks from confirmed requirements and design; assign scenarios, constraints, and cases |
 | `/x-dev` | Execute one task and record verification conclusions with locatable evidence |
@@ -254,7 +260,9 @@ Risk review and bug ingestion share a user-global corpus, with a caller-selected
 Its engines live with their owning skills: package validation in
 `skills/x-spec/scripts/validator.py`, task planning in `skills/x-req/scripts/req.py`, verification
 in `skills/x-verify-spec/scripts/verify.py`, and QA issue transactions in
-`skills/x-qa-gate/scripts/flag.py`:
+`skills/x-qa-gate/scripts/flag.py`.
+
+`skills/x-spec/scripts/` remains the compatible loading path for existing CLI commands and tests. Requirements writing is owned by `x-explore-for-spec`.
 
 ```text
 validate [pkg...]                 validate specs, changes, and task contracts

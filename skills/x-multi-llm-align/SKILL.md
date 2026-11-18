@@ -199,7 +199,7 @@ description: |
 <没在本次解决但记录在案的事项，比如 v0.X 之后再做的细节>
 
 ### 后续动作
-<开发流程下一步：进 x-req / x-spec / x-dev>
+<开发流程下一步：进 x-req / x-explore-for-spec / x-dev>
 ```
 
 ---
@@ -263,4 +263,4 @@ skill 触发时，用一句话告诉用户即将做什么：
 
 - 不依赖外部工具或 MCP server
 - 不调用额外模型 API（用户作为人类中间人）
-- 跟其他 x-* skills 配合：本 skill 收口后通常进 `x-spec` 或 `x-req` 继续推进
+- 跟其他 x-* skills 配合：本 skill 收口后通常进 `x-explore-for-spec` 或 `x-req` 继续推进
