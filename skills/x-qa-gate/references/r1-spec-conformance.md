@@ -1,3 +1,5 @@
+> 历史参考：现行 x-qa-gate 按 Q2/Q3 各派一个 tri-lens reviewer（见 ../SKILL.md「路由」），不再使用本文件。
+
 # R1 契约符合性 Reviewer
 
 读取 diff、README `需求要点` 与 `验收`、已确认 spec 和既有公开契约。

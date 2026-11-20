@@ -268,6 +268,35 @@ class Checklist:
     lines: list[str]
 
 
+TREE_ENTRY_RE = re.compile(
+    r"^(?P<lead>[\s│├└─|`-]*)(?P<name>[^\s#]+(?:\s+/\s+[^\s#]+)*)(?:\s+(?P<mark>[UMD]))?\s*(?:#.*)?$"
+)
+
+
+def parse_tree_line(raw: str, stack: list[tuple[int, str]], tree_new: set[str]) -> None:
+    """影响文件树一行：支持完整路径写法、按目录缩进的嵌套写法，以及 `a.ts / b.ts` 合并写法。"""
+    m = TREE_ENTRY_RE.match(raw.rstrip())
+    if not m:
+        return
+    lead, name, mark = m.group("lead"), m.group("name"), m.group("mark")
+    depth = len(lead)
+    if not lead.strip() and depth == 0 and name.endswith("/") and not mark:
+        stack.clear()
+        stack.append((-1, ""))  # 第一行是仓库根，不计入路径
+        return
+    while stack and stack[-1][0] >= depth:
+        stack.pop()
+    parent = "/".join(p for _, p in stack if p)
+    pieces = [p.strip() for p in name.split(" / ")]
+    first = f"{parent}/{pieces[0]}" if parent else pieces[0]
+    base = first.rsplit("/", 1)[0] if "/" in first else ""
+    fulls = [first] + [f"{base}/{p}" if base else p for p in pieces[1:]]
+    if mark == "U":
+        tree_new.update(x.rstrip("/") for x in fulls)
+    if len(pieces) == 1 and name.endswith("/"):
+        stack.append((depth, name.rstrip("/")))
+
+
 def parse_checklist(path: Path) -> Checklist:
     lines = path.read_text(encoding="utf-8").splitlines()
     headers: dict[str, tuple[str, int]] = {}
@@ -277,6 +306,7 @@ def parse_checklist(path: Path) -> Checklist:
     tree_new: set[str] = set()
     in_comment = False
     in_tree = False
+    tree_stack: list[tuple[int, str]] = []
     for idx, raw in enumerate(lines, 1):
         line = raw.strip()
         if line.startswith("<!--"):
@@ -288,11 +318,10 @@ def parse_checklist(path: Path) -> Checklist:
             continue
         if line.startswith("```"):
             in_tree = not in_tree
+            tree_stack: list[tuple[int, str]] = []
             continue
         if in_tree:
-            m = re.search(r"([\w./*<>-]+/?)\s+U\s*(#|$)", line)
-            if m:
-                tree_new.add(m.group(1).rstrip("/"))
+            parse_tree_line(raw, tree_stack, tree_new)
             continue
         hm = re.match(r"^>\s*([^:：]+?)\s*[:：]\s*(.*)$", line)
         if hm and not columns:
@@ -417,9 +446,10 @@ def involved_docs(task_dir: Path, cl: Checklist, root: Path) -> list[Path]:
     if spec:
         docs.append(spec)
     other = cl.headers.get("其他 spec", ("", 0))[0]
-    for p in split_list(other):
-        if p.strip() and not p.startswith("<"):
-            docs.append((root / p.strip("` ")).resolve())
+    if not other.startswith("<"):
+        for p in split_list(other):
+            if p.strip():
+                docs.append((root / p.strip("` ")).resolve())
     td = cl.headers.get("tech-design", ("", 0))[0].strip("` ")
     if td and not td.startswith("<") and not td.startswith("本文件"):
         docs.append((root / td).resolve())
@@ -432,15 +462,24 @@ def issue(file: str, line: int, rule: str, msg: str) -> dict:
     return {"file": file, "line": line, "rule": rule, "msg": msg}
 
 
+def _segments(path: str) -> list[str]:
+    return [p for p in path.strip("/").split("/") if p]
+
+
 def files_overlap(a: str, b: str) -> bool:
+    """按路径段比较：同一个文件、一个是另一个的上级目录，或 glob 能匹配到对方时算重叠。"""
+    from fnmatch import fnmatch
+
     a, b = a.rstrip("/"), b.rstrip("/")
     if a == b:
         return True
     if "*" in a or "*" in b:
-        base_a = a.split("*", 1)[0].rstrip("/")
-        base_b = b.split("*", 1)[0].rstrip("/")
-        return base_a.startswith(base_b) or base_b.startswith(base_a)
-    return a.startswith(b + "/") or b.startswith(a + "/")
+        sa, sb = _segments(a), _segments(b)
+        n = min(len(sa), len(sb))
+        return all(fnmatch(x, y) or fnmatch(y, x) for x, y in zip(sa[:n], sb[:n]))
+    sa, sb = _segments(a), _segments(b)
+    shorter, longer = (sa, sb) if len(sa) <= len(sb) else (sb, sa)
+    return longer[: len(shorter)] == shorter
 
 
 def must_merge_groups(rows: list[Row]) -> list[list[str]]:
@@ -497,6 +536,9 @@ def validate_issues(task_dir: Path) -> list[dict]:
     out: list[dict] = []
 
     # 头部
+    other = cl.headers.get("其他 spec")
+    if other and other[0].startswith("<"):
+        out.append(issue(f, other[1], "HEADER", "“其他 spec”还是占位符：跨 spec 时填路径，不跨时删掉这一行"))
     for key in REQUIRED_HEADERS:
         value = cl.headers.get(key)
         if value is None or not value[0] or value[0].startswith("<"):

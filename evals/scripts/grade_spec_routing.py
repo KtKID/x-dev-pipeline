@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""确定性评分：spec-scope、qdev-spec-routing、change-sync、qdev-confirm-check 四组 JSON 判题。
+"""确定性评分：spec / qdev / 链路同步 / 分组 / 多 agent 开发几组 JSON 判题。
 
-用法：python3 evals/scripts/grade_spec_routing.py <spec-scope|qdev-spec-routing|change-sync|qdev-confirm-check> <answer.json> [--json]
+用法：python3 evals/scripts/grade_spec_routing.py <kind> <answer.json> [--json]
+kind：spec-scope、qdev-spec-routing、change-sync、qdev-confirm-check、req-grouping、dev-worker、dev-main
 退出码：0 全对，1 有错题，2 输入错误。
 """
 import json
@@ -10,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-KINDS = ("spec-scope", "qdev-spec-routing", "change-sync", "qdev-confirm-check")
+KINDS = ("spec-scope", "qdev-spec-routing", "change-sync", "qdev-confirm-check", "req-grouping", "dev-worker", "dev-main")
 EXISTING_SPECS = {"member", "catalog", "loan", "fine", "message", "engineering"}
 QDEV_FIELDS = ["route", "writes", "task_spec", "confirm", "tech_design"]
 
@@ -65,11 +66,63 @@ def norm_changes(changes):
     return out
 
 
+GROUPING_CASES = None
+
+
+def grade_grouping(exp, got):
+    """3 分：完整、硬规则（文件交集 + 指定同组）、组数范围。"""
+    global GROUPING_CASES
+    if GROUPING_CASES is None:
+        cases = json.loads((ROOT / "evals/problems/req-grouping/cases.json").read_text())
+        GROUPING_CASES = {c["id"]: c for c in cases}
+    case = GROUPING_CASES[got.get("id")] if got.get("id") in GROUPING_CASES else None
+    groups = got.get("groups") or {}
+    wrong, score = [], 0
+    where = {}
+    dup = False
+    for g, rows in groups.items():
+        for r in rows or []:
+            if r in where:
+                dup = True
+            where[r] = g
+    all_rows = [r["row"] for r in case["rows"]] if case else []
+    if case and not dup and sorted(where) == sorted(all_rows):
+        score += 1
+    else:
+        wrong.append({"field": "完整", "expected": all_rows, "got": groups})
+    hard_ok = True
+    if case:
+        rows = case["rows"]
+        for i, a in enumerate(rows):
+            for b in rows[i + 1:]:
+                if set(a["files"]) & set(b["files"]) and where.get(a["row"]) != where.get(b["row"]):
+                    hard_ok = False
+        for same in exp["same"]:
+            if len({where.get(r) for r in same}) != 1:
+                hard_ok = False
+    if hard_ok:
+        score += 1
+    else:
+        wrong.append({"field": "硬规则/同组", "expected": exp["same"] or "文件有交集的行同组", "got": groups})
+    lo, hi = exp["count"]
+    n = len([g for g, rows in groups.items() if rows])
+    if lo <= n <= hi:
+        score += 1
+    else:
+        wrong.append({"field": "组数", "expected": f"{lo}–{hi}", "got": n})
+    return score, 3, wrong
+
+
 def grade_case(kind, exp, got):
     """返回 (得分, 满分, 错误列表)。"""
     if kind == "spec-scope":
         ok = norm_writes(got.get("writes")) == {tuple(x) for x in exp}
         return (1 if ok else 0), 1, ([] if ok else [{"field": "writes", "expected": exp, "got": got.get("writes")}])
+    if kind in ("dev-worker", "dev-main"):
+        ok = str(got.get("action", "")).strip() == exp
+        return (1 if ok else 0), 1, ([] if ok else [{"field": "action", "expected": exp, "got": got.get("action")}])
+    if kind == "req-grouping":
+        return grade_grouping(exp, got)
     if kind == "qdev-confirm-check":
         ok = str(got.get("result", "")).strip() == exp
         return (1 if ok else 0), 1, ([] if ok else [{"field": "result", "expected": exp, "got": got.get("result")}])

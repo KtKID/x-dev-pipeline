@@ -131,7 +131,7 @@ Agent({
 
 写入 `reports/audit/audit-arch-YYYYMMDD-HHmmss.md`，模板见 `templates/audit-arch-template.md`。
 
-- 在 task 目录中执行：`dev-pipeline/tasks/<task>/reports/audit/audit-arch-YYYYMMDD-HHmmss.md`
+- 在 task 目录中执行：`docs/spec/<spec>/tasks/<task>/reports/audit/audit-arch-YYYYMMDD-HHmmss.md`
 - 在普通仓库范围执行：`reports/audit/audit-arch-YYYYMMDD-HHmmss.md`
 
 ## 不在范围

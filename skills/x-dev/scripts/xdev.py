@@ -86,6 +86,14 @@ def discover(root: Path) -> list[Path]:
 
 def validate_target(target: Path, include_legacy: bool) -> dict:
     """按 spec task 或 package 类型委托对应校验引擎。"""
+    spec_md = target / "spec.md"
+    if spec_md.is_file() and not checklist.has_version_marker(spec_md):
+        # 当前格式的 spec 目录：不走旧包校验，逐个校验它下面的 task
+        issues = []
+        for task_dir in sorted((target / "tasks").glob("*/")) if (target / "tasks").is_dir() else []:
+            if (task_dir / "dev-checklist.md").is_file():
+                issues.extend(checklist.validate_issues(task_dir))
+        return {"path": str(target), "type": "spec", "skipped": False, "issues": issues}
     if checklist.handles(target):
         return {
             "path": str(target),

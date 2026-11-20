@@ -17,10 +17,10 @@ x-dev-pipeline/
 ├── skills/<name>/SKILL.md            # skill 定义（YAML frontmatter + 正文）
 │   └── references/, templates/        # reviewer prompt、报告模板
 ├── docs/spec/<spec>/tasks/<task>/     # 当前 task 工件
-│   ├── dev-checklist.md, diagram.md, dev-report.md
+│   ├── dev-checklist.md, dev-report.md   # diagram.md 只在旧 spec_version: 3 包里有
 │   └── reports/                       # gate / fix / audit 报告
-│       ├── .fix-counter               # 批量修轮数（verify 创建，fix 按轮递增，qa-gate 重置）
-│       ├── verify/*.md, qa-gate/*.md  # Gate ①② 报告
+│       ├── .fix-counter               # 批量修轮数（x-fix 按轮递增，不存在视为 0；最终通过后重置）
+│       ├── qa-gate/*.md               # 质量审查 issue ledger（flag 生成）；verify/*.md 只在旧包里有
 │       ├── fix/*.md                   # 修复报告（按触发节点分类）
 │       └── audit/*.md                 # 独立巡检报告
 ├── reports/<task-name>/<batch-id>/   # 当次代码基线的统一测试产物
@@ -29,7 +29,7 @@ x-dev-pipeline/
 ├── dev-pipeline/tasks/                # 历史 task 档案；工具不再识别、校验或编排
 ├── skills/x-dev/scripts/xdev.py       # 薄 CLI 路由器
 ├── skills/x-spec/scripts/             # spec 与包校验引擎
-├── skills/x-req/scripts/              # task 引擎
+├── skills/x-req/scripts/              # task 引擎：checklist_engine.py（当前格式）、req.py（旧 v3 包）
 ├── skills/x-verify-spec/scripts/           # Gate ① 引擎
 ├── skills/x-qa-gate/scripts/          # QA issue 事务引擎
 ├── .claude-plugin/                    # Claude Code marketplace 注册
@@ -73,7 +73,7 @@ x-explore-for-spec → x-tech-design → x-req → x-dev → x-verify-spec → x
 | reviewer 只读 | reviewer 只输出 review 回执；修改统一走 x-fix |
 | issue 登记与状态写权 | 主 agent 串行逐条调用 `python3 skills/x-dev/scripts/xdev.py flag ... --json`；本轮首条带 `--new-round`。代码分配 `issue-<n>`、写 ledger、把 P0/P1 task 降为 `[!] 🔴`；每个 task 长期只保留一份 `dev-checklist.md`，内容无变化时跳过 checklist 临时文件，实际变更使用固定临时路径并在提交或恢复后清理；`recovered:true` 时主 agent 用原参数再次调用。reviewer、子 agent、x-fix 保持 ledger 与状态列原样 |
 | x-fix 批量修 + 关闭问题 | x-fix 一次修完一轮 issue 清单（P0 全修且各固化一条可复跑反例、P1 修或豁免、P2 登记），产出带 issue ID 的逐条处置表；主 agent 用每条 issue 的聚焦反例和一次完整验证关闭问题，不发回原 reviewer；fix 扩大到新文件或改公开 API 时另派一个裁剪 reviewer。规则见 `skills/x-qa-gate/SKILL.md`「回流」 |
-| 门禁回执 | x-verify-spec / x-qa-gate / x-fix 每个节点结束在对话中输出统一回执（P0/P1/P2 计数 + 拦截来源维度 + 处置），零问题也输出；QA Gate issue ledger 由 flag 生成。格式见 `skills/x-qa-gate/SKILL.md`「回执与状态」 |
+| 门禁回执 | x-verify-spec / x-verify-tech / x-qa-gate / x-fix 每个节点结束都在对话中输出回执，零问题也输出；格式以各 skill 的「回执」一节为准。QA Gate issue ledger 由 flag 生成 |
 | x-cr 手动调查 | `skills/x-cr/SKILL.md` 是手动软件正确性调查入口，独立于自动门禁。先读取归属 spec 的“影响边界与不变量”，再登记遗漏候选并做贝叶斯根因调查；task 报告写入 `docs/spec/<spec>/tasks/<task>/reports/cr/`，普通调查写入 `reports/cr/`；x-fix 按稳定 Bn/INV-ID 消费 |
 | 状态码 | ⏳ 未开始 / ▶️ 进行中 / 🟡 待验证 / 🔴 验证失败 / 🟢 证据通过 / ✅ 已完成 / ↗️ 已升级。x-dev 最多到 🟢；✅ 由主 agent 升级：risk Q2/Q3 在 x-qa-gate 通过后，Q0/Q1 在 x-verify-spec 与 x-verify-tech 都通过后；x-qdev 先做单文档自检，再接入 x-verify-spec 对账与 x-verify-tech 局部设计验收，记录真实回执后交付；按 `skills/x-qdev/references/risk-rules.md` 有一条答“是”时停下交接、转完整主线 |
 
@@ -105,8 +105,8 @@ x-explore-for-spec → x-tech-design → x-req → x-dev → x-verify-spec → x
 # 看仓库结构总览
 grep -n "^## " skills/*/SKILL.md
 
-# 列已有 task
-ls dev-pipeline/tasks/
+# 列当前 task（dev-pipeline/tasks/ 是历史档案）
+find docs/spec -mindepth 3 -maxdepth 3 -path '*/tasks/*' -type d
 
 # 安装到本地 Claude Code 做联调
 claude plugin install x-dev-pipeline@x-dev-pipeline --scope user
@@ -117,6 +117,6 @@ claude plugin install x-dev-pipeline@x-dev-pipeline --scope user
 
 确定性工具测试位于 `test/`、`cli/` 及相应 skill 的 `tests/`。技能行为通过隔离任务验证；修改 `skills/x-dev/` 时按 `evals/README.md` 执行交付冒烟测试。
 
-## 用户当前正在做的改造
+## 历史改造记录
 
-`dev-pipeline/tasks/qa-gate-pipeline/` 是当前主线改造任务（v0.2 双层 gate 架构）：把老 `x-cr` 单层闭环升级为 `x-verify-spec` (事实) + `x-qa-gate` (R1/R2/R3 评审) 双层 gate，并把 perf/style 剥离成独立 audit。代码改动已落地，**待用户在新会话跑完 5 个 e2e smoke case 才能升 ✅**。看 `dev-pipeline/tasks/qa-gate-pipeline/changelog.md` 了解最新决策。
+（历史记录，描述的是当时的设计；现行 reviewer 派法以 `skills/x-qa-gate/SKILL.md` 为准。）`dev-pipeline/tasks/qa-gate-pipeline/` 曾是主线改造任务（v0.2 双层 gate 架构）：把老 `x-cr` 单层闭环升级为 `x-verify-spec` (事实) + `x-qa-gate` (R1/R2/R3 评审) 双层 gate，并把 perf/style 剥离成独立 audit。代码改动已落地，**待用户在新会话跑完 5 个 e2e smoke case 才能升 ✅**。看 `dev-pipeline/tasks/qa-gate-pipeline/changelog.md` 了解最新决策。

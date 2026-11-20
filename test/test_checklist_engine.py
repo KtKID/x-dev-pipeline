@@ -210,6 +210,34 @@ class ChecklistEngineTest(unittest.TestCase):
         self.write_checklist(rows, extra_tree="src/loan/fees.ts   U  # 新增\n")
         self.assertEqual(self.issues()[1], [])
 
+    def test_nested_tree_marks_new_files(self):
+        rows = ROWS[:2] + [ROWS[2].replace("src/loan/overdue.ts, tests/overdue.test.ts", "src/loan/fees.ts, tests/fees.test.ts")]
+        tree = "repo/\n├── src/\n│   └── loan/\n│       └── fees.ts   U  # 新增\n└── tests/\n    └── fees.test.ts / fees2.test.ts   U  # 新增\n"
+        self.write_checklist(rows, extra_tree=tree)
+        self.assertEqual(self.issues()[1], [])
+
+    def test_glob_overlap_respects_path_segments(self):
+        ce = xdev.checklist
+        self.assertFalse(ce.files_overlap("src/*.py", "srcother/x.py"))
+        self.assertFalse(ce.files_overlap("src/a.py", "src/ab.py"))
+        self.assertTrue(ce.files_overlap("src/*.py", "src/a.py"))
+        self.assertTrue(ce.files_overlap("src", "src/a.py"))
+
+    def test_other_spec_placeholder_is_reported(self):
+        path = self.task / "dev-checklist.md"
+        text = path.read_text(encoding="utf-8").replace("> risk:", "> 其他 spec：<跨多份 spec 时列出；不跨时删掉这一行>\n> risk:")
+        path.write_text(text, encoding="utf-8")
+        code, rules, payload = self.issues()
+        self.assertIn("HEADER", rules)
+        self.assertNotIn("BASELINE", rules)
+
+    def test_validate_spec_dir_checks_its_tasks(self):
+        code, out, err = run("validate", str(self.spec_dir), "--json")
+        result = json.loads(out)["packages"][0]
+        self.assertEqual(result["type"], "spec")
+        self.assertEqual(result["issues"], [])
+        self.assertEqual(code, 0)
+
     # graph
     def test_graph_orders_groups_by_dependency(self):
         code, out, err = run("graph", str(self.task), "--json")

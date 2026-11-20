@@ -393,6 +393,45 @@
         "rubric": "evals/answers/qdev-confirm-check/rubric.md",
         "script": "evals/scripts/grade_spec_routing.py qdev-confirm-check"
       }
+    },
+    {
+      "id": 17,
+      "name": "req-grouping",
+      "prompt_file": "evals/problems/req-grouping/prompt.md",
+      "files": [
+        "skills/x-req/SKILL.md",
+        "evals/problems/req-grouping/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/req-grouping/rubric.md",
+        "script": "evals/scripts/grade_spec_routing.py req-grouping"
+      }
+    },
+    {
+      "id": 18,
+      "name": "dev-worker",
+      "prompt_file": "evals/problems/dev-worker/prompt.md",
+      "files": [
+        "skills/x-dev/references/parallel-dev.md",
+        "evals/problems/dev-worker/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/dev-worker/rubric.md",
+        "script": "evals/scripts/grade_spec_routing.py dev-worker"
+      }
+    },
+    {
+      "id": 19,
+      "name": "dev-main",
+      "prompt_file": "evals/problems/dev-main/prompt.md",
+      "files": [
+        "skills/x-dev/references/parallel-dev.md",
+        "evals/problems/dev-main/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/dev-main/rubric.md",
+        "script": "evals/scripts/grade_spec_routing.py dev-main"
+      }
     }
   ]
 }

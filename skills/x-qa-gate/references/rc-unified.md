@@ -1,3 +1,5 @@
+> 历史参考：现行 x-qa-gate 按 Q2/Q3 各派一个 tri-lens reviewer（见 ../SKILL.md「路由」），不再使用本文件。
+
 # RC 综合 Reviewer
 
 ## 输入

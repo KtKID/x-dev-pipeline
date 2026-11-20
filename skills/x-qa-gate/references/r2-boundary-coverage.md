@@ -1,3 +1,5 @@
+> 历史参考：现行 x-qa-gate 按 Q2/Q3 各派一个 tri-lens reviewer（见 ../SKILL.md「路由」），不再使用本文件。
+
 # R2 边界覆盖 Reviewer
 
 读取 diff、README `技术设计` 与 `架构拆分策略`，再按需读涉及实现。
