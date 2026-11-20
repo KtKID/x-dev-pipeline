@@ -118,4 +118,4 @@ python3 evals/scripts/grade_spec_routing.py spec-scope <answer.json>
 python3 evals/scripts/grade_spec_routing.py qdev-spec-routing <answer.json>
 ```
 
-评分是确定性的：`writes` 按集合比较，新建 spec 的名字不限，只要不和索引表里已有的重名。改 spec-scope 规则或 x-qdev 的归属、确认、技术设计规则后都要重跑。
+每组题测哪条规则、每道题考什么，登记在评审侧的 `evals/answers/INDEX.md`，答题者不读。评分是确定性的：`writes` 按集合比较，新建 spec 的名字不限，只要不和索引表里已有的重名。改 spec-scope 规则或 x-qdev 的归属、确认、技术设计规则后都要重跑。
