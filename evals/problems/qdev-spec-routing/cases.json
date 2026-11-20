@@ -84,9 +84,9 @@
   },
   {
     "id": "Q11",
-    "request": "修 bug：同一本书被两位读者同时借出。loan spec 里还没有写过“同一副本同一时间只能借给一人”这条行为。",
+    "request": "修 bug：还书时把还书当天也算进了逾期天数，多算了一天。loan spec 里还没有写过逾期天数怎么算。",
     "planned_source_files": [
-      "src/loan/borrow.ts"
+      "src/loan/overdue.ts"
     ]
   }
 ]

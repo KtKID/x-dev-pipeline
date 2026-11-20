@@ -1,0 +1,106 @@
+{
+  "eval": "qdev-spec-routing",
+  "score": 50,
+  "total": 55,
+  "cases_passed": 10,
+  "cases": 11,
+  "rows": [
+    {
+      "id": "Q01",
+      "ok": true,
+      "wrong": [],
+      "reason": "续借日期归 loan 所有，loan 已有场景写明正确行为，修 bug 只追加一行变更记录，无需确认。"
+    },
+    {
+      "id": "Q02",
+      "ok": true,
+      "wrong": [],
+      "reason": "检索与排序归 catalog，新增排序场景需确认；涉及 2 个源码文件，局部方案写在 task 的②。"
+    },
+    {
+      "id": "Q03",
+      "ok": true,
+      "wrong": [],
+      "reason": "评分和短评是新数据，边界表没有任何行拥有它，新建 review spec 并加边界行，需确认；新 spec 需走 x-tech-design。"
+    },
+    {
+      "id": "Q04",
+      "ok": true,
+      "wrong": [],
+      "reason": "ESLint 规则属于构建和工具配置，使用者看不到行为变化，只在 engineering 追加一行变更记录。"
+    },
+    {
+      "id": "Q05",
+      "ok": true,
+      "wrong": [],
+      "reason": "检索页按钮颜色只改外观，不改行为，所属的 catalog 只追加一行变更记录。"
+    },
+    {
+      "id": "Q06",
+      "ok": true,
+      "wrong": [],
+      "reason": "减免归 fine、读者等级归 member，两份 spec 都有数据改变，需确认；场景落到 2 份 spec，需走 x-tech-design，且不涉及鉴权、迁移或并发。"
+    },
+    {
+      "id": "Q07",
+      "ok": true,
+      "wrong": [],
+      "reason": "读者密码存储改造涉及鉴权和已有数据迁移，属于高风险工作，转完整主线。"
+    },
+    {
+      "id": "Q08",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款金额规则归 fine，行为改变需修改原场景并保留编号，需确认；只涉及 1 个源码文件。"
+    },
+    {
+      "id": "Q09",
+      "ok": true,
+      "wrong": [],
+      "reason": "借阅数量上限归 loan，修改原场景需确认；计划改动 4 个源码文件，超过 3 个，需走 x-tech-design。"
+    },
+    {
+      "id": "Q10",
+      "ok": true,
+      "wrong": [],
+      "reason": "Node.js 版本升级属于工程改动，使用者看不到变化，只追加变更记录；计划改动 3 个源码文件，不超过 3 个，用 task 局部方案。"
+    },
+    {
+      "id": "Q11",
+      "ok": false,
+      "wrong": [
+        {
+          "field": "route",
+          "expected": "qdev",
+          "got": "mainline"
+        },
+        {
+          "field": "writes",
+          "expected": [
+            [
+              "loan",
+              "append"
+            ]
+          ],
+          "got": []
+        },
+        {
+          "field": "task_spec",
+          "expected": "loan",
+          "got": null
+        },
+        {
+          "field": "confirm",
+          "expected": true,
+          "got": null
+        },
+        {
+          "field": "tech_design",
+          "expected": "task",
+          "got": null
+        }
+      ],
+      "reason": "同一副本并发借出涉及并发控制，属于高风险工作，且 loan 中还没有这条行为需要先补场景，转完整主线。"
+    }
+  ]
+}
