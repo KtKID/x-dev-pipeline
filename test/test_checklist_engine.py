@@ -137,6 +137,7 @@ class ChecklistEngineTest(unittest.TestCase):
             > 范围依据：用户确认的 spec
             > 拆解基线：<由 xdev baseline 写入>
             > risk: {risk}
+            > 分组理由：3 组，文件互不重叠，每组一个完整功能
             > 创建: 2026-11-20
 
             | # | 任务 | 场景回指 | 涉及文件 | 风险 | 并行组 | 依赖 | 状态 |

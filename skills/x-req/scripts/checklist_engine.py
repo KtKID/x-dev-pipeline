@@ -28,7 +28,7 @@ from pathlib import Path
 CHECKLIST = "dev-checklist.md"
 TEMPLATE = Path(__file__).resolve().parent.parent / "templates" / "dev-checklist.md"
 
-REQUIRED_HEADERS = ("spec", "状态", "执行者", "tech-design", "本轮范围", "范围依据", "拆解基线", "risk", "创建")
+REQUIRED_HEADERS = ("spec", "状态", "执行者", "tech-design", "本轮范围", "范围依据", "拆解基线", "risk", "分组理由", "创建")
 REQUIRED_COLUMNS = ("#", "任务", "场景回指", "涉及文件", "风险", "并行组", "依赖", "状态")
 STATUS_EMOJI = ("⏳", "▶️", "🟡", "🟢", "🔴", "✅", "↗️")
 REOPEN_STATUS = "[ ] ⏳"
@@ -45,7 +45,7 @@ SCENE_REF_RE = re.compile(
     re.I,
 )
 BARE_SCENE_RE = re.compile(r"^场景(?P<a>\d+)(?:\s*[-~]\s*(?P<b>\d+))?$")
-CASE_REF_RE = re.compile(r"用例\s*((?:T\d+\s*[、,，/\s]*)+)")
+CASE_REF_RE = re.compile(r"用例\s*((?:T\d+(?:\s*[–~-]\s*T?\d+)?\s*[、,，/\s]*)+)")
 D_REF_RE = re.compile(r"\bD\d{2,}\b")
 C_REF_RE = re.compile(r"(?<![A-Za-z0-9])C\d+\b")
 T_IN_TEXT_RE = re.compile(r"\bT\d+\b")
@@ -238,7 +238,10 @@ class Row:
     def cases(self) -> set[str]:
         out: set[str] = set()
         for m in CASE_REF_RE.finditer(self.task):
-            out.update(T_IN_TEXT_RE.findall(m.group(1)))
+            for rng in re.finditer(r"T(\d+)(?:\s*[–~-]\s*T?(\d+))?", m.group(1)):
+                a = int(rng.group(1))
+                b = int(rng.group(2) or a)
+                out.update(f"T{n}" for n in range(a, b + 1))
         return out
 
     @property
