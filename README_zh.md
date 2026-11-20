@@ -240,7 +240,7 @@ x-explore-for-spec → x-adversarial-risk → x-tech-design → x-req
 |---|---|
 | `/x-explore-for-spec` | 统一需求入口：探索并确认行为，筛选有价值的结论，增量维护所属 spec 和本轮范围 |
 | `/x-tech-design` | 基于已确认 spec 写技术设计，定义机制与编号用例；需求变化时按编号同步 |
-| `/x-req` | 基于已确认需求和设计拆 task，分配场景、约束与用例 |
+| `/x-req` | 基于已确认 spec 和技术设计拆 task，分配场景、约束与用例 |
 | `/x-dev` | 执行单个 task，记录验证结论与可定位证据 |
 | `/x-verify-spec` | Gate ①：核对交付范围、覆盖、基线、执行记录与结论 |
 | `/x-verify-tech` | 验收实现对技术设计和开发规范的符合性 |

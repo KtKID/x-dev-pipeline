@@ -20,7 +20,8 @@
 > tech-design: docs/spec/<spec-name>/tech-design.md
 > 本轮范围：<选中的 feat/场景、适用约束及受影响回归>
 > 范围依据：<用户明确要求或已确认分配的来源与可读取基线>
-> 拆解基线：<spec 与 tech-design 的 commit 或内容哈希；需求变化后按 change-sync 同步并更新>
+> 其他 spec：<跨多份 spec 时列出其他 spec 的路径；不跨时删掉这一行>
+> 拆解基线：<每份涉及的 spec 与 tech-design 的 commit 或内容哈希；需求变化后按 change-sync 同步并更新>
 > 创建: YYYY-MM-DD
 
 **状态**：`[ ] ⏳` 未开始 / `[ ] ▶️` 进行中 / `[x] 🟢` 验证通过 / `[!] 🔴` 验证失败

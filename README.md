@@ -240,7 +240,7 @@ Risk review and bug ingestion share a user-global corpus, with a caller-selected
 |---|---|
 | `/x-explore-for-spec` | Unified requirements entry: explore and confirm behavior, select useful conclusions, and incrementally maintain the owning spec and current scope |
 | `/x-tech-design` | Write the technical design from a confirmed spec, defining mechanisms and numbered cases; sync by IDs when requirements change |
-| `/x-req` | Split tasks from confirmed requirements and design; assign scenarios, constraints, and cases |
+| `/x-req` | Split tasks from the confirmed spec and the technical design; assign scenarios, constraints, and cases |
 | `/x-dev` | Execute one task and record verification conclusions with locatable evidence |
 | `/x-verify-spec` | Gate ①: reconcile delivery scope, coverage, baselines, execution records, and conclusions |
 | `/x-verify-tech` | Verify implementation conformity to the technical design and development rules |

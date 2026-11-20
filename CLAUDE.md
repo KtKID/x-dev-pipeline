@@ -47,7 +47,7 @@ x-explore-for-spec → x-tech-design → x-req → x-dev → x-verify-spec → x
 ```
 
 - x-explore-for-spec 合并原 x-explore 与 x-spec：每次核对目标、现状、范围、约束与验收，逐批把已确认且有价值的结论写入所属 spec（归属见 `skills/x-explore-for-spec/references/spec-scope.md`），已有明确答案直接采用。
-- x-tech-design 与 x-req 只承接本轮选中的已确认场景，模块其他计划项保持原状态；一个 feat 可以分批交付，3 feat / 10 场景是单轮审阅建议。
+- x-tech-design 与 x-req 只承接本轮选中的已确认场景，该 spec 其他计划项保持原状态；一个 feat 可以分批交付，3 feat / 10 场景是单轮审阅建议。
 - x-adversarial-risk 按适用预算复核需求；带风险版本标记的旧契约沿用相应风险门禁。
 - `skills/x-dev/scripts/xdev.py` 只做 CLI 分流；package、task、verify、flag 逻辑分别归各自 skill 引擎
 - x-plan 已废弃，功能合并到 x-req
@@ -74,7 +74,7 @@ x-explore-for-spec → x-tech-design → x-req → x-dev → x-verify-spec → x
 | x-fix 批量修 + 增量复审 | x-fix 一次修完一轮 issue 清单（P0 全修且各固化一条可复跑反例、P1 修或豁免、P2 登记），产出带 issue ID 的逐条处置表；复审尽量由同一个 reviewer 承接，只看 issue 处置 + fix 增量 diff，熔断条件见 `skills/x-qa-gate/SKILL.md` |
 | 门禁回执 | x-verify-spec / x-qa-gate / x-fix 每个节点结束在对话中输出统一回执（P0/P1/P2 计数 + 拦截来源维度 + 处置），零问题也输出；QA Gate issue ledger 由 flag 生成。格式见 `skills/x-qa-gate/SKILL.md`「回执与状态」 |
 | x-cr 手动调查 | `skills/x-cr/SKILL.md` 是手动软件正确性调查入口，独立于自动门禁。先读取归属 spec 的“影响边界与不变量”，再登记遗漏候选并做贝叶斯根因调查；task 报告写入 `docs/spec/<spec>/tasks/<task>/reports/cr/`，普通调查写入 `reports/cr/`；x-fix 按稳定 Bn/INV-ID 消费 |
-| 状态码 | ⏳ 未开始 / ▶️ 进行中 / 🟡 待验证 / 🔴 验证失败 / 🟢 证据通过 / ✅ 已完成 / ↗️ 已升级。x-dev 最多到 🟢，✅ 由完整 review 升级；x-qdev 先做单文档自检，再接入 x-verify-spec 对账与 x-verify-tech 局部设计验收，记录真实回执后交付，超出小任务范围时提示改走完整流程 |
+| 状态码 | ⏳ 未开始 / ▶️ 进行中 / 🟡 待验证 / 🔴 验证失败 / 🟢 证据通过 / ✅ 已完成 / ↗️ 已升级。x-dev 最多到 🟢，✅ 由完整 review 升级；x-qdev 先做单文档自检，再接入 x-verify-spec 对账与 x-verify-tech 局部设计验收，记录真实回执后交付；按 `skills/x-qdev/references/risk-rules.md` 有一条答“是”时停下交接、转完整主线 |
 
 ## 改 skill 时的注意事项
 
