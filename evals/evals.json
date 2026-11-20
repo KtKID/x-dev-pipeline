@@ -334,6 +334,35 @@
         "expected": "evals/answers/ledger-audit/expected.json",
         "rubric_exposed": false
       }
+    },
+    {
+      "id": 13,
+      "name": "spec-scope",
+      "prompt_file": "evals/problems/spec-scope/prompt.md",
+      "files": [
+        "skills/x-explore-for-spec/references/spec-scope.md",
+        "evals/problems/spec-scope/project-spec-index.md",
+        "evals/problems/spec-scope/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/spec-scope/rubric.md",
+        "script": "evals/scripts/grade_spec_routing.py spec-scope"
+      }
+    },
+    {
+      "id": 14,
+      "name": "qdev-spec-routing",
+      "prompt_file": "evals/problems/qdev-spec-routing/prompt.md",
+      "files": [
+        "skills/x-qdev/SKILL.md",
+        "skills/x-explore-for-spec/references/spec-scope.md",
+        "evals/problems/qdev-spec-routing/project-spec-index.md",
+        "evals/problems/qdev-spec-routing/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/qdev-spec-routing/rubric.md",
+        "script": "evals/scripts/grade_spec_routing.py qdev-spec-routing"
+      }
     }
   ]
 }

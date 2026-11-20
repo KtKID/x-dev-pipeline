@@ -1,0 +1,92 @@
+[
+  {
+    "id": "Q01",
+    "request": "修 bug：续借后应还日期少算了一天。loan spec 里已有场景写明“续借后应还日期 = 原应还日期 + 14 天”。",
+    "planned_source_files": [
+      "src/loan/renew.ts"
+    ]
+  },
+  {
+    "id": "Q02",
+    "request": "检索结果可以按出版年份从新到旧排序。",
+    "planned_source_files": [
+      "src/catalog/search.ts",
+      "web/search/SortSelect.tsx"
+    ]
+  },
+  {
+    "id": "Q03",
+    "request": "读者可以给读过的书打 1–5 星并写短评，在书的详情页显示。",
+    "planned_source_files": [
+      "db/migrations/add_reviews.sql",
+      "src/review/service.ts",
+      "src/review/api.ts",
+      "web/book/ReviewList.tsx",
+      "web/book/ReviewForm.tsx"
+    ]
+  },
+  {
+    "id": "Q04",
+    "request": "把 ESLint 规则里的 no-console 从 warn 改成 error。",
+    "planned_source_files": [
+      ".eslintrc.json"
+    ]
+  },
+  {
+    "id": "Q05",
+    "request": "检索页“搜索”按钮的颜色改成主题蓝。",
+    "planned_source_files": [
+      "web/search/SearchButton.css"
+    ]
+  },
+  {
+    "id": "Q06",
+    "request": "读者可以申请罚款减免：管理员批准后这笔罚款清零，同时这位读者的读者等级降一级。",
+    "planned_source_files": [
+      "src/fine/waiver.ts",
+      "src/member/level.ts",
+      "web/fine/WaiverForm.tsx"
+    ]
+  },
+  {
+    "id": "Q07",
+    "request": "把读者密码的存储从 MD5 改成 bcrypt，并把已有读者的密码全部迁移过去。",
+    "planned_source_files": [
+      "src/member/password.ts",
+      "db/migrations/rehash_passwords.sql"
+    ]
+  },
+  {
+    "id": "Q08",
+    "request": "逾期罚款从每天 0.5 元改成每天 1 元。",
+    "planned_source_files": [
+      "src/fine/rate.ts"
+    ]
+  },
+  {
+    "id": "Q09",
+    "request": "高级读者同时可借的数量从 5 本提高到 10 本。",
+    "planned_source_files": [
+      "src/loan/limit.ts",
+      "src/loan/borrow.ts",
+      "src/loan/rules.ts",
+      "web/loan/LimitHint.tsx"
+    ]
+  },
+  {
+    "id": "Q10",
+    "request": "把项目的 Node.js 从 16 升级到 20。",
+    "planned_source_files": [
+      "package.json",
+      ".nvmrc",
+      ".github/workflows/ci.yml"
+    ]
+  },
+  {
+    "id": "Q11",
+    "request": "修 bug：同一本书被两位读者同时借出。loan spec 里还没有写过“同一副本同一时间只能借给一人”这条行为。",
+    "planned_source_files": [
+      "src/loan/borrow.ts"
+    ]
+  }
+]

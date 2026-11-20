@@ -1,0 +1,17 @@
+{
+  "S01": [["loan", "append"]],
+  "S02": [["catalog", "append"]],
+  "S03": [["fine", "append"]],
+  "S04": [["loan", "append"]],
+  "S05": [["*", "new"]],
+  "S06": [["loan", "append"]],
+  "S07": [["engineering", "log-only"]],
+  "S08": [["catalog", "log-only"]],
+  "S09": [["loan", "append"]],
+  "S10": [["fine", "append"]],
+  "S11": [["member", "append"]],
+  "S12": [["*", "new"]],
+  "S13": [["fine", "append"], ["member", "append"]],
+  "S14": [["fine", "append"]],
+  "S15": [["message", "append"]]
+}

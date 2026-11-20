@@ -1,0 +1,133 @@
+{
+  "Q01": {
+    "route": "qdev",
+    "writes": [
+      [
+        "loan",
+        "log-only"
+      ]
+    ],
+    "task_spec": "loan",
+    "confirm": false,
+    "tech_design": "task"
+  },
+  "Q02": {
+    "route": "qdev",
+    "writes": [
+      [
+        "catalog",
+        "append"
+      ]
+    ],
+    "task_spec": "catalog",
+    "confirm": true,
+    "tech_design": "task"
+  },
+  "Q03": {
+    "route": "qdev",
+    "writes": [
+      [
+        "*",
+        "new"
+      ]
+    ],
+    "task_spec": "*",
+    "confirm": true,
+    "tech_design": "x-tech-design"
+  },
+  "Q04": {
+    "route": "qdev",
+    "writes": [
+      [
+        "engineering",
+        "log-only"
+      ]
+    ],
+    "task_spec": "engineering",
+    "confirm": false,
+    "tech_design": "task"
+  },
+  "Q05": {
+    "route": "qdev",
+    "writes": [
+      [
+        "catalog",
+        "log-only"
+      ]
+    ],
+    "task_spec": "catalog",
+    "confirm": false,
+    "tech_design": "task"
+  },
+  "Q06": {
+    "route": "qdev",
+    "writes": [
+      [
+        "fine",
+        "append"
+      ],
+      [
+        "member",
+        "append"
+      ]
+    ],
+    "task_spec": "fine",
+    "confirm": true,
+    "tech_design": "x-tech-design"
+  },
+  "Q07": {
+    "route": "mainline",
+    "writes": [],
+    "task_spec": null,
+    "confirm": null,
+    "tech_design": null
+  },
+  "Q08": {
+    "route": "qdev",
+    "writes": [
+      [
+        "fine",
+        "append"
+      ]
+    ],
+    "task_spec": "fine",
+    "confirm": true,
+    "tech_design": "task"
+  },
+  "Q09": {
+    "route": "qdev",
+    "writes": [
+      [
+        "loan",
+        "append"
+      ]
+    ],
+    "task_spec": "loan",
+    "confirm": true,
+    "tech_design": "x-tech-design"
+  },
+  "Q10": {
+    "route": "qdev",
+    "writes": [
+      [
+        "engineering",
+        "log-only"
+      ]
+    ],
+    "task_spec": "engineering",
+    "confirm": false,
+    "tech_design": "task"
+  },
+  "Q11": {
+    "route": "qdev",
+    "writes": [
+      [
+        "loan",
+        "append"
+      ]
+    ],
+    "task_spec": "loan",
+    "confirm": true,
+    "tech_design": "task"
+  }
+}
