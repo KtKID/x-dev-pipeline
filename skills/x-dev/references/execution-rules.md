@@ -4,14 +4,15 @@
 
 | token + emoji | 含义 | 责任 |
 |---|---|---|
-| `[ ] ⏳` | 未开始 | 等待依赖满足 |
+| `[ ] ⏳` | 未开始 | 等待依赖满足；需求变化后重开的行也回到这里 |
 | `[ ] ▶️` | 进行中 | x-dev 已开始实现 |
-| `[ ] 🟡` | 待测试 | 实现完成，等待声明验证 |
+| `[ ] 🟡` | 待验证 | 实现完成，等待验证 |
 | `[!] 🔴` | 验证失败 | x-fix 批量修复 |
 | `[x] 🟢` | 测试通过 | 等待 risk 路由结束 |
-| `[x] ✅` | 已完成 | Gate ② 通过，或 Q0/Q1 verify 通过 |
+| `[x] ✅` | 已完成 | risk Q2/Q3：x-qa-gate 通过后由主 agent 升级；risk Q0/Q1：x-verify-spec 与 x-verify-tech 都通过后由主 agent 升级 |
+| `[ ] ↗️` | 已升级 | 超出本 task 范围（如 qdev 转主线、某组 3 轮验收不过）交给用户或主线 |
 
-`status` 与 `graph` 以 token 判定；纯 emoji 历史 checklist 按引擎兼容规则读取。每次变更状态立即回写 checklist；dev-report 保存交付摘要与统一测试报告入口，验证明细、改动覆盖率及原始附件遵循 [共用报告约定](test-reporting.md)。
+`xdev status` 与 `xdev graph` 以 emoji 判定状态。多 agent 协作时，状态列只由主 agent 写，见 [多 agent 协作开发](parallel-dev.md)。每次变更状态立即回写 checklist；dev-report 保存交付摘要与统一测试报告入口，验证明细、改动覆盖率及原始附件遵循 [共用报告约定](test-reporting.md)。
 
 ### QA Gate 写权
 
@@ -21,7 +22,9 @@
 - Gate ② 修复与增量复审通过后，主 agent 亲自确认并把对应 `[!]` 升为 `[x]`。
 - P2 flag 只登记 issue，所有 task 状态保持原样。
 
-## Verify 块
+## Verify 块（仅旧契约包）
+
+只适用于父 spec 声明 `spec_version: 3` 的旧契约包。当前格式的 task 不写 verify 块：交付对账由 x-verify-spec 做，需求变化用 `xdev impact` 检查。
 
 ```verify
 id: S1
@@ -37,8 +40,4 @@ expect_contains: <关键输出>
 
 ## Risk 路由
 
-| checklist 头部 risk | verify 通过后的动作 |
-|---|---|
-| Q0 / Q1 | 交付回执，列出 manual 与定级依据 |
-| Q2 | x-qa-gate RC |
-| Q3 | x-qa-gate R1 → R2 → R3 |
+checklist 头部的 `risk` 由 x-req 按任务行算出（规则见 x-req 的拆解规则 5，`xdev validate` 核对）。验收通过后：Q0 / Q1 交付，由主 agent 升 ✅；Q2 / Q3 交 x-qa-gate，派几个 reviewer、怎么审以 [x-qa-gate](../../x-qa-gate/SKILL.md) 的「路由」为准。

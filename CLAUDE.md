@@ -49,7 +49,8 @@ x-explore-for-spec → x-tech-design → x-req → x-dev → x-verify-spec → x
 - x-explore-for-spec 合并原 x-explore 与 x-spec：每次核对目标、现状、范围、约束与验收，逐批把已确认且有价值的结论写入所属 spec（归属见 `skills/x-explore-for-spec/references/spec-scope.md`），已有明确答案直接采用。
 - x-tech-design 与 x-req 只承接本轮选中的已确认场景，该 spec 其他计划项保持原状态；一个 feat 可以分批交付，3 feat / 10 场景是单轮审阅建议。
 - x-adversarial-risk 按适用预算复核需求；带风险版本标记的旧契约沿用相应风险门禁。
-- `skills/x-dev/scripts/xdev.py` 只做 CLI 分流；package、task、verify、flag 逻辑分别归各自 skill 引擎
+- `skills/x-dev/scripts/xdev.py` 只做 CLI 分流：当前格式 task 的 scaffold/validate/status/graph/impact/baseline 归 `skills/x-req/scripts/checklist_engine.py`；声明 `spec_version: 3` 的旧包归 req.py / validator.py / verify.py；flag 归 x-qa-gate。`cli/` 下的 Go 版本是旧引擎的移植，skill 不调用它
+- x-req 给任务行分并行组和依赖；并行组 ≥2 时 x-dev 按 `skills/x-dev/references/parallel-dev.md` 派给工人子 agent，另派验收 agent，主 agent 按依赖顺序合并
 - x-plan 已废弃，功能合并到 x-req
 - 当前需求模板位于 `skills/x-explore-for-spec/templates/spec.md`。`skills/x-spec/scripts/` 保留给现有 CLI 和历史 v3 契约使用。
 
@@ -66,15 +67,15 @@ x-explore-for-spec → x-tech-design → x-req → x-dev → x-verify-spec → x
 | qdev 执行授权 | 用户本轮明确要求即小任务范围内的执行授权。qdev 唯一停点：spec 增量（归属表、场景原文、改法）写完后给用户确认；只记变更、不写场景的改动不停（情况见 spec-scope 第 6–8 步）。确认后连续完成技术设计、实现、文档同步与公共验收。新建 spec、场景跨 2 份及以上 spec 或源码文件超过 3 个时调 x-tech-design（不单独停），否则在 task ②简写。是否转主线按 `skills/x-qdev/references/risk-rules.md` 逐条判断。实质性歧义和超出授权的关键事项集中澄清 |
 | 需求变化同步 | spec 的场景或 C 变了，按 `skills/x-tech-design/references/change-sync.md` 顺着编号找引用它的 D、T、任务行和测试，逐项改、新增、退役、重开或重跑，没被引用的不动。D 表必须有“回指场景 / C”列；checklist 头部记录拆解基线，x-dev 开工前比较，未同步的行不开工。tech-design 不需要用户确认，只有需要用户拍板的取舍单独问 |
 | 测试分层契约 | x-explore-for-spec 明确验收场景，x-tech-design 定义验证用例；x-req 分配本轮场景/用例与任务责任，x-dev 补齐单元/契约/边界测试。测试执行与当次改动覆盖率集中到统一测试报告，命令、基线和原始数据集中在附件；旧 v3 verify 块保留原消费位置 |
-| `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。语义 = **批量修轮数**（一轮 = 一份 issue 清单的整体修复）。x-verify-spec 首次创建，x-fix 按轮递增，x-qa-gate 在 Gate ② 最终 pass 后重置。**3 轮上限**，三方共享 |
-| reviewer 子 agent | x-qa-gate 按 `risk:` 风险路由：默认线 dispatch 一个综合 reviewer RC（`references/rc-unified.md`），高危线串行 dispatch R1/R2/R3；初始 prompt 预算为 10,000 estimated tokens，使用 manifest + 路径 + diff 命令 + completeness gate |
+| `.fix-counter` 共享 | 路径 `docs/spec/<spec>/tasks/<task>/reports/.fix-counter`（历史 task 在原位置）。语义 = **批量修轮数**（一轮 = 一份 issue 清单的整体修复）。不存在视为 0，x-fix 进入每轮前递增，x-qa-gate 最终通过后重置；x-verify-spec 只读不写。**3 轮上限**。多 agent 协作时各组验收轮数另计，见 `skills/x-dev/references/parallel-dev.md` |
+| reviewer 子 agent | x-qa-gate 按 checklist 头部 `risk:` 路由：Q0/Q1 不派 reviewer；Q2 派一个精简 tri-lens reviewer，Q3 派一个完整 tri-lens reviewer（q1-intent、q2-correctness、q3-evidence）。路由与输入以 `skills/x-qa-gate/SKILL.md` 为准 |
 | 一轮列全 | 所有 reviewer 穷尽列出全部问题候选后判定；每条返回 task、severity、loc、msg 和证据，并省略编号；回执包含覆盖声明、完整问题候选和穷尽声明；严重度 P0/P1/P2 唯一定义在 `skills/x-qa-gate/SKILL.md` |
-| reviewer 只读 | RC/R1/R2/R3 只输出 review 回执；修改统一走 x-fix |
+| reviewer 只读 | reviewer 只输出 review 回执；修改统一走 x-fix |
 | issue 登记与状态写权 | 主 agent 串行逐条调用 `python3 skills/x-dev/scripts/xdev.py flag ... --json`；本轮首条带 `--new-round`。代码分配 `issue-<n>`、写 ledger、把 P0/P1 task 降为 `[!] 🔴`；每个 task 长期只保留一份 `dev-checklist.md`，内容无变化时跳过 checklist 临时文件，实际变更使用固定临时路径并在提交或恢复后清理；`recovered:true` 时主 agent 用原参数再次调用。reviewer、子 agent、x-fix 保持 ledger 与状态列原样 |
-| x-fix 批量修 + 增量复审 | x-fix 一次修完一轮 issue 清单（P0 全修且各固化一条可复跑反例、P1 修或豁免、P2 登记），产出带 issue ID 的逐条处置表；复审尽量由同一个 reviewer 承接，只看 issue 处置 + fix 增量 diff，熔断条件见 `skills/x-qa-gate/SKILL.md` |
+| x-fix 批量修 + 关闭问题 | x-fix 一次修完一轮 issue 清单（P0 全修且各固化一条可复跑反例、P1 修或豁免、P2 登记），产出带 issue ID 的逐条处置表；主 agent 用每条 issue 的聚焦反例和一次完整验证关闭问题，不发回原 reviewer；fix 扩大到新文件或改公开 API 时另派一个裁剪 reviewer。规则见 `skills/x-qa-gate/SKILL.md`「回流」 |
 | 门禁回执 | x-verify-spec / x-qa-gate / x-fix 每个节点结束在对话中输出统一回执（P0/P1/P2 计数 + 拦截来源维度 + 处置），零问题也输出；QA Gate issue ledger 由 flag 生成。格式见 `skills/x-qa-gate/SKILL.md`「回执与状态」 |
 | x-cr 手动调查 | `skills/x-cr/SKILL.md` 是手动软件正确性调查入口，独立于自动门禁。先读取归属 spec 的“影响边界与不变量”，再登记遗漏候选并做贝叶斯根因调查；task 报告写入 `docs/spec/<spec>/tasks/<task>/reports/cr/`，普通调查写入 `reports/cr/`；x-fix 按稳定 Bn/INV-ID 消费 |
-| 状态码 | ⏳ 未开始 / ▶️ 进行中 / 🟡 待验证 / 🔴 验证失败 / 🟢 证据通过 / ✅ 已完成 / ↗️ 已升级。x-dev 最多到 🟢，✅ 由完整 review 升级；x-qdev 先做单文档自检，再接入 x-verify-spec 对账与 x-verify-tech 局部设计验收，记录真实回执后交付；按 `skills/x-qdev/references/risk-rules.md` 有一条答“是”时停下交接、转完整主线 |
+| 状态码 | ⏳ 未开始 / ▶️ 进行中 / 🟡 待验证 / 🔴 验证失败 / 🟢 证据通过 / ✅ 已完成 / ↗️ 已升级。x-dev 最多到 🟢；✅ 由主 agent 升级：risk Q2/Q3 在 x-qa-gate 通过后，Q0/Q1 在 x-verify-spec 与 x-verify-tech 都通过后；x-qdev 先做单文档自检，再接入 x-verify-spec 对账与 x-verify-tech 局部设计验收，记录真实回执后交付；按 `skills/x-qdev/references/risk-rules.md` 有一条答“是”时停下交接、转完整主线 |
 
 ## 改 skill 时的注意事项
 
@@ -84,17 +85,10 @@ x-explore-for-spec → x-tech-design → x-req → x-dev → x-verify-spec → x
 - **manifest 不显式列 skill**：`.claude-plugin/plugin.json` / `.codex-plugin/plugin.json` 都靠 `./skills/` 目录自动发现，新增 skill 不必改 manifest 字段，除非要更新 `defaultPrompt` 示例。
 - **reference 文件保留制**：`skills/x-cr/references/auto-loop-mode.md` 之类的旧 reference **保留**作历史参考，不要删；新逻辑放到 x-qa-gate / x-fix 的 references。
 
-## 子 agent dispatch 模板（reviewer 用）
+## 子 agent dispatch 模板
 
-```
-Agent({
-  description: "<RC/R1/R2/R3> review round <N>",
-  subagent_type: "general-purpose",
-  prompt: <reviewer checklist + task manifest + required paths + diff commands + evidence path + context completeness gate + 一轮列全约束 + output format>
-})
-```
-
-prompt 预算 10,000 estimated tokens。保留 reviewer 检查清单（默认线 `rc-unified.md` / 高危线 `r{N}-*.md`）、task root、必读文件路径、diff 命令、evidence 输出路径、`Context Completeness` 要求和一轮列全约束；完整 diff、源码、测试文件通过只读工具按需读取。复审轮追加：上轮带 issue ID 的 review 回执、x-fix 处置表、fix 增量 diff 命令，尽量由同一个 reviewer 承接（机制由执行时 LLM 按环境自行处理）。
+- reviewer：用 `skills/x-qa-gate/SKILL.md`「Prompt 模板」，按 Q2 / Q3 给 tri-lens 输入。
+- 多 agent 协作开发的工人与验收 agent：用 `skills/x-dev/references/parallel-dev.md` 的派工单和回执格式。
 
 ## x-spec2 eval 计量边界
 

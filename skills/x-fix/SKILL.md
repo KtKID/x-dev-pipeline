@@ -117,7 +117,7 @@ x-fix 同时接收 bug 报告、cr-report，以及 x-verify-spec / x-qa-gate rev
 
 **fix-counter 文件协议**（与 x-verify-spec / x-qa-gate 共享）：
 
-- 路径：`dev-pipeline/tasks/<task>/reports/.fix-counter`
+- 路径：`docs/spec/<spec>/tasks/<task>/reports/.fix-counter`（历史 task 在原位置）
 - 格式：单行 ASCII 整数 + 行尾换行（如 `2\n`）
 - 语义：**批量修轮数**（一轮 = 一份 issue 清单的整体修复），不按问题条数计
 - 读取：`c=$(cat reports/.fix-counter)`；不存在则视为 0

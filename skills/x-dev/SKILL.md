@@ -8,13 +8,13 @@ description: |
 
 ## 输入与边界
 
-x-dev 的作用域是**单个 task**：`docs/spec/<spec-name>/tasks/<task-name>/`，入口是它的 `dev-checklist.md`，按头部 `spec:` 与 `tech-design:` 指针跟读相关 feat、场景、已确认关键约束和编号测试用例的主定义。一个 spec 下可以有多个 task，x-dev 一次只执行指定 task，不扫描或编排同级 task。
+x-dev 的作用域是**单个 task**：`docs/spec/<spec-name>/tasks/<task-name>/`，入口是它的 `dev-checklist.md`，按头部 `spec:` 与 `tech-design:` 指针跟读相关 feat、场景、已确认关键约束和编号测试用例的主定义。一个 spec 下可以有多个 task，x-dev 一次只执行指定 task，不扫描或编排同级 task。checklist 有两个及以上并行组时，按 [多 agent 协作开发](references/parallel-dev.md) 派给工人子 agent；被派为工人时，也按那份文件里工人的规则做。状态、写权和旧契约包的规则见 [执行规则](references/execution-rules.md)。
 
 旧 checklist 缺设计指针时查 spec 同目录的 `tech-design.md`；本轮承接的机制或用例主定义仍缺失，或有等待用户拍板的取舍时，受影响行阻塞并交来源负责方补齐，不从实现猜设计。既有 spec 未使用 C 或 feat/场景编号时沿用其已确认约束、场景 ID/章节定位，不强制迁移编号；没有新增适用关键约束的旧行仍按原场景和证据核对，不伪造 C。
 
 checklist 的约定（由 x-req 生成）：
 
-- **行序即实现顺序**，无依赖图；从 T1 开始逐行往下做。
+- **按并行组和依赖执行**：同组内行序即实现顺序；组之间按依赖先后，`xdev graph` 给出派工批次。只有一组时从 T1 开始逐行往下做。
 - **场景回指定验收**：一行做完的判定标准是它回指的每个场景的 GIVEN/WHEN/THEN 及适用 C 约束的预期/禁止结果全部成立；任务列的“用例 T1”回指 tech-design，不能与任务行 T1 混淆。
 - **风险列为 `高:` 的行**，验证必须包含真实链路（smoke 或以上），不允许只写 unit。
 - 改动落在「涉及文件」范围内，不"顺便"改别的。
@@ -23,7 +23,7 @@ checklist 的约定（由 x-req 生成）：
 
 高能力模型按批次执行：独立读取放同一批次；文件只在内容变化后重读；过程更新只报告新进展或阻塞。
 
-1. **取证批次**：一次读完整 checklist、spec 中被回指的 feat 场景与 C 约束、tech-design 的 D 机制及编号用例、涉及的实现与测试文件，建立「场景/C → D/用例 → 代码/证据」的对应关系；发现缺定义、覆盖或确认先报告来源负责方，不从实现补验收标准；顺带确认涉及文件路径真实存在（x-req 留了 glob 的就在此批次定位）。比较 checklist 头部的拆解基线和每份涉及的 spec、tech-design 的当前内容：不一致时，按 [需求变化同步](../x-tech-design/references/change-sync.md) 检查 D、T、任务行是否已同步，没同步的行不开工，交回来源负责方。按 [共用报告约定](references/test-reporting.md) 保存任务开始前的比较基线与既有工作区边界，确定唯一测试报告入口。
+1. **取证批次**：一次读完整 checklist、spec 中被回指的 feat 场景与 C 约束、tech-design 的 D 机制及编号用例、涉及的实现与测试文件，建立「场景/C → D/用例 → 代码/证据」的对应关系；发现缺定义、覆盖或确认先报告来源负责方，不从实现补验收标准；顺带确认涉及文件路径真实存在（x-req 留了 glob 的就在此批次定位）。运行 `python3 <本 skill 目录>/scripts/xdev.py validate <task-dir>` 和 `xdev.py impact <task-dir>`：validate 报错的先修 checklist 或交回 x-req；impact 报出需求变化时，按 [需求变化同步](../x-tech-design/references/change-sync.md) 核对它列出的 D、T、任务行是否已同步，没同步的行不开工，交回来源负责方；只是措辞变化或已经同步完时，运行 `xdev.py baseline <task-dir>` 记录新基线。按 [共用报告约定](references/test-reporting.md) 保存任务开始前的比较基线与既有工作区边界，确定唯一测试报告入口。
 2. **逐行开发**（适合自动化的新行为先测试后实现）：
    - 把当前行状态改为 `[ ] ▶️`。
    - 按场景 THEN 与用例的预期/禁止结果写测试，先跑并证实失败来自目标行为缺失或违约（有效红灯）；构建、导入、环境或测试自身错误不是有效红灯，先排除后重跑。不得 mock 掉被验证的 D 机制；其他替身说明边界与局限，故障注入保留真实处理路径。
@@ -32,11 +32,11 @@ checklist 的约定（由 x-req 生成）：
    - 验证通过后行状态改为 `[x] 🟢`。统一测试报告记录实际取证理由、最终结果及执行编号，原始输出集中保存在附件；dev-report 同步简短结论与链接。
 3. **行失败时**：读完整输出，按根因一次修完全部关联位置；发现是测试写错就改测试并在 dev-report 未决节记一行原因。同一行失败多次不改目标——回看场景定义，仍不清楚就停下来问用户。失败中的行标 `[!] 🔴`，修复后恢复。
 4. **收尾验证**：全部行 🟢 后，涉及 Web 的任务由 agent 亲自在浏览器中操作实际功能，发现问题就修复并复验，通过后截取最终效果。按[浏览器验收约定](references/test-reporting.md#web-浏览器验收)记录结果和截图。然后跑一次本 task 全量测试 + 一次既有测试回归，按共用约定采集当次改动行及相关分支覆盖率。用例明细、未覆盖位置、采集缺口与结论集中写入测试报告，dev-report 同步交付摘要。
-5. **交付**：确认 checklist 无 🔴 残留，按[回执](#回执)向用户说明完成的功能和改动。Web 任务须通过浏览器验收并在回执附上最终效果截图，两项齐备才标记完成。报告下一步（同 spec 的下一个 task，或全部完成）。
+5. **交付**：确认 checklist 无 🔴 残留，按[回执](#回执)向用户说明完成的功能和改动。Web 任务须通过浏览器验收并在回执附上最终效果截图，两项齐备才标记完成。接着交给 x-verify-spec 做交付对账、x-verify-tech 做技术验收；两项都通过后按 checklist 头部的 `risk` 处理：Q2 / Q3 交 x-qa-gate，Q0 / Q1 由主 agent 把行升为 `[x] ✅`。最后报告下一步（同 spec 的下一个 task，或全部完成）。
 
 ## dev-report
 
-`docs/spec/<spec-name>/tasks/<task-name>/dev-report.md` 按 `templates/dev-report.md` 保存交付摘要、状态、未决项索引和唯一测试报告链接。完整用例明细、当次代码改动覆盖率、未覆盖位置及后续验收回执统一写入 [测试报告](templates/test-report.md)，存放与原始附件遵循 [共用报告约定](references/test-reporting.md)。
+`docs/spec/<spec-name>/tasks/<task-name>/dev-report.md` 按 `templates/dev-report.md` 保存交付摘要、状态、未决项索引和唯一测试报告链接；多 agent 协作时还有「派工记录」一节。声明 `spec_version: 3` 的旧契约包改用 `templates/dev-report-template.md`。完整用例明细、当次代码改动覆盖率、未覆盖位置及后续验收回执统一写入 [测试报告](templates/test-report.md)，存放与原始附件遵循 [共用报告约定](references/test-reporting.md)。
 
 ## 自检（交付前）
 

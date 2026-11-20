@@ -8,7 +8,7 @@ description: |
 
 ## 路由
 
-verify exit 0 后进入质量审查。读取 task `dev-checklist.md` 头部的 `risk:`：
+x-verify-spec 对账与 x-verify-tech 技术验收都通过后进入质量审查（旧 `spec_version: 3` 契约包为 `xdev verify` exit 0）。读取 task `dev-checklist.md` 头部的 `risk:`（由 x-req 按任务行算出）：
 
 - Q0/Q1：直接交付，不启动 reviewer。
 - Q2：启动一个精简 tri-lens reviewer，一次覆盖 q1-intent、q2-correctness、q3-evidence。
