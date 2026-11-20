@@ -44,10 +44,11 @@
 | Q02 Q08 | 加场景 → 要停；文件少 → task ② | 确认，task ② |
 | Q03 | 新建 spec → 调 x-tech-design；task 放新 spec 下 | 新建，确认，x-tech-design |
 | Q04 Q05 Q10 | 不写场景 → 不停；Q10 改 3 个文件不算超过 3 | 不确认，task ② |
-| Q06 | 场景跨两份 spec → x-tech-design；task 放主场景所在的 spec | fine 下，x-tech-design |
+| Q06 | 场景跨两份 spec → x-tech-design；task 放主场景所在的 spec；照用已有权限判断不算改权限 | fine 下，x-tech-design |
 | Q09 | 只写一份 spec，但源码文件超过 3 个 → x-tech-design | x-tech-design |
 | Q12 | 配置算源码，测试和文档不算 | 源码 2 个，task ② |
-| Q13 | 没有直接操作者 → task 放边界表靠前的那份；定时任务不是一次性批量改写 | member 下，x-tech-design |
+| Q17 | 没有直接操作者 → task 放边界表靠前的那份；重跑结果一样不算防重复 | member 下，x-tech-design |
+| Q13 | 风险规则：定时任务重跑会重复生成罚款 → 转主线 | 转主线 |
 | Q07 | 风险规则：鉴权 + 迁移 → 转主线 | 转主线 |
 | Q14 | 风险规则：钱退出去收不回 → 转主线 | 转主线 |
 | Q15 | 风险规则反例：只改金额计算规则 → 留在 qdev | qdev |

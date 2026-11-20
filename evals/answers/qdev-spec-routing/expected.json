@@ -143,20 +143,11 @@
     "tech_design": "task②"
   },
   "Q13": {
-    "route": "qdev",
-    "writes": [
-      [
-        "fine",
-        "加到已有"
-      ],
-      [
-        "member",
-        "加到已有"
-      ]
-    ],
-    "task_spec": "member",
-    "confirm": true,
-    "tech_design": "x-tech-design"
+    "route": "转主线",
+    "writes": [],
+    "task_spec": null,
+    "confirm": null,
+    "tech_design": null
   },
   "Q14": {
     "route": "转主线",
@@ -188,5 +179,21 @@
     "task_spec": "loan",
     "confirm": true,
     "tech_design": "task②"
+  },
+  "Q17": {
+    "route": "qdev",
+    "writes": [
+      [
+        "loan",
+        "加到已有"
+      ],
+      [
+        "member",
+        "加到已有"
+      ]
+    ],
+    "task_spec": "member",
+    "confirm": true,
+    "tech_design": "x-tech-design"
   }
 }

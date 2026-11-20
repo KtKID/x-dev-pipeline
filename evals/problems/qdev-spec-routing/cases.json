@@ -41,7 +41,7 @@
   },
   {
     "id": "Q06",
-    "request": "读者可以申请罚款减免：管理员批准后这笔罚款清零，同时这位读者的读者等级降一级。",
+    "request": "读者可以申请罚款减免：管理员批准后这笔罚款清零，同时这位读者的读者等级降一级。管理员审批照用现有的“管理员才能操作”权限判断，不新增权限规则。",
     "planned_source_files": [
       "src/fine/waiver.ts",
       "src/member/level.ts",
@@ -128,6 +128,14 @@
     "request": "loan 的 spec 里写着“续借后应还日期加 7 天”，代码也是加 7 天。用户说续借一直就应该是加 14 天。",
     "planned_source_files": [
       "src/loan/renew.ts"
+    ]
+  },
+  {
+    "id": "Q17",
+    "request": "每晚 0 点自动检查：已逾期的借阅，把借阅状态设为“逾期”；同时把这位读者账号上的“有逾期”标记设为是。两个都是设成固定值，重跑结果一样，不涉及金额。",
+    "planned_source_files": [
+      "src/jobs/nightly-overdue.ts",
+      "src/member/flags.ts"
     ]
   }
 ]

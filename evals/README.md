@@ -108,7 +108,7 @@ Eval 9 使用 `task-01-configresolver` 比较冻结的 x-spec2 与 x-spec3：
 四组小题检查规则能否被准确执行，题目项目是一个虚构的图书馆借阅系统：
 
 - `spec-scope`：20 题，判断一个需求写进哪几份 spec，是加到已有、新建、只记变更，还是要问用户。规则来源为 `skills/x-explore-for-spec/references/spec-scope.md`。
-- `qdev-spec-routing`：16 题，在 spec-scope 的基础上，再判断是否留在 qdev、task 放哪、是否停下来给用户确认、技术设计写在哪。规则来源为 `skills/x-qdev/SKILL.md` 与 `skills/x-qdev/references/risk-rules.md`。
+- `qdev-spec-routing`：17 题，在 spec-scope 的基础上，再判断是否留在 qdev、task 放哪、是否停下来给用户确认、技术设计写在哪。规则来源为 `skills/x-qdev/SKILL.md` 与 `skills/x-qdev/references/risk-rules.md`。
 - `qdev-confirm-check`：6 题，判断 x-verify-spec 能否发现“改了场景却没记用户确认”。规则来源为 `skills/x-verify-spec/references/qdev-reconciliation.md`。
 - `change-sync`：7 题，给一处 spec 变化，判断哪些 D、T、任务行和测试文件要改、新增、退役、重开或重跑。规则来源为 `skills/x-tech-design/references/change-sync.md`。
 
