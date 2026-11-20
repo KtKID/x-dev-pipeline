@@ -1,0 +1,87 @@
+{
+  "eval": "dev-main",
+  "score": 13,
+  "total": 13,
+  "cases_passed": 13,
+  "cases": 13,
+  "rows": [
+    {
+      "id": "M01",
+      "ok": true,
+      "wrong": [],
+      "reason": "工人已报所有行已完成，下一步是派不同于工人的验收 agent 做 x-verify-spec 和 x-verify-tech。"
+    },
+    {
+      "id": "M02",
+      "ok": true,
+      "wrong": [],
+      "reason": "第 1 次验收不通过，按规则把验收回执交回原工人在原会话修复，本组第 1 轮。"
+    },
+    {
+      "id": "M03",
+      "ok": true,
+      "wrong": [],
+      "reason": "组 B 三轮修复后仍不通过，达到 3 轮上限，只停组 B 并升级给用户，组 C 照常进行。"
+    },
+    {
+      "id": "M04",
+      "ok": true,
+      "wrong": [],
+      "reason": "合并组 C 时与已合组 A 冲突，定位不到单一组时打回后合的组 C，在最新主干上重做。"
+    },
+    {
+      "id": "M05",
+      "ok": true,
+      "wrong": [],
+      "reason": "派单前 xdev impact 报出 spec 变化，先按 change-sync 同步受影响项，再运行 xdev baseline。"
+    },
+    {
+      "id": "M06",
+      "ok": true,
+      "wrong": [],
+      "reason": "要改的文件不在派工单内且不属于其他组，把文件补进涉及文件，重跑 validate 和 graph 后让工人继续。"
+    },
+    {
+      "id": "M07",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 中途变化只影响组 C 的 T5，只停组 C，组 A、B 继续。"
+    },
+    {
+      "id": "M08",
+      "ok": true,
+      "wrong": [],
+      "reason": "所有组已合并，风险为 Q1 但尚未做整体验收，下一步是整体跑 x-verify-spec 和 x-verify-tech。"
+    },
+    {
+      "id": "M09",
+      "ok": true,
+      "wrong": [],
+      "reason": "整体验收已通过且风险为 Q3，按规则交 x-qa-gate 做质量审查。"
+    },
+    {
+      "id": "M10",
+      "ok": true,
+      "wrong": [],
+      "reason": "只有一个并行组，不需要多 agent 协作，主 agent 自己按 x-dev 做即可。"
+    },
+    {
+      "id": "M11",
+      "ok": true,
+      "wrong": [],
+      "reason": "工人发现的是与本 task 无关的老 bug，登记成后续任务，不在本 task 内修。"
+    },
+    {
+      "id": "M12",
+      "ok": true,
+      "wrong": [],
+      "reason": "整体验收通过且风险为 Q0，主 agent 直接把行升为 ✅、重置 .fix-counter 后交付给用户。"
+    },
+    {
+      "id": "M13",
+      "ok": true,
+      "wrong": [],
+      "reason": "要改的文件正被组 B 修改且组 B 未合并，两组不能同时改一个文件，把这一行并入组 B 的并行组和派工单。"
+    }
+  ]
+}
