@@ -3,7 +3,7 @@
 <!--
 填写后删除本注释和占位行。
 - 本文件位于 docs/spec/<spec-name>/tasks/<task-name>/dev-checklist.md，一个 task 一份。
-- spec 指向 v6 格式的 spec.md（标题 + 模块头部四行 + 概述 + feat 列表）。
+- spec 指向 v6 格式的 spec.md（标题 + 头部四行 + 概述 + feat 列表）。跨多份 spec 时指向主场景所在的 spec，其他 spec 的场景回指带 spec 名前缀，如 `fine:feat01 场景2`。
 - 场景回指写 featNN 场景M，如 `feat02 场景3`；同行多场景逗号分隔；纯技术支撑行写 None。
 - 风险列：鉴权/持久化或迁移/并发/不可逆写 `高:<一句依据>`，其余写 None。
 - 不建依赖图：行序即实现顺序，先做被别人依赖的。
@@ -20,6 +20,7 @@
 > tech-design: docs/spec/<spec-name>/tech-design.md
 > 本轮范围：<选中的 feat/场景、适用约束及受影响回归>
 > 范围依据：<用户明确要求或已确认分配的来源与可读取基线>
+> 拆解基线：<spec 与 tech-design 的 commit 或内容哈希；需求变化后按 change-sync 同步并更新>
 > 创建: YYYY-MM-DD
 
 **状态**：`[ ] ⏳` 未开始 / `[ ] ▶️` 进行中 / `[x] 🟢` 验证通过 / `[!] 🔴` 验证失败

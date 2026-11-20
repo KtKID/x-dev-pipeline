@@ -355,6 +355,7 @@
       "prompt_file": "evals/problems/qdev-spec-routing/prompt.md",
       "files": [
         "skills/x-qdev/SKILL.md",
+        "skills/x-qdev/references/risk-rules.md",
         "skills/x-explore-for-spec/references/spec-scope.md",
         "evals/problems/qdev-spec-routing/project-spec-index.md",
         "evals/problems/qdev-spec-routing/cases.json"
@@ -362,6 +363,35 @@
       "grader": {
         "rubric": "evals/answers/qdev-spec-routing/rubric.md",
         "script": "evals/scripts/grade_spec_routing.py qdev-spec-routing"
+      }
+    },
+    {
+      "id": 15,
+      "name": "change-sync",
+      "prompt_file": "evals/problems/change-sync/prompt.md",
+      "files": [
+        "skills/x-tech-design/references/change-sync.md",
+        "evals/problems/change-sync/fixture/spec.md",
+        "evals/problems/change-sync/fixture/tech-design.md",
+        "evals/problems/change-sync/fixture/dev-checklist.md",
+        "evals/problems/change-sync/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/change-sync/rubric.md",
+        "script": "evals/scripts/grade_spec_routing.py change-sync"
+      }
+    },
+    {
+      "id": 16,
+      "name": "qdev-confirm-check",
+      "prompt_file": "evals/problems/qdev-confirm-check/prompt.md",
+      "files": [
+        "skills/x-verify-spec/references/qdev-reconciliation.md",
+        "evals/problems/qdev-confirm-check/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/qdev-confirm-check/rubric.md",
+        "script": "evals/scripts/grade_spec_routing.py qdev-confirm-check"
       }
     }
   ]

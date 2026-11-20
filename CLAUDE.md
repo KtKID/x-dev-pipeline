@@ -46,7 +46,7 @@ x-explore-for-spec → x-tech-design → x-req → x-dev → x-verify-spec → x
 
 ```
 
-- x-explore-for-spec 合并原 x-explore 与 x-spec：每次核对目标、现状、范围、约束与验收，逐批把已确认且有价值的结论写入模块长期 spec，已有明确答案直接采用。
+- x-explore-for-spec 合并原 x-explore 与 x-spec：每次核对目标、现状、范围、约束与验收，逐批把已确认且有价值的结论写入所属 spec（归属见 `skills/x-explore-for-spec/references/spec-scope.md`），已有明确答案直接采用。
 - x-tech-design 与 x-req 只承接本轮选中的已确认场景，模块其他计划项保持原状态；一个 feat 可以分批交付，3 feat / 10 场景是单轮审阅建议。
 - x-adversarial-risk 按适用预算复核需求；带风险版本标记的旧契约沿用相应风险门禁。
 - `skills/x-dev/scripts/xdev.py` 只做 CLI 分流；package、task、verify、flag 逻辑分别归各自 skill 引擎
@@ -59,11 +59,12 @@ x-explore-for-spec → x-tech-design → x-req → x-dev → x-verify-spec → x
 
 | 契约 | 内容 |
 |------|------|
-| Spec 风险门禁 | 带 `adversarial_risk_version: 3` 的旧契约继续保留分数、预算、审查状态和来源；x-adversarial-risk 更新审查记录，x-req 按对应风险门禁核对。当前模块 spec 由 x-explore-for-spec 增量维护 |
+| Spec 风险门禁 | 带 `adversarial_risk_version: 3` 的旧契约继续保留分数、预算、审查状态和来源；x-adversarial-risk 更新审查记录，x-req 按对应风险门禁核对。当前 spec 由 x-explore-for-spec 增量维护 |
 | 风险错题集边界 | `skills/x-adversarial-risk/references/risk-mistakes.md` 只由 x-adversarial-risk 在 deep/full 审查或录入已确认缺口时读取；每项使用唯一 `AR-NNN`，并只保存关键词与 Risk |
-| spec 需求包目录 | 一个模块长期维护一份 `docs/spec/<模块名>/spec.md`。x-explore-for-spec 局部更新已确认行为，保留稳定编号、有效历史内容及关键约束；本轮场景、待开发 feat 和待决项分别表达。任务归属模块 spec，本轮承接范围单独记录 |
-| 交付记录与核查 | x-dev 的 dev-report 与 x-qdev 的⑤保存交付摘要、状态及唯一测试报告入口；当次代码基线的用例明细、改动行/相关分支覆盖率、未覆盖位置和验收结论统一维护在 `reports/<task-name>/<batch-id>/test-report.md`，原始证据集中放同目录 `evidence/`。共用约定与模板位于 `skills/x-dev/references/test-reporting.md`、`skills/x-dev/templates/test-report.md`。两类 verify/QA 返回增量回执，由主 agent 收录；技术验收的独立执行按编号区分。qdev 保持五段 task，功能正文和 changelog 归属 spec/模块说明，双向回链与新增/修改/删除及用例责任继续核对。task 建在主场景所属 spec 的 `tasks/` 下。写进哪份 spec 按 `skills/x-explore-for-spec/references/spec-scope.md` 逐条场景判断（看改变的是谁的数据），依据是 `docs/spec/README.md` 边界表的“拥有什么 / 不管什么”；所有行都找不到所有者才新建 spec，并同时加边界表行；纯工程改动归 `docs/spec/engineering/`，只记变更记录；task 头部填写所属 spec、状态、执行者、创建四行 |
-| qdev 执行授权 | 用户本轮明确要求即小任务范围内的执行授权。qdev 唯一停点：spec 增量（归属表、场景原文、改法）写完后给用户确认；只记变更记录、不写场景的改动不停。确认后连续完成技术设计、实现、文档同步与公共验收。新建 spec、场景跨 2 份及以上 spec 或源码文件超过 3 个时调 x-tech-design（不单独停），否则在 task ②简写。实质性歧义和超出授权的关键事项集中澄清，分阶段需求/设计审批在转入完整主线后适用 |
+| spec 需求包目录 | 一份 spec 管一块数据，长期维护在 `docs/spec/<spec名>/spec.md`，划分规则见 `skills/x-explore-for-spec/references/spec-scope.md`。x-explore-for-spec 局部更新已确认行为，保留稳定编号、有效历史内容及关键约束；本轮场景、待开发 feat 和待决项分别表达。task 归属主场景所在的 spec（规则同见 spec-scope），本轮承接范围单独记录 |
+| 交付记录与核查 | x-dev 的 dev-report 与 x-qdev 的⑤保存交付摘要、状态及唯一测试报告入口；当次代码基线的用例明细、改动行/相关分支覆盖率、未覆盖位置和验收结论统一维护在 `reports/<task-name>/<batch-id>/test-report.md`，原始证据集中放同目录 `evidence/`。共用约定与模板位于 `skills/x-dev/references/test-reporting.md`、`skills/x-dev/templates/test-report.md`。两类 verify/QA 返回增量回执，由主 agent 收录；技术验收的独立执行按编号区分。qdev 保持五段 task，功能正文和 changelog 归属 spec/模块说明，双向回链与新增/修改/删除及用例责任继续核对。task 建在主场景所属 spec 的 `tasks/` 下，归属判断见 spec-scope；task 头部填写所属 spec、状态、执行者、创建四行 |
+| qdev 执行授权 | 用户本轮明确要求即小任务范围内的执行授权。qdev 唯一停点：spec 增量（归属表、场景原文、改法）写完后给用户确认；只记变更、不写场景的改动不停（情况见 spec-scope 第 6–8 步）。确认后连续完成技术设计、实现、文档同步与公共验收。新建 spec、场景跨 2 份及以上 spec 或源码文件超过 3 个时调 x-tech-design（不单独停），否则在 task ②简写。是否转主线按 `skills/x-qdev/references/risk-rules.md` 逐条判断。实质性歧义和超出授权的关键事项集中澄清 |
+| 需求变化同步 | spec 的场景或 C 变了，按 `skills/x-tech-design/references/change-sync.md` 顺着编号找引用它的 D、T、任务行和测试，逐项改、新增、退役、重开或重跑，没被引用的不动。D 表必须有“回指场景 / C”列；checklist 头部记录拆解基线，x-dev 开工前比较，未同步的行不开工。tech-design 不需要用户确认，只有需要用户拍板的取舍单独问 |
 | 测试分层契约 | x-explore-for-spec 明确验收场景，x-tech-design 定义验证用例；x-req 分配本轮场景/用例与任务责任，x-dev 补齐单元/契约/边界测试。测试执行与当次改动覆盖率集中到统一测试报告，命令、基线和原始数据集中在附件；旧 v3 verify 块保留原消费位置 |
 | `.fix-counter` 共享 | 路径 `dev-pipeline/tasks/<task>/reports/.fix-counter`。语义 = **批量修轮数**（一轮 = 一份 issue 清单的整体修复）。x-verify-spec 首次创建，x-fix 按轮递增，x-qa-gate 在 Gate ② 最终 pass 后重置。**3 轮上限**，三方共享 |
 | reviewer 子 agent | x-qa-gate 按 `risk:` 风险路由：默认线 dispatch 一个综合 reviewer RC（`references/rc-unified.md`），高危线串行 dispatch R1/R2/R3；初始 prompt 预算为 10,000 estimated tokens，使用 manifest + 路径 + diff 命令 + completeness gate |

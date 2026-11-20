@@ -1,38 +1,103 @@
 #!/usr/bin/env python3
-"""确定性评分：spec-scope 与 qdev-spec-routing 两组 JSON 判题。
+"""确定性评分：spec-scope、qdev-spec-routing、change-sync、qdev-confirm-check 四组 JSON 判题。
 
-用法：python3 evals/scripts/grade_spec_routing.py <spec-scope|qdev-spec-routing> <answer.json> [--json]
+用法：python3 evals/scripts/grade_spec_routing.py <spec-scope|qdev-spec-routing|change-sync|qdev-confirm-check> <answer.json> [--json]
 退出码：0 全对，1 有错题，2 输入错误。
 """
 import json
+import re
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-EXISTING = {"member", "catalog", "loan", "fine", "message", "engineering"}
-FIELDS = ["route", "writes", "task_spec", "confirm", "tech_design"]
+KINDS = ("spec-scope", "qdev-spec-routing", "change-sync", "qdev-confirm-check")
+EXISTING_SPECS = {"member", "catalog", "loan", "fine", "message", "engineering"}
+QDEV_FIELDS = ["route", "writes", "task_spec", "confirm", "tech_design"]
+
+# 早期轮次用英文取值，评分时按同义处理
+ALIASES = {
+    "append": "加到已有", "new": "新建", "log-only": "只记变更",
+    "mainline": "转主线", "task": "task②",
+}
+
+# change-sync 题目项目里已有的编号
+EXISTING_ITEMS = {"D01", "D02", "D03", "T1", "T2", "T3", "T4", "T5", "任务行1", "任务行2", "任务行3"}
+
+
+def canon(value):
+    if isinstance(value, str):
+        v = value.strip()
+        return ALIASES.get(v.lower(), v)
+    return value
 
 
 def norm_writes(writes):
     out = set()
     for w in writes or []:
         spec = str(w.get("spec", "")).strip().lower()
-        action = str(w.get("action", "")).strip().lower()
-        if action == "new" and spec not in EXISTING:
+        action = canon(str(w.get("action", "")))
+        if action == "新建" and spec not in EXISTING_SPECS:
+            spec = "*"
+        if action == "问用户":
             spec = "*"
         out.add((spec, action))
     return out
 
 
-def new_name(writes):
+def new_spec_name(writes):
     for w in writes or []:
-        if str(w.get("action", "")).lower() == "new":
+        if canon(str(w.get("action", ""))) == "新建":
             return str(w.get("spec", "")).strip().lower()
     return None
 
 
+def norm_changes(changes):
+    out = set()
+    for c in changes or []:
+        item = str(c.get("item", "")).strip().replace(" ", "")
+        action = str(c.get("action", "")).strip()
+        if action == "新增" and item not in EXISTING_ITEMS:
+            # 新编号一律归为“新D / 新T / 新任务行”
+            m = re.match(r"^(新)?(D|T|任务行)", item)
+            if m:
+                item = "新" + m.group(2)
+        out.add((item, action))
+    return out
+
+
+def grade_case(kind, exp, got):
+    """返回 (得分, 满分, 错误列表)。"""
+    if kind == "spec-scope":
+        ok = norm_writes(got.get("writes")) == {tuple(x) for x in exp}
+        return (1 if ok else 0), 1, ([] if ok else [{"field": "writes", "expected": exp, "got": got.get("writes")}])
+    if kind == "qdev-confirm-check":
+        ok = str(got.get("result", "")).strip() == exp
+        return (1 if ok else 0), 1, ([] if ok else [{"field": "result", "expected": exp, "got": got.get("result")}])
+    if kind == "change-sync":
+        ok = norm_changes(got.get("changes")) == {tuple(x) for x in exp}
+        return (1 if ok else 0), 1, ([] if ok else [{"field": "changes", "expected": exp, "got": got.get("changes")}])
+
+    score, wrong = 0, []
+    for field in QDEV_FIELDS:
+        e, g = exp[field], got.get(field)
+        if field == "writes":
+            ok = norm_writes(g) == {tuple(x) for x in e}
+        elif field == "task_spec" and e == "*":
+            name = str(g).strip().lower() if g is not None else None
+            ok = name is not None and name not in EXISTING_SPECS and name == new_spec_name(got.get("writes"))
+        elif isinstance(e, str):
+            ok = isinstance(g, str) and canon(g).lower() == e.lower()
+        else:
+            ok = g == e
+        if ok:
+            score += 1
+        else:
+            wrong.append({"field": field, "expected": e, "got": g})
+    return score, len(QDEV_FIELDS), wrong
+
+
 def main():
-    if len(sys.argv) < 3 or sys.argv[1] not in ("spec-scope", "qdev-spec-routing"):
+    if len(sys.argv) < 3 or sys.argv[1] not in KINDS:
         print(__doc__)
         return 2
     kind, answer_path = sys.argv[1], Path(sys.argv[2])
@@ -46,27 +111,9 @@ def main():
     rows, score, total = [], 0, 0
     for cid, exp in expected.items():
         got = answers.get(cid, {})
-        if kind == "spec-scope":
-            exp = {"writes": exp}
-        wrong = []
-        for field in FIELDS:
-            if field not in exp:
-                continue
-            total += 1
-            e = exp[field]
-            g = got.get(field)
-            if field == "writes":
-                ok = norm_writes(g) == {tuple(x) for x in e}
-            elif field == "task_spec" and e == "*":
-                ok = g is not None and str(g).lower() not in EXISTING and str(g).lower() == new_name(got.get("writes"))
-            elif isinstance(e, str) and isinstance(g, str):
-                ok = g.strip().lower() == e.lower()
-            else:
-                ok = g == e
-            if ok:
-                score += 1
-            else:
-                wrong.append({"field": field, "expected": e, "got": g})
+        s, t, wrong = grade_case(kind, exp, got)
+        score += s
+        total += t
         rows.append({"id": cid, "ok": not wrong, "wrong": wrong, "reason": got.get("reason")})
 
     result = {"eval": kind, "score": score, "total": total,
@@ -74,11 +121,11 @@ def main():
     if "--json" in sys.argv:
         print(json.dumps(result, ensure_ascii=False, indent=2))
     else:
-        print(f"{kind}: 字段 {score}/{total}，整题 {result['cases_passed']}/{result['cases']}")
+        print(f"{kind}: 得分 {score}/{total}，整题 {result['cases_passed']}/{result['cases']}")
         for r in rows:
-            if not r["ok"]:
-                for w in r["wrong"]:
-                    print(f"  ✗ {r['id']} {w['field']}: 期望 {w['expected']}，实际 {w['got']}")
+            for w in r["wrong"]:
+                print(f"  ✗ {r['id']} {w['field']}: 期望 {w['expected']}，实际 {w['got']}")
+            if r["wrong"]:
                 print(f"    理由：{r['reason']}")
     return 0 if score == total else 1
 

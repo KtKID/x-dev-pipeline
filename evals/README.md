@@ -103,19 +103,20 @@ Eval 9 使用 `task-01-configresolver` 比较冻结的 x-spec2 与 x-spec3：
 
 结果、限制与缺口见 `skills/x-spec3-workspace/iteration-1/result.md`；静态评审页位于同目录的 `review.html`。
 
-## spec 归属与 qdev 路由判题
+## spec 归属、qdev 路由与需求变化同步判题
 
-两组小题检查 spec 范围规则能否被准确执行，题目项目是一个虚构的图书馆借阅系统：
+四组小题检查规则能否被准确执行，题目项目是一个虚构的图书馆借阅系统：
 
-- `spec-scope`：15 题，判断一个需求写进哪几份 spec，是 append、新建还是只记变更记录。规则来源为 `skills/x-explore-for-spec/references/spec-scope.md`。
-- `qdev-spec-routing`：11 题，在 spec-scope 的基础上，再判断是否留在 qdev、task 放哪、是否停下来给用户确认、技术设计写在哪。规则来源为 `skills/x-qdev/SKILL.md`。
+- `spec-scope`：20 题，判断一个需求写进哪几份 spec，是加到已有、新建、只记变更，还是要问用户。规则来源为 `skills/x-explore-for-spec/references/spec-scope.md`。
+- `qdev-spec-routing`：16 题，在 spec-scope 的基础上，再判断是否留在 qdev、task 放哪、是否停下来给用户确认、技术设计写在哪。规则来源为 `skills/x-qdev/SKILL.md` 与 `skills/x-qdev/references/risk-rules.md`。
+- `qdev-confirm-check`：6 题，判断 x-verify-spec 能否发现“改了场景却没记用户确认”。规则来源为 `skills/x-verify-spec/references/qdev-reconciliation.md`。
+- `change-sync`：7 题，给一处 spec 变化，判断哪些 D、T、任务行和测试文件要改、新增、退役、重开或重跑。规则来源为 `skills/x-tech-design/references/change-sync.md`。
 
-执行器只读 `evals/problems/<eval>/` 下的题面和题面里列出的规则文件；答案与考点在 `evals/answers/<eval>/`，只给评分脚本用。执行这种简单判题时派便宜模型（如 haiku）的子 agent，每组至少跑 2 次。
+执行器只读 `evals/problems/<eval>/` 下的题面和题面里列出的规则文件；答案与考点在 `evals/answers/<eval>/`，只给评分脚本用。每组题测哪条规则、每道题考什么，登记在评审侧的 `evals/answers/INDEX.md`，答题者不读。执行这种简单判题时派便宜模型（如 haiku）的子 agent，每组至少跑 2 次。
 
 ```bash
 # 执行器把答案写到 evals/spec-routing-workspace/iteration-N/<eval>/run-M/answer.json 后：
-python3 evals/scripts/grade_spec_routing.py spec-scope <answer.json>
-python3 evals/scripts/grade_spec_routing.py qdev-spec-routing <answer.json>
+python3 evals/scripts/grade_spec_routing.py <spec-scope|qdev-spec-routing|change-sync|qdev-confirm-check> <answer.json>
 ```
 
-每组题测哪条规则、每道题考什么，登记在评审侧的 `evals/answers/INDEX.md`，答题者不读。评分是确定性的：`writes` 按集合比较，新建 spec 的名字不限，只要不和索引表里已有的重名。改 spec-scope 规则或 x-qdev 的归属、确认、技术设计规则后都要重跑。
+评分是确定性的：答案按集合比较，新建 spec 或新增 D/T 的名字不限，只要不和已有编号重名。改了对应规则文件后都要重跑。

@@ -1,7 +1,7 @@
 ---
 name: x-req
 description: |
-  x-explore-for-spec 之后的任务拆解 skill。读取模块 spec 中本轮选定的 feat/场景、同目录经用户确认的 tech-design.md，按可独立交付范围拆成 task，每个 task 生成一份可执行、可验证的开发 checklist。用户提到 x-req、要求"把 spec 拆成任务""拆 checklist""排开发计划"，或技术设计确认后要进入开发时使用。
+  x-explore-for-spec 之后的任务拆解 skill。读取 spec 中本轮选定的 feat/场景、同目录的 tech-design.md，按可独立交付范围拆成 task，每个 task 生成一份可执行、可验证的开发 checklist。用户提到 x-req、要求"把 spec 拆成任务""拆 checklist""排开发计划"，或技术设计写完后要进入开发时使用。
 ---
 
 # x-req
@@ -12,7 +12,7 @@ description: |
 
 开发验证产物统一遵循 [共用报告约定](../x-dev/references/test-reporting.md)：任务记录链接一份当次代码改动测试报告，完整用例结果、改动覆盖率与未覆盖位置在该报告维护，原始证据集中放附件。拆解时只分配用例与责任范围。
 
-在 `docs/spec/<spec-name>/tasks/<task-name>/dev-checklist.md` 生成——task 归属 spec，一个 task 一份 checklist，task 目录名用 `task-<功能名>`。本轮全部 task 的 checklist 合并后覆盖选中的场景、受影响的回归及适用关键约束的全部承接用例；模块其他 feat 和场景保持原状态。每份 checklist 在任务表下方带一棵**影响文件树**：用简化树状图标出本 task 在仓库中要改动的全部文件，`U` 新增 / `M` 修改 / `D` 删除。
+在 `docs/spec/<spec-name>/tasks/<task-name>/dev-checklist.md` 生成——task 归属主场景所在的 spec（跨多份 spec 时放哪见 [spec 范围](../x-explore-for-spec/references/spec-scope.md)，其他 spec 的场景回指带 spec 名前缀），一个 task 一份 checklist，task 目录名用 `task-<功能名>`。本轮全部 task 的 checklist 合并后覆盖选中的场景、受影响的回归及适用关键约束的全部承接用例；模块其他 feat 和场景保持原状态。每份 checklist 在任务表下方带一棵**影响文件树**：用简化树状图标出本 task 在仓库中要改动的全部文件，`U` 新增 / `M` 修改 / `D` 删除。
 
 ## 核心原则
 
@@ -26,14 +26,15 @@ description: |
 
 拆解前核对以下项目，需求问题交 x-explore-for-spec，测试设计与流程缺项交 x-tech-design，补齐受影响来源后再拆解：
 
-按用户当前目标核对本轮选中范围、验证证据和完成条件；用户目标已调整时先回 x-explore-for-spec 增量同步受影响条目。任务只承接本次必要工作，MVP 任务以取得约定验证证据为完成依据。模块 spec 长期累积，3 个 feat / 10 个场景仅作为单轮审阅的建议容量，任务按可独立验收的范围分批。
+按用户当前目标核对本轮选中范围、验证证据和完成条件；用户目标已调整时先回 x-explore-for-spec 增量同步受影响条目。任务只承接本次必要工作，MVP 任务以取得约定验证证据为完成依据。spec 长期累积，3 个 feat / 10 个场景仅作为单轮审阅的建议容量，任务按可独立验收的范围分批。
 
 1. spec.md 存在且结构完整：标题 + 概述 + feat 列表；本轮关键约束有明确用户确认依据，提议未混入已确认内容。旧 spec 无 C 章节时按现有已确认场景/约束、既有编号或章节定位核对，不为套模板强造 C 或改编号，也不由缺章节推断“无约束”。本轮新增约束或原有行为有歧义时回 x-explore-for-spec 澄清，未确认提议不能作为既定验收要求。
 2. 新 spec 从 `feat01` 起接续编号，增量沿用已有编号，退役编号保留，序号唯一且允许空缺；本轮场景覆盖选中目标的正常流程及必要边界、失败路径，覆盖依据可定位。MVP 聚焦影响验证结论可信度的条件并保留已确认约束；场景按独立验收路径划分和计数，同一路径的多项共同结果计为一个场景，等价输入可合并，既有 spec 的依据可从需求及 GWT 核实。
 3. 本轮选中的场景有明确结果；仍有实质取舍时交 x-explore-for-spec 确认后再拆解受影响范围，独立且已确认的范围可继续。模块中的其他待决项保持原状态。
-4. 同目录存在 `tech-design.md`：覆盖本轮选中的场景和适用约束，且关键条目（架构、协议、数据归属）经用户确认。缺失或相关状态仍是「待用户确认」时补齐受影响设计；独立且已确认的范围可先拆解。给既有 spec 增量拆任务时，覆盖增量的设计差异同样要先确认。
+4. 同目录存在 `tech-design.md`：覆盖本轮选中的场景和适用约束，没有仍在等用户拍板的边界取舍。tech-design 本身不需要用户确认。缺失或有未决取舍时，补齐受影响设计；独立的范围可先拆解。
 5. 以 spec 本轮拆解范围的全部场景为应覆盖集合，逐个找到 tech-design 的编号用例主定义，核对场景回指、为什么测、数据准备、执行流程及全部预期/适用禁止结果的观察点。一个场景的多条用例完整列出，共享用例分别核对各场景判据；人工/审查用例同样有步骤和判据。仅登记 feat、用例名称或场景 ID 而缺上述定义时列为缺项，报告具体场景及缺失内容，交 x-tech-design 补齐后再拆解。
 6. 本轮适用的 C 编号均能在 tech-design 中追到 D 机制和完整编号用例；缺覆盖、范围冲突或待确认项先交来源负责方补齐，不带入开发。
+7. 需求变化后再拆解时，按 [需求变化同步](../x-tech-design/references/change-sync.md) 处理：只重开或新增受影响的任务行，其他行保持原状态。
 
 ## 拆解规则
 
@@ -51,7 +52,7 @@ description: |
 2. 读取同目录 `tech-design.md`，按设计的模块、协议与数据流确定每个 feat 落在哪些文件，再用代码调查核实现状、确认与现有功能的共享点；设计与代码现状冲突时退回 x-tech-design。
 3. 分组 feat 成 task，创建各 task 目录，完整读取 `templates/dev-checklist.md` 后逐个填充：task 内按实现顺序填表，再按规则 7 生成影响文件树，删除占位符和空示例。
 4. 自检（见下），修完再交付。
-5. 报告 task 列表（明确每个 task 选中的 feat/场景）、本轮每个场景 → 全部承接用例 → task/行及适用 C→用例→task/行的分配覆盖（只引用 ID/主定义链接）、各 checklist 行数、高风险行、task 间先后建议，及下一步（按 task 逐个交给 x-dev 执行）。在 checklist 头部记录本轮承接范围和来源，使下游验收可核对分批交付责任。
+5. 报告 task 列表（明确每个 task 选中的 feat/场景）、本轮每个场景 → 全部承接用例 → task/行及适用 C→用例→task/行的分配覆盖（只引用 ID/主定义链接）、各 checklist 行数、高风险行、task 间先后建议，及下一步（按 task 逐个交给 x-dev 执行）。在 checklist 头部记录本轮承接范围和来源，以及拆解时用的 spec 与 tech-design 基线（commit 或内容哈希），使下游能核对分批交付责任，并发现需求后来有没有变。
 
 ## 自检
 
@@ -75,7 +76,12 @@ description: |
 # task-group-management · 开发清单
 
 > spec: docs/spec/reading-club/spec.md
+> 状态：待实现
+> 执行者：未知
 > tech-design: docs/spec/reading-club/tech-design.md
+> 本轮范围：feat01 场景1-3、feat02 场景1-5
+> 范围依据：用户 2026-08-15 确认的 spec 增量
+> 拆解基线：spec@3f2a1c0 · tech-design@8b41d77
 > 创建: 2026-08-15
 
 **状态**：`[ ] ⏳` 未开始 / `[ ] ▶️` 进行中 / `[x] 🟢` 验证通过 / `[!] 🔴` 验证失败

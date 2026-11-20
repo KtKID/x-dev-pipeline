@@ -88,5 +88,46 @@
     "planned_source_files": [
       "src/loan/overdue.ts"
     ]
+  },
+  {
+    "id": "Q12",
+    "request": "逾期罚款按读者等级区分：普通读者每天 1 元，高级读者每天 0.5 元。",
+    "planned_source_files": [
+      "src/fine/rate.ts",
+      "config/fine.json",
+      "tests/fine.test.ts",
+      "tests/rate.test.ts",
+      "docs/fine.md"
+    ]
+  },
+  {
+    "id": "Q13",
+    "request": "每晚 0 点自动检查：逾期超过 30 天的借阅，给这位读者生成一笔 20 元的“长期未还”罚款，并把他的读者等级降一级。",
+    "planned_source_files": [
+      "src/jobs/nightly-overdue.ts",
+      "src/fine/create.ts"
+    ]
+  },
+  {
+    "id": "Q14",
+    "request": "读者缴纳的罚款可以在线退回到他的微信账户。",
+    "planned_source_files": [
+      "src/fine/refund.ts",
+      "src/pay/wechat.ts"
+    ]
+  },
+  {
+    "id": "Q15",
+    "request": "单笔逾期罚款最多收 50 元，超过按 50 元算。",
+    "planned_source_files": [
+      "src/fine/rate.ts"
+    ]
+  },
+  {
+    "id": "Q16",
+    "request": "loan 的 spec 里写着“续借后应还日期加 7 天”，代码也是加 7 天。用户说续借一直就应该是加 14 天。",
+    "planned_source_files": [
+      "src/loan/renew.ts"
+    ]
   }
 ]
