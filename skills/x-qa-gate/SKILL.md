@@ -56,10 +56,10 @@ reviewer 调度的等待轮次会重复计入主 agent 的完整上下文。按�
 1. 启动 reviewer 前一次性组装完整 prompt，包含任务边界、输入路径、按需 diff 命令和输出格式；reviewer 只凭该 prompt 与工作区事实源完成审查。
 2. 使用 `fork_turns: "none"` 创建 reviewer，隔离主 agent 的历史对话。reviewer 只创建一次且只运行一个 turn；收到首个 FINAL_ANSWER 后永久结束，修复完成后禁止 `send_message`、`followup_task`、重新唤醒或同角色重复派发。
 3. 等待使用 `wait_agent(timeout_ms=60000)`。超时后先给用户一条短状态，再继续等待；省略 `list_agents` 轮询。
-4. reviewer 完成后直接消费 FINAL_ANSWER。主 agent 复核候选问题的定位和严重度，复用 reviewer 已给出的证据；修复关闭以项目全量测试加该 issue 的聚焦反例（旧 `spec_version: 3` 契约包为一次完整 `xdev verify`）为准。
+4. reviewer 完成后直接消费 FINAL_ANSWER。主 agent 复核候选问题的定位和严重度，复用 reviewer 已给出的证据；修复关闭以本 task 全量测试和既有回归（命令记在统一测试报告里）加该 issue 的聚焦反例（旧 `spec_version: 3` 契约包为一次完整 `xdev verify`）为准。
 5. Q3 reviewer 先独立完成三个 lens 的候选清单，再合并同根因问题；一个 lens 的判断不得替代另两个 lens 的检查。
 6. P2 统一登记。P0/P1 进入 issue 登记与 x-fix；三个 lens 全部给出已检查范围后本轮才算完成。
-7. 同一轮候选按根因合并为一个 x-fix 批次。集中完成关联编辑，随后用一个聚焦测试命令和一次项目全量测试收集证据（旧契约包为一次 `xdev verify`）；省略逐文件、逐测试的状态探测 turn。
+7. 同一轮候选按根因合并为一个 x-fix 批次。集中完成关联编辑，随后用一个聚焦测试命令和一次本 task 全量测试与既有回归收集证据（旧契约包为一次 `xdev verify`）；省略逐文件、逐测试的状态探测 turn。
 
 ## Review 纪律
 
@@ -89,7 +89,7 @@ python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" flag <task-dir> --task T2,T3 --sever
 
 ## 回流
 
-本轮存在 P0/P1 时，主 agent 把带 `issue-<n>` 的完整问题映射交给 x-fix 批量修复。主 agent 用项目全量测试加该 issue 的聚焦反例（旧 `spec_version: 3` 契约包为一次完整 `xdev verify`）关闭问题，禁止把修复结果发回原 reviewer。fix 扩大到新文件或改变公开 API 签名时，启动一个新的裁剪 reviewer，只检查新增边界且同样限一个 turn；这是新范围的新 reviewer，不算同角色重复派发。`reports/.fix-counter` 记录交付对账与质量审查共享的批量修复轮数（x-fix 每轮递增），保留三轮上限；质量审查最终通过后写回 0。
+本轮存在 P0/P1 时，主 agent 把带 `issue-<n>` 的完整问题映射交给 x-fix 批量修复。主 agent 用本 task 全量测试和既有回归（命令记在统一测试报告里）加该 issue 的聚焦反例（旧 `spec_version: 3` 契约包为一次完整 `xdev verify`）关闭问题，禁止把修复结果发回原 reviewer。fix 扩大到新文件或改变公开 API 签名时，启动一个新的裁剪 reviewer，只检查新增边界且同样限一个 turn；这是新范围的新 reviewer，不算同角色重复派发。`reports/.fix-counter` 记录交付对账与质量审查共享的批量修复轮数（x-fix 每轮递增），保留三轮上限；质量审查最终通过后写回 0。
 
 ## Prompt 模板
 
@@ -109,4 +109,4 @@ Agent({
 ✅ 质量审查通过 · <task> · risk Q2/Q3 tri-lens(q1+q2+q3) · P0 ×0 · P1 ×0
 ```
 
-失败回执列出 issue ID、严重度、task、位置和 x-fix 去向。最终通过后，主 agent 亲自确认复审结果并把已解除阻塞的 checklist 状态升为 `[x] ✅`。
+失败回执列出 issue ID、严重度、task、位置和 x-fix 去向。最终通过后，主 agent 亲自确认问题已关闭，并把已解除阻塞的 checklist 状态升为 `[x] ✅`。

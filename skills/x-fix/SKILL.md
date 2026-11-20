@@ -99,19 +99,27 @@ description: |
 
 ---
 
-## Gate 回流：批量修 + 增量复审
+## Gate 回流：批量修 + 主 agent 关闭
 
 x-fix 同时接收 bug 报告、cr-report，以及 x-verify-spec 不通过回执、x-qa-gate tri-lens reviewer 的问题清单。执行结构是**一次批量修完本轮全部问题，交回主 agent 关闭**；x-qa-gate 问题的关闭方式与三轮上限见 `skills/x-qa-gate/SKILL.md`「回流」。
 
 ### 批量修协议
 
-1. 输入 = 主 agent 提供的**完整 issue 问题映射**（每条含 `issue-<n>`、task、severity、loc、msg 和 reviewer 证据）或 verify 报告的全部 fail 命令。
+1. 输入 = 主 agent 提供的**完整问题清单**：x-qa-gate 的 issue 映射（每条含 `issue-<n>`、lens、task、severity、loc、msg 和 reviewer 证据）；x-verify-spec 回执里主 agent 编号的 V1、V2…；或旧契约包 verify 报告的全部 fail 命令。
 2. 按严重度处置：P0 全修；P1 逐条修复或写豁免理由；P2 只登记不修。
 3. **每修一个 P0 必须留一条可复跑反例**（单元/集成测试断言或 verify 脚本步骤），防止回归。
 4. 修复触及配置、CLI、公开 API、协议/schema 或落盘布局时，先列出修复前已接受的最小输入样本。新增配置字段默认保持可选并提供兼容默认值；spec 明确要求破坏性迁移时，把迁移命令和验收写入处置表。
-5. 修完自跑受影响验证（一个聚焦反例 + 原完整入口 smoke/verify），更新统一测试报告的用例明细、当次改动覆盖率和未覆盖位置，原始证据集中放附件。原始样本必须保持原样参与复跑，禁止只用修复后扩展过的 fixture 证明兼容性。
-6. 证据全绿后产出逐条处置表（见下），控制权交回主 agent 触发增量复审。
-7. 修复过程保持 dev-checklist 状态单元格与 issue ledger 原样；状态升钩由主 agent 在复审通过后完成。
+5. 修完自跑受影响验证（一个聚焦反例 + 本 task 全量测试和既有回归，旧契约包为原完整入口 verify），更新统一测试报告的用例明细、当次改动覆盖率和未覆盖位置，原始证据集中放附件。原始样本必须保持原样参与复跑，禁止只用修复后扩展过的 fixture 证明兼容性。
+6. 证据全绿后产出逐条处置表（见下），按下面「回执」一节输出回执，控制权交回主 agent 关闭问题。
+7. 修复过程保持 dev-checklist 状态单元格与 issue ledger 原样；状态升钩由主 agent 关闭问题后完成。
+
+### 回执
+
+```text
+🔧 x-fix 完成 · <task> · 第 N 轮 · 来源 <x-qa-gate / x-verify-spec / 旧包 verify> · 已修 P0 ×a、P1 ×b · 豁免 ×c · 登记 P2 ×d · 退回主 agent ×e
+```
+
+其后列出处置表路径、聚焦反例与全量测试的执行编号，以及退回主 agent 的条目（编号、原因、应交给谁）。
 
 ### fix-attempts 3 轮共享上限
 

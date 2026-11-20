@@ -222,6 +222,19 @@ class ChecklistEngineTest(unittest.TestCase):
         self.assertFalse(ce.files_overlap("src/a.py", "src/ab.py"))
         self.assertTrue(ce.files_overlap("src/*.py", "src/a.py"))
         self.assertTrue(ce.files_overlap("src", "src/a.py"))
+        self.assertTrue(ce.files_overlap("src/**/x.py", "src/a/b/x.py"))
+        self.assertFalse(ce.files_overlap("lib/**/x.py", "src/a/x.py"))
+
+    def test_tree_without_repo_root_line(self):
+        ce = xdev.checklist
+        found, stack = set(), []
+        for line in ["src/", "└── loan/", "    └── fees.ts   U  # 新增"]:
+            ce.parse_tree_line(line, stack, found)
+        self.assertIn("src/loan/fees.ts", found)
+        found, stack = set(), []
+        for line in ["repo/", "├── src/a.ts   U  # 新增"]:
+            ce.parse_tree_line(line, stack, found)
+        self.assertIn("src/a.ts", found)
 
     def test_other_spec_placeholder_is_reported(self):
         path = self.task / "dev-checklist.md"

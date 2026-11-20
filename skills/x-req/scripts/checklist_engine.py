@@ -280,19 +280,28 @@ def parse_tree_line(raw: str, stack: list[tuple[int, str]], tree_new: set[str]) 
         return
     lead, name, mark = m.group("lead"), m.group("name"), m.group("mark")
     depth = len(lead)
-    if not lead.strip() and depth == 0 and name.endswith("/") and not mark:
-        stack.clear()
-        stack.append((-1, ""))  # 第一行是仓库根，不计入路径
+    if not stack and not lead.strip() and depth == 0 and name.endswith("/") and not mark:
+        # 第一行无标记的目录：规则要求它是仓库根；也可能直接写了 src/ 这类目录，两种都认
+        stack.append((-1, ""))
+        stack.append((-1, "?" + name.rstrip("/")))
         return
     while stack and stack[-1][0] >= depth:
         stack.pop()
-    parent = "/".join(p for _, p in stack if p)
     pieces = [p.strip() for p in name.split(" / ")]
-    first = f"{parent}/{pieces[0]}" if parent else pieces[0]
-    base = first.rsplit("/", 1)[0] if "/" in first else ""
-    fulls = [first] + [f"{base}/{p}" if base else p for p in pieces[1:]]
+    parents = [""]
+    for _, part in stack:
+        if not part:
+            continue
+        if part.startswith("?"):
+            parents = parents + [part[1:]]  # 根可能是这个目录：两种路径都算
+        else:
+            parents = [f"{pp}/{part}" if pp else part for pp in parents]
     if mark == "U":
-        tree_new.update(x.rstrip("/") for x in fulls)
+        for parent in parents:
+            first = f"{parent}/{pieces[0]}" if parent else pieces[0]
+            base = first.rsplit("/", 1)[0] if "/" in first else ""
+            for x in [first] + [f"{base}/{p}" if base else p for p in pieces[1:]]:
+                tree_new.add(x.rstrip("/"))
     if len(pieces) == 1 and name.endswith("/"):
         stack.append((depth, name.rstrip("/")))
 
@@ -475,7 +484,13 @@ def files_overlap(a: str, b: str) -> bool:
         return True
     if "*" in a or "*" in b:
         sa, sb = _segments(a), _segments(b)
-        n = min(len(sa), len(sb))
+        if "**" in sa or "**" in sb:
+            # ** 可以跨任意多层：只比较 ** 之前的部分
+            ka = sa.index("**") if "**" in sa else len(sa)
+            kb = sb.index("**") if "**" in sb else len(sb)
+            n = min(ka, kb)
+        else:
+            n = min(len(sa), len(sb))
         return all(fnmatch(x, y) or fnmatch(y, x) for x, y in zip(sa[:n], sb[:n]))
     sa, sb = _segments(a), _segments(b)
     shorter, longer = (sa, sb) if len(sa) <= len(sb) else (sb, sa)
