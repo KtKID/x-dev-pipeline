@@ -273,7 +273,7 @@ TREE_ENTRY_RE = re.compile(
 )
 
 
-def parse_tree_line(raw: str, stack: list[tuple[int, str]], tree_new: set[str]) -> None:
+def parse_tree_line(raw: str, stack: list[tuple[int, str]], tree_new: set[str], root_name: str | None = None) -> None:
     """影响文件树一行：支持完整路径写法、按目录缩进的嵌套写法，以及 `a.ts / b.ts` 合并写法。"""
     m = TREE_ENTRY_RE.match(raw.rstrip())
     if not m:
@@ -281,9 +281,12 @@ def parse_tree_line(raw: str, stack: list[tuple[int, str]], tree_new: set[str]) 
     lead, name, mark = m.group("lead"), m.group("name"), m.group("mark")
     depth = len(lead)
     if not stack and not lead.strip() and depth == 0 and name.endswith("/") and not mark:
-        # 第一行无标记的目录：规则要求它是仓库根；也可能直接写了 src/ 这类目录，两种都认
+        # 第一行无标记的目录：是仓库根就不计入路径；不知道根目录名时两种都认
         stack.append((-1, ""))
-        stack.append((-1, "?" + name.rstrip("/")))
+        dirname = name.rstrip("/")
+        # 仓库目录名常和检出目录名不同，名字对不上时两种都认（只会放宽“文件存在”检查，不会误报）
+        if dirname != root_name and dirname not in {"<repo-root>", "repo-root"}:
+            stack.append((-1, "?" + dirname))
         return
     while stack and stack[-1][0] >= depth:
         stack.pop()
@@ -308,6 +311,7 @@ def parse_tree_line(raw: str, stack: list[tuple[int, str]], tree_new: set[str]) 
 
 def parse_checklist(path: Path) -> Checklist:
     lines = path.read_text(encoding="utf-8").splitlines()
+    root_name = find_root(path.resolve().parent).name
     headers: dict[str, tuple[str, int]] = {}
     columns: list[str] = []
     rows: list[Row] = []
@@ -330,7 +334,7 @@ def parse_checklist(path: Path) -> Checklist:
             tree_stack: list[tuple[int, str]] = []
             continue
         if in_tree:
-            parse_tree_line(raw, tree_stack, tree_new)
+            parse_tree_line(raw, tree_stack, tree_new, root_name)
             continue
         hm = re.match(r"^>\s*([^:：]+?)\s*[:：]\s*(.*)$", line)
         if hm and not columns:

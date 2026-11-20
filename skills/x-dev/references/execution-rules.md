@@ -9,7 +9,7 @@
 | `[ ] 🟡` | 待验证 | 实现完成，等待验证 |
 | `[!] 🔴` | 验证失败 | x-fix 批量修复 |
 | `[x] 🟢` | 测试通过 | 等待 risk 路由结束 |
-| `[x] ✅` | 已完成 | risk Q2/Q3：x-qa-gate 通过后由主 agent 升级；risk Q0/Q1：x-verify-spec 与 x-verify-tech 都通过后由主 agent 升级 |
+| `[x] ✅` | 已完成 | risk Q2/Q3：x-qa-gate 通过后由主 agent 升级；risk Q0/Q1：x-verify-spec 与 x-verify-tech 都通过后由主 agent 升级，同时把 `reports/.fix-counter` 写回 0 |
 | `[ ] ↗️` | 已升级 | 超出本 task 范围（如 qdev 转主线、某组 3 轮验收不过）交给用户或主线 |
 
 `xdev status` 与 `xdev graph` 以 emoji 判定状态。多 agent 协作时，状态列只由主 agent 写，见 [多 agent 协作开发](parallel-dev.md)。每次变更状态立即回写 checklist；dev-report 保存交付摘要与统一测试报告入口，验证明细、改动覆盖率及原始附件遵循 [共用报告约定](test-reporting.md)。

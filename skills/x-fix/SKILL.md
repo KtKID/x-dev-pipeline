@@ -149,6 +149,7 @@ x-fix 同时接收 bug 报告、cr-report，以及 x-verify-spec 不通过回执
 | issue-1 | P0 | ✅ 已修 | 扩展 SQLSTATE 分类 | `cargo test -p x classify_` 新增断言 |
 | issue-2 | P1 | ➖ 豁免 | 理由：... | — |
 | issue-3 | P2 | 📝 登记 | 不修 | — |
+| V1 | P1(V) | ✅ 已修 | x-verify-spec 记录的 renew 测试失败 | `npm test -- renew` 执行编号 A-012 |
 ```
 
 旧路径 `reports/fix/fix-report-*.md` 与 `fix-note-*.md` 仍保留，**只用于直接 bug fix 模式**（用户报告 bug 走原流程）。
