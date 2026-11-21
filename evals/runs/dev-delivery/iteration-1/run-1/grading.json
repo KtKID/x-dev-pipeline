@@ -1,0 +1,99 @@
+{
+  "eval": "dev-delivery",
+  "score": 11,
+  "total": 13,
+  "cases_passed": 11,
+  "cases": 13,
+  "rows": [
+    {
+      "id": "D01",
+      "ok": true,
+      "wrong": [],
+      "reason": "改动行覆盖率 91%，未覆盖的 renew.py:12-14 需要补测试，再重跑直到 100%。"
+    },
+    {
+      "id": "D02",
+      "ok": false,
+      "wrong": [
+        {
+          "field": "action",
+          "expected": "修好失败的测试再重跑 xdev coverage",
+          "got": "按根因修好再重跑 xdev coverage"
+        }
+      ],
+      "reason": "测试命令失败，既有测试红了，先按根因修好，不能带着失败的测试跑覆盖率。"
+    },
+    {
+      "id": "D03",
+      "ok": false,
+      "wrong": [
+        {
+          "field": "action",
+          "expected": "补测试后重跑 xdev coverage",
+          "got": "按根因修好再重跑 xdev coverage"
+        }
+      ],
+      "reason": "新建文件整体报告里没有，通常是测试没加载它或覆盖率范围没配到，先查明根因修好再重跑。"
+    },
+    {
+      "id": "D04",
+      "ok": true,
+      "wrong": [],
+      "reason": "磁盘满兜底分支测不到，加排除标记是允许的，但要在问题与处置写一行文件路径、行号和理由，交审查判断。"
+    },
+    {
+      "id": "D05",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率跑完后代码又改了，记录已过期（COVERAGE_STALE），需要重跑覆盖率。"
+    },
+    {
+      "id": "D06",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 的场景在基线之后改了，按需求变化同步处理受影响的 D、T、任务行，已同步后运行 xdev baseline。"
+    },
+    {
+      "id": "D07",
+      "ok": true,
+      "wrong": [],
+      "reason": "用例 T4 没有对应测试，补写测试函数并在用例对应表登记。"
+    },
+    {
+      "id": "D08",
+      "ok": true,
+      "wrong": [],
+      "reason": "只能人工验证的用例，把步骤和实际看到的结果写到 evidence 记录文件，结果记人工通过。"
+    },
+    {
+      "id": "D09",
+      "ok": true,
+      "wrong": [],
+      "reason": "risk 为 Q0，xdev check 已通过，主 agent 把行升为已完成，不需要 x-qa-gate。"
+    },
+    {
+      "id": "D10",
+      "ok": true,
+      "wrong": [],
+      "reason": "risk 为 Q2，xdev check 通过后需要交 x-qa-gate 做一次独立审查。"
+    },
+    {
+      "id": "D11",
+      "ok": true,
+      "wrong": [],
+      "reason": "qdev 开工第一步是 xdev start 记录代码基线，之后的覆盖率才能和它比较。"
+    },
+    {
+      "id": "D12",
+      "ok": true,
+      "wrong": [],
+      "reason": "qdev 只记变更、没写场景，xdev check 通过即可交付，不需要独立审查。"
+    },
+    {
+      "id": "D13",
+      "ok": true,
+      "wrong": [],
+      "reason": "qdev 新增了场景，xdev check 通过后要交 x-qa-gate 按 Q1 做一次独立审查。"
+    }
+  ]
+}

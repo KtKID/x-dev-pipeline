@@ -330,7 +330,7 @@ class ChecklistEngineTest(unittest.TestCase):
     def test_verify_points_current_tasks_elsewhere(self):
         code, _, err = run("verify", str(self.task))
         self.assertEqual(code, 2)
-        self.assertIn("x-verify-spec", err)
+        self.assertIn("xdev check", err)
 
 
 if __name__ == "__main__":

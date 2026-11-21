@@ -4,6 +4,7 @@
 本文件只负责参数解析、目标发现和引擎分流：
 
 - checklist_engine.py（x-req）：当前格式 task 的 scaffold/validate/status/graph/impact/baseline
+- delivery.py（x-dev）：开发与交付的 start/coverage/check（代码基线、改动行覆盖率、交付机械核对）
 - req.py（x-req）：只服务父 spec 声明 spec_version: 3 的旧契约包
 - validator.py（x-spec）：旧 spec/change 包校验
 - verify.py（x-verify-spec）：只服务旧契约包的 dev-report verify 块
@@ -16,11 +17,14 @@
   python3 <x-dev-skill-dir>/scripts/xdev.py graph <task-dir> [--json]
   python3 <x-dev-skill-dir>/scripts/xdev.py impact <task-dir> [--json]
   python3 <x-dev-skill-dir>/scripts/xdev.py baseline <task-dir> [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py start <task-dir 或 qdev task.md> [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py coverage <目标> --cmd "<全量测试命令>" --report <覆盖率报告> [--out <dir>] [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py check <目标> [--json]
   python3 <x-dev-skill-dir>/scripts/xdev.py verify <task-dir> [--json] [--only <id>]   # 仅旧契约包
   python3 <x-dev-skill-dir>/scripts/xdev.py flag <task-dir> --task T2,T3 --severity P0 \
       --loc src/a.py:10 --msg "空输入未处理" [--new-round] [--json]
 
-退出码：0 成功；1 校验失败、依赖环或有未同步的需求变化；2 用法、目标或 IO 错误。
+退出码：0 成功；1 校验失败、依赖环、有未同步的需求变化、覆盖率不到 100% 或交付核对未通过；2 用法、目标或 IO 错误。
 """
 
 from __future__ import annotations
@@ -65,6 +69,7 @@ def _engine(module_name: str, skill_name: str):
 flag_engine = _engine("flag", "x-qa-gate")
 req = _engine("req", "x-req")
 checklist = _engine("checklist_engine", "x-req")
+delivery = _engine("delivery", "x-dev")
 validator = _engine("validator", "x-spec")
 verify_engine = _engine("verify", "x-verify-spec")
 
@@ -181,6 +186,21 @@ def _build_parser() -> argparse.ArgumentParser:
     verify.add_argument("--json", action="store_true", dest="as_json")
     verify.add_argument("--only", help="只执行指定 auto verify 块")
 
+    start = sub.add_parser("start", help="开工：把 git HEAD 记为代码基线，建证据目录")
+    start.add_argument("target", help="task 目录，或 qdev 的 task .md")
+    start.add_argument("--json", action="store_true", dest="as_json")
+
+    cov = sub.add_parser("coverage", help="跑测试并算本次改动行的覆盖率，不到 100%% 退出 1")
+    cov.add_argument("target", help="task 目录，或 qdev 的 task .md")
+    cov.add_argument("--cmd", action="append", default=[], dest="cmd_list", help="全量测试命令（会生成覆盖率报告）；可多次")
+    cov.add_argument("--report", action="append", required=True, help="覆盖率报告：lcov / cobertura XML / coverage.py JSON / Go coverprofile；可多次")
+    cov.add_argument("--out", help="只把记录写到这个目录、不改交付文档（并行开发的工人用）")
+    cov.add_argument("--json", action="store_true", dest="as_json")
+
+    chk = sub.add_parser("check", help="交付机械核对：编号、状态、场景→用例→测试、覆盖率 100%%")
+    chk.add_argument("target", help="task 目录，或 qdev 的 task .md")
+    chk.add_argument("--json", action="store_true", dest="as_json")
+
     flag = sub.add_parser("flag", help="登记 QA Gate issue 并执行状态降级")
     flag.add_argument("task_dir", help="docs/spec/<spec>/tasks/<task>/")
     flag.add_argument("--task", required=True, dest="task_ids")
@@ -281,10 +301,20 @@ def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     if args.cmd in {"scaffold", "status", "graph", "impact", "baseline"}:
         return _task_command(args)
+    if args.cmd in {"start", "coverage", "check"}:
+        try:
+            if args.cmd == "start":
+                return delivery.start(args.target, args.as_json)
+            if args.cmd == "coverage":
+                return delivery.coverage(args.target, args.report, args.cmd_list, args.out, args.as_json)
+            return delivery.check(args.target, args.as_json)
+        except delivery.UsageError as e:
+            print(f"错误：{e}", file=sys.stderr)
+            return 2
     if args.cmd == "verify":
         if checklist.handles(Path(args.task_dir)):
             print(
-                "当前格式的 task 不用 verify 命令：交付对账由 x-verify-spec 做，"
+                "当前格式的 task 不用 verify 命令：交付核对用 xdev check，"
                 "需求变化用 xdev impact 检查。verify 只服务 spec_version: 3 的旧契约包。",
                 file=sys.stderr,
             )

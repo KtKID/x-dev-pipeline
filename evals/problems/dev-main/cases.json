@@ -1,15 +1,15 @@
 [
   {
     "id": "M01",
-    "situation": "组 A 的工人交回了回执，所有行都报 🟢。"
+    "situation": "组 A 的工人交回了回执，所有行都报“已完成”，回执里写着覆盖率 100%。"
   },
   {
     "id": "M02",
-    "situation": "组 A 的验收 agent 第 1 次验收不通过。"
+    "situation": "主 agent 在组 A 的分支上跑 xdev coverage，测试通过，但改动行覆盖率 92%，列出了 2 处没覆盖的行；这是组 A 第 1 次核对。"
   },
   {
     "id": "M03",
-    "situation": "组 B 已经修了 3 轮，第 3 次验收还是不通过；组 C 正在开发。"
+    "situation": "组 B 已经修了 3 轮，第 3 次核对还是不通过；组 C 正在开发。"
   },
   {
     "id": "M04",
@@ -29,11 +29,11 @@
   },
   {
     "id": "M08",
-    "situation": "所有组都已合并，checklist 头部 risk 是 Q1，还没做整体验收。"
+    "situation": "所有组都已合并，checklist 头部 risk 是 Q1，还没跑整体的覆盖率和 xdev check。"
   },
   {
     "id": "M09",
-    "situation": "所有组都已合并，整体的 x-verify-spec 和 x-verify-tech 都通过了，risk 是 Q3。"
+    "situation": "所有组都已合并，整体的 xdev coverage 100%、xdev check 通过，risk 是 Q3。"
   },
   {
     "id": "M10",
@@ -45,10 +45,14 @@
   },
   {
     "id": "M12",
-    "situation": "所有组都已合并，整体的 x-verify-spec 和 x-verify-tech 都通过了，risk 是 Q0。"
+    "situation": "所有组都已合并，整体的 xdev coverage 100%、xdev check 通过，risk 是 Q0。"
   },
   {
     "id": "M13",
     "situation": "组 A 的工人报回：T2 需要改 src/fine/rate.ts，这个文件正在被组 B 改，组 B 还没合并。"
+  },
+  {
+    "id": "M14",
+    "situation": "所有组都已合并，整体的 xdev coverage 100%、xdev check 通过，risk 是 Q1。"
   }
 ]

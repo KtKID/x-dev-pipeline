@@ -320,8 +320,11 @@ def parse_checklist(path: Path) -> Checklist:
     in_comment = False
     in_tree = False
     tree_stack: list[tuple[int, str]] = []
+    rows_done = False
     for idx, raw in enumerate(lines, 1):
         line = raw.strip()
+        if line.startswith("## ") and columns:
+            rows_done = True  # 任务表之后的节（影响文件树、结果）里的表格不是任务行
         if line.startswith("<!--"):
             in_comment = "-->" not in line
             continue
@@ -340,7 +343,7 @@ def parse_checklist(path: Path) -> Checklist:
         if hm and not columns:
             headers[hm.group(1).strip()] = (hm.group(2).strip(), idx)
             continue
-        if line.startswith("|"):
+        if line.startswith("|") and not rows_done:
             cells = split_cells(line)
             if not columns:
                 columns = cells

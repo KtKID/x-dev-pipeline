@@ -36,8 +36,8 @@
 
 ### 步骤 4：验证
 
-- 实际运行聚焦反例与受影响回归，按 [共用报告约定](../../x-dev/references/test-reporting.md) 采集当次改动覆盖率
-- 将用例明细、实际结果、未覆盖位置与采集缺口集中到统一测试报告，原始记录放附件；修复记录链接该报告
+- 实际运行聚焦反例与受影响回归；修复落在某个 task 范围内时，按 [证据约定](../../x-dev/references/test-reporting.md) 跑 `xdev coverage` 和 `xdev check`
+- 测试命令、结果和新增反例写进修复报告，原始输出放 `reports/fix/<报告名>-evidence/`
 
 ### 步骤 5：产出修复报告
 

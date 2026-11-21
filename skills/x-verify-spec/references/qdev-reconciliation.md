@@ -1,4 +1,6 @@
-# qdev 单文档对账
+# qdev 单文档对账（历史参考）
+
+> 已停用：qdev 交付核对现在由 `xdev check <task>.md` 做，剩下三项人工检查见 [x-verify-spec](../SKILL.md)。本文件只留作历史参考。
 
 用于明确指定的 `task-<name>.md`。先读取完整文档、用户要求/确认记录及被回指的 spec/模块功能文档、变更索引、设计、用例和执行记录。常规 task 继续按 SKILL.md 的 checklist/report 契约检查。
 

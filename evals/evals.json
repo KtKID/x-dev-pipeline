@@ -18,7 +18,7 @@
         "ASR、LLM、TTS 编排及超时、4xx、5xx 策略正确。",
         "PCM 下行、完整性、顺序与断连隔离正确。",
         "多设备并发会话完全隔离。",
-        "spec、tech-design、checklist 与 x-verify-spec / x-verify-tech 证据形成可复跑闭环。"
+        "spec、tech-design、checklist 与 x-verify-spec / x-verify-tech 证据形成可复跑闭环（旧链路评分，待改成 xdev check）。"
       ],
       "grader": {
         "rubric": "evals/answers/voice-chain-end-to-end/rubric.md",

@@ -12,37 +12,33 @@
 |---|---|
 | `spec.md` | 用户可感知的功能、验收场景、已确认关键约束 |
 | `tech-design.md` | 模块、协议、数据流、技术决策与编号测试用例 |
-| `dev-checklist.md` | 单个 task 的执行范围、场景与用例回指、进度 |
-| `dev-report.md` / qdev⑤ | 开发交付摘要、状态与唯一测试报告入口 |
-| `test-report.md` | 当次代码改动的用例明细、覆盖率、未覆盖位置与验收结论 |
-| `evidence/` | 集中的执行元数据、原始输出、覆盖数据与专项附件 |
+| `dev-checklist.md` | 单个 task 的唯一交付文件：任务行、场景与用例回指、进度，末尾「结果」记用例对应、改动行覆盖率和问题处置 |
+| `evidence/` | 原始输出：测试日志、覆盖率记录、截图、人工验证记录 |
+| `docs/architecture.md` | 项目架构偏好（可选），设计、开发和审查都按它核对 |
 
-需求、设计、任务和证据通过稳定编号关联，每一步都能追到依据、实现位置和实际结果。
+需求、设计、任务和证据通过稳定编号关联，每一步都能追到依据、实现位置和实际结果。能用脚本判断的（编号、状态、测试是否通过、覆盖率是否 100%）全交给 `xdev`，agent 只做脚本判断不了的事。
 
 ## 两条工作路径
 
-完整需求走设计先行的主线，具体小改动走精简 task 闭环，两条路径共用一份当次改动测试报告。
+完整需求走设计先行的主线，具体小改动走一个 agent 做完的精简 task，两条路径用同一套 `xdev start / coverage / check`。
 
 ```mermaid
 flowchart LR
     A["x-explore-for-spec<br/>探索并维护需求"] --> B["x-tech-design"]
     B --> C["x-req"]
-    C --> D["x-dev"]
-    D --> E["x-verify-spec · Gate ①"]
-    E --> F["x-qa-gate · Gate ②"]
+    C --> D["x-dev<br/>实现 + 覆盖率 100%"]
+    D --> E["xdev check<br/>机械核对"]
+    E --> F["x-qa-gate<br/>一次独立审查"]
     F --> G["交付"]
 ```
 
 ```text
-技术验收：
-x-verify-tech · 按技术设计验收 task / feat / diff
-
 小任务：
 x-qdev · 一份 task 文档：需求 → 局部设计 → 测试 → 实现 → 证据
-       → x-verify-spec / x-verify-tech
+       → xdev check → 写了场景的再过一次独立审查
 ```
 
-`x-tech-design` 是任务拆解的必经前置。`x-verify-tech` 按明确范围单独调用，建议安排在开发完成后、最终交付前。主 agent 根据已有确认记录和各环节结论组织后续工作。
+`x-tech-design` 是任务拆解的必经前置。`x-verify-tech` 是审查里“设计与架构偏好”那一项的方法，也可以单独调用。
 
 ## 主线：需求 → 技术设计 → 任务 → 开发
 
@@ -83,7 +79,7 @@ tech-design：D01 落实机制 → 用例 T1、T2
           ↓
 checklist：分配到具体 task / 任务行
           ↓
-test-report：实际用例结果、改动覆盖率与集中附件
+checklist「结果」：用例对应到测试函数、改动行覆盖率 100%
 ```
 
 每个用例定义依据、前提、触发、预期结果、禁止结果及验证层级。用例正文统一维护在 `tech-design.md`，下游通过 ID 回指。
@@ -112,117 +108,47 @@ T3 · 集成验证重试结果（C1；D01；用例 T1、T2）
 
 涉及鉴权、持久化、迁移、并发或不可逆操作的行标记为 `高:<依据>`，验证包含 smoke 或以上真实链路。
 
-### 4. x-dev · 逐行开发并保留证据
+### 4. x-dev · 逐行开发，覆盖率到 100%
 
-x-dev 一次执行一个 task，沿 checklist 的 spec 与设计指针读取场景、约束、机制和用例主定义。
+x-dev 一次执行一个 task，沿 checklist 的 spec 与设计指针读取场景、约束、机制和用例主定义。开工先 `xdev start` 记下代码基线（当前 git commit），之后所有覆盖率都和它比。
 
 适合自动化的新行为按 TDD 执行：
 
 1. 写测试并取得有效红灯，确认失败来自目标行为缺失或违约。
 2. 在声明文件范围内实现，让测试变绿。
-3. 保留实际结果与可定位证据，通过后将任务行标为 `[x] 🟢`。
+3. 在 checklist「结果 / 用例对应」表登记用例和测试函数，任务行标为 `[x] 🟢`。
 
-既有实现已满足要求时，运行相应用例并补齐覆盖；人工验证记录理由、可复现步骤和实际观察。验证保留被检查机制的真实处理路径。
+全部行完成后运行：
 
-全部行完成后，运行本 task 全量测试和既有功能回归。
+```bash
+xdev coverage <task> --cmd "<全量测试命令>" --report <覆盖率报告>
+```
 
-`dev-report.md` 保存交付摘要、状态和唯一测试报告链接。完整测试内容集中在 `reports/<task-name>/<batch-id>/test-report.md`：本次改动与比较基线、全部用例明细、逐文件改动行/相关分支覆盖率、具体未覆盖位置和验收结论。原始命令、执行元数据、输出与覆盖数据集中放同目录 `evidence/`。任务开始前已有改动单独界定，覆盖率按本次 diff 与运行时数据计算；零可执行改动说明适用性，采集缺失保持可见。
+它真的跑测试，读覆盖率报告（lcov、Cobertura XML、coverage.py JSON、Go coverprofile），算出“和代码基线相比改过的代码行有几行被测试跑到”，测试文件和文档不算。不到 100% 就列出没跑到的 `文件:行`，agent 补测试再跑，直到 100%。
 
-## 交付检查：记录对账、技术验收与质量评审
+## 交付检查：机械核对 + 一次独立审查
 
-| 环节 | 核心职责 | 结论 |
+| 环节 | 做什么 | 结论 |
 |---|---|---|
-| `x-verify-spec` · Gate ① | 核对常规 task 或 qdev 单文档的范围、覆盖、基线、执行记录和结论 | 对账通过 / 未完成 / 不通过 |
-| `x-verify-tech` | 对照技术设计与规范检查代码，运行相关检查和测试 | 通过 / 失败 / 未验证 |
-| `x-qa-gate` · Gate ② | 按风险评审意图、正确性与证据质量 | 质量审查通过 / 发现问题 |
+| `xdev check`（x-verify-spec） | 脚本核对：编号与结构、需求变化已同步、每行 🟢、每个场景都有通过的用例、每个用例对应真实测试函数、高风险行有真实链路用例、测试通过且改动行覆盖率 100%、之后代码没再改 | 通过 / 不通过（列出每一项） |
+| `x-qa-gate` | 按 risk 派一个只读 reviewer，看脚本判断不了的事：需求对齐、边界与失败路径、测试是否真的证明了场景、设计与架构偏好（Q1 不看边界，Q2/Q3 全看） | 通过 / 发现问题 |
 
-### x-verify-spec · Gate ① 交付对账
+risk 由 x-req 按任务行算出：Q0（纯技术、无场景）只跑 `xdev check`；Q1 审需求对齐、测试证明力、设计与架构；Q2 再加边界与失败路径；Q3 用完整输入、逐项回执。
 
-原 `x-verify` 已更名为 `x-verify-spec`。
+发现问题时登记 issue（P0/P1 的行降为 `[!] 🔴`），交 x-fix 一次修完。主 agent 用每条问题的反例测试、`xdev coverage` 和 `xdev check` 关闭问题，不发回原 reviewer；修复轮数最多 3 轮。处置写进 checklist「问题与处置」，不另建报告文件。
 
-它以 spec 提供预期、req 分配记录确定责任范围、开发记录提供执行结果，核对九项内容：
-
-1. **结构与定位**：文件可读取，指针一致，场景能够唯一定位。
-2. **内容基线**：当前需求、约束和用例与拆解及验证时的内容对应，变化有重新对齐依据。
-3. **场景回指**：完整解析编号、多个引用和区间，逐项确认有效。
-4. **task 覆盖**：实际回指覆盖分配范围内的场景、关键约束及全部用例。
-5. **技术支撑与设计回指**：`None` 行有依据和检查结果，引用的 D 编号存在。
-6. **结果与证据映射**：每项预期及禁止结果都有真实、可定位的执行记录。
-7. **人工与高风险记录**：人工步骤和实际观察完整，高风险行有真实链路方式与结果。
-8. **影响文件树**：文件树与涉及文件列对应，标记为 U/M/D。
-9. **状态与结论**：行状态、回归结果、失败记录与报告结论一致。
-
-本轮使用已有执行记录完成对账。通过表示交付记录闭合；独立技术验收由 x-verify-tech 承担。
-
-开发、修复与验收共用[统一测试报告约定](skills/x-dev/references/test-reporting.md)和[报告模板](skills/x-dev/templates/test-report.md)。两类 verify 与 QA 读取同一报告及附件，返回本轮增量回执，由主 agent 收录报告；独立技术验收建立或更新该报告。任务记录保留摘要和入口。
-
-资料缺失、阻塞、尚待执行或需求待澄清时，结论为“对账未完成”；确定的矛盾、覆盖遗漏或执行失败，结论为“对账不通过”。问题一次列全，并注明来源负责方。
-
-### x-verify-tech · 技术符合性验收
-
-先从技术设计和适用规范提取约束，再定位实际代码与测试，逐项检查落实情况。
-
-检查覆盖模块边界、协议与运行时校验、跨语言协议来源、数据归属、概念命名、具名配置、数据流与状态处理。
-
-优先复用项目已有检查和设计用例，按相关风险验证非法输入、失败、重复、并发或恢复路径。授权范围内可补少量针对性验收测试。
-
-每项证据注明设计依据、代码位置、检查方法、实际结果、内容基线和局限。动态机制通过实际执行取得证据，语义判断提供可定位的代码审查依据。
-
-整体结论遵循：
-
-- 任一适用项失败，整体为 **失败**，同时保留未验证清单。
-- 适用项仍有证据缺口，整体为 **未验证**。
-- 全部适用项通过，且范围与基线可核查，整体为 **通过**。
-
-发现问题后输出证据与缺口，由主 agent 安排后续处理。
-
-### x-qa-gate · Gate ② 风险匹配的质量评审
-
-交付对账通过后，按 task 风险路由：
-
-| 风险 | 典型范围 | 评审方式 |
-|---|---|---|
-| Q0/Q1 | 单文件小改、局部功能或修复 | 直接进入交付 |
-| Q2 | 新功能、多文件、契约或状态变化 | 一个精简三视角 reviewer |
-| Q3 | 安全、不可逆写入、公开协议、并发或状态机变化 | 一个完整三视角 reviewer |
-
-reviewer 在单轮内分别检查：
-
-- **q1-intent**：用户意图、已确认需求、公开契约与改动范围。
-- **q2-correctness**：非法输入、边界、失败路径、状态转换、并发、幂等与资源清理。
-- **q3-evidence**：测试触达的真实路径、断言依据和识别错误实现的能力。
-
-reviewer 返回问题候选。主 agent 复核后通过 `xdev.py flag` 登记 issue：P0/P1 降级对应任务行，P2 登记为非阻塞问题。
-
-完整问题清单交给 x-fix 批量修复，再取得聚焦反例与回归证据。主 agent 负责关闭 issue 和组织后续核查；门禁修复轮数由共享 fix-counter 管理，最多三轮。
+多 agent 协作时，每组交回后由主 agent 在这组分支上自己跑 `xdev coverage --out` 核对（不照抄工人的结论），不过就打回原工人；全部合并后整体跑一次覆盖率、`xdev check` 和审查。
 
 ## x-qdev · 小任务精简路径
 
-x-qdev 用一份任务文档记录小改动的局部设计、用例变化、实现与交付摘要，完整测试及验收内容集中到统一测试报告。功能正文随所属 spec 或模块说明持续维护，changelog 提供每次变化的任务索引。
+x-qdev 用一份任务文档记录小改动：①需求与变更、②精简技术设计、③测试用例与变化、④技术实现、⑤验证结果（用例对应、覆盖率、问题与处置）。功能正文随所属 spec 持续维护，task 记录本次变化、回指和证据。
 
-需求核对沿用 `x-explore-for-spec`：明确结论直接采用，待决取舍集中澄清。写进哪份 spec 按 [spec 范围规则](skills/x-explore-for-spec/references/spec-scope.md) 逐条场景判断：看这条场景改变的是谁的数据，对照 `docs/spec/README.md` 边界表，找到所有者就加到已有 spec，所有行都找不到才新建 spec。
-
-默认协作方式是“定归属 → 写 spec 增量 → 给用户确认（唯一停点）→ 按需技术设计 → 连续实现与验证 → 汇报结果”。只记变更、不写场景的改动不停（哪些情况见 spec 范围第 6–8 步）。新建 spec、场景跨 2 份及以上 spec、或源码文件超过 3 个时调 `x-tech-design`，否则在②简写。确认后局部方案、测试和两类 verify 由 agent 自动衔接。五段按任务规模简写，简单方案可用几行说明；是否转主线按 [风险规则](skills/x-qdev/references/risk-rules.md) 逐条判断。
-
-1. **①需求与变更**：功能方向、边界、不变量及任务授权来源；回指所属 spec 的 feat/场景/C 或模块功能章节，记录新增、修改、删除及前后基线。
-2. **②精简技术设计**：已有设计的沿用依据、本次 D 条目、模块公开边界、协议/数据影响、计划文件和规范落实。
-3. **③测试用例与变化**：回指场景/章节/C/D，记录前提、触发、预期与禁止结果，以及用例新增、修改、删除和沿用回归；已有权威用例通过路径/ID 引用，局部用例正文维护在本段。
-4. **④技术实现**：实现步骤与实际涉及文件，保留与计划差异的依据。
-5. **⑤验证结果**：简短结论、唯一测试报告链接、文档同步与交付状态、未决项索引；完整用例、改动覆盖率、未覆盖位置和验收回执在测试报告汇合。
+唯一停点是 spec 增量：写了场景的改动，先把归属、场景原文和改法给用户确认，确认后连续做完设计、实现、文档同步和验收。新建 spec、场景跨两份以上 spec 或源码文件超过 3 个时调 x-tech-design，否则在②简写。按 [风险规则](skills/x-qdev/references/risk-rules.md) 有一条答“是”就停下转主线。
 
 ```text
-功能文档/变更索引 ↔ x-qdev（局部设计 → 用例变化 → 实现 → 证据）
-                    ├→ x-verify-spec：单文档交付对账
-                    └→ x-verify-tech：局部设计与规范验收
+x-qdev → xdev start → 测试先行实现 → xdev coverage（100%）→ xdev check
+       → 写了场景的：x-qa-gate（Q1）→ 交付
 ```
-
-task 位于主场景所在 spec 的 `docs/spec/<spec-name>/tasks/task-<task-name>.md`，头部必填所属 spec、状态、执行者、创建四行。需求正文在功能文档唯一维护，task 回指稳定编号或章节；功能文档的 changelog 回链 task。
-
-新增 feat/场景补入正文，修改行为更新原定义，删除项保留原编号/定位、历史来源和移除要求。每项变化记录用户原始要求或已有明确结论及适用范围；目标变化标为待实现/变更中，验证通过后同步交付状态。用例变化和实际执行分别统计，功能删除同时验证移除结果及保留行为。
-
-普通局部安排依据本轮任务授权、已有明确需求及沿用设计决定；影响实际结果且无法推断的需求歧义、超出授权的关键事项集中澄清，按风险规则有一条答“是”时转完整主线。实现前保留需求、设计与用例的可读基线，执行后按结果取得证据。
-
-交付前先做结构、回指、覆盖、结论与边界自检，再显式调用两类 verify。x-verify-spec 读取五段文档完成对账，x-verify-tech 根据②/外部设计和③用例运行相关检查；原有常规 task 的输入保持兼容。本轮用例增量与回执收录到同一测试报告，⑤保留状态和链接；失败、阻塞、未覆盖、未采集或未验证项在报告逐项列明。
 
 ## 可选：Spec 对抗性风险复核
 
@@ -241,12 +167,12 @@ x-explore-for-spec → x-adversarial-risk → x-tech-design → x-req
 | `/x-explore-for-spec` | 统一需求入口：探索并确认行为，筛选有价值的结论，增量维护所属 spec 和本轮范围 |
 | `/x-tech-design` | 基于已确认 spec 写技术设计，定义机制与编号用例；需求变化时按编号同步 |
 | `/x-req` | 基于已确认 spec 和技术设计拆 task，分配场景、约束与用例 |
-| `/x-dev` | 执行单个 task，记录验证结论与可定位证据 |
-| `/x-verify-spec` | Gate ①：核对交付范围、覆盖、基线、执行记录与结论 |
-| `/x-verify-tech` | 验收实现对技术设计和开发规范的符合性 |
-| `/x-qa-gate` | Gate ②：按风险评审意图、正确性与证据质量 |
-| `/x-qdev` | 小任务单文档缩减路径：feat/局部设计/测试/实现/证据 → 两类 verify |
-| `/x-fix` | 批量修复验证、评审或正确性调查发现的问题 |
+| `/x-dev` | 执行单个 task，测试先行，改动行覆盖率到 100% |
+| `/x-verify-spec` | Gate ①：运行 `xdev check` 做交付机械核对 |
+| `/x-verify-tech` | 核对实现是否符合技术设计、开发规范和架构偏好（审查的 q4-design 方法，也可单独用） |
+| `/x-qa-gate` | 按风险派一次独立审查 |
+| `/x-qdev` | 小任务单文档精简路径 |
+| `/x-fix` | 批量修复核对、审查或正确性调查发现的问题 |
 | `/x-cr` | 调查正确性问题、模块、diff 或 PR |
 | `/x-adversarial-risk` | 复核 spec 风险假设，补充可追溯反例场景 |
 | `/x-multi-llm-align` | 对齐协议、数据结构或流程 |
@@ -256,27 +182,21 @@ x-explore-for-spec → x-adversarial-risk → x-tech-design → x-req
 
 ## 确定性引擎
 
-`skills/x-dev/scripts/xdev.py` 是机械规则的薄 CLI 入口；包校验由
-`skills/x-spec/scripts/validator.py` 负责，spec task 规划由
-`skills/x-req/scripts/req.py` 负责，验证由 `skills/x-verify-spec/scripts/verify.py` 负责，QA issue
-事务由 `skills/x-qa-gate/scripts/flag.py` 负责。
-
-`skills/x-spec/scripts/` 保留现有 CLI 和测试的兼容加载路径；需求编写统一由 `x-explore-for-spec` 承担。
+`skills/x-dev/scripts/xdev.py` 是统一 CLI 入口：当前格式 task 的规则在 `skills/x-req/scripts/checklist_engine.py`，开发与交付核对在 `skills/x-dev/scripts/delivery.py`，QA issue 事务在 `skills/x-qa-gate/scripts/flag.py`。旧 `spec_version: 3` 契约包继续由 `req.py`、`validator.py`、`verify.py` 处理。
 
 ```text
-validate [pkg...]                 校验 spec、change、task 契约
-status <task-dir> [--json]        解析 checklist 进度
-graph <task-dir> [--json]         计算 ready task 与并行批次
-instructions <artifact> --task    返回 task 产物填写规则
-scaffold <task-dir>               只创建缺失 task 产物
-verify <task-dir> [--json]        执行证据并对账 Scenario
+scaffold <task-dir>               创建 checklist，自动填头部和拆解基线
+validate [task...]                结构、编号、并行组、依赖、risk 校验
+status / graph <task-dir>         进度；按并行组和依赖算派工批次
+impact / baseline <task-dir>      需求变化列出要同步的 D/T/行/测试；同步后记新基线
+start <task>                      记代码基线（git HEAD）
+coverage <task> --cmd ... --report ...   跑测试，算改动行覆盖率，不到 100% 退出 1
+check <task>                      交付机械核对
+verify <task-dir>                 仅旧契约包
 flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-round] [--json]
 ```
 
-task 命令只接收 `docs/spec/<spec-name>/tasks/<task-name>/`。历史
-`dev-pipeline/tasks/` 目录继续作为可读档案保留，不再获得运行时校验或编排支持。
-
-v1.0.0 起 Gate ① 改为 x-verify-spec skill 的交付对账，verify 引擎保留给既有 `spec_version: 3` 契约包；v6 链路日常使用 `status`（进度）与 `flag`（issue 台账）。`flag` 通过持久事务协调 issue ledger 与每个 task 唯一的一份 `dev-checklist.md`：内容无变化不创建临时文件，pending 事务恢复返回 `recovered:true`，调用方重试本条 issue。
+`<task>` 是 `docs/spec/<spec-name>/tasks/<task-name>/`，start / coverage / check 也接受 qdev 的 task `.md`。历史 `dev-pipeline/tasks/` 目录作为可读档案保留，不再获得运行时校验或编排支持。`flag` 通过持久事务协调 issue ledger 与 `dev-checklist.md`：pending 事务恢复返回 `recovered:true`，调用方重试本条 issue。
 
 ## x-spec2 pilot 计量
 
@@ -321,9 +241,11 @@ Codex：把 `.agents/plugins/marketplace.json` 中的仓库条目加入 marketpl
 |------|------|
 | `[ ] ⏳` | 未开始 |
 | `[ ] ▶️` | 进行中 |
+| `[ ] 🟡` | 待验证（多 agent 时工人交回、还没合并） |
 | `[!] 🔴` | 验证失败 / P0-P1 issue 降级 |
-| `[x] 🟢` | 验证通过 |
-| `[x] ✅` | 质量评审通过 |
+| `[x] 🟢` | 测试通过，用例已登记 |
+| `[x] ✅` | 已完成（Q0：xdev check 通过；Q1–Q3：独立审查通过） |
+| `[ ] ↗️` | 已升级给用户或主线 |
 
 ## License
 

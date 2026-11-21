@@ -11,12 +11,20 @@ workspace="$run_dir/workspace"
 printf 'Run: %s\n' "$run_dir"
 
 mkdir -p "$workspace/skills"
-cp -R "$repo_dir/skills/x-dev" "$workspace/skills/x-dev"
+# xdev.py 会加载同级 skill 的引擎，规则文件也互相链接，所以一起复制
+for skill in x-dev x-req x-qa-gate x-spec x-verify-spec x-verify-tech x-tech-design x-fix; do
+  cp -R "$repo_dir/skills/$skill" "$workspace/skills/$skill"
+done
 python3 "$benchmark/prepare_workspace.py" --profile public_task_only --allow-existing \
   --workspace "$workspace" --task-source "$case_dir/project" \
   --prompt-source "$case_dir/PROMPT.md" --json > "$run_dir/prepare.json"
 python3 "$benchmark/validate_workspace.py" "$workspace" \
   --manifest "$run_dir/executor-package-manifest.json" --json > "$run_dir/preflight.json"
+
+# xdev start / coverage 要和 git 基线比较：题目项目先提交成一个 commit
+git -C "$workspace/task" init -q
+git -C "$workspace/task" add -A
+git -C "$workspace/task" -c user.email=eval@local -c user.name=eval commit -qm "题目初始状态"
 
 if [[ ${1:-} == --prepare-only ]]; then
   exit 0

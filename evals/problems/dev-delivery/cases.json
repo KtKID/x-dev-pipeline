@@ -1,0 +1,54 @@
+[
+  {
+    "id": "D01",
+    "situation": "全部行 🟢 后运行 xdev coverage：测试命令通过，改动行覆盖率 91%，列出 src/loan/renew.py:12-14 没覆盖。"
+  },
+  {
+    "id": "D02",
+    "situation": "运行 xdev coverage：测试命令失败（exit 1），tests/test_renew.py 里一个既有测试红了。"
+  },
+  {
+    "id": "D03",
+    "situation": "xdev coverage 报告 src/loan/fine.py 整个文件“报告里没有”。这个文件是本 task 新建的，覆盖率范围配置没问题（同目录的其他文件都在报告里），只是还没有任何测试调用它。"
+  },
+  {
+    "id": "D04",
+    "situation": "xdev coverage 100%，但它提示 src/loan/borrow.py:40 新加了 `# pragma: no cover`，那是一段测试环境造不出来的磁盘满兜底分支。"
+  },
+  {
+    "id": "D05",
+    "situation": "xdev coverage 100% 之后，agent 又顺手改了 src/loan/borrow.py 一行注释外的代码，然后运行 xdev check，报 COVERAGE_STALE。"
+  },
+  {
+    "id": "D06",
+    "situation": "运行 xdev check，报 SPEC_CHANGED：拆解基线之后 spec 的 feat02 场景1 改了。"
+  },
+  {
+    "id": "D07",
+    "situation": "运行 xdev check，报 CASE_UNMAPPED：用例 T4 没有对应的测试。"
+  },
+  {
+    "id": "D08",
+    "situation": "一个用例只能人工验证（打印出来的借书单版式）。"
+  },
+  {
+    "id": "D09",
+    "situation": "xdev check 通过，checklist 头部 risk 是 Q0。"
+  },
+  {
+    "id": "D10",
+    "situation": "xdev check 通过，checklist 头部 risk 是 Q2。"
+  },
+  {
+    "id": "D11",
+    "situation": "qdev 任务：spec 增量已经用户确认，准备开始写测试和实现，还没运行过任何 xdev 命令。"
+  },
+  {
+    "id": "D12",
+    "situation": "qdev 任务只在 engineering/spec.md 的变更记录加了一行（没写场景），xdev check 通过。"
+  },
+  {
+    "id": "D13",
+    "situation": "qdev 任务新增了 loan 的 feat02 场景3（用户已确认），xdev check 通过。"
+  }
+]

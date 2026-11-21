@@ -1,9 +1,9 @@
 # pipeline-skills：管线各 x-* skill 对使用者承诺的流程
 
 > spec：pipeline-skills
-> 主要入口：skills/x-*/SKILL.md、skills/*/references/、skills/x-dev/scripts/xdev.py、skills/x-req/scripts/checklist_engine.py
+> 主要入口：skills/x-*/SKILL.md、skills/*/references/、skills/x-dev/scripts/xdev.py、skills/x-dev/scripts/delivery.py、skills/x-req/scripts/checklist_engine.py
 > 状态：在用
-> 最近更新：2026-11-20
+> 最近更新：2026-11-21
 
 管线 skill 的行为本身也按 spec 管：改一条 skill 规则，就在这里新增或修改场景，并写明用哪组 eval 或测试验收。
 
@@ -11,7 +11,7 @@
 
 ## 本次目标与完成条件
 
-- 本次目标与范围：把 spec-scope-qdev 分支里已经改好的 skill 行为补进本 spec，作为第一批内容（feat01–feat06）。
+- 本次目标与范围：第一批（feat01–feat06）补入 spec-scope-qdev 分支已改好的 skill 行为；第二批（feat07–feat10）是覆盖率 100%、交付精简、审查去重和架构偏好，待用户确认。
 - 验证证据：每个场景列出的 eval 最近一轮全对；`test/` 全部通过。
 - 完成条件：用户确认本 spec（2026-11-20 已确认），feat06 补题验收（td-confirm 已通过）。
 
@@ -81,8 +81,8 @@
 场景5: 对账能发现漏记确认
 依据与价值：确认记录缺失时没人发现，停点就形同虚设。
 - GIVEN qdev 改了场景，但 task 里没有记用户确认的时间和消息位置
-- WHEN x-verify-spec 对账
-- THEN 判"对账未完成"，不能用开发者的声明代替
+- WHEN x-verify-spec 核对
+- THEN 判"核对未完成"，不能用开发者的声明代替
 
 验收：eval qdev-spec-routing（17 题）、qdev-confirm-check（6 题）。
 
@@ -135,10 +135,10 @@ spec 变了，顺着编号找到要动的 D、T、任务行和测试。
 > 状态：已验收
 
 场景1: 两个及以上并行组才派工人
-依据与价值：用户 2026-11-20 选定方案 A（主 agent 派验收）。
+依据与价值：用户 2026-11-20 选定方案 A（主 agent 负责验收）；2026-11-21 要求去掉重复验收，每组不再另派验收 agent，独立审查只在整体做一次。
 - GIVEN checklist 有两个及以上并行组
 - WHEN x-dev 开始开发
-- THEN 主 agent 按 `xdev graph` 的批次派工人，每组做完另派验收 agent；只有一组时不走这套
+- THEN 主 agent 按 `xdev graph` 的批次派工人，每组交回后主 agent 自己在这组分支上跑 `xdev coverage` 核对；只有一组时不走这套
 
 场景2: 工人越界就停下报回
 依据与价值：工人改派工单以外的文件，会和别的组撞车。
@@ -148,17 +148,17 @@ spec 变了，顺着编号找到要动的 D、T、任务行和测试。
 
 场景3: 合并后才算通过
 依据与价值：没合并的改动不能算完成。
-- GIVEN 一组验收通过，还没合进主干
+- GIVEN 一组核对通过，还没合进主干
 - WHEN 主 agent 回写 checklist
 - THEN 这组的行写 🟡；合并并通过全量测试后才写 🟢
 
 场景4: 一组 3 轮不过就升级
 依据与价值：避免无限返工，同时不拖住别的组。
-- GIVEN 某组验收第 3 轮仍不通过
+- GIVEN 某组核对第 3 轮仍不通过
 - WHEN 主 agent 处理
 - THEN 这组标 ↗️ 升级给用户，其他组照常进行
 
-验收：eval dev-worker（10 题）、dev-main（13 题）。
+验收：eval dev-worker（10 题）、dev-main（14 题）。
 
 ## feat06: tech-design 不需要用户确认
 
@@ -178,9 +178,76 @@ spec 变了，顺着编号找到要动的 D、T、任务行和测试。
 
 验收：eval td-confirm（6 题）。
 
+## feat07: 交付只有一份文件
+
+> 状态：待确认
+
+场景1: 结果写回 checklist
+依据与价值：用户 2026-11-21：dev-report 产物太多，必须精简。
+- GIVEN x-dev 做完一个 task
+- WHEN 记录交付结果
+- THEN 用例对应、覆盖率、问题与处置都写在 dev-checklist.md 末尾的「结果」节，原始输出放 evidence/；不另写 dev-report 和测试报告
+
+场景2: 门禁修复不另建报告
+依据与价值：同上。
+- GIVEN x-fix 修完 xdev check 或 x-qa-gate 的问题
+- WHEN 记录处置
+- THEN 每条一行写进 checklist「问题与处置」；只有直接 bug 修复和 CR 驱动修复才写 reports/fix/
+
+验收：eval dev-delivery（13 题）；`test/test_delivery.py`。
+
+## feat08: 改动行覆盖率 100%
+
+> 状态：待确认
+
+场景1: 不到 100% 就补测试
+依据与价值：用户 2026-11-21：测试用例覆盖率必须 100%，开发时必须有流程检查覆盖率，不到就补，要让 agent 看到覆盖率。
+- GIVEN 全部行做完，和代码基线相比改了若干代码行
+- WHEN 运行 `xdev coverage <task> --cmd ... --report ...`
+- THEN 它真的跑测试，列出没被测试跑到的 `文件:行`，不到 100% 退出 1；agent 补测试再跑，直到 100%
+
+场景2: 交付前脚本核对
+依据与价值：能自动化的就不让 agent 猜。
+- GIVEN 覆盖率记录已生成
+- WHEN 运行 `xdev check <task>`
+- THEN 核对每个场景有通过的用例、每个用例对应真实测试函数、测试通过、覆盖率 100% 且之后代码没再改；任何一项不满足就列出并退出 1
+
+验收：`test/test_delivery.py`；eval dev-delivery。
+
+## feat09: 一次独立审查
+
+> 状态：待确认
+
+场景1: 按 risk 派一个 reviewer
+依据与价值：用户 2026-11-21：verify 去掉重复。
+- GIVEN `xdev check` 通过
+- WHEN 进入审查
+- THEN Q0 不派；Q1 一个 reviewer 做需求对齐、测试证明力、设计与架构；Q2 再加边界；Q3 四个 lens 逐项回执。机械项不重复核对
+
+验收：eval review-route（R01–R08、R12）。
+
+## feat10: 架构偏好
+
+> 状态：待确认
+
+场景1: 设计和偏好冲突就问
+依据与价值：管线目标之一是架构要符合用户偏好。
+- GIVEN 项目有 docs/architecture.md，方案会违反其中一条
+- WHEN x-tech-design 写设计
+- THEN 把这一条当作需要用户拍板的取舍单独问，不悄悄违反也不悄悄改偏好
+
+场景2: 只记用户说过的
+依据与价值：偏好是用户的，不能由 agent 从代码推测。
+- GIVEN 项目没有架构偏好文件，或用户在对话里说出新偏好
+- WHEN agent 处理
+- THEN 没说过的不从代码推测填写；说过的按模板写进文件并注明来源
+
+验收：eval review-route（R05、R09–R11）。
+
 ## 变更记录
 
 | 日期 | 改了什么 | 依据 / task | 状态 |
 |---|---|---|---|
 | 2026-11-20 | 新建本 spec，补入 feat01–feat06 | 用户 2026-11-20 选方案 A，并确认本 spec 内容；分支 spec-scope-qdev | 已确认 |
 | 2026-11-20 | feat06 补验收题 td-confirm，6/6 ×2 | evals/runs/td-confirm/ | 已验收 |
+| 2026-11-21 | 新增 feat07–feat10；feat02 场景5、feat05 场景1/3/4 改为新核对流程 | 用户 2026-11-21：覆盖率 100%、精简 dev-report、verify 去重 | 待用户确认 |

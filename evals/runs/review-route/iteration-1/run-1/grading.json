@@ -1,0 +1,81 @@
+{
+  "eval": "review-route",
+  "score": 12,
+  "total": 12,
+  "cases_passed": 12,
+  "cases": 12,
+  "rows": [
+    {
+      "id": "R01",
+      "ok": true,
+      "wrong": [],
+      "reason": "Q0 风险不派 reviewer，xdev check 通过即交付。"
+    },
+    {
+      "id": "R02",
+      "ok": true,
+      "wrong": [],
+      "reason": "Q1 是精简 reviewer，做 q1-intent、q3-evidence、q4-design，不含 q2。"
+    },
+    {
+      "id": "R03",
+      "ok": true,
+      "wrong": [],
+      "reason": "Q2 是精简 reviewer，四个 lens 全做。"
+    },
+    {
+      "id": "R04",
+      "ok": true,
+      "wrong": [],
+      "reason": "Q3 是完整 reviewer，四个 lens 全做并逐 lens 分段回执。"
+    },
+    {
+      "id": "R05",
+      "ok": true,
+      "wrong": [],
+      "reason": "违反架构偏好文件的条目属于 q4-design，违反即为 P1。"
+    },
+    {
+      "id": "R06",
+      "ok": true,
+      "wrong": [],
+      "reason": "测试证明不了场景的 THEN，属于 q3-evidence，按规则为 P1。"
+    },
+    {
+      "id": "R07",
+      "ok": true,
+      "wrong": [],
+      "reason": "库存为 0 时写成 -1 属于边界缺陷，用户拿到错误结果，且已复现，定为 P0。"
+    },
+    {
+      "id": "R08",
+      "ok": true,
+      "wrong": [],
+      "reason": "编号、测试文件存在性和改动行覆盖率属于机械项，xdev check 已核对，reviewer 不重复做。"
+    },
+    {
+      "id": "R09",
+      "ok": true,
+      "wrong": [],
+      "reason": "方案与架构偏好冲突算需要用户拍板的取舍，单独问用户，不悄悄违反也不悄悄改偏好。"
+    },
+    {
+      "id": "R10",
+      "ok": true,
+      "wrong": [],
+      "reason": "架构偏好文件只写用户说过的偏好，agent 不从现有代码推测后自己填。"
+    },
+    {
+      "id": "R11",
+      "ok": true,
+      "wrong": [],
+      "reason": "用户在对话里说出的新偏好要写进对应的表，并注明来源（日期和对话）。"
+    },
+    {
+      "id": "R12",
+      "ok": true,
+      "wrong": [],
+      "reason": "x-fix 修复后不发回原 reviewer，主 agent 用聚焦反例、全量测试和 xdev check 关闭 issue。"
+    }
+  ]
+}

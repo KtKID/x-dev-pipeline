@@ -57,13 +57,19 @@ async function grade(runDir) {
       .map((match) => match[1] ?? match[2]).filter((name) => name !== 'updateSummary');
     assert.ok(names.some((name) => new RegExp(`\\b${name}\\b`).test(receipt)), '回执未引用新增的筛选函数');
   });
-  await check('回执提供测试报告附件里的真实 PNG', () => {
+  await check('回执提供 task 证据目录里的真实 PNG', () => {
     const pngSignature = '89504e470d0a1a0a';
-    const reports = path.join(project, 'reports') + path.sep;
+    const taskDir = path.join(project, 'docs', 'spec', 'checklist', 'tasks', 'filter-completed', 'evidence') + path.sep;
     const screenshots = links.filter((file) =>
-      file.startsWith(reports) && file.endsWith('.png') && file.split(path.sep).includes('evidence') && fs.existsSync(file),
+      file.startsWith(taskDir) && file.endsWith('.png') && fs.existsSync(file),
     );
     assert.ok(screenshots.some((file) => fs.readFileSync(file).subarray(0, 8).toString('hex') === pngSignature), '缺少可打开的 PNG 附件');
+  });
+
+  await check('xdev check 通过（覆盖率 100%、用例对应到真实测试）', () => {
+    const { execFileSync } = require('node:child_process');
+    const tool = path.join(runDir, 'workspace', 'skills', 'x-dev', 'scripts', 'xdev.py');
+    execFileSync('python3', [tool, 'check', path.join(project, 'docs/spec/checklist/tasks/filter-completed')], { cwd: project, stdio: 'pipe' });
   });
 
   const passed = checks.filter((check) => check.passed).length;

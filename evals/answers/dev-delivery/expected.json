@@ -1,0 +1,15 @@
+{
+  "D01": "补测试后重跑 xdev coverage",
+  "D02": "修好失败的测试再重跑 xdev coverage",
+  "D03": "补测试后重跑 xdev coverage",
+  "D04": "在问题与处置写理由",
+  "D05": "重跑 xdev coverage",
+  "D06": "按 change-sync 同步后 xdev baseline",
+  "D07": "写测试并登记到用例对应表",
+  "D08": "写人工记录到 evidence 并记人工通过",
+  "D09": "升为已完成并交付",
+  "D10": "交 x-qa-gate",
+  "D11": "运行 xdev start 记代码基线",
+  "D12": "升为已完成并交付",
+  "D13": "交 x-qa-gate"
+}

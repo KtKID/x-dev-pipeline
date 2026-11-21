@@ -69,19 +69,19 @@
 | C06 | 修 bug，spec 不变 | 新 T、行 2 重开、续借测试改 | 改 spec 或 D |
 | C07 | 场景变化让 D 不成立 → D 改，引用它的所有行重开 | D02 改、T3 改、行 1/2/3 重开、续借测试改、其他两份测试重跑 | 只重开行 2 |
 
-## qdev 对账：spec 确认记录（qdev-confirm-check）
+## qdev 核对：spec 确认记录（qdev-confirm-check）
 
-- 规则：`skills/x-verify-spec/references/qdev-reconciliation.md` 第 1 项的"spec 确认记录"
+- 规则：`skills/x-verify-spec/SKILL.md` 做法第 3 步的"spec 确认记录"
 - 题面：`evals/problems/qdev-confirm-check/`；答案：`evals/answers/qdev-confirm-check/expected.json`
 - 测什么：x-verify-spec 能不能发现"改了场景却没记用户确认"。
 
 | 用例 | 考的规则 | 正确判断 |
 |---|---|---|
-| V01 V06 | 写了场景，有确认时间和消息位置 | 通过 |
-| V02 | 只写"已确认"，缺时间和位置 | 对账未完成 |
-| V03 | 只有变更记录行，写"无需确认" | 通过 |
-| V04 | 改了场景却写"无需确认" | 对账不通过 |
-| V05 | 开发者声明不能代替用户确认 | 对账未完成 |
+| V01 V06 | 写了场景，有确认时间和消息位置 | 核对通过 |
+| V02 | 只写"已确认"，缺时间和位置 | 核对未完成 |
+| V03 | 只有变更记录行，写"无需确认" | 核对通过 |
+| V04 | 改了场景却写"无需确认" | 核对不通过 |
+| V05 | 开发者声明不能代替用户确认 | 核对未完成 |
 
 ## x-req 分组（req-grouping）
 
@@ -124,23 +124,62 @@
 
 | 用例 | 考的规则 | 正确判断 |
 |---|---|---|
-| M01 | 工人交回 | 派验收 agent |
-| M02 | 第 1 次验收不过 | 交回原工人修 |
+| M01 | 工人交回 | 自己在这组分支上跑覆盖率核对 |
+| M02 | 第 1 次核对不过（覆盖率 92%） | 交回原工人修 |
 | M03 | 一组 3 轮不过 | 停这组并升级给用户 |
 | M04 | 合并冲突 | 打回后合的组重做 |
 | M05 | 开工前 impact 有变化 | 先同步再记新基线 |
 | M06 | 工人要改范围外文件，且不属于别的组 | 调整派工单和清单并重跑校验 |
 | M07 | 中途需求变化只影响一组 | 只停受影响的组 |
-| M08 | 全部合并后 | 对整个 task 做整体验收 |
-| M09 | 整体验收通过、Q3 | 交 x-qa-gate |
+| M08 | 全部合并后 | 整体跑覆盖率和 xdev check |
+| M09 | xdev check 通过、Q3 | 交 x-qa-gate |
 | M10 | 只有一组 | 不走多 agent 流程 |
 | M11 | 和本 task 无关的 bug | 登记成后续任务 |
-| M12 | 整体验收通过、Q0 | 升为已完成并交付 |
+| M12 | xdev check 通过、Q0 | 升为已完成并交付 |
 | M13 | 要改的文件属于另一组 | 把这一行并进那一组 |
+| M14 | xdev check 通过、Q1 | 交 x-qa-gate |
+
+## 开发收尾（dev-delivery）
+
+- 规则：`skills/x-dev/SKILL.md`「执行」第 4–7 步、`skills/x-dev/references/test-reporting.md`、`skills/x-qdev/SKILL.md` 第 4–5 节
+- 题面：`evals/problems/dev-delivery/`；答案：`evals/answers/dev-delivery/expected.json`
+- 对应 spec：`docs/spec/pipeline-skills/spec.md` feat07、feat08
+- 测什么：看到 `xdev coverage` / `xdev check` 的结果后，agent 知不知道下一步；交付不再另写测试报告。
+
+| 用例 | 考的规则 | 正确判断 |
+|---|---|---|
+| D01 D03 | 覆盖率不到 100% / 改动文件不在报告里 | 补测试后重跑 xdev coverage |
+| D02 | 测试命令失败 | 修好失败的测试再重跑 xdev coverage |
+| D04 | 新加覆盖率排除标记 | 在问题与处置写理由 |
+| D05 | 覆盖率跑完代码又改了 | 重跑 xdev coverage |
+| D06 | SPEC_CHANGED | 按 change-sync 同步后 xdev baseline |
+| D07 | 用例没对应测试 | 写测试并登记到用例对应表 |
+| D08 | 只能人工验证 | 写人工记录到 evidence 并记人工通过 |
+| D09 D12 | Q0 / qdev 没写场景，check 通过 | 升为已完成并交付 |
+| D10 D13 | Q2 / qdev 写了场景，check 通过 | 交 x-qa-gate |
+| D11 | qdev 开工 | 运行 xdev start 记代码基线 |
+
+## 独立审查与架构偏好（review-route）
+
+- 规则：`skills/x-qa-gate/SKILL.md`、`skills/x-tech-design/SKILL.md` 第 2 步、`skills/x-tech-design/templates/architecture-preferences.md`
+- 题面：`evals/problems/review-route/`；答案：`evals/answers/review-route/expected.json`
+- 对应 spec：`docs/spec/pipeline-skills/spec.md` feat09、feat10
+
+| 用例 | 考的规则 | 正确判断 |
+|---|---|---|
+| R01–R04 | risk 决定派不派、做哪些 lens | Q0 不派；Q1 q1 q3 q4；Q2 四个；Q3 四个逐 lens 回执 |
+| R05 | 违反架构偏好 | q4-design P1 |
+| R06 | 断言证明不了 THEN | q3-evidence P1 |
+| R07 | 已复现的错误结果 | q2-correctness P0 |
+| R08 | 机械项不重复 | 不做，xdev check 已核对 |
+| R09 | 设计和偏好冲突 | 单独问用户这一项 |
+| R10 | 没有偏好文件 | 不写，只记用户说过的偏好 |
+| R11 | 用户说了新偏好 | 写进架构偏好文件并注明来源 |
+| R12 | 修复后关闭 issue | 不发回，用反例测试和 xdev check 关闭 |
 
 ## 脚本的确定性测试
 
-`skills/x-req/scripts/checklist_engine.py` 的机械规则（编号引用、文件交集必须同组、依赖无环、risk 计算、impact 列出的同步项、baseline）由 `test/test_checklist_engine.py` 覆盖，不需要 LLM 判题。
+`skills/x-req/scripts/checklist_engine.py` 的机械规则（编号引用、文件交集必须同组、依赖无环、risk 计算、impact 列出的同步项、baseline）由 `test/test_checklist_engine.py` 覆盖；`skills/x-dev/scripts/delivery.py` 的 start / coverage / check（代码基线、四种覆盖率报告格式、改动行和新文件计入、测试文件和文档不计、排除标记要写理由、覆盖率过期、场景→用例→测试、高风险行要真实链路、qdev 确认记录）由 `test/test_delivery.py` 覆盖。都不需要 LLM 判题。
 
 ## tech-design 不需要用户确认（td-confirm）
 

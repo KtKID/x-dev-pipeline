@@ -33,9 +33,9 @@
     "defaultPrompt": [
       "x-explore-for-spec add dark mode toggle to settings page",
       "x-req turn this feature request into a task package",
-      "x-verify-spec run dev-report command list against the latest task",
+      "x-verify-spec run xdev check on the latest task",
       "x-qa-gate review the current task with risk-routed reviewers",
-      "x-fix fix issues from the latest verify or qa-gate report"
+      "x-fix fix issues from the latest xdev check or qa-gate review"
     ],
     "composerIcon": "./assets/logo.png",
     "logo": "./assets/logo.png"
