@@ -144,4 +144,4 @@
 
 ## 还没有题的规则
 
-- 暂无。
+- tech-design 不需要用户确认，只有需要拍板的取舍单独问（`docs/spec/pipeline-skills/spec.md` feat06；规则在 `skills/x-tech-design/SKILL.md`）。

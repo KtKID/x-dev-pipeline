@@ -79,6 +79,7 @@ x-explore-for-spec → x-tech-design → x-req → x-dev → x-verify-spec → x
 
 ## 改 skill 时的注意事项
 
+- **改 skill 行为要记进 spec**：使用者能观察到的 skill 行为变化，写进 `docs/spec/pipeline-skills/spec.md`（新增或修改场景），并写明用哪组 eval 或测试验收；验收题登记在 `evals/answers/INDEX.md`。只改措辞、不改行为的不用记。
 - **YAML frontmatter 是触发依据**：`description` 里的关键词决定 skill 何时被自动触发。改正文是低风险，**改 description 等于改触发面**——评估全局影响后再改。
 - **report 路径不能乱**：每类 fail 写到固定子目录，旧链路（直接 bug fix）走 `reports/fix/fix-report-*.md` / `fix-note-*.md`，新链路（gate 回流）走 `fix-verify-spec-*.md` / `fix-gate-r<轮次>-*.md`（批量修处置表）。两套路径**并存**，不要合并。
 - **x-cr 报告交接**：task 内 CR 固定写到 `<task>/reports/cr/`，普通仓库 CR 写到仓库级 `reports/cr/`；`Schema: x-cr-v2`、`不变量覆盖`、`审查结论`、`问题详情` 及 Bn/INV-ID 映射是 x-fix 的消费契约，历史报告继续走兼容解析。
