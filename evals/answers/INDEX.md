@@ -141,15 +141,15 @@
 
 ## 开发收尾（dev-delivery）
 
-- 规则：`skills/x-dev/SKILL.md`「执行」第 4–7 步、`skills/x-dev/references/test-reporting.md`、`skills/x-qdev/SKILL.md` 第 4–5 节
+- 规则：`skills/x-dev/SKILL.md`「测试是硬规则」与「执行」第 4–8 步、`skills/x-dev/references/test-reporting.md`、`skills/x-qdev/SKILL.md` 第 4–5 节
 - 题面：`evals/problems/dev-delivery/`；答案：`evals/answers/dev-delivery/expected.json`
-- 对应 spec：`docs/spec/pipeline-skills/spec.md` feat07、feat08
+- 对应 spec：`docs/spec/pipeline-skills/spec.md` feat07、feat08、feat11 场景1
 - 测什么：看到 `xdev coverage` / `xdev check` 的结果后，agent 知不知道下一步；交付不再另写测试报告。
 
 | 用例 | 考的规则 | 正确判断 |
 |---|---|---|
-| D01 D03 | 覆盖率不到 100% / 改动文件不在报告里 | 补测试后重跑 xdev coverage |
-| D02 | 测试命令失败 | 修好失败的测试再重跑 xdev coverage |
+| D01 D03 | 覆盖率不到 100% / 改动文件不在报告里 | 补测试后重跑 xdev coverage（D03 答“写测试并登记到用例对应表”也算对） |
+| D02 | 本 task 新写的测试红了 | 修好失败的测试再重跑 xdev coverage |
 | D04 | 新加覆盖率排除标记 | 在问题与处置写理由 |
 | D05 | 覆盖率跑完代码又改了 | 重跑 xdev coverage |
 | D06 | SPEC_CHANGED | 按 change-sync 同步后 xdev baseline |
@@ -158,6 +158,9 @@
 | D09 D12 | Q0 / qdev 没写场景，check 通过 | 升为已完成并交付 |
 | D10 D13 | Q2 / qdev 写了场景，check 通过 | 交 x-qa-gate |
 | D11 | qdev 开工 | 运行 xdev start 记代码基线 |
+| D14 | 真实性检查不通过 | 按回执修测试，重跑 coverage 后再检查 |
+| D15 | 检查后又改了测试 | 重跑 xdev coverage 后重新检查并 xdev integrity |
+| D16 | 原有测试红了，需求没改这块 | 查是不是自己改坏的，不删不跳过 |
 
 ## 独立审查与架构偏好（review-route）
 
@@ -177,9 +180,28 @@
 | R11 | 用户说了新偏好 | 写进架构偏好文件并注明来源 |
 | R12 | 修复后关闭 issue | 不发回，用反例测试和 xdev check 关闭 |
 
+## 测试真实性检查（test-integrity）
+
+- 规则：`skills/x-dev/references/test-integrity.md`
+- 题面：`evals/problems/test-integrity/`；答案：`evals/answers/test-integrity/expected.json`
+- 对应 spec：`docs/spec/pipeline-skills/spec.md` feat11 场景2
+- 测什么：最便宜的模型只凭这份清单，能不能分出真测试和假测试；并且不把外部依赖的 mock、fixture、手写常量误报成问题。
+
+| 用例 | 考的规则 | 正确判断 |
+|---|---|---|
+| I01 | 期望值照抄生产公式 | 重写了生产逻辑 |
+| I08 | 测试文件里自己定义了被测函数 | 没调用项目代码 |
+| I10 | 直接写存储，没调借书入口 | 绕过要测的流程 |
+| I03 | patch 了被测函数本身 | mock 掉了被测对象 |
+| I05 | 只断言被调用 | 只断言调用不断言结果 |
+| I07 | 期望值来自被测函数自己 | 断言恒真 |
+| I09 I12 | try/catch 吞断言、skip | 吞掉失败 |
+| I06 | 上限 5 本只借 2 本 | 数据测不出对错 |
+| I02 I04 I11 I13 | 手写常量、只 mock 存储、假时钟、fixture | 通过 |
+
 ## 脚本的确定性测试
 
-`skills/x-req/scripts/checklist_engine.py` 的机械规则（编号引用、文件交集必须同组、依赖无环、risk 计算、impact 列出的同步项、baseline）由 `test/test_checklist_engine.py` 覆盖；`skills/x-dev/scripts/delivery.py` 的 start / coverage / check（代码基线、四种覆盖率报告格式、改动行和新文件计入、测试文件和文档不计、排除标记要写理由、覆盖率过期、场景→用例→测试、高风险行要真实链路、qdev 确认记录）由 `test/test_delivery.py` 覆盖。都不需要 LLM 判题。
+`skills/x-req/scripts/checklist_engine.py` 的机械规则（编号引用、文件交集必须同组、依赖无环、risk 计算、impact 列出的同步项、baseline）由 `test/test_checklist_engine.py` 覆盖；`skills/x-dev/scripts/delivery.py` 的 start / coverage / check（代码基线、四种覆盖率报告格式、改动行和新文件计入、测试文件和文档不计、排除标记要写理由、覆盖率过期、场景→用例→测试、高风险行要真实链路、qdev 确认记录、测试真实性记录的登记、过期和不采纳）由 `test/test_delivery.py` 覆盖。都不需要 LLM 判题。
 
 ## tech-design 不需要用户确认（td-confirm）
 

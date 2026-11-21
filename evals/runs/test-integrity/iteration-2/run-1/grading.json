@@ -1,0 +1,87 @@
+{
+  "eval": "test-integrity",
+  "score": 13,
+  "total": 13,
+  "cases_passed": 13,
+  "cases": 13,
+  "rows": [
+    {
+      "id": "I01",
+      "ok": true,
+      "wrong": [],
+      "reason": "第 4 行 expected = days * DAILY_FINE 照抄了罚款公式（从生产代码 import 常量），期望值是按业务规则算出来的。"
+    },
+    {
+      "id": "I02",
+      "ok": true,
+      "wrong": [],
+      "reason": "第 4 行 assert overdue_fine(3) == 1.5 调用了真实函数，期望值是手写常量，改坏罚款系数或去掉上限都会变红。"
+    },
+    {
+      "id": "I03",
+      "ok": true,
+      "wrong": [],
+      "reason": "第 4 行 @patch('src.loan.borrow.borrow', ...) 把被测的 borrow 函数本身打桩，断言的只是 mock 的返回值。"
+    },
+    {
+      "id": "I04",
+      "ok": true,
+      "wrong": [],
+      "reason": "真实运行 borrow，只 mock 了存储层的 count_active 和 save_loan；断言返回 '已达借阅上限' 且未保存，把 >= LIMIT 改坏会变红。"
+    },
+    {
+      "id": "I05",
+      "ok": true,
+      "wrong": [],
+      "reason": "第 5 行 count.assert_called_once_with('r1') 只检查被调用，没有检查 borrow 的返回值是否为 '已达借阅上限'。"
+    },
+    {
+      "id": "I06",
+      "ok": true,
+      "wrong": [],
+      "reason": "第 4 行 count 返回 2、借的是 book3，只测了未达上限的路径；上限是 5 本，错误的实现（如不做拦截）也能通过。"
+    },
+    {
+      "id": "I07",
+      "ok": true,
+      "wrong": [],
+      "reason": "第 6 行 expect(dueDate(at)).toEqual(dueDate(at)) 两边都是同一个被测函数的输出，无论实现对错都成立。"
+    },
+    {
+      "id": "I08",
+      "ok": true,
+      "wrong": [],
+      "reason": "第 3 行在测试文件里自己定义了 function dueDate，测的是复制进来的函数，没有 import src/loan/due。"
+    },
+    {
+      "id": "I09",
+      "ok": true,
+      "wrong": [],
+      "reason": "第 6 到 8 行 try { expect(...) } catch (e) { console.log(...) }，断言失败被 catch 吞掉，测试永远绿。"
+    },
+    {
+      "id": "I10",
+      "ok": true,
+      "wrong": [],
+      "reason": "场景要验证借书入口 borrow 的拦截，但第 6 到 7 行直接用 save_loan 写 6 条记录，从未调用 borrow，跳过了要测的入口。"
+    },
+    {
+      "id": "I11",
+      "ok": true,
+      "wrong": [],
+      "reason": "第 6 行 dueDate(new Date()) 调用真实函数，固定时间 2026-03-15 加 30 天应为 2026-04-14（跨月），改坏加天数会变红。"
+    },
+    {
+      "id": "I12",
+      "ok": true,
+      "wrong": [],
+      "reason": "第 5 行 @pytest.mark.skip(reason='later') 让 test_cap 整个被跳过，测试不会执行也不会失败。"
+    },
+    {
+      "id": "I13",
+      "ok": true,
+      "wrong": [],
+      "reason": "第 10 行 overdue_fine(long_overdue) == 20.0 与第 13 行 overdue_fine(0) == 0.0 都调用真实函数并用手写常量断言，改封顶值或去掉不罚的判断会变红。"
+    }
+  ]
+}

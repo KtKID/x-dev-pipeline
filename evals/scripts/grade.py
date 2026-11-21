@@ -2,7 +2,7 @@
 """确定性评分：spec / qdev / 链路同步 / 分组 / 多 agent 开发几组 JSON 判题。
 
 用法：python3 evals/scripts/grade.py <kind> <answer.json> [--json]
-kind：spec-scope、qdev-spec-routing、change-sync、qdev-confirm-check、req-grouping、dev-worker、dev-main、td-confirm、dev-delivery、review-route
+kind：spec-scope、qdev-spec-routing、change-sync、qdev-confirm-check、req-grouping、dev-worker、dev-main、td-confirm、dev-delivery、review-route、test-integrity
 退出码：0 全对，1 有错题，2 输入错误。
 """
 import json
@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-KINDS = ("spec-scope", "qdev-spec-routing", "change-sync", "qdev-confirm-check", "req-grouping", "dev-worker", "dev-main", "td-confirm", "dev-delivery", "review-route")
+KINDS = ("spec-scope", "qdev-spec-routing", "change-sync", "qdev-confirm-check", "req-grouping", "dev-worker", "dev-main", "td-confirm", "dev-delivery", "review-route", "test-integrity")
 EXISTING_SPECS = {"member", "catalog", "loan", "fine", "message", "engineering"}
 QDEV_FIELDS = ["route", "writes", "task_spec", "confirm", "tech_design"]
 
@@ -118,12 +118,14 @@ def grade_case(kind, exp, got):
     if kind == "spec-scope":
         ok = norm_writes(got.get("writes")) == {tuple(x) for x in exp}
         return (1 if ok else 0), 1, ([] if ok else [{"field": "writes", "expected": exp, "got": got.get("writes")}])
-    if kind == "review-route":
+    if kind in ("review-route", "test-integrity"):
         ok = str(got.get("answer", "")).strip() == exp
         return (1 if ok else 0), 1, ([] if ok else [{"field": "answer", "expected": exp, "got": got.get("answer")}])
     if kind in ("dev-worker", "dev-main", "td-confirm", "dev-delivery"):
-        ok = str(got.get("action", "")).strip() == exp
-        return (1 if ok else 0), 1, ([] if ok else [{"field": "action", "expected": exp, "got": got.get("action")}])
+        # 标准答案可以是列表：题目里两个选项都对时，答中任一个都得分
+        allowed = exp if isinstance(exp, list) else [exp]
+        ok = str(got.get("action", "")).strip() in allowed
+        return (1 if ok else 0), 1, ([] if ok else [{"field": "action", "expected": " 或 ".join(allowed), "got": got.get("action")}])
     if kind == "req-grouping":
         return grade_grouping(exp, got)
     if kind == "qdev-confirm-check":

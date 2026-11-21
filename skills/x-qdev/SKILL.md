@@ -101,6 +101,8 @@ qdev 里调 x-tech-design 不单独停下来等确认，设计结论随交付一
 
 ## 4. 执行并留证据
 
+测试规则和 x-dev 一样，见 [x-dev「测试是硬规则」](../x-dev/SKILL.md#测试是硬规则)：项目全量测试全绿、改动行覆盖率 100%、新写的测试通过真实性检查，三条都满足才算做完；测试要调用项目里真实的代码，不许在测试里重写一遍业务流程。
+
 下文的 `xdev` 指 `python3 <x-dev skill 目录>/scripts/xdev.py`，目标是本 task 的 `.md` 文件。证据目录是同目录的 `<task>-evidence/`，做法见 [证据约定](../x-dev/references/test-reporting.md)。
 
 1. 开工先运行 `xdev start <task.md>`：把当前 git HEAD 记为「代码基线」，之后覆盖率都和它比。
@@ -116,9 +118,10 @@ qdev 里调 x-tech-design 不单独停下来等确认，设计结论随交付一
 
 然后：
 
-1. 运行 `xdev check <task.md>`：核对①填了 spec 确认记录、③的用例都对应到真实测试且通过、测试命令通过、改动行覆盖率 100% 且之后代码没再改。不通过就按它列的问题修，修完从第 4 节第 5 步重来。
+1. 按 [测试真实性检查](../x-dev/references/test-integrity.md) 派一个轻量子 agent 检查本次新增和改动的测试，回执存为证据目录里的 `test-integrity.md`，运行 `xdev integrity <task.md> --receipt <回执>` 登记（没有新增或改动的测试时不带 `--receipt`）。不通过就修测试，重跑第 4 节第 5 步，再检查，最多 3 轮。
+2. 运行 `xdev check <task.md>`：核对①填了 spec 确认记录、③的用例都对应到真实测试且通过、测试命令通过、改动行覆盖率 100% 且之后代码没再改、真实性检查通过且之后测试没再改。不通过就按它列的问题修，修完从第 4 节第 5 步重来。
    脚本只查确认记录有没有填，接着按 [x-verify-spec](../x-verify-spec/SKILL.md)「做法」第 3 步做人工检查：改了场景却只写“已确认”或开发者自检 → 核对未完成；改了场景却写“未写场景，无需确认” → 核对不通过。
-2. 本轮写了场景的，交 [x-qa-gate](../x-qa-gate/SKILL.md) 按 Q1 做一次独立审查（需求对齐、测试是否证明了场景、设计与架构偏好）；只记变更、没写场景的，`xdev check` 通过即可。审查发现的问题写进⑤「问题与处置」，交 x-fix 修，修完重跑 `xdev coverage` 和 `xdev check`。
+3. 本轮写了场景的，交 [x-qa-gate](../x-qa-gate/SKILL.md) 按 Q1 做一次独立审查（需求对齐、测试是否证明了场景、设计与架构偏好）；只记变更、没写场景的，`xdev check` 通过即可。审查发现的问题写进⑤「问题与处置」，交 x-fix 修，修完重跑 `xdev coverage` 和 `xdev check`。
 
 缺输入、待澄清、失败或未验证时如实列项，保留已通过的部分。
 

@@ -1,0 +1,87 @@
+{
+  "eval": "test-integrity",
+  "score": 13,
+  "total": 13,
+  "cases_passed": 13,
+  "cases": 13,
+  "rows": [
+    {
+      "id": "I01",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/test_fine.py 第 4 行 `expected = days * DAILY_FINE` 照抄了罚款公式，期望值由业务规则重算而非手写常量。"
+    },
+    {
+      "id": "I02",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/test_fine.py 第 4 行 `assert overdue_fine(3) == 1.5` 调用真实函数，并用手写常量作期望值。"
+    },
+    {
+      "id": "I03",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/test_borrow.py 用 `@patch('src.loan.borrow.borrow', ...)` 把被测函数本身打桩，断言的只是 mock 的返回值。"
+    },
+    {
+      "id": "I04",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/test_borrow.py 真实调用 `borrow('r1', 'book6')`，只桩了存储层 count_active/save_loan，并断言返回值 '已达借阅上限' 和 save_loan 未被调用。"
+    },
+    {
+      "id": "I05",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/test_borrow.py 只有 `count.assert_called_once_with('r1')`，没有检查 borrow 的返回值是否为 '已达借阅上限'。"
+    },
+    {
+      "id": "I06",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/test_borrow.py 的 `count_active` 桩值为 2、只借一本，远低于上限 5，错误的上限实现也能通过，边界场景未测。"
+    },
+    {
+      "id": "I07",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/due.test.ts 中 `expect(dueDate(at)).toEqual(dueDate(at))` 两边是同一次调用，无论实现对错都成立。"
+    },
+    {
+      "id": "I08",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/due.test.ts 第 3 行在测试文件内自定义了 `function dueDate`，测的是复制品，没有 import src/loan/due。"
+    },
+    {
+      "id": "I09",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/due.test.ts 的 `try { expect(...) } catch (e) { console.log(...) }` 把断言失败吞掉，测试永远绿。"
+    },
+    {
+      "id": "I10",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/test_borrow.py 直接循环调用 `save_loan` 写入 6 条记录，没有调用场景要验证的借书入口 `borrow`。"
+    },
+    {
+      "id": "I11",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/due.test.ts 用 vi.setSystemTime 固定到 2026-03-15，真实调用 `dueDate(new Date())` 并断言手写的 '2026-04-14'，期望值与实现独立。"
+    },
+    {
+      "id": "I12",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/test_fine.py 的 `@pytest.mark.skip(reason='later')` 让封顶 20 元的测试根本不执行。"
+    },
+    {
+      "id": "I13",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/test_fine.py 中 `assert overdue_fine(long_overdue) == 20.0` 与 `assert overdue_fine(0) == 0.0` 调用真实函数并使用手写常量，fixture 只提供输入。"
+    }
+  ]
+}

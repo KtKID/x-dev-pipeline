@@ -12,6 +12,7 @@
 |---|---|
 | TESTS、COVERAGE、HIGH_RISK、MAPPING_PATH（测试不存在）、CASE_UNMAPPED、SCENE_UNCOVERED、MAPPING_RESULT（用例失败） | 交 x-fix，占一轮 |
 | COVERAGE_STALE | 主 agent 直接重跑 `xdev coverage`，不占轮数 |
+| INTEGRITY、INTEGRITY_STALE | 主 agent 按测试真实性检查重新派轻量子 agent；查出的问题由开发负责方修测试，不占 x-fix 轮数 |
 | COVERAGE_EXCLUDE、MAPPING_MANUAL、MAPPING（表为空）、ROW_STATUS、CODE_BASELINE | 开发负责方补记录或状态（x-dev / x-qdev），不占轮数 |
 | 结构与编号类（HEADER、SCENE_REF、CASE_REF、D_REF、GROUP_*、DEP_*、RISK 等）、SPEC_CHANGED、SPEC_CONFIRM | 交来源负责方（x-req / x-tech-design / x-explore-for-spec），不调 x-fix |
 - 入参是 x-qa-gate 问题映射，且每条带 `issue-<n>` → mode: gate-fix

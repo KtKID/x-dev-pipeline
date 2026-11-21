@@ -1,0 +1,18 @@
+[
+  {"id": "D01", "action": "补测试后重跑 xdev coverage", "reason": "覆盖率 91% 且列出了未覆盖的行，要补测试覆盖 renew.py 这几行，再重跑 coverage 直到 100%。"},
+  {"id": "D02", "action": "修好失败的测试再重跑 xdev coverage", "reason": "测试命令失败，红的是本 task 新写的测试，原有测试是绿的，先修好这个测试再重跑。"},
+  {"id": "D03", "action": "补测试后重跑 xdev coverage", "reason": "新文件 fine.py 没有任何测试调用，所以报告里没有它；补一个真正调用它的测试后重跑 coverage。"},
+  {"id": "D04", "action": "在问题与处置写理由", "reason": "磁盘满兜底分支测试造不出来，属于确实跑不到的防御代码；用排除标记后要在问题与处置写 文件路径:行 和理由。"},
+  {"id": "D05", "action": "重跑 xdev coverage", "reason": "覆盖率跑完后代码又改了，记录已过期（COVERAGE_STALE），要重跑 coverage 更新记录。"},
+  {"id": "D06", "action": "按 change-sync 同步后 xdev baseline", "reason": "spec 场景在基线之后改了（SPEC_CHANGED），要按需求变化同步处理 D、T、任务行和测试，再运行 xdev baseline。"},
+  {"id": "D07", "action": "写测试并登记到用例对应表", "reason": "用例 T4 没有对应测试，要写出测试函数并登记到用例对应表。"},
+  {"id": "D08", "action": "写人工记录到 evidence 并记人工通过", "reason": "只能人工验证的用例，要把步骤和实际看到的结果写成 evidence 下的人工记录，结果记人工通过。"},
+  {"id": "D09", "action": "升为已完成并交付", "reason": "风险是 Q0，xdev check 通过后由主 agent 直接把行升为已完成，不交 x-qa-gate。"},
+  {"id": "D10", "action": "交 x-qa-gate", "reason": "风险是 Q2，xdev check 通过后要交 x-qa-gate 做一次独立审查。"},
+  {"id": "D11", "action": "运行 xdev start 记代码基线", "reason": "spec 增量已确认但还没运行任何 xdev 命令，开工前要先运行 xdev start 记下代码基线。"},
+  {"id": "D12", "action": "升为已完成并交付", "reason": "只记变更、没写场景的 qdev 任务，xdev check 通过即可，不需要独立审查，直接交付。"},
+  {"id": "D13", "action": "交 x-qa-gate", "reason": "新增了场景，xdev check 通过后要交 x-qa-gate 按 Q1 做一次独立审查。"},
+  {"id": "D14", "action": "按回执修测试，重跑 coverage 后再检查", "reason": "真实性检查第 1 轮不通过，test_fine_amount 重写了生产逻辑，要按回执把期望值改成手算常量，重跑 coverage 后再派新的子 agent 检查。"},
+  {"id": "D15", "action": "重新派子 agent 检查并 xdev integrity", "reason": "测试文件在登记通过后又改了，检查记录已作废（INTEGRITY_STALE），要派新的子 agent 检查并重新登记。"},
+  {"id": "D16", "action": "查是不是自己改坏的，不删不跳过", "reason": "原有测试红了而 spec 和设计都没改这个行为，先查是不是自己改坏的，不能删除或 skip 它。"}
+]

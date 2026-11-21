@@ -1,14 +1,14 @@
 ---
 name: x-verify-spec
 description: |
-  Gate ① 交付核对，支持 x-dev 的 dev-checklist 与 x-qdev 单文档。运行 xdev check 核对编号、状态、需求变化已同步、每个场景有通过的用例、每个用例有真实测试、高风险行有真实链路、测试通过且改动行覆盖率 100%；qdev 另核对 spec 确认记录与文档同步。只读，输出核对通过、未完成或不通过。触发：x-dev/x-qdev 交付、用户提到 x-verify-spec 或要求 verify/复核 task。
+  Gate ① 交付核对，支持 x-dev 的 dev-checklist 与 x-qdev 单文档。运行 xdev check 核对编号、状态、需求变化已同步、每个场景有通过的用例、每个用例有真实测试、高风险行有真实链路、测试通过且改动行覆盖率 100%、测试真实性检查已登记且没过期；qdev 另核对 spec 确认记录与文档同步。只读，输出核对通过、未完成或不通过。触发：x-dev/x-qdev 交付、用户提到 x-verify-spec 或要求 verify/复核 task。
 ---
 
 # x-verify-spec · Gate ① 交付核对
 
 ## 定位
 
-回答“交付记录是不是闭合的、测试和覆盖率是不是真跑过且达标”。能用脚本判断的全部交给 `xdev check`，不靠 agent 逐项读。测试是否真的证明了场景、设计是否落实，由 [x-qa-gate](../x-qa-gate/SKILL.md) 的 reviewer 判断，这里不做。
+回答“交付记录是不是闭合的、测试和覆盖率是不是真跑过且达标、测试真实性检查是不是做过且没过期”。能用脚本判断的全部交给 `xdev check`，不靠 agent 逐项读。测试代码有没有造假由 x-dev 的 [测试真实性检查](../x-dev/references/test-integrity.md) 判断；测试内容是否对得上场景、设计是否落实，由 [x-qa-gate](../x-qa-gate/SKILL.md) 的 reviewer 判断，这里都不做。
 
 只读：不改交付文档、不重跑开发、不修代码、不递增 `.fix-counter`。
 
@@ -26,6 +26,7 @@ description: |
    | MAPPING_PATH / MAPPING_RESULT / MAPPING_MANUAL | 测试文件或测试函数不存在；结果不是通过；人工记录不在证据目录 |
    | HIGH_RISK | 高风险行没有通过的 smoke / 集成 / e2e 用例 |
    | CODE_BASELINE / COVERAGE / TESTS / COVERAGE_STALE / COVERAGE_EXCLUDE | 没记代码基线；没有覆盖率记录或不到 100%（报告里没有、也没在「问题与处置」写理由的文件算没覆盖）；测试命令没通过；覆盖率跑完后代码又改了；新加的排除标记没写理由 |
+   | INTEGRITY / INTEGRITY_STALE | 有新增或改动的测试却没有测试真实性检查记录，或检查没通过，或代码基线变过；检查之后测试或回执又改了 |
    | SPEC_CONFIRM | qdev：①没有 spec 确认记录 |
 
 3. qdev 另外人工看下面几项（脚本只查①的确认记录有没有填，查不了内容对不对）：
@@ -51,7 +52,7 @@ description: |
 ## 回执
 
 ```text
-🛡️ Gate① 核对通过 · <task> · xdev check 0 项 · 改动行覆盖率 100%（N 行）
+🛡️ Gate① 核对通过 · <task> · xdev check 0 项 · 改动行覆盖率 100%（N 行）· 测试真实性检查已登记
 🛡️ Gate① 核对不通过 · <task> · <N> 项：<规则 · 摘要> · 去向：...
 🛡️ Gate① 核对未完成 · <task> · 缺：<无法运行的原因，如没有 git、没有交付文档>
 ```

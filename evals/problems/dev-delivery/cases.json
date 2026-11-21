@@ -5,7 +5,7 @@
   },
   {
     "id": "D02",
-    "situation": "运行 xdev coverage：测试命令失败（exit 1），tests/test_renew.py 里一个既有测试红了。"
+    "situation": "运行 xdev coverage：测试命令失败（exit 1），红的是本 task 刚新写的 tests/test_renew.py::test_renew_edge，原有测试都是绿的。"
   },
   {
     "id": "D03",
@@ -50,5 +50,17 @@
   {
     "id": "D13",
     "situation": "qdev 任务新增了 loan 的 feat02 场景3（用户已确认），xdev check 通过。"
+  },
+  {
+    "id": "D14",
+    "situation": "xdev coverage 100%，测试真实性检查的轻量子 agent 交回：不通过，tests/test_fine.py::test_fine_amount 是“重写了生产逻辑”（期望值照抄了罚款公式）。这是第 1 轮检查。"
+  },
+  {
+    "id": "D15",
+    "situation": "测试真实性检查已登记通过，之后 agent 又给 tests/test_fine.py 加了一个测试，运行 xdev check 报 INTEGRITY_STALE。"
+  },
+  {
+    "id": "D16",
+    "situation": "实现完后跑全量测试，项目原有的 tests/test_report.py::test_monthly_total 红了。本 task 的 spec 和 tech-design 都没有改这个月度汇总的行为。agent 在想要不要先把这个测试标成 skip，好让覆盖率先跑出来。"
   }
 ]

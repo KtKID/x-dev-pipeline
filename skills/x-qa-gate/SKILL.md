@@ -18,13 +18,13 @@ description: |
 | Q2 | 一个精简 reviewer：四个 lens 全做 |
 | Q3 | 一个完整 reviewer：四个 lens 全做，读完整输入，逐 lens 分段回执 |
 
-机械项（编号、状态、场景→用例→测试是否存在、测试是否通过、改动行覆盖率）已由 `xdev check` 核对，reviewer 不重复做，只做脚本判断不了的事。
+机械项（编号、状态、场景→用例→测试是否存在、测试是否通过、改动行覆盖率、真实性检查记录）已由 `xdev check` 核对，测试代码是否造假已由测试真实性检查做过，reviewer 都不重复，只做剩下的判断。
 
 ## 四个 lens
 
 - **q1-intent**：实现是否对齐用户原始要求、已确认的场景和 C 约束、既有公开接口和声明的改动范围；有没有做了没要的、漏了要的。
 - **q2-correctness**：非法输入、边界条件、失败路径、状态转换、缓存、并发、幂等和资源清理是否正确。
-- **q3-evidence**：用例对应表里的测试是否真的证明了场景的 THEN 和 C 的禁止结果（断言独立于实现、没有 mock 掉被验证的机制、错误实现能让它变红）；人工验证记录是否有步骤和实际观察；覆盖率排除标记的理由是否成立；场景回指写 None 的行理由是否成立。
+- **q3-evidence**：用例对应表里的测试，测的内容是否对得上场景的 THEN 和 C 的禁止结果（有没有漏掉某个预期结果、测的是不是场景说的那件事）；人工验证记录是否有步骤和实际观察；覆盖率排除标记的理由是否成立；场景回指写 None 的行理由是否成立；测试真实性检查里“不采纳”的理由是否成立。测试代码本身有没有造假（重写生产逻辑、mock 掉被测对象、断言恒真等）已由 x-dev 的 [测试真实性检查](../x-dev/references/test-integrity.md) 做过，不重复。
 - **q4-design**：实现是否落实了 tech-design 的 D 机制和 [共用开发规范](../x-tech-design/references/development-rules.md) R1–R7，是否符合项目的 [架构偏好](../x-tech-design/templates/architecture-preferences.md) 文件（默认 `docs/architecture.md`，没有就跳过这一项）。核对方法按 [x-verify-tech](../x-verify-tech/SKILL.md) 第 1–2 节：先列约束，再对照代码；能跑的检查实际跑，语义判断写明文件、调用链和理由。
 
 ## 输入
@@ -73,8 +73,9 @@ python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" flag <task-dir> --task T2,T3 --sever
 有 P0/P1 时，主 agent 把带 `issue-<n>` 的完整问题映射交 x-fix 一次修完。关闭按这个顺序：
 
 1. x-fix 交回：每条 issue 的聚焦反例测试通过，`xdev coverage` 通过（全量测试与回归、改动行覆盖率仍 100%）。
-2. 主 agent 核对这两项后，把被 `flag` 降为 `[!] 🔴` 的行改回 `[x] 🟢`。
-3. 主 agent 运行 `xdev check`，通过才算关闭（旧契约包为一次完整 `xdev verify`）。不通过就把行再降回 🔴，问题交下一轮。
+2. x-fix 新增或改了测试时，主 agent 确认 `xdev coverage` 是在测试改完之后跑的，再按 [测试真实性检查](../x-dev/references/test-integrity.md) 派一个轻量子 agent 检查，运行 `xdev integrity`。
+3. 主 agent 核对以上各项后，把被 `flag` 降为 `[!] 🔴` 的行改回 `[x] 🟢`。
+4. 主 agent 运行 `xdev check`，通过才算关闭（旧契约包为一次完整 `xdev verify`）。不通过就把行再降回 🔴，问题交下一轮。
 
 不把修复发回原 reviewer。修复扩大到新文件或改了公开接口签名时，另派一个裁剪 reviewer 只看新增部分，同样只跑一个 turn。`reports/.fix-counter` 记批量修复轮数（x-fix 每轮递增），上限 3 轮；最终通过后写回 0。
 

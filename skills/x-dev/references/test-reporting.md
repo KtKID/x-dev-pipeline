@@ -22,6 +22,8 @@ x-dev、x-qdev、x-fix 共用。交付只看一份文件：常规 task 是 `dev-
 
 它做三件事：真的运行 `--cmd` 给的测试命令（日志存 `evidence/test-run-N.log`），读 `--report` 给的覆盖率报告，把结果写进 `evidence/coverage.json` 和「结果」的覆盖率一行。`xdev check` 只认用 `--cmd` 跑出来、测试通过、跑完之后代码没再改的记录。
 
+覆盖率到 100% 只说明代码被跑到了，不说明测试真的在测。之后还要做 [测试真实性检查](test-integrity.md)，回执存为证据目录里的 `test-integrity.md`，用 `xdev integrity` 登记。
+
 常用命令（报告格式自动识别）：
 
 | 语言 | `--cmd` | `--report` |

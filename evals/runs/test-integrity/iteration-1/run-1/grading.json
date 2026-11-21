@@ -1,0 +1,87 @@
+{
+  "eval": "test-integrity",
+  "score": 13,
+  "total": 13,
+  "cases_passed": 13,
+  "cases": 13,
+  "rows": [
+    {
+      "id": "I01",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 第 5 行 `expected = days * DAILY_FINE` 照抄了生产里的罚款公式，期望值由测试自己算出，没有写成手算常量。"
+    },
+    {
+      "id": "I02",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 第 4 行 `assert overdue_fine(3) == 1.5` 调用真实函数并用手写常量断言，与场景“逾期 3 天罚 1.5 元”一致。"
+    },
+    {
+      "id": "I03",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 第 2 行 `@patch('src.loan.borrow.borrow', return_value='已达借阅上限')` 把被测函数 borrow 本身打桩，第 4 行断言的只是桩的返回值。"
+    },
+    {
+      "id": "I04",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 只 patch 了 count_active 和 save_loan 两个依赖，真实运行 borrow，断言第 4 行 `== '已达借阅上限'` 且 `save.assert_not_called()`，改坏拦截判断会变红。"
+    },
+    {
+      "id": "I05",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 第 4 行只有 `count.assert_called_once_with('r1')`，没有检查 borrow 的返回值是否为“已达借阅上限”。"
+    },
+    {
+      "id": "I06",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 第 3 行 `return_value=2` 只测未达上限的正常借书，没有测场景要求的已借 5 本时被拒的边界，错误的拦截实现也能通过。"
+    },
+    {
+      "id": "I07",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 第 5 行 `expect(dueDate(at)).toEqual(dueDate(at))` 两边都是同一个被测函数的输出，无论实现对错都成立。"
+    },
+    {
+      "id": "I08",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 第 2 行在测试文件里自己定义了 `function dueDate(...)`，断言第 7 行测的是这份复制品，没有 import src/loan/due 里的生产函数。"
+    },
+    {
+      "id": "I09",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 第 4 至 6 行 `try { expect(...) } catch (e) { console.log(...) }` 把断言失败吞掉，测试永远绿。"
+    },
+    {
+      "id": "I10",
+      "ok": true,
+      "wrong": [],
+      "reason": "场景要验证借书入口 borrow 的拦截，但 test 第 5 行直接循环调用 save_loan 写入 6 条记录，全程没有调用 borrow，最后只断言 `count_active('r1') > LIMIT`。"
+    },
+    {
+      "id": "I11",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 用 vi.setSystemTime 固定到 2026-03-15，第 6 行断言 `dueDate(new Date())` 为 '2026-04-14'，真实调用生产函数，跨月结果是对的，改坏加天数会变红。"
+    },
+    {
+      "id": "I12",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 第 3 行 `@pytest.mark.skip(reason='later')` 让封顶 20 元的断言根本不运行，测试被跳过而不是通过。"
+    },
+    {
+      "id": "I13",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 第 6 行 `overdue_fine(100) == 20.0` 真实调用函数，封顶值与未逾期的 `overdue_fine(0) == 0.0` 都是手写常量，去掉 min 上限会变红。"
+    }
+  ]
+}

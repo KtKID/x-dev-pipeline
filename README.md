@@ -27,7 +27,8 @@ flowchart LR
     A["x-explore-for-spec<br/>explore and maintain requirements"] --> B["x-tech-design"]
     B --> C["x-req"]
     C --> D["x-dev<br/>implement + 100% coverage"]
-    D --> E["xdev check<br/>mechanical check"]
+    D --> I["test-integrity check<br/>light sub-agent looks for fake tests"]
+    I --> E["xdev check<br/>mechanical check"]
     E --> F["x-qa-gate<br/>one independent review"]
     F --> G["Delivery"]
 ```
@@ -126,11 +127,13 @@ xdev coverage <task> --cmd "<full test command>" --report <coverage report>
 
 It really runs the tests, reads the coverage report (lcov, Cobertura XML, coverage.py JSON, Go coverprofile), and computes how many code lines changed since the baseline were executed by tests; test files and documents do not count. Below 100% it lists the missed `file:line` locations, and the agent adds tests until it reaches 100%.
 
+Coverage only shows code was executed. The main agent then sends a light sub-agent to read only the new tests and look for faking or shortcuts: re-implementing business logic inside the test, not calling project code, mocking the unit under test, asserting only that something was called, tautological assertions, swallowed failures, or data that cannot tell right from wrong. Findings are fixed and rechecked; the result is registered with `xdev integrity`, and editing tests afterwards requires a recheck.
+
 ## Delivery checks: mechanical check + one independent review
 
 | Step | What it does | Result |
 |---|---|---|
-| `xdev check` (x-verify-spec) | Script check: structure and IDs, requirement changes synced, every row 🟢, every scenario has a passing case, every case maps to a real test function, high-risk rows have a real-chain case, tests pass and changed-line coverage is 100%, and code has not changed since | Pass / fail (each item listed) |
+| `xdev check` (x-verify-spec) | Script check: structure and IDs, requirement changes synced, every row 🟢, every scenario has a passing case, every case maps to a real test function, high-risk rows have a real-chain case, tests pass and changed-line coverage is 100%, the test-integrity check passed, and neither code nor tests changed since | Pass / fail (each item listed) |
 | `x-qa-gate` | One read-only reviewer chosen by risk, looking at what a script cannot judge: requirement alignment, edge and failure paths, whether tests really prove the scenarios, design and architecture preferences (Q1 skips edge paths; Q2/Q3 cover all four) | Pass / issues found |
 
 risk is computed by x-req from the rows: Q0 (purely technical, no scenarios) runs only `xdev check`; Q1 reviews alignment, test strength, design and architecture; Q2 adds edge and failure paths; Q3 uses full inputs and per-lens receipts.
@@ -146,7 +149,7 @@ x-qdev records a small change in one task document: ① requirements and changes
 The only stop is the spec increment: for changes that write scenarios, the owner, scenario text, and approach are shown to the user first; after confirmation, design, implementation, document sync, and checks run continuously. A new spec, scenarios spanning two or more specs, or more than 3 source files call x-tech-design; otherwise ② stays brief. If any [risk rule](skills/x-qdev/references/risk-rules.md) answers "yes", it stops and hands over to the main line.
 
 ```text
-x-qdev → xdev start → test-first implementation → xdev coverage (100%) → xdev check
+x-qdev → xdev start → test-first implementation → xdev coverage (100%) → test-integrity check → xdev check
        → when scenarios were written: x-qa-gate (Q1) → delivery
 ```
 
@@ -191,6 +194,7 @@ status / graph <task-dir>         progress; dispatch batches by group and depend
 impact / baseline <task-dir>      list D/T/rows/tests to sync after requirement changes; record a new baseline
 start <task>                      record the code baseline (git HEAD)
 coverage <task> --cmd ... --report ...   run tests, compute changed-line coverage, exit 1 below 100%
+integrity <task> [--receipt ...]  register the test-integrity receipt (a light sub-agent checks for fake tests)
 check <task>                      mechanical delivery check
 verify <task-dir>                 legacy contract packages only
 flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-round] [--json]

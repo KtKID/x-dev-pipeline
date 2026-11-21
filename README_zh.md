@@ -27,7 +27,8 @@ flowchart LR
     A["x-explore-for-spec<br/>探索并维护需求"] --> B["x-tech-design"]
     B --> C["x-req"]
     C --> D["x-dev<br/>实现 + 覆盖率 100%"]
-    D --> E["xdev check<br/>机械核对"]
+    D --> I["测试真实性检查<br/>轻量子 agent 查假测试"]
+    I --> E["xdev check<br/>机械核对"]
     E --> F["x-qa-gate<br/>一次独立审查"]
     F --> G["交付"]
 ```
@@ -126,11 +127,13 @@ xdev coverage <task> --cmd "<全量测试命令>" --report <覆盖率报告>
 
 它真的跑测试，读覆盖率报告（lcov、Cobertura XML、coverage.py JSON、Go coverprofile），算出“和代码基线相比改过的代码行有几行被测试跑到”，测试文件和文档不算。不到 100% 就列出没跑到的 `文件:行`，agent 补测试再跑，直到 100%。
 
+覆盖率只说明代码被跑到了。之后主 agent 派一个轻量子 agent 只读新写的测试，查有没有造假或偷懒：在测试里重写一遍业务逻辑、没调用项目代码、mock 掉被测对象、只断言“被调用了”、断言恒真、吞掉失败、数据测不出对错。查出问题就修测试再查，结果用 `xdev integrity` 登记，之后测试再改就要重查。
+
 ## 交付检查：机械核对 + 一次独立审查
 
 | 环节 | 做什么 | 结论 |
 |---|---|---|
-| `xdev check`（x-verify-spec） | 脚本核对：编号与结构、需求变化已同步、每行 🟢、每个场景都有通过的用例、每个用例对应真实测试函数、高风险行有真实链路用例、测试通过且改动行覆盖率 100%、之后代码没再改 | 通过 / 不通过（列出每一项） |
+| `xdev check`（x-verify-spec） | 脚本核对：编号与结构、需求变化已同步、每行 🟢、每个场景都有通过的用例、每个用例对应真实测试函数、高风险行有真实链路用例、测试通过且改动行覆盖率 100%、测试真实性检查通过、之后代码和测试都没再改 | 通过 / 不通过（列出每一项） |
 | `x-qa-gate` | 按 risk 派一个只读 reviewer，看脚本判断不了的事：需求对齐、边界与失败路径、测试是否真的证明了场景、设计与架构偏好（Q1 不看边界，Q2/Q3 全看） | 通过 / 发现问题 |
 
 risk 由 x-req 按任务行算出：Q0（纯技术、无场景）只跑 `xdev check`；Q1 审需求对齐、测试证明力、设计与架构；Q2 再加边界与失败路径；Q3 用完整输入、逐项回执。
@@ -146,7 +149,7 @@ x-qdev 用一份任务文档记录小改动：①需求与变更、②精简技�
 唯一停点是 spec 增量：写了场景的改动，先把归属、场景原文和改法给用户确认，确认后连续做完设计、实现、文档同步和验收。新建 spec、场景跨两份以上 spec 或源码文件超过 3 个时调 x-tech-design，否则在②简写。按 [风险规则](skills/x-qdev/references/risk-rules.md) 有一条答“是”就停下转主线。
 
 ```text
-x-qdev → xdev start → 测试先行实现 → xdev coverage（100%）→ xdev check
+x-qdev → xdev start → 测试先行实现 → xdev coverage（100%）→ 测试真实性检查 → xdev check
        → 写了场景的：x-qa-gate（Q1）→ 交付
 ```
 
@@ -191,6 +194,7 @@ status / graph <task-dir>         进度；按并行组和依赖算派工批次
 impact / baseline <task-dir>      需求变化列出要同步的 D/T/行/测试；同步后记新基线
 start <task>                      记代码基线（git HEAD）
 coverage <task> --cmd ... --report ...   跑测试，算改动行覆盖率，不到 100% 退出 1
+integrity <task> [--receipt ...]  登记测试真实性检查回执（轻量子 agent 查假测试）
 check <task>                      交付机械核对
 verify <task-dir>                 仅旧契约包
 flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-round] [--json]

@@ -47,7 +47,7 @@
    - **需求或设计的问题**：交来源负责方（x-explore-for-spec / x-tech-design），改完按第 9 步处理。
    - **和本 task 无关的问题**：登记成后续任务。
 9. **中途 spec 变了**：运行 `xdev impact`，按 change-sync 同步：受影响的行重开为 `[ ] ⏳`，需要的新行补进 checklist，然后 `xdev validate`、`xdev baseline`。只停受影响的行所在的组，其他组继续。受影响的组还没合并：原工人在原分支按更新后的派工单继续；已经合并：从最新主干新开分支重新派，这组轮数从 0 重新算。
-10. **整体收尾**：所有组都合并后，主 agent 在主干上做 x-dev SKILL.md 的第 4–7 步：全量覆盖率、Web 与界面验收、`xdev check`。`xdev check` 通过后按 risk 走：Q0 直接把行升为 `[x] ✅` 并交付；Q1、Q2、Q3 都交 x-qa-gate。给用户的回执放在最后。
+10. **整体收尾**：所有组都合并后，主 agent 在主干上做 x-dev SKILL.md 的第 4–8 步：全量覆盖率、Web 与界面验收、测试真实性检查（对整个 task 新增和改动的测试做一次）、`xdev check`。`xdev check` 通过后按 risk 走：Q0 直接把行升为 `[x] ✅` 并交付；Q1、Q2、Q3 都交 x-qa-gate。给用户的回执放在最后。
 11. **整体审查发现问题**：整个 task 一份问题清单交 x-fix，由主 agent 执行 x-fix（已过开发阶段，不再分组派工），按 task 级 `reports/.fix-counter` 计轮数。
 
 ## 派工单模板
@@ -68,7 +68,7 @@
 
 工人开工前先读自己这几行要用的依据：回指场景的正文、适用的 C、tech-design 里的 D 和用例主定义，确认涉及文件存在。然后按 x-dev SKILL.md 第 2、3 步的逐行开发规则做（先写测试、有效红灯、不 mock 掉被验证的机制、失败按根因修），做完按派工单跑覆盖率，没覆盖的行补测试直到 100%，再加上下面这些。
 
-**这些事工人不做，由主 agent 做**：回写 checklist（状态列、结果节）、运行 `xdev start` / `xdev baseline` / `xdev check`、Web 与界面验收、给用户的回执。工人把每行的状态、用例对应和证据写在自己的回执里。
+**这些事工人不做，由主 agent 做**：回写 checklist（状态列、结果节）、运行 `xdev start` / `xdev baseline` / `xdev integrity` / `xdev check`、派测试真实性检查、Web 与界面验收、给用户的回执。工人写测试同样遵守 x-dev SKILL.md「测试是硬规则」。工人把每行的状态、用例对应和证据写在自己的回执里。
 
 | 遇到的情况 | 工人怎么做 |
 |---|---|
