@@ -73,7 +73,7 @@ python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" flag <task-dir> --task T2,T3 --sever
 有 P0/P1 时，主 agent 把带 `issue-<n>` 的完整问题映射交 x-fix 一次修完。关闭按这个顺序：
 
 1. x-fix 交回：每条 issue 的聚焦反例测试通过，`xdev coverage` 通过（全量测试与回归、改动行覆盖率仍 100%）。
-2. x-fix 新增或改了测试时，主 agent 确认 `xdev coverage` 是在测试改完之后跑的，再按 [测试真实性检查](../x-dev/references/test-integrity.md) 派一个轻量子 agent 检查，运行 `xdev integrity`。
+2. x-fix 新增或改了测试时，主 agent 确认 `xdev coverage` 是在测试改完之后跑的，再按 [测试真实性检查](../x-dev/references/test-integrity.md) 派一个轻量子 agent 检查，新回执覆盖证据目录里的 `test-integrity.md`。
 3. 主 agent 核对以上各项后，把被 `flag` 降为 `[!] 🔴` 的行改回 `[x] 🟢`。
 4. 主 agent 运行 `xdev check`，通过才算关闭（旧契约包为一次完整 `xdev verify`）。不通过就把行再降回 🔴，问题交下一轮。
 

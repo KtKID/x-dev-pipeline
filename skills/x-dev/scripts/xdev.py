@@ -4,7 +4,7 @@
 本文件只负责参数解析、目标发现和引擎分流：
 
 - checklist_engine.py（x-req）：当前格式 task 的 scaffold/validate/status/graph/impact/baseline
-- delivery.py（x-dev）：开发与交付的 start/coverage/integrity/check（代码基线、改动行覆盖率、测试真实性记录、交付机械核对）
+- delivery.py（x-dev）：开发与交付的 start/coverage/check（代码基线、改动行覆盖率、交付机械核对，含测试真实性检查回执）
 - req.py（x-req）：只服务父 spec 声明 spec_version: 3 的旧契约包
 - validator.py（x-spec）：旧 spec/change 包校验
 - verify.py（x-verify-spec）：只服务旧契约包的 dev-report verify 块
@@ -19,7 +19,6 @@
   python3 <x-dev-skill-dir>/scripts/xdev.py baseline <task-dir> [--json]
   python3 <x-dev-skill-dir>/scripts/xdev.py start <task-dir 或 qdev task.md> [--json]
   python3 <x-dev-skill-dir>/scripts/xdev.py coverage <目标> --cmd "<全量测试命令>" --report <覆盖率报告> [--out <dir>] [--json]
-  python3 <x-dev-skill-dir>/scripts/xdev.py integrity <目标> [--receipt <回执>] [--json]
   python3 <x-dev-skill-dir>/scripts/xdev.py check <目标> [--json]
   python3 <x-dev-skill-dir>/scripts/xdev.py verify <task-dir> [--json] [--only <id>]   # 仅旧契约包
   python3 <x-dev-skill-dir>/scripts/xdev.py flag <task-dir> --task T2,T3 --severity P0 \
@@ -198,11 +197,6 @@ def _build_parser() -> argparse.ArgumentParser:
     cov.add_argument("--out", help="只把记录写到这个目录、不改交付文档（并行开发的工人用）")
     cov.add_argument("--json", action="store_true", dest="as_json")
 
-    itg = sub.add_parser("integrity", help="登记测试真实性检查回执，记下当时测试文件的版本")
-    itg.add_argument("target", help="task 目录，或 qdev 的 task .md")
-    itg.add_argument("--receipt", help="轻量子 agent 的回执文件（有新增或改动的测试时必填）")
-    itg.add_argument("--json", action="store_true", dest="as_json")
-
     chk = sub.add_parser("check", help="交付机械核对：编号、状态、场景→用例→测试、覆盖率 100%%")
     chk.add_argument("target", help="task 目录，或 qdev 的 task .md")
     chk.add_argument("--json", action="store_true", dest="as_json")
@@ -307,14 +301,12 @@ def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     if args.cmd in {"scaffold", "status", "graph", "impact", "baseline"}:
         return _task_command(args)
-    if args.cmd in {"start", "coverage", "integrity", "check"}:
+    if args.cmd in {"start", "coverage", "check"}:
         try:
             if args.cmd == "start":
                 return delivery.start(args.target, args.as_json)
             if args.cmd == "coverage":
                 return delivery.coverage(args.target, args.report, args.cmd_list, args.out, args.as_json)
-            if args.cmd == "integrity":
-                return delivery.integrity(args.target, args.receipt, args.as_json)
             return delivery.check(args.target, args.as_json)
         except delivery.UsageError as e:
             print(f"错误：{e}", file=sys.stderr)

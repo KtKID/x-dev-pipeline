@@ -16,6 +16,6 @@
   "D12": "升为已完成并交付",
   "D13": "交 x-qa-gate",
   "D14": "按回执修测试，重跑 coverage 后再检查",
-  "D15": "重跑 xdev coverage 后重新检查并 xdev integrity",
+  "D15": "重跑 xdev coverage 后重新派子 agent 检查",
   "D16": "查是不是自己改坏的，不删不跳过"
 }

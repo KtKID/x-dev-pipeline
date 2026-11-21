@@ -40,7 +40,7 @@ x-explore-for-spec → x-tech-design → x-req → x-dev ──→ 真实性检�
 小改动：x-qdev 一个 agent 走完，同样用 xdev start / coverage / check。问题修复交 x-fix。
 ```
 
-- 能用脚本判断的都交给 `xdev`：结构与编号（validate）、需求变化（impact）、派工顺序（graph）、代码基线（start）、改动行覆盖率 100%（coverage）、测试真实性检查记录（integrity）、交付核对（check）。agent 只做脚本判断不了的事。
+- 能用脚本判断的都交给 `xdev`：结构与编号（validate）、需求变化（impact）、派工顺序（graph）、代码基线（start）、改动行覆盖率 100%（coverage）、交付核对（check，也读测试真实性检查的回执）。agent 只做脚本判断不了的事。
 - 独立审查只有一次：x-qa-gate 按 risk 派一个 reviewer（Q0 不派）。四个 lens 是需求对齐、边界、测试是否证明了场景、设计与架构偏好；Q1 做其中三个（不含边界），Q2/Q3 四个都做。x-verify-tech 是 q4-design lens 的方法来源，也可以单独调用。
 - `cli/` 下的 Go 版本保留不删：计划以后做成“agent 调一个命令就能初始化这套管线、安装必需 skill”的工具，目前暂停维护，行为停在旧引擎，skill 不调用它。
 - x-plan 已废弃，功能合并到 x-req。

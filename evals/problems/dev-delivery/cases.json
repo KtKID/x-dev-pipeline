@@ -57,7 +57,7 @@
   },
   {
     "id": "D15",
-    "situation": "测试真实性检查已登记通过，之后 agent 又给 tests/test_fine.py 加了一个测试，运行 xdev check 报 INTEGRITY_STALE。"
+    "situation": "测试真实性检查回执已经是通过，之后 agent 又给 tests/test_fine.py 加了一个测试，运行 xdev check 报 COVERAGE_STALE。"
   },
   {
     "id": "D16",

@@ -26,7 +26,7 @@ description: |
    | MAPPING_PATH / MAPPING_RESULT / MAPPING_MANUAL | 测试文件或测试函数不存在；结果不是通过；人工记录不在证据目录 |
    | HIGH_RISK | 高风险行没有通过的 smoke / 集成 / e2e 用例 |
    | CODE_BASELINE / COVERAGE / TESTS / COVERAGE_STALE / COVERAGE_EXCLUDE | 没记代码基线；没有覆盖率记录或不到 100%（报告里没有、也没在「问题与处置」写理由的文件算没覆盖）；测试命令没通过；覆盖率跑完后代码又改了；新加的排除标记没写理由 |
-   | INTEGRITY / INTEGRITY_STALE | 有新增或改动的测试却没有测试真实性检查记录，或检查没通过，或代码基线变过；检查之后测试或回执又改了 |
+   | INTEGRITY / INTEGRITY_STALE | 有新增或改动的测试，证据目录里却没有测试真实性检查回执，或回执没列全这些测试、结论没通过且问题没写不采纳理由；回执写在最后一次跑覆盖率之前（测试改过，要重查） |
    | SPEC_CONFIRM | qdev：①没有 spec 确认记录 |
 
 3. qdev 另外人工看下面几项（脚本只查①的确认记录有没有填，查不了内容对不对）：

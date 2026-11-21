@@ -127,7 +127,7 @@ xdev coverage <task> --cmd "<full test command>" --report <coverage report>
 
 It really runs the tests, reads the coverage report (lcov, Cobertura XML, coverage.py JSON, Go coverprofile), and computes how many code lines changed since the baseline were executed by tests; test files and documents do not count. Below 100% it lists the missed `file:line` locations, and the agent adds tests until it reaches 100%.
 
-Coverage only shows code was executed. The main agent then sends a light sub-agent to read only the new tests and look for faking or shortcuts: re-implementing business logic inside the test, not calling project code, mocking the unit under test, asserting only that something was called, tautological assertions, swallowed failures, or data that cannot tell right from wrong. Findings are fixed and rechecked; the result is registered with `xdev integrity`, and editing tests afterwards requires a recheck.
+Coverage only shows code was executed. The main agent then sends a light sub-agent to read only the new tests and look for faking or shortcuts: re-implementing business logic inside the test, not calling project code, mocking the unit under test, asserting only that something was called, tautological assertions, swallowed failures, or data that cannot tell right from wrong. Findings are fixed and rechecked. The receipt is saved in the evidence directory and read by `xdev check`; editing tests afterwards means rerunning coverage and rechecking.
 
 ## Delivery checks: mechanical check + one independent review
 
@@ -194,7 +194,6 @@ status / graph <task-dir>         progress; dispatch batches by group and depend
 impact / baseline <task-dir>      list D/T/rows/tests to sync after requirement changes; record a new baseline
 start <task>                      record the code baseline (git HEAD)
 coverage <task> --cmd ... --report ...   run tests, compute changed-line coverage, exit 1 below 100%
-integrity <task> [--receipt ...]  register the test-integrity receipt (a light sub-agent checks for fake tests)
 check <task>                      mechanical delivery check
 verify <task-dir>                 legacy contract packages only
 flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-round] [--json]

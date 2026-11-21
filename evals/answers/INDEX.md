@@ -159,7 +159,7 @@
 | D10 D13 | Q2 / qdev 写了场景，check 通过 | 交 x-qa-gate |
 | D11 | qdev 开工 | 运行 xdev start 记代码基线 |
 | D14 | 真实性检查不通过 | 按回执修测试，重跑 coverage 后再检查 |
-| D15 | 检查后又改了测试 | 重跑 xdev coverage 后重新检查并 xdev integrity |
+| D15 | 检查后又改了测试 | 重跑 xdev coverage 后重新派子 agent 检查 |
 | D16 | 原有测试红了，需求没改这块 | 查是不是自己改坏的，不删不跳过 |
 
 ## 独立审查与架构偏好（review-route）
@@ -201,7 +201,7 @@
 
 ## 脚本的确定性测试
 
-`skills/x-req/scripts/checklist_engine.py` 的机械规则（编号引用、文件交集必须同组、依赖无环、risk 计算、impact 列出的同步项、baseline）由 `test/test_checklist_engine.py` 覆盖；`skills/x-dev/scripts/delivery.py` 的 start / coverage / check（代码基线、四种覆盖率报告格式、改动行和新文件计入、测试文件和文档不计、排除标记要写理由、覆盖率过期、场景→用例→测试、高风险行要真实链路、qdev 确认记录、测试真实性记录的登记、过期和不采纳）由 `test/test_delivery.py` 覆盖。都不需要 LLM 判题。
+`skills/x-req/scripts/checklist_engine.py` 的机械规则（编号引用、文件交集必须同组、依赖无环、risk 计算、impact 列出的同步项、baseline）由 `test/test_checklist_engine.py` 覆盖；`skills/x-dev/scripts/delivery.py` 的 start / coverage / check（代码基线、四种覆盖率报告格式、改动行和新文件计入、测试文件和文档不计、排除标记要写理由、覆盖率过期、场景→用例→测试、高风险行要真实链路、qdev 确认记录、测试真实性回执的格式、范围、过期和不采纳）由 `test/test_delivery.py` 覆盖。都不需要 LLM 判题。
 
 ## tech-design 不需要用户确认（td-confirm）
 

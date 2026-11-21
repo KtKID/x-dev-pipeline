@@ -127,7 +127,7 @@ xdev coverage <task> --cmd "<全量测试命令>" --report <覆盖率报告>
 
 它真的跑测试，读覆盖率报告（lcov、Cobertura XML、coverage.py JSON、Go coverprofile），算出“和代码基线相比改过的代码行有几行被测试跑到”，测试文件和文档不算。不到 100% 就列出没跑到的 `文件:行`，agent 补测试再跑，直到 100%。
 
-覆盖率只说明代码被跑到了。之后主 agent 派一个轻量子 agent 只读新写的测试，查有没有造假或偷懒：在测试里重写一遍业务逻辑、没调用项目代码、mock 掉被测对象、只断言“被调用了”、断言恒真、吞掉失败、数据测不出对错。查出问题就修测试再查，结果用 `xdev integrity` 登记，之后测试再改就要重查。
+覆盖率只说明代码被跑到了。之后主 agent 派一个轻量子 agent 只读新写的测试，查有没有造假或偷懒：在测试里重写一遍业务逻辑、没调用项目代码、mock 掉被测对象、只断言“被调用了”、断言恒真、吞掉失败、数据测不出对错。查出问题就修测试再查。回执存进证据目录，`xdev check` 会读它；之后测试再改，覆盖率要重跑，回执也要重查。
 
 ## 交付检查：机械核对 + 一次独立审查
 
@@ -194,7 +194,6 @@ status / graph <task-dir>         进度；按并行组和依赖算派工批次
 impact / baseline <task-dir>      需求变化列出要同步的 D/T/行/测试；同步后记新基线
 start <task>                      记代码基线（git HEAD）
 coverage <task> --cmd ... --report ...   跑测试，算改动行覆盖率，不到 100% 退出 1
-integrity <task> [--receipt ...]  登记测试真实性检查回执（轻量子 agent 查假测试）
 check <task>                      交付机械核对
 verify <task-dir>                 仅旧契约包
 flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-round] [--json]

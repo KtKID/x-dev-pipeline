@@ -4,12 +4,10 @@
 - start：开工时把 git HEAD 记为「代码基线」，之后的改动都和它比。
 - coverage：运行测试命令，读覆盖率报告，算出本次改动的代码行有多少被测试跑到；
   不到 100% 就列出没跑到的 文件:行，退出码 1。结果写进证据目录和交付文档的「结果」节。
-- integrity：登记测试真实性检查的回执（轻量子 agent 检查新增/改动的测试有没有造假或偷懒），
-  记下当时测试文件的版本；结论不通过、且有问题没写“不采纳”理由时退出码 1。
 - check：交付前的机械核对（原 x-verify-spec 里能用脚本判断的部分）：
   结构与编号、需求变化已同步、行状态、每个场景都有通过的用例、每个用例都有真实存在的测试、
   高风险行有真实链路用例、覆盖率记录 100% 且代码之后没再改过、
-  测试真实性检查通过且之后测试没再改过。
+  测试真实性检查回执（证据目录 test-integrity.md）通过且是在最后一次跑覆盖率之后写的。
 
 对象：
 - 常规 task：docs/spec/<spec>/tasks/<task>/（读写 dev-checklist.md，证据放 <task>/evidence/）。
@@ -23,6 +21,7 @@ import json
 import re
 import subprocess
 import sys
+import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
@@ -36,7 +35,7 @@ DOC_DIRS = ("docs/", "evals/", "reports/")
 PASS_WORDS = {"通过", "人工通过"}
 REAL_LAYERS = ("smoke", "e2e", "集成", "integration", "真实链路")
 RECORD = "coverage.json"
-INTEGRITY_RECORD = "test-integrity.json"
+RECEIPT = "test-integrity.md"
 SKIP_DIRS = re.compile(r"(^|/)(evidence|[^/]+-evidence)/")
 
 
@@ -462,6 +461,7 @@ def coverage(raw: str, reports: list[str], cmds: list[str], out_dir: str | None,
     result = measure(t.root, base, report_paths)
     result["reports"] = [rel(r, t.root) for r in report_paths]
     result["runs"] = runs
+    result["finished_at"] = time.time()
     tests_ok = bool(runs) and all(x["exit"] == 0 for x in runs)
     result["tests_ok"] = tests_ok
     result["ok"] = tests_ok and result["percent"] == 100.0
@@ -540,83 +540,45 @@ def parse_integrity_receipt(text: str) -> tuple[str | None, list[str], set[str]]
     return verdict, locations, checked
 
 
-def integrity(raw: str, receipt: str | None, as_json: bool = False) -> int:
-    t = Target(raw)
-    base = header(t.text(), "代码基线")
-    if base is None:
-        raise UsageError("交付文档没有「代码基线」，开工时先运行 xdev start")
-    tests = changed_test_files(t.root, base)
-    t.evidence.mkdir(parents=True, exist_ok=True)
-    result: dict = {"base": base, "tests": tests, "test_state": code_state(t.root, tests)}
-    problems: list[str] = []
-    if not tests:
-        result.update({"verdict": "无需检查", "receipt": None, "findings": [], "open": []})
-    else:
-        if not receipt:
-            raise UsageError("有新增或改动的测试，要先派轻量子 agent 检查，再用 --receipt 给出回执文件。要检查的测试文件：" + "、".join(tests))
-        rp = Path(receipt) if Path(receipt).is_absolute() else t.root / receipt
-        if not rp.is_file():
-            raise UsageError(f"回执文件不存在：{rp}")
-        text = rp.read_text(encoding="utf-8")
-        verdict, findings, checked = parse_integrity_receipt(text)
-        if "测试真实性检查回执" not in text or verdict is None:
-            raise UsageError("回执格式不对：要有“测试真实性检查回执”和“结论：通过/不通过”，见 references/test-integrity.md")
-        missing = [p for p in tests if p not in checked]
-        if missing:
-            problems.append("回执的“已检查”没有列出这些测试文件：" + "、".join(missing))
-        notes = section_text(t.text(), "问题与处置")
-        rebutted = {loc for loc in findings
-                    if any("测试真实性" in ln and loc in ln and "不采纳" in ln for ln in notes.splitlines())}
-        open_items = [loc for loc in findings if loc not in rebutted]
-        if verdict == "不通过" and not findings:
-            open_items = ["（回执结论不通过，但没列出具体问题）"]
-        result.update({"verdict": verdict, "receipt": rel(rp, t.root), "receipt_state": git(t.root, "hash-object", "--", str(rp)).strip(),
-                       "findings": findings, "rebutted": sorted(rebutted), "open": open_items})
-        if open_items:
-            problems.append("这些问题还没修，也没写不采纳理由：" + "、".join(open_items))
-    result["ok"] = not problems
-    result["problems"] = problems
-    (t.evidence / INTEGRITY_RECORD).write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
-    if as_json:
-        print(json.dumps(result, ensure_ascii=False))
-    elif result["ok"]:
-        n = len(tests)
-        extra = f"，{len(result.get('rebutted', []))} 条不采纳" if result.get("rebutted") else ""
-        print(f"✅ 测试真实性检查已登记 · {n} 个测试文件{extra}" if n else "✅ 没有新增或改动的测试，无需真实性检查")
-    else:
-        print("❌ 测试真实性检查未通过")
-        for p in problems:
-            print("  " + p)
-    return 0 if result["ok"] else 1
-
-
-def check_integrity_record(t: Target, out: list[dict]) -> None:
+def check_integrity(t: Target, out: list[dict]) -> None:
+    """测试真实性检查：有新增或改动的测试时，证据目录里要有子 agent 的回执，结论通过
+    （或每条问题都在「问题与处置」写了不采纳理由），列全改动的测试文件，
+    并且回执写在最后一次跑覆盖率之后（测试一改覆盖率就要重跑，旧回执随之过期）。"""
     base = header(t.text(), "代码基线")
     if base is None:
         return
-    record = t.evidence / INTEGRITY_RECORD
     try:
         tests = changed_test_files(t.root, base)
     except UsageError as e:
         problem(out, "INTEGRITY", f"无法列出改动的测试：{e}")
         return
-    if not record.is_file():
-        if tests:
-            problem(out, "INTEGRITY", "没有测试真实性检查记录：派轻量子 agent 检查后运行 xdev integrity")
+    if not tests:
         return
-    data = json.loads(record.read_text(encoding="utf-8"))
-    if data.get("base") != base:
-        problem(out, "INTEGRITY", "真实性检查记录的基线和「代码基线」不一致（代码基线变过）：重新检查")
+    rp = t.evidence / RECEIPT
+    where = rel(rp, t.root)
+    if not rp.is_file():
+        problem(out, "INTEGRITY", f"有新增或改动的测试，但没有测试真实性检查回执 {where}：派轻量子 agent 检查这些测试：" + "、".join(tests))
         return
-    if not data.get("ok"):
-        problem(out, "INTEGRITY", "测试真实性检查没通过：" + "；".join(data.get("problems", [])))
-    if code_state(t.root, tests) != data.get("test_state"):
-        problem(out, "INTEGRITY_STALE", "真实性检查之后测试又改了（或有新测试）：先重跑 xdev coverage，再重新派子 agent 检查并运行 xdev integrity")
-    receipt = data.get("receipt")
-    if receipt:
-        rp = t.root / receipt
-        if not rp.is_file() or git(t.root, "hash-object", "--", str(rp)).strip() != data.get("receipt_state"):
-            problem(out, "INTEGRITY_STALE", "真实性检查回执在登记后被改动或删除：重新检查并登记")
+    text = rp.read_text(encoding="utf-8")
+    verdict, findings, checked = parse_integrity_receipt(text)
+    if "测试真实性检查回执" not in text or verdict is None:
+        problem(out, "INTEGRITY", f"{where} 格式不对：要有“测试真实性检查回执”和“结论：通过/不通过”")
+        return
+    missing = [p for p in tests if p not in checked]
+    if missing:
+        problem(out, "INTEGRITY", "回执的“已检查”没有列出这些测试文件：" + "、".join(missing))
+    notes = section_text(t.text(), "问题与处置")
+    open_items = [loc for loc in findings
+                  if not any("测试真实性" in ln and loc in ln and "不采纳" in ln for ln in notes.splitlines())]
+    if verdict == "不通过" and not findings:
+        open_items = ["（结论不通过，但没列出具体问题）"]
+    if open_items:
+        problem(out, "INTEGRITY", "测试真实性检查的问题还没修，也没写不采纳理由：" + "、".join(open_items))
+    record = t.evidence / RECORD
+    if record.is_file():
+        finished = json.loads(record.read_text(encoding="utf-8")).get("finished_at")
+        if finished and rp.stat().st_mtime < finished:
+            problem(out, "INTEGRITY_STALE", "覆盖率在真实性检查之后重跑过（测试可能改了）：重新派子 agent 检查，覆盖回执")
 
 
 # ───────────────────────────── check ─────────────────────────────
@@ -753,7 +715,7 @@ def check_checklist(t: Target) -> list[dict]:
             cases_needed.setdefault(cid, "tech-design 里回指本轮场景")
     check_mapping(t, cases_needed, scenes_needed, design_cases, rows_high, ce, main, out)
     check_coverage_record(t, out)
-    check_integrity_record(t, out)
+    check_integrity(t, out)
     return out
 
 
@@ -772,7 +734,7 @@ def check_qdev(t: Target) -> list[dict]:
                 cases_needed[cid] = "③"
     check_mapping(t, cases_needed, set(), {}, [], ce, "", out)
     check_coverage_record(t, out)
-    check_integrity_record(t, out)
+    check_integrity(t, out)
     return out
 
 
@@ -795,4 +757,4 @@ def check(raw: str, as_json: bool = False) -> int:
     return 0 if not out else 1
 
 
-__all__ = ["start", "coverage", "integrity", "check", "measure", "UsageError"]
+__all__ = ["start", "coverage", "check", "measure", "UsageError"]

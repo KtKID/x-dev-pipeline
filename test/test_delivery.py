@@ -4,6 +4,7 @@ import os
 import subprocess
 import tempfile
 import textwrap
+import time
 import unittest
 from pathlib import Path
 
@@ -231,59 +232,56 @@ class DeliveryTest(unittest.TestCase):
         f = self.root / "tests/test_borrow.py"
         f.write_text(f.read_text(encoding="utf-8") + extra, encoding="utf-8")
 
-    def test_changed_test_needs_integrity_check(self):
+    def test_changed_test_needs_integrity_receipt(self):
         os.environ["COVER_ALL"] = "1"
         self.change_test()
         self.coverage()
-        self.assertIn("INTEGRITY", self.check()[1])
-        self.assertEqual(run("integrity", str(self.task))[0], 2)
+        rules = self.check()[1]
+        self.assertIn("INTEGRITY", rules)
+        msg = " ".join(p["msg"] for p in self.check()[2]["problems"])
+        self.assertIn("tests/test_borrow.py", msg)  # 列出要查的测试文件
 
-    def test_integrity_pass_then_stale_after_test_edit(self):
+    def test_integrity_pass(self):
         os.environ["COVER_ALL"] = "1"
         self.change_test()
         self.coverage()
-        self.assertEqual(run("integrity", str(self.task), "--receipt", self.receipt())[0], 0)
+        self.receipt()
         self.assertEqual(self.check()[1], [])
-        self.change_test("\ndef test_even_more(): pass\n")
+
+    def test_test_edit_after_receipt_makes_both_stale(self):
+        os.environ["COVER_ALL"] = "1"
+        self.change_test()
+        self.coverage()
+        self.receipt()
+        self.change_test("\ndef test_red(): assert False\n")
+        self.assertIn("COVERAGE_STALE", self.check()[1])
+        time.sleep(0.01)
         self.coverage()
         self.assertIn("INTEGRITY_STALE", self.check()[1])
+        self.receipt()
+        self.assertNotIn("INTEGRITY_STALE", self.check()[1])
 
     def test_integrity_fail_until_fixed_or_rebutted(self):
         os.environ["COVER_ALL"] = "1"
         self.change_test()
         self.coverage()
-        row = "| tests/test_borrow.py::test_more | 断言恒真 | tests/test_borrow.py:3 `assert 1 == 1` | 断言借书结果 |\n"
-        rec = self.receipt("不通过", row)
-        self.assertEqual(run("integrity", str(self.task), "--receipt", rec)[0], 1)
+        self.receipt("不通过", "| tests/test_borrow.py::test_more | 断言恒真 | tests/test_borrow.py:3 `assert 1 == 1` | 断言借书结果 |\n")
         self.assertIn("INTEGRITY", self.check()[1])
         path = self.task / "dev-checklist.md"
         path.write_text(path.read_text(encoding="utf-8") + "\n### 问题与处置\n\n- 测试真实性 · tests/test_borrow.py::test_more · 不采纳：这是占位冒烟，真实断言在 test_borrow_ok\n", encoding="utf-8")
-        self.assertEqual(run("integrity", str(self.task), "--receipt", rec)[0], 0)
         self.assertEqual(self.check()[1], [])
 
-    def test_integrity_receipt_must_list_every_changed_test(self):
+    def test_receipt_must_list_every_changed_test_exactly(self):
         os.environ["COVER_ALL"] = "1"
         self.change_test()
         (self.root / "tests/test_new.py").write_text("def test_new(): pass\n", encoding="utf-8")
         self.coverage()
-        self.assertEqual(run("integrity", str(self.task), "--receipt", self.receipt())[0], 1)
-
-    def test_test_edit_after_coverage_makes_coverage_stale(self):
-        os.environ["COVER_ALL"] = "1"
-        self.change_test()
-        self.coverage()
-        run("integrity", str(self.task), "--receipt", self.receipt())
-        self.change_test("\ndef test_red(): assert False\n")
-        rules = self.check()[1]
-        self.assertIn("COVERAGE_STALE", rules)
-        self.assertIn("INTEGRITY_STALE", rules)
-
-    def test_checked_list_is_exact_and_may_wrap(self):
-        os.environ["COVER_ALL"] = "1"
-        self.change_test()
-        self.coverage()
-        self.assertEqual(run("integrity", str(self.task), "--receipt", self.receipt(checked="x/tests/test_borrow.py.bak"))[0], 1)
-        self.assertEqual(run("integrity", str(self.task), "--receipt", self.receipt(checked="\n- tests/test_borrow.py"))[0], 0)
+        self.receipt()
+        self.assertIn("INTEGRITY", self.check()[1])
+        self.receipt(checked="x/tests/test_borrow.py.bak、tests/test_new.py")
+        self.assertIn("INTEGRITY", self.check()[1])
+        self.receipt(checked="\n- tests/test_borrow.py\n- tests/test_new.py")
+        self.assertEqual(self.check()[1], [])
 
     def test_receipt_with_heading_still_reads_findings(self):
         os.environ["COVER_ALL"] = "1"
@@ -292,16 +290,7 @@ class DeliveryTest(unittest.TestCase):
         path = self.task / "evidence" / "test-integrity.md"
         path.write_text("测试真实性检查回执 · task-core · 结论：通过\n已检查：tests/test_borrow.py\n\n## 问题\n\n"
                         "| 测试位置 | 问题类型 | 证据 | 怎么改 |\n|---|---|---|---|\n| tests/test_borrow.py::test_more | 断言恒真 | x | y |\n", encoding="utf-8")
-        self.assertEqual(run("integrity", str(self.task), "--receipt", str(path))[0], 1)
-
-    def test_integrity_receipt_edited_after_record(self):
-        os.environ["COVER_ALL"] = "1"
-        self.change_test()
-        self.coverage()
-        rec = self.receipt()
-        run("integrity", str(self.task), "--receipt", rec)
-        Path(rec).write_text(Path(rec).read_text(encoding="utf-8") + "\n补一句\n", encoding="utf-8")
-        self.assertIn("INTEGRITY_STALE", self.check()[1])
+        self.assertIn("INTEGRITY", self.check()[1])
 
     # check
     def test_check_without_coverage_record(self):
