@@ -2,7 +2,7 @@
 
 > spec：pipeline-skills
 > 主要入口：skills/x-*/SKILL.md、skills/*/references/、skills/x-dev/scripts/xdev.py、skills/x-req/scripts/checklist_engine.py
-> 状态：待用户确认
+> 状态：在用
 > 最近更新：2026-11-20
 
 管线 skill 的行为本身也按 spec 管：改一条 skill 规则，就在这里新增或修改场景，并写明用哪组 eval 或测试验收。
@@ -13,7 +13,7 @@
 
 - 本次目标与范围：把 spec-scope-qdev 分支里已经改好的 skill 行为补进本 spec，作为第一批内容（feat01–feat06）。
 - 验证证据：每个场景列出的 eval 最近一轮全对；`test/` 全部通过。
-- 完成条件：用户确认本 spec，状态改为在用。
+- 完成条件：用户确认本 spec（2026-11-20 已确认），feat06 补题验收（td-confirm 已通过）。
 
 ## 关键约束（用户已确认）
 
@@ -162,7 +162,7 @@ spec 变了，顺着编号找到要动的 D、T、任务行和测试。
 
 ## feat06: tech-design 不需要用户确认
 
-> 状态：待补验收
+> 状态：已验收
 
 场景1: 写完直接交接
 依据与价值：用户已定 spec 必须确认、tech-design 可选审阅。
@@ -176,10 +176,11 @@ spec 变了，顺着编号找到要动的 D、T、任务行和测试。
 - WHEN x-tech-design 交接
 - THEN 只把这一项单独问用户，其他部分照常交接
 
-验收：还没有专门的题。三轮 sonnet 冲突审查已确认各 skill 不再要求 tech-design 用户确认，但按 C1，补题前本 feat 不算已验收。
+验收：eval td-confirm（6 题）。
 
 ## 变更记录
 
 | 日期 | 改了什么 | 依据 / task | 状态 |
 |---|---|---|---|
-| 2026-11-20 | 新建本 spec，补入 feat01–feat06 | 用户 2026-11-20 选方案 A；分支 spec-scope-qdev | 待用户确认 |
+| 2026-11-20 | 新建本 spec，补入 feat01–feat06 | 用户 2026-11-20 选方案 A，并确认本 spec 内容；分支 spec-scope-qdev | 已确认 |
+| 2026-11-20 | feat06 补验收题 td-confirm，6/6 ×2 | evals/runs/td-confirm/ | 已验收 |

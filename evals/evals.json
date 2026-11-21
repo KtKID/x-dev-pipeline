@@ -171,6 +171,21 @@
         "rubric": "evals/answers/dev-main/rubric.md",
         "script": "evals/scripts/grade.py dev-main"
       }
+    },
+    {
+      "id": 20,
+      "name": "td-confirm",
+      "prompt_file": "evals/problems/td-confirm/prompt.md",
+      "files": [
+        "skills/x-tech-design/SKILL.md",
+        "skills/x-req/SKILL.md",
+        "skills/x-qdev/SKILL.md",
+        "evals/problems/td-confirm/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/td-confirm/rubric.md",
+        "script": "evals/scripts/grade.py td-confirm"
+      }
     }
   ]
 }

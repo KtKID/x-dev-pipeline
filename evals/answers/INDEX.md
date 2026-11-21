@@ -142,6 +142,22 @@
 
 `skills/x-req/scripts/checklist_engine.py` 的机械规则（编号引用、文件交集必须同组、依赖无环、risk 计算、impact 列出的同步项、baseline）由 `test/test_checklist_engine.py` 覆盖，不需要 LLM 判题。
 
+## tech-design 不需要用户确认（td-confirm）
+
+- 规则：`skills/x-tech-design/SKILL.md`、`skills/x-req/SKILL.md`「就绪检查」、`skills/x-qdev/SKILL.md` 第 3 节
+- 题面：`evals/problems/td-confirm/`；答案：`evals/answers/td-confirm/expected.json`
+- 对应 spec：`docs/spec/pipeline-skills/spec.md` feat06
+
+| 用例 | 考的规则 | 正确判断 |
+|---|---|---|
+| T01 T05 | 只有实现层面的选择 | 直接交给 x-req |
+| T02 | 会改变使用者看到的结果的取舍 | 单独问用户这一项，其余照常交接 |
+| T03 | tech-design 没被用户看过 | 可以拆任务 |
+| T04 | 有未决取舍，只影响一个场景 | 受影响的部分等答复，其余先拆 |
+| T06 | qdev 里调 x-tech-design | 继续开发，交付时一起告知 |
+
+干扰项"停下等用户确认整份设计"任何一题选它都算错。
+
 ## 还没有题的规则
 
-- tech-design 不需要用户确认，只有需要拍板的取舍单独问（`docs/spec/pipeline-skills/spec.md` feat06；规则在 `skills/x-tech-design/SKILL.md`）。
+- 暂无。
