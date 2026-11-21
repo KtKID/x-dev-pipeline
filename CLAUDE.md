@@ -49,7 +49,7 @@ x-explore-for-spec → x-tech-design → x-req → x-dev → x-verify-spec → x
 - x-explore-for-spec 合并原 x-explore 与 x-spec：每次核对目标、现状、范围、约束与验收，逐批把已确认且有价值的结论写入所属 spec（归属见 `skills/x-explore-for-spec/references/spec-scope.md`），已有明确答案直接采用。
 - x-tech-design 与 x-req 只承接本轮选中的已确认场景，该 spec 其他计划项保持原状态；一个 feat 可以分批交付，3 feat / 10 场景是单轮审阅建议。
 - x-adversarial-risk 按适用预算复核需求；带风险版本标记的旧契约沿用相应风险门禁。
-- `skills/x-dev/scripts/xdev.py` 只做 CLI 分流：当前格式 task 的 scaffold/validate/status/graph/impact/baseline 归 `skills/x-req/scripts/checklist_engine.py`；声明 `spec_version: 3` 的旧包归 req.py / validator.py / verify.py；flag 归 x-qa-gate。`cli/` 下的 Go 版本是旧引擎的移植，skill 不调用它
+- `skills/x-dev/scripts/xdev.py` 只做 CLI 分流：当前格式 task 的 scaffold/validate/status/graph/impact/baseline 归 `skills/x-req/scripts/checklist_engine.py`；声明 `spec_version: 3` 的旧包归 req.py / validator.py / verify.py；flag 归 x-qa-gate。`cli/` 下的 Go 版本保留不删：计划以后做成“agent 调一个命令就能初始化这套管线、安装必需 skill”的工具，目前暂停维护，行为停在旧引擎，skill 不调用它
 - x-req 给任务行分并行组和依赖；并行组 ≥2 时 x-dev 按 `skills/x-dev/references/parallel-dev.md` 派给工人子 agent，另派验收 agent，主 agent 按依赖顺序合并
 - x-plan 已废弃，功能合并到 x-req
 - 当前需求模板位于 `skills/x-explore-for-spec/templates/spec.md`。`skills/x-spec/scripts/` 保留给现有 CLI 和历史 v3 契约使用。

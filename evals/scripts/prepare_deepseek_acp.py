@@ -19,7 +19,7 @@ REPO = Path(__file__).resolve().parents[2]
 BENCHMARK = REPO / 'skills/pipeline-efficiency-benchmark/scripts'
 PUBLIC = REPO / 'evals/problems/deepseek-acp'
 BASE = 'add59a3336f0ab61c55499418081aab76cb550f8'
-EXTRA = ('x-explore', 'x-tech-design', 'x-verify-tech')
+EXTRA = ('x-explore-for-spec', 'x-tech-design', 'x-verify-tech')
 sys.path.insert(0, str(BENCHMARK))
 
 from benchmark_common import BenchmarkError, REQUIRED_SKILLS, read_json, sha256_file, tree_hashes, write_json

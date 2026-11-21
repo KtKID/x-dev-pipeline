@@ -22,7 +22,6 @@ deprecated/x-spec-workspace/
 /evals/x-dev-receipt-runs/
 evals/x-pipeline-efficiency-workspace/**/run-*/workspace/
 evals/x-pipeline-efficiency-workspace/**/full-pipeline-run-*/workspace/
-evals/x-pipeline-efficiency-workspace/invalid-attempts/**/workspace/
 evals/x-pipeline-efficiency-workspace/**/codex-home/
 evals/x-pipeline-efficiency-workspace/**/grader-workspace/
 
