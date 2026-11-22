@@ -6,7 +6,7 @@
 - checklist_engine.py（x-req）：当前格式 task 的 scaffold/validate/status/graph/impact/baseline
 - delivery.py（x-dev）：开发与交付的 start/coverage/check（代码基线、改动行覆盖率、交付机械核对，含测试真实性检查回执）
 - req.py（x-req）：只服务父 spec 声明 spec_version: 3 的旧契约包
-- validator.py（x-spec）：旧 spec/change 包校验
+- validator.py（x-ask-spec）：旧 spec/change 包校验
 - verify.py（x-verify-spec）：只服务旧契约包的 dev-report verify 块
 - flag.py（x-qa-gate）：QA Gate issue ledger 与状态降级事务
 
@@ -70,7 +70,7 @@ flag_engine = _engine("flag", "x-qa-gate")
 req = _engine("req", "x-req")
 checklist = _engine("checklist_engine", "x-req")
 delivery = _engine("delivery", "x-dev")
-validator = _engine("validator", "x-spec")
+validator = _engine("validator", "x-ask-spec")
 verify_engine = _engine("verify", "x-verify-spec")
 
 
@@ -93,8 +93,8 @@ def validate_target(target: Path, include_legacy: bool) -> dict:
     """按 spec task 或 package 类型委托对应校验引擎。"""
     spec_md = target / "spec.md"
     if spec_md.is_file() and not checklist.has_version_marker(spec_md):
-        # 当前格式的 spec 目录：不走旧包校验，逐个校验它下面的 task
-        issues = []
+        # 当前格式的 spec 目录：不走旧包校验，查分期（一期最多 5 个 feat），再逐个校验它下面的 task
+        issues = checklist.phase_issues(spec_md)
         for task_dir in sorted((target / "tasks").glob("*/")) if (target / "tasks").is_dir() else []:
             if (task_dir / "dev-checklist.md").is_file():
                 issues.extend(checklist.validate_issues(task_dir))

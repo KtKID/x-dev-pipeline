@@ -1,6 +1,6 @@
 # Spec 索引
 
-每份 spec 一行。"拥有什么 / 不管什么"是判断新需求归属的唯一依据，规则见 [spec 范围](../../skills/x-explore-for-spec/references/spec-scope.md)。新建 spec 时同时加一行，随 spec 一起给用户确认。
+每份 spec 一行。"拥有什么 / 不管什么"是判断新需求归属的唯一依据，规则见 [spec 范围](../../skills/x-ask-spec/references/spec-scope.md)。新建 spec 时同时加一行，随 spec 一起给用户确认。
 
 | Spec | 状态 | 拥有什么 | 不管什么 |
 |------|------|------|------|

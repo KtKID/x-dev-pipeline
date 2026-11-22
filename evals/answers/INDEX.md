@@ -8,7 +8,7 @@
 
 ## spec 归属（spec-scope）
 
-- 规则：`skills/x-explore-for-spec/references/spec-scope.md`
+- 规则：`skills/x-ask-spec/references/spec-scope.md`
 - 题面：`evals/problems/spec-scope/`；答案：`evals/answers/spec-scope/expected.json`
 - 测什么：一个需求是加到已有 spec、新建 spec、只记变更，还是要问用户；要写几份 spec。
 
@@ -167,7 +167,7 @@
 
 ## 独立审查与架构约束（review-route）
 
-- 规则：`skills/x-qa-gate/SKILL.md`、`skills/x-tech-design/SKILL.md` 第 2 步、`skills/x-explore-for-spec/templates/spec.md`「关键约束」、`spec-scope.md`
+- 规则：`skills/x-qa-gate/SKILL.md`、`skills/x-tech-design/SKILL.md` 第 2 步、`skills/x-ask-spec/templates/spec.md`「关键约束」、`spec-scope.md`
 - 题面：`evals/problems/review-route/`；答案：`evals/answers/review-route/expected.json`
 - 对应 spec：`docs/spec/pipeline-skills/spec.md` feat09、feat10
 
@@ -201,6 +201,27 @@
 | I09 I12 | try/catch 吞断言、skip | 吞掉失败 |
 | I06 | 上限 5 本只借 2 本 | 数据测不出对错 |
 | I02 I04 I11 I13 | 手写常量、只 mock 存储、假时钟、fixture | 通过 |
+
+## 问清需求再写 spec（ask-spec）
+
+- 规则：`skills/x-ask-spec/SKILL.md`
+- 题面：`evals/problems/ask-spec/`；答案：`evals/answers/ask-spec/expected.json`
+- 对应 spec：`docs/spec/pipeline-skills/spec.md` feat12
+- 测什么：agent 会不会主动复述、追问，什么时候才写 spec，超过 5 个 feat 怎么分期。
+
+| 用例 | 考的规则 | 正确判断 |
+|---|---|---|
+| A01 | 刚开始 | 先复述理解再提问 |
+| A02 | 还有类别没问 | 继续追问还没清楚的类别 |
+| A03 A12 | 用户说过、代码查得到 | 不重复问，记下答案和来源 |
+| A04 | 五类有答案且用户认可 | 开始写 spec |
+| A05 | 还没给用户看最终复述 | 先给用户看最终复述 |
+| A06 | 一次想问 9 个 | 每轮只问 2–3 个最影响结果的 |
+| A07 | 用户没回答 | 这条记为没定，其他清楚的照常往下走 |
+| A08 | 7 个 feat | 选 5 个标 1 期，其余标 2 期 3 期并告诉用户 |
+| A09 | 2 期 feat 写多少 | 只写名称、用途和已确认要点 |
+| A10 | 只想讨论 | 在对话里给结论，不写 spec |
+| A11 | 和已有约束冲突 | 指出冲突请用户决定 |
 
 ## 脚本的确定性测试
 

@@ -42,7 +42,7 @@ python3 evals/scripts/runs_summary.py spec-scope   # 一组题的全部轮次
 
 | eval | 题数 | 测什么 | 规则来源 |
 |---|---|---|---|
-| spec-scope | 20 | 需求写进哪几份 spec：加到已有、新建、只记变更，还是问用户 | `skills/x-explore-for-spec/references/spec-scope.md` |
+| spec-scope | 20 | 需求写进哪几份 spec：加到已有、新建、只记变更，还是问用户 | `skills/x-ask-spec/references/spec-scope.md` |
 | qdev-spec-routing | 17 | 留在 qdev 还是转主线、task 放哪、要不要停下给用户确认、技术设计写在哪 | `skills/x-qdev/SKILL.md`、`skills/x-qdev/references/risk-rules.md` |
 | change-sync | 7 | spec 变了，哪些 D、T、任务行、测试要改、新增、退役、重开或重跑 | `skills/x-tech-design/references/change-sync.md` |
 | qdev-confirm-check | 6 | x-verify-spec 能否发现"改了场景却没记用户确认" | `skills/x-verify-spec/SKILL.md` |
@@ -51,6 +51,7 @@ python3 evals/scripts/runs_summary.py spec-scope   # 一组题的全部轮次
 | dev-main | 14 | 主 agent 在多 agent 协作里的下一步 | `skills/x-dev/references/parallel-dev.md` |
 | td-confirm | 6 | tech-design 不需要用户确认，只有会改变结果的取舍单独问 | `skills/x-tech-design/SKILL.md`、`skills/x-req/SKILL.md` |
 | dev-delivery | 16 | 看到 xdev coverage / check 的结果后下一步做什么；不再另写测试报告 | `skills/x-dev/SKILL.md`、`skills/x-dev/references/test-reporting.md`、`skills/x-qdev/SKILL.md` |
+| ask-spec | 12 | 需求讨论时会不会主动复述、追问，何时才写 spec，超过 5 个 feat 怎么分期 | `skills/x-ask-spec/SKILL.md` |
 | test-integrity | 13 | 最便宜的模型能不能凭清单识破假测试、又不误报 | `skills/x-dev/references/test-integrity.md` |
 | review-route | 12 | 审查按 risk 派几个 lens、问题算哪个 lens 和严重度、架构约束怎么处理 | `skills/x-qa-gate/SKILL.md`、`skills/x-tech-design/SKILL.md`、spec 模板「关键约束」 |
 

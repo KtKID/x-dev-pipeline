@@ -19,7 +19,7 @@ REPO = Path(__file__).resolve().parents[2]
 BENCHMARK = REPO / 'skills/pipeline-efficiency-benchmark/scripts'
 PUBLIC = REPO / 'evals/problems/deepseek-acp'
 BASE = 'add59a3336f0ab61c55499418081aab76cb550f8'
-EXTRA = ('x-explore-for-spec', 'x-tech-design', 'x-verify-tech')
+EXTRA = ('x-ask-spec', 'x-tech-design', 'x-verify-tech')
 sys.path.insert(0, str(BENCHMARK))
 
 from benchmark_common import BenchmarkError, REQUIRED_SKILLS, read_json, sha256_file, tree_hashes, write_json
@@ -122,8 +122,8 @@ def main() -> int:
                 '# 本地 Pipeline\n\n'
                 '依次读取各阶段目录的 `SKILL.md`。阶段产物和实现都写入 `task/`；'
                 '按本地文档判断风险复核和修复是否适用。\n\n'
-                '`x-explore` → `x-spec` → 需求确认 → `x-tech-design` → 设计确认 → '
-                '`x-req` → `x-dev` → `x-verify-spec` / `x-verify-tech` → `x-qa-gate`。\n\n'
+                '`x-ask-spec`（问清需求、写 spec）→ 需求确认 → `x-tech-design` → '
+                '`x-req` → `x-dev` → `xdev check`（`x-verify-spec`）→ `x-qa-gate`。\n\n'
                 '`x-adversarial-risk` 和 `x-fix` 按需使用，`x-dev-rag-call` 为共享依赖。\n',
                 encoding='utf-8',
             )

@@ -79,7 +79,7 @@
       "name": "spec-scope",
       "prompt_file": "evals/problems/spec-scope/prompt.md",
       "files": [
-        "skills/x-explore-for-spec/references/spec-scope.md",
+        "skills/x-ask-spec/references/spec-scope.md",
         "evals/problems/spec-scope/project-spec-index.md",
         "evals/problems/spec-scope/cases.json"
       ],
@@ -95,7 +95,7 @@
       "files": [
         "skills/x-qdev/SKILL.md",
         "skills/x-qdev/references/risk-rules.md",
-        "skills/x-explore-for-spec/references/spec-scope.md",
+        "skills/x-ask-spec/references/spec-scope.md",
         "evals/problems/qdev-spec-routing/project-spec-index.md",
         "evals/problems/qdev-spec-routing/cases.json"
       ],

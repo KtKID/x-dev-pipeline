@@ -1,12 +1,12 @@
 ---
 name: x-adversarial-risk
 description: |
-  对 x-explore-for-spec 产出的 Spec 做一次有轮次上限的风险复核：读取 Spec、生成“功能关键词 + Risk”查询，默认从用户 Home 下的通用风险语料召回 Top5，也接受调用方覆盖语料路径；用户确认跳过 RAG 时，按 Spec 分数执行有上限的独立对抗性检验。用于 review_budget 为 deep/full 且 adversarial_review 为 pending、上一次验证返回聚合 issue，或用户显式要求推翻 Spec 假设、补充高价值风险 Scenario 的场景。
+  对 x-ask-spec 产出的 Spec 做一次有轮次上限的风险复核：读取 Spec、生成“功能关键词 + Risk”查询，默认从用户 Home 下的通用风险语料召回 Top5，也接受调用方覆盖语料路径；用户确认跳过 RAG 时，按 Spec 分数执行有上限的独立对抗性检验。用于 review_budget 为 deep/full 且 adversarial_review 为 pending、上一次验证返回聚合 issue，或用户显式要求推翻 Spec 假设、补充高价值风险 Scenario 的场景。
 ---
 
 # x-adversarial-risk
 
-在 `x-explore-for-spec → x-req` 之间执行一次增量审查。风险语料可用时召回相关度最高的最多五条经验；用户确认跳过 RAG 时直接从 Spec 推导故障假设。两条路径都构造能区分正确实现与常见错误实现的最小反例。
+在 `x-ask-spec → x-req` 之间执行一次增量审查。风险语料可用时召回相关度最高的最多五条经验；用户确认跳过 RAG 时直接从 Spec 推导故障假设。两条路径都构造能区分正确实现与常见错误实现的最小反例。
 
 ## 输入与边界
 
@@ -57,7 +57,7 @@ agent 使用上述默认语料或调用方覆盖路径，不扫描工作区寻�
 
 用户确认跳过 RAG 时，预算直接控制独立对抗性检验：
 
-- `standard`：保持零对抗性 Scenario 扩张，由 x-explore-for-spec 直接交接。
+- `standard`：保持零对抗性 Scenario 扩张，由 x-ask-spec 直接交接。
 - `deep`：从 Spec 选择最高风险不变量，执行 1 个独立故障假设。
 - `full`：从 Spec 选择两个不同故障轴，执行最多 2 个独立故障假设。
 

@@ -1,6 +1,6 @@
 # spec 范围：需求写进哪份 spec、什么时候新建
 
-x-explore-for-spec 写需求、x-qdev 回写功能时都按本文决定归属。
+x-ask-spec 写需求、x-qdev 回写功能时都按本文决定归属。
 
 ## 一句话规则
 

@@ -12,7 +12,7 @@ from typing import Any, Iterable
 
 
 PIPELINE_STAGES = (
-    "x-explore-for-spec",
+    "x-ask-spec",
     "x-adversarial-risk",
     "x-tech-design",
     "x-req",

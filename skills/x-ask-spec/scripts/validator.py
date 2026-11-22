@@ -44,7 +44,7 @@ def _engine(module_name: str, skill_name: str):
 
 
 req = _engine("req", "x-req")
-spec_engine = _engine("spec", "x-spec")
+spec_engine = _engine("spec", "x-ask-spec")
 
 
 STATUS_VOCAB = ("探索中", "方案确认", "可进入 x-req", "开发中", "已完成")

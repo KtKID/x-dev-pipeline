@@ -13,7 +13,7 @@
 
 执行约束：
 
-1. 依次使用 `skills/x-explore-for-spec`、`skills/x-tech-design`、`skills/x-req`、`skills/x-dev`，再用 `skills/x-verify-spec` 与 `skills/x-verify-tech` 验收；风险路由需要时继续使用工作区内的 `skills/x-qa-gate` 与 `skills/x-fix`。
+1. 依次使用 `skills/x-ask-spec`、`skills/x-tech-design`、`skills/x-req`、`skills/x-dev`，再用 `skills/x-verify-spec` 与 `skills/x-verify-tech` 验收；风险路由需要时继续使用工作区内的 `skills/x-qa-gate` 与 `skills/x-fix`。
 2. 只读取当前工作区内的 skill、题面、规范、fixture 与代码。基础文件和 shell 工具可用于读取、编辑、运行和验证。
 3. 实现范围位于 `fixture/backend/`；`fixture/device-sim/`、`fixture/mock-services/` 与 `fixture/assets/` 作为只读测试设施。
 4. 运行过程只使用 Python 标准库、本地文件、本地进程和回环网络；保持环境完全自包含。

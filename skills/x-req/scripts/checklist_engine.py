@@ -2,7 +2,7 @@
 """当前格式 task 引擎：scaffold / validate / status / graph / impact / baseline。
 
 服务 docs/spec/<spec>/tasks/<task>/dev-checklist.md，父 spec 使用
-x-explore-for-spec 的当前模板（`## featNN:` + `场景N:`，没有 spec_version: 3 标记）。
+x-ask-spec 的当前模板（`## featNN:` + `场景N:`，没有 spec_version: 3 标记）。
 声明 spec_version: 3 的旧契约包仍由同目录的 req.py 处理。
 
 能机械判断的都在这里判断，agent 不用猜：
@@ -144,6 +144,32 @@ class SpecDoc:
     name: str
     scenes: dict[tuple[str, int, int], str] = field(default_factory=dict)
     constraints: dict[str, str] = field(default_factory=dict)
+    # feat 编号 -> {"line": 行号, "status": 状态行原文, "phase": 期次数字或 None}
+    feats: dict[int, dict] = field(default_factory=dict)
+
+
+PHASE_LIMIT = 5
+DONE_WORDS = ("已验收", "已退役")
+STATUS_LINE_RE = re.compile(r"^>\s*状态\s*[:：]\s*(.*)$")
+PHASE_LINE_RE = re.compile(r"^>\s*期次\s*[:：]\s*(\d+)\s*期")
+
+
+def phase_issues(spec_path: Path) -> list[dict]:
+    """一期最多 5 个 feat：同一期里没交付（不是已验收、已退役）的 feat 超过 5 个就报错。
+    没写期次的 feat 算 1 期。"""
+    doc = parse_spec(spec_path.read_text(encoding="utf-8"), spec_name_of(spec_path))
+    groups: dict[int, list[int]] = {}
+    for num, info in sorted(doc.feats.items()):
+        if info["status"].strip().startswith(DONE_WORDS):  # “变更中（场景1已验收）”这种部分交付不算交付
+            continue
+        groups.setdefault(info["phase"] or 1, []).append(num)
+    out = []
+    for phase, nums in sorted(groups.items()):
+        if len(nums) > PHASE_LIMIT:
+            names = "、".join(f"feat{n:02d}" for n in nums)
+            out.append(issue(str(spec_path), doc.feats[nums[PHASE_LIMIT]]["line"], "PHASE_LIMIT",
+                             f"{phase} 期有 {len(nums)} 个没交付的 feat（{names}），一期最多 {PHASE_LIMIT} 个：多出来的标成下一期"))
+    return out
 
 
 def parse_spec(text: str, name: str) -> SpecDoc:
@@ -157,7 +183,7 @@ def parse_spec(text: str, name: str) -> SpecDoc:
             doc.scenes[current] = norm("\n".join(buf))
 
     in_comment = False
-    for raw in text.splitlines():
+    for lineno, raw in enumerate(text.splitlines(), 1):
         line = raw.rstrip()
         if "<!--" in line and "-->" not in line:
             in_comment = True
@@ -171,7 +197,16 @@ def parse_spec(text: str, name: str) -> SpecDoc:
             current, buf = None, []
             m = FEAT_RE.match(line)
             feat = int(m.group(1)) if m else None
+            if feat is not None:
+                doc.feats[feat] = {"line": lineno, "status": "", "phase": None}
             continue
+        if feat is not None and current is None:
+            st = STATUS_LINE_RE.match(line)
+            if st and not doc.feats[feat]["status"]:
+                doc.feats[feat]["status"] = st.group(1)
+            ph = PHASE_LINE_RE.match(line)
+            if ph:
+                doc.feats[feat]["phase"] = int(ph.group(1))
         cm = C_ROW_RE.match(line)
         if cm:
             doc.constraints[cm.group(1)] = norm(line)

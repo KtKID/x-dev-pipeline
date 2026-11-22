@@ -4,8 +4,8 @@
 
 1. `skills/x-qa-gate/SKILL.md`
 2. `skills/x-tech-design/SKILL.md`
-3. `skills/x-explore-for-spec/templates/spec.md`（重点读「关键约束」一节和里面的注释）
-4. `skills/x-explore-for-spec/references/spec-scope.md`
+3. `skills/x-ask-spec/templates/spec.md`（重点读「关键约束」一节和里面的注释）
+4. `skills/x-ask-spec/references/spec-scope.md`
 5. 题目：`evals/problems/review-route/cases.json`
 
 每道题是一个情况和一个问题，按规则回答。`answer` 只能取下面16个值之一：

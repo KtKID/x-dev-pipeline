@@ -20,6 +20,7 @@ description: |
    | 规则 | 意思 |
    |---|---|
    | TASK_FILE / HEADER* / COLUMNS / ROWS / ROW_ID / STATUS / SCENE_REF / C_REF / D_REF / CASE_REF / FILES / RISK_CELL / GROUP* / DEP* / RISK / BASELINE | 结构和编号（同 `xdev validate`） |
+   | PHASE_LIMIT | 只在校验 spec 目录时出现：同一期没交付的 feat 超过 5 个 |
    | SPEC_CHANGED | 拆解基线之后 spec / tech-design 改了还没同步 |
    | ROW_STATUS | 有行不是 `[x] 🟢` 或 `[x] ✅` |
    | MAPPING / CASE_UNMAPPED / SCENE_UNCOVERED | 用例对应表是空的；用例没对应到测试；本轮场景没有通过的用例 |
@@ -45,7 +46,7 @@ description: |
 - 结构、编号、范围、用例缺失：交 x-req / tech-design 负责方补。
 - SPEC_CHANGED：按 [需求变化同步](../x-tech-design/references/change-sync.md) 同步后 `xdev baseline`。
 - 行状态、测试、覆盖率、用例对应：交开发负责方（x-dev / x-qdev）修，修完重跑 `xdev coverage` 和 `xdev check`。
-- 需求本身有歧义：列出 feat / 场景和要确认的行为，交 x-explore-for-spec 问用户。
+- 需求本身有歧义：列出 feat / 场景和要确认的行为，交 x-ask-spec 问用户。
 
 一次列全，不自动启动其他 skill。
 

@@ -24,7 +24,7 @@ x-dev-pipeline/
 ├── dev-pipeline/tasks/                # 历史 task 档案；工具不再识别、校验或编排
 ├── skills/x-dev/scripts/xdev.py       # 薄 CLI 路由器；delivery.py 做 start/coverage/check
 ├── skills/x-req/scripts/              # checklist_engine.py（当前格式）、req.py（旧 v3 包）
-├── skills/x-spec/scripts/、x-verify-spec/scripts/   # 旧 v3 包的校验与 verify 引擎
+├── skills/x-ask-spec/scripts/、x-verify-spec/scripts/   # 旧 v3 包的校验与 verify 引擎
 ├── skills/x-qa-gate/scripts/          # QA issue 事务引擎（flag）
 ├── .claude-plugin/、.codex-plugin/、.agents/    # 插件注册
 └── evals/、test/、cli/、examples/
@@ -33,8 +33,8 @@ x-dev-pipeline/
 ## 核心管线
 
 ```
-x-explore-for-spec → x-tech-design → x-req → x-dev ──→ 真实性检查 ──→ xdev check ──→ x-qa-gate ──→ ✅
-探索与增量 spec        技术设计        task     实现+覆盖率  轻量子 agent    机械核对       一次独立审查
+x-ask-spec → x-tech-design → x-req → x-dev ──→ 真实性检查 ──→ xdev check ──→ x-qa-gate ──→ ✅
+问清需求再写 spec  技术设计        task     实现+覆盖率  轻量子 agent    机械核对       一次独立审查
                                                      查假测试      （x-verify-spec）  （Q0 跳过）
 小改动：x-qdev 一个 agent 走完，同样用 xdev start / coverage / check。问题修复交 x-fix。
 ```
@@ -52,7 +52,7 @@ x-explore-for-spec → x-tech-design → x-req → x-dev ──→ 真实性检�
 
 | 规则 | 唯一来源 |
 |---|---|
-| spec 归谁管、加到已有还是新建、跨 spec 怎么放 | `skills/x-explore-for-spec/references/spec-scope.md` |
+| spec 归谁管、加到已有还是新建、跨 spec 怎么放 | `skills/x-ask-spec/references/spec-scope.md` |
 | 需求变了怎么同步 D / T / 任务行 / 测试 | `skills/x-tech-design/references/change-sync.md` |
 | qdev 什么时候转主线 | `skills/x-qdev/references/risk-rules.md` |
 | qdev 唯一停点（spec 增量给用户确认）与执行授权 | `skills/x-qdev/SKILL.md` 第 1 节 |
@@ -64,7 +64,7 @@ x-explore-for-spec → x-tech-design → x-req → x-dev ──→ 真实性检�
 | 审查路由、lens、严重度 P0/P1/P2、issue 登记、回流关闭 | `skills/x-qa-gate/SKILL.md` |
 | 批量修复、`.fix-counter` 3 轮上限、处置记录 | `skills/x-fix/SKILL.md` |
 | 状态码与写权 | `skills/x-dev/references/execution-rules.md` |
-| 用户约束怎么写（含“架构：”开头的架构约束、全项目的放 engineering）、约束只是任务的一部分 | `skills/x-explore-for-spec/templates/spec.md`「关键约束」、`spec-scope.md` |
+| 用户约束怎么写（含“架构：”开头的架构约束、全项目的放 engineering）、约束只是任务的一部分 | `skills/x-ask-spec/templates/spec.md`「关键约束」、`spec-scope.md` |
 | 风险错题集边界 | `skills/x-adversarial-risk/references/risk-mistakes.md`（只由 x-adversarial-risk 读取） |
 | x-cr 报告交接（`Schema: x-cr-v2`、Bn/INV-ID） | `skills/x-cr/SKILL.md` |
 | 带 `spec_version: 3` / `adversarial_risk_version: 3` 的旧契约 | 原 req.py / verify.py / validator.py 与 x-adversarial-risk，行为不变 |

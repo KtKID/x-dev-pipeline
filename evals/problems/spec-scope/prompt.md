@@ -2,7 +2,7 @@
 
 你是一名 agent。只读下面三个文件，不读仓库里的其他任何文件：
 
-1. 规则：`skills/x-explore-for-spec/references/spec-scope.md`
+1. 规则：`skills/x-ask-spec/references/spec-scope.md`
 2. 题目项目的 spec 索引：`evals/problems/spec-scope/project-spec-index.md`
 3. 题目：`evals/problems/spec-scope/cases.json`
 

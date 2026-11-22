@@ -4,7 +4,7 @@
 
 1. `skills/x-qdev/SKILL.md`
 2. `skills/x-qdev/references/risk-rules.md`
-3. `skills/x-explore-for-spec/references/spec-scope.md`
+3. `skills/x-ask-spec/references/spec-scope.md`
 4. 题目项目的 spec 索引：`evals/problems/qdev-spec-routing/project-spec-index.md`
 5. 题目：`evals/problems/qdev-spec-routing/cases.json`
 

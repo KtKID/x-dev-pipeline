@@ -2,7 +2,7 @@
 """确定性评分：spec / qdev / 链路同步 / 分组 / 多 agent 开发几组 JSON 判题。
 
 用法：python3 evals/scripts/grade.py <kind> <answer.json> [--json]
-kind：spec-scope、qdev-spec-routing、change-sync、qdev-confirm-check、req-grouping、dev-worker、dev-main、td-confirm、dev-delivery、review-route、test-integrity
+kind：spec-scope、qdev-spec-routing、change-sync、qdev-confirm-check、req-grouping、dev-worker、dev-main、td-confirm、dev-delivery、review-route、test-integrity、ask-spec
 退出码：0 全对，1 有错题，2 输入错误。
 """
 import json
@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-KINDS = ("spec-scope", "qdev-spec-routing", "change-sync", "qdev-confirm-check", "req-grouping", "dev-worker", "dev-main", "td-confirm", "dev-delivery", "review-route", "test-integrity")
+KINDS = ("spec-scope", "qdev-spec-routing", "change-sync", "qdev-confirm-check", "req-grouping", "dev-worker", "dev-main", "td-confirm", "dev-delivery", "review-route", "test-integrity", "ask-spec")
 EXISTING_SPECS = {"member", "catalog", "loan", "fine", "message", "engineering"}
 QDEV_FIELDS = ["route", "writes", "task_spec", "confirm", "tech_design"]
 
@@ -121,7 +121,7 @@ def grade_case(kind, exp, got):
     if kind in ("review-route", "test-integrity"):
         ok = str(got.get("answer", "")).strip() == exp
         return (1 if ok else 0), 1, ([] if ok else [{"field": "answer", "expected": exp, "got": got.get("answer")}])
-    if kind in ("dev-worker", "dev-main", "td-confirm", "dev-delivery"):
+    if kind in ("dev-worker", "dev-main", "td-confirm", "dev-delivery", "ask-spec"):
         # 标准答案可以是列表：题目里两个选项都对时，答中任一个都得分
         allowed = exp if isinstance(exp, list) else [exp]
         ok = str(got.get("action", "")).strip() in allowed

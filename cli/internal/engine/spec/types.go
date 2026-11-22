@@ -1,4 +1,4 @@
-// Package spec 实现 skills/x-spec/scripts/spec.py 的等价校验逻辑：
+// Package spec 实现 skills/x-ask-spec/scripts/spec.py 的等价校验逻辑：
 // iteration-7 x-spec 确定性文档校验引擎（元数据、章节、表格、Scenario、对抗性审查）。
 //
 // 本包是 1:1 移植，规则码（V19/V20）与中文错误信息逐字保留，以便与

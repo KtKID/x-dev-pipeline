@@ -176,6 +176,27 @@ class ChecklistEngineTest(unittest.TestCase):
         self.assertIn("CASE_REF", rules)
         self.assertIn("D_REF", rules)
 
+    def test_phase_limit_five_active_feats(self):
+        def feat(n, status="待实现", phase=None):
+            ph = f"> 期次：{phase} 期\n" if phase else ""
+            return f"## feat{n:02d}: 功能{n}\n\n> 状态：{status}\n{ph}\n场景1: x\n- GIVEN a\n- WHEN b\n- THEN c\n\n"
+        spec = self.spec_dir / "spec.md"
+        spec.write_text("# loan\n\n" + "".join(feat(n) for n in range(1, 7)), encoding="utf-8")
+        code, out, _ = run("validate", str(self.spec_dir), "--json")
+        rules = [i["rule"] for i in json.loads(out)["packages"][0]["issues"]]
+        self.assertIn("PHASE_LIMIT", rules)
+        # 第 6 个标 2 期，或者前面有一个已验收，都不再超
+        spec.write_text("# loan\n\n" + "".join(feat(n) for n in range(1, 6)) + feat(6, "计划中", 2), encoding="utf-8")
+        code, out, _ = run("validate", str(self.spec_dir), "--json")
+        self.assertNotIn("PHASE_LIMIT", [i["rule"] for i in json.loads(out)["packages"][0]["issues"]])
+        spec.write_text("# loan\n\n" + feat(1, "已验收") + "".join(feat(n) for n in range(2, 7)), encoding="utf-8")
+        code, out, _ = run("validate", str(self.spec_dir), "--json")
+        self.assertNotIn("PHASE_LIMIT", [i["rule"] for i in json.loads(out)["packages"][0]["issues"]])
+        # 部分交付（“变更中（场景1已验收）”）不算交付
+        spec.write_text("# loan\n\n" + feat(1, "变更中（场景1已验收）") + "".join(feat(n) for n in range(2, 7)), encoding="utf-8")
+        code, out, _ = run("validate", str(self.spec_dir), "--json")
+        self.assertIn("PHASE_LIMIT", [i["rule"] for i in json.loads(out)["packages"][0]["issues"]])
+
     def test_constraint_from_engineering_spec(self):
         eng = self.root / "docs/spec/engineering"
         eng.mkdir(parents=True)

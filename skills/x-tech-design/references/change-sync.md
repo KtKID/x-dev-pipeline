@@ -1,6 +1,6 @@
 # 需求变化同步：spec 改了，下游改哪些
 
-x-explore-for-spec、x-tech-design、x-req、x-dev、x-qdev 遇到需求变化时都按本文处理。
+x-ask-spec、x-tech-design、x-req、x-dev、x-qdev 遇到需求变化时都按本文处理。
 
 ## 一句话规则
 
@@ -49,7 +49,7 @@ D 被改了还要再往下走一步：
 
 ## 谁来做
 
-1. **x-explore-for-spec**：改完 spec 后，按上表列出影响清单，随 spec 增量交给下游。格式：`| 编号 | 动作 | 原因 |`。
+1. **x-ask-spec**：改完 spec 后，按上表列出影响清单，随 spec 增量交给下游。格式：`| 编号 | 动作 | 原因 |`。
 2. **x-tech-design**：按清单改 D 和 T，退役项保留编号。
 3. **x-req**：按清单重开或新增任务行，更新影响文件树。
 4. **x-dev**：开工前比较 checklist 头部记录的 spec / tech-design 基线和当前内容。不一致时，按本规则检查同步是否做完；没做完的行不开工，交回来源负责方。

@@ -1,4 +1,4 @@
-已更新[图书模块需求](/private/tmp/x-explore-for-spec-forward-20261117/incremental/docs/spec/library/spec.md)。本轮完成需求文档更新，导出功能标为待实现。
+已更新[图书模块需求](/private/tmp/x-ask-spec-forward-20261117/incremental/docs/spec/library/spec.md)。本轮完成需求文档更新，导出功能标为待实现。
 
 - 新增 feat05 场景1–3：导出全部80本筛选结果，CSV 列为当前显示的标题和作者；下载失败显示“下载失败”并保留筛选（沿用 C1）；含逗号和换行的标题保持完整。
 - 新增计划中的 feat06：保留导出历史，保留时长留待后续讨论，待决范围归属该功能。

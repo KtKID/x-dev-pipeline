@@ -23,7 +23,7 @@
 
 ```mermaid
 flowchart LR
-    A["x-explore-for-spec<br/>探索并维护需求"] --> B["x-tech-design"]
+    A["x-ask-spec<br/>问清需求再写 spec"] --> B["x-tech-design"]
     B --> C["x-req"]
     C --> D["x-dev<br/>实现 + 覆盖率 100%"]
     D --> I["测试真实性检查<br/>轻量子 agent 查假测试"]
@@ -42,17 +42,17 @@ x-qdev · 一份 task 文档：需求 → 局部设计 → 测试 → 实现 →
 
 ## 主线：需求 → 技术设计 → 任务 → 开发
 
-### 1. x-explore-for-spec · 探索并增量维护需求
+### 1. x-ask-spec · 问清需求，再写 spec
 
-需求入口统一为 `x-explore-for-spec`，合并开放探索、需求确认和 spec 编写。探索是每次需求的必经核对：结合现有文档、代码和实际场景明确目标、范围与验收依据；用户已明确的结论直接沿用，影响结果的实际取舍通过提问确认。
+需求入口统一为 `x-ask-spec`。它的主体是讨论：agent 用苏格拉底式提问和用户把需求聊清楚——先用大白话复述理解，再按正常情况、边界、出错、不做什么、怎么算做完五类一轮轮追问（每轮 2–3 个），直到双方都没有疑问，用户认可最终复述后才写 spec。spec 文档只是讨论结果的落盘。用户说过的、代码里查得到的不重复问。
 
-一份 spec 管一块数据，长期维护，新 feat 随时间追加，已有行为在原位置更新。需求写进哪份 spec 见 [spec 范围](skills/x-explore-for-spec/references/spec-scope.md)：
+一份 spec 管一块数据，长期维护，新 feat 随时间追加，已有行为在原位置更新。需求写进哪份 spec 见 [spec 范围](skills/x-ask-spec/references/spec-scope.md)：
 
 ```text
 docs/spec/<spec-name>/spec.md
 ```
 
-每确认一批对功能定义、范围、约束或验收有价值的结论，就局部写回所属 spec。文档保留结论、必要依据和可观察结果；临时推演留在对话中。其他待决问题继续探索，用户明确保留的后续功能进入长期待办。
+讨论结束、用户认可最终复述后，才把结论局部写进所属 spec。文档保留结论、必要依据和可观察结果；讨论过程留在对话中。没定的问题写进「待决项」，用户明确保留的后续功能标成后面的期次。
 
 每个 `featNN` 对应一个用户可感知的功能，通过 Given/When/Then 场景描述本次目标所需的正常、边界和异常行为。THEN 写用户可以观察到的结果。feat 和场景编号长期稳定，新增接续编号，修改沿用原编号，移除保留可追溯记录。
 
@@ -60,7 +60,7 @@ spec 同时记录用户已确认的关键约束：哪些规则必须持续成立
 
 约束只是任务的一部分：要做的事在场景里，约束只限制怎么做。只满足约束、场景没做完，不算完成。
 
-本次选定范围明确列出交给技术设计和开发的 feat、场景及完成条件；长期待办保留后续推进状态。每轮审阅建议聚焦最多 3 个 feat、10 个场景，范围较大时分批审阅并继续更新同一份 spec。一份 spec 管一块数据，划分规则见 [spec 范围](skills/x-explore-for-spec/references/spec-scope.md)。技术设计承接本轮已确认范围与内容基线。
+本次选定范围明确列出交给技术设计和开发的 feat、场景及完成条件；长期待办保留后续推进状态。一期最多 5 个 feat，超出的标成 2 期、3 期写进同一份 spec，等本期交付后再讨论。一份 spec 管一块数据，划分规则见 [spec 范围](skills/x-ask-spec/references/spec-scope.md)。技术设计承接本轮已确认范围与内容基线。
 
 ### 2. x-tech-design · 写技术设计（不需要用户确认）
 
@@ -159,16 +159,16 @@ x-qdev → xdev start → 测试先行实现 → xdev coverage（100%）→ 测�
 `x-adversarial-risk` 在任务拆解前复核 spec 的风险假设，利用历史失败经验构造最小反例，将补充场景以可追溯来源写入 spec。
 
 ```text
-x-explore-for-spec → x-adversarial-risk → x-tech-design → x-req
+x-ask-spec → x-adversarial-risk → x-tech-design → x-req
 ```
 
-风险审查与 Bug 沉淀共享用户级语料，调用方可指定其他路径。新增行为或约束由 `x-explore-for-spec` 确认后回写功能 spec，同步相关设计。带风险版本标记的 spec 审查仍为 pending 时，x-req 阻断拆解。
+风险审查与 Bug 沉淀共享用户级语料，调用方可指定其他路径。新增行为或约束由 `x-ask-spec` 确认后回写功能 spec，同步相关设计。带风险版本标记的 spec 审查仍为 pending 时，x-req 阻断拆解。
 
 ## 命令
 
 | 命令 | 职责 |
 |---|---|
-| `/x-explore-for-spec` | 统一需求入口：探索并确认行为，筛选有价值的结论，增量维护所属 spec 和本轮范围 |
+| `/x-ask-spec` | 统一需求入口：苏格拉底式和用户讨论清楚需求，再增量写进所属 spec；一期最多 5 个 feat |
 | `/x-tech-design` | 基于已确认 spec 写技术设计，定义机制与编号用例；需求变化时按编号同步 |
 | `/x-req` | 基于已确认 spec 和技术设计拆 task，分配场景、约束与用例 |
 | `/x-dev` | 执行单个 task，测试先行，改动行覆盖率到 100% |

@@ -23,7 +23,7 @@ Full requirements follow the design-first main line; small, specific changes fol
 
 ```mermaid
 flowchart LR
-    A["x-explore-for-spec<br/>explore and maintain requirements"] --> B["x-tech-design"]
+    A["x-ask-spec<br/>clarify, then write the spec"] --> B["x-tech-design"]
     B --> C["x-req"]
     C --> D["x-dev<br/>implement + 100% coverage"]
     D --> I["test-integrity check<br/>light sub-agent looks for fake tests"]
@@ -42,17 +42,17 @@ x-qdev · one task document: requirements → local design → tests → impleme
 
 ## Main line: requirements → technical design → tasks → development
 
-### 1. x-explore-for-spec · Explore and incrementally maintain requirements
+### 1. x-ask-spec · Clarify requirements, then write the spec
 
-`x-explore-for-spec` is the single requirements entry point, combining open exploration, requirement confirmation, and spec writing. Every request includes an exploration check against existing documentation, code, and concrete scenarios to establish its goal, scope, and acceptance basis. Reuse explicit decisions directly and ask about unresolved choices that affect actual outcomes.
+`x-ask-spec` is the single requirements entry point, and its core is discussion: the agent uses Socratic questioning to work the requirement out with the user. It first restates its understanding in plain words, then asks round after round (2–3 questions each) across five categories (normal case, edges, failures, what is out of scope, how done is judged) until neither side has open questions and the user accepts the final restatement. Only then is the spec written; the spec is just the record of the discussion. Anything the user already said or the code already shows is not asked again.
 
-One spec owns one block of data and is maintained over time. Add new features over time and update existing behavior in place. Which spec a change goes into is described in the [spec scope rules](skills/x-explore-for-spec/references/spec-scope.md):
+One spec owns one block of data and is maintained over time. Add new features over time and update existing behavior in place. Which spec a change goes into is described in the [spec scope rules](skills/x-ask-spec/references/spec-scope.md):
 
 ```text
 docs/spec/<spec-name>/spec.md
 ```
 
-After confirming a useful batch of conclusions about behavior, scope, constraints, or acceptance, update the relevant parts of the owning spec. Keep conclusions, essential rationale, and observable results in the document; keep temporary reasoning in the conversation. Continue exploring open decisions and retain explicitly deferred features in the long-term backlog.
+Only after the discussion ends and the user accepts the final restatement are the conclusions written into the owning spec. The document keeps conclusions, essential rationale, and observable results; the discussion itself stays in the conversation. Open questions go into the spec's open-items section, and future features the user wants to keep are marked for later phases.
 
 Each `featNN` represents a user-visible feature. Given/When/Then scenarios describe the normal, boundary, and error behavior needed for the current goal; THEN states an observable result. Feature and scenario IDs remain stable: append new IDs, reuse IDs for edits, and retain traceable records for removals.
 
@@ -60,7 +60,7 @@ The spec also records user-confirmed key constraints: rules that must hold and o
 
 Constraints are only part of the task: the work is defined by the scenarios, and constraints only limit how it is done. Satisfying the constraints while leaving a scenario unfinished does not count as done.
 
-The current selection explicitly identifies the features, scenarios, and completion criteria handed to design and development. The long-term backlog retains future work. A review batch should generally focus on up to 3 features and 10 scenarios; larger scopes can be reviewed in batches within the same spec. One spec owns one block of data; see the [spec scope rules](skills/x-explore-for-spec/references/spec-scope.md). Technical design consumes the confirmed current scope and content baseline.
+The current selection explicitly identifies the features, scenarios, and completion criteria handed to design and development. The long-term backlog retains future work. One phase holds at most 5 features; the rest are marked phase 2 or phase 3 in the same spec and discussed after the current phase ships. One spec owns one block of data; see the [spec scope rules](skills/x-ask-spec/references/spec-scope.md). Technical design consumes the confirmed current scope and content baseline.
 
 ### 2. x-tech-design · Write the technical design (no user sign-off needed)
 
@@ -159,16 +159,16 @@ x-qdev → xdev start → test-first implementation → xdev coverage (100%) →
 `x-adversarial-risk` reviews a spec's risk assumptions before task decomposition. It uses prior failure experience to construct minimal counterexamples and adds scenarios with traceable provenance to the spec.
 
 ```text
-x-explore-for-spec → x-adversarial-risk → x-tech-design → x-req
+x-ask-spec → x-adversarial-risk → x-tech-design → x-req
 ```
 
-Risk review and bug ingestion share a user-global corpus, with a caller-selected path available. Confirm any new behavior or constraints in `x-explore-for-spec` before updating the functional spec and affected design. For specs carrying the risk-version marker, a pending review status blocks x-req decomposition.
+Risk review and bug ingestion share a user-global corpus, with a caller-selected path available. Confirm any new behavior or constraints in `x-ask-spec` before updating the functional spec and affected design. For specs carrying the risk-version marker, a pending review status blocks x-req decomposition.
 
 ## Commands
 
 | Command | Responsibility |
 |---|---|
-| `/x-explore-for-spec` | Unified requirements entry: explore and confirm behavior, keep valuable conclusions, and maintain the owning spec and current scope |
+| `/x-ask-spec` | Unified requirements entry: discuss the requirement with the user Socratically, then write it into the owning spec; at most 5 features per phase |
 | `/x-tech-design` | Write the technical design from a confirmed spec, defining mechanisms and numbered test cases; sync by ID when requirements change |
 | `/x-req` | Split tasks from the confirmed spec and technical design, assigning scenarios, constraints, and test cases |
 | `/x-dev` | Execute one task test-first and reach 100% changed-line coverage |
