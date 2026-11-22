@@ -1,0 +1,87 @@
+{
+  "eval": "test-integrity",
+  "score": 13,
+  "total": 13,
+  "cases_passed": 13,
+  "cases": 13,
+  "rows": [
+    {
+      "id": "I01",
+      "ok": true,
+      "wrong": [],
+      "reason": "`expected = days * DAILY_FINE` 照抄了罚款公式（用的是从生产代码 import 的常量），生产里的 20 元封顶没有被测到。"
+    },
+    {
+      "id": "I02",
+      "ok": true,
+      "wrong": [],
+      "reason": "`assert overdue_fine(3) == 1.5` 调用真实函数，期望值是手写常量，场景是逾期 3 天罚 1.5 元，改错实现会变红。"
+    },
+    {
+      "id": "I03",
+      "ok": true,
+      "wrong": [],
+      "reason": "`@patch('src.loan.borrow.borrow', return_value='已达借阅上限')` 把被测函数 borrow 本身打桩了，测试的 `b.borrow` 实际返回的是 mock 值。"
+    },
+    {
+      "id": "I04",
+      "ok": true,
+      "wrong": [],
+      "reason": "`assert borrow('r1', 'book6') == '已达借阅上限'` 调用真实的 borrow，只 mock 了存储层 count_active 和 save_loan，并用 `save.assert_not_called()` 验证未落库；删掉上限判断会变红。"
+    },
+    {
+      "id": "I05",
+      "ok": true,
+      "wrong": [],
+      "reason": "测试只有 `count.assert_called_once_with('r1')`，没有对 `borrow('r1', 'book6')` 返回值（应为“已达借阅上限”）做任何断言。"
+    },
+    {
+      "id": "I06",
+      "ok": true,
+      "wrong": [],
+      "reason": "`count_active` 返回 2 而不是接近上限 5 的数据，`assert borrow('r1', 'book3') == 'ok'` 没有覆盖第 5/6 本的边界，上限写错的实现也能通过。"
+    },
+    {
+      "id": "I07",
+      "ok": true,
+      "wrong": [],
+      "reason": "`expect(dueDate(at)).toEqual(dueDate(at))` 两边是同一次调用的结果，无论 dueDate 实现对错都成立。"
+    },
+    {
+      "id": "I08",
+      "ok": true,
+      "wrong": [],
+      "reason": "测试文件里自己定义了 `function dueDate(...)` 复制了 +30 天的逻辑，没有 import `../src/loan/due`，测的是测试文件里的副本。"
+    },
+    {
+      "id": "I09",
+      "ok": true,
+      "wrong": [],
+      "reason": "`try { expect(...).toBe('2026-01-31') } catch (e) { console.log('flaky on CI, ignore', e) }` 把断言失败吞掉了，测试永远是绿的。"
+    },
+    {
+      "id": "I10",
+      "ok": true,
+      "wrong": [],
+      "reason": "场景要验证借书入口 borrow 的拦截，但测试直接用 `save_loan` 写入 6 条记录并断言 `count_active('r1') > LIMIT`，从未调用 `borrow`。"
+    },
+    {
+      "id": "I11",
+      "ok": true,
+      "wrong": [],
+      "reason": "`expect(dueDate(new Date()).toISOString().slice(0, 10)).toBe('2026-04-14')` 调用真实函数，用 fake timer 固定 2026-03-15，跨月结果是手写常量，改错实现会变红。"
+    },
+    {
+      "id": "I12",
+      "ok": true,
+      "wrong": [],
+      "reason": "`@pytest.mark.skip(reason='later')` 让 `test_cap` 整个被跳过，场景要求的 20 元封顶没有任何断言在运行。"
+    },
+    {
+      "id": "I13",
+      "ok": true,
+      "wrong": [],
+      "reason": "`test_cap` 用 fixture 准备输入 100 后断言 `overdue_fine(long_overdue) == 20.0`，`test_not_overdue` 断言 `overdue_fine(0) == 0.0`，两者都调用真实函数并用手写常量作期望值。"
+    }
+  ]
+}

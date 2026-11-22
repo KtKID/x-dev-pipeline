@@ -1,0 +1,69 @@
+{
+  "eval": "dev-worker",
+  "score": 10,
+  "total": 10,
+  "cases_passed": 10,
+  "cases": 10,
+  "rows": [
+    {
+      "id": "W01",
+      "ok": true,
+      "wrong": [],
+      "reason": "要改的文件不在派工单的只许改文件里，规则是不改，停下这一行报回。"
+    },
+    {
+      "id": "W02",
+      "ok": true,
+      "wrong": [],
+      "reason": "给自己这几行新建测试文件是允许的，回执里列出即可。"
+    },
+    {
+      "id": "W03",
+      "ok": true,
+      "wrong": [],
+      "reason": "别的组范围内的 bug 不修，记进回执的报回问题。"
+    },
+    {
+      "id": "W04",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 变更记录属于共享文件，工人不碰，写进回执的集成时处理。"
+    },
+    {
+      "id": "W05",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 与 tech-design 对不上属于设计问题，不自己补设计，停下受影响的行报回。"
+    },
+    {
+      "id": "W06",
+      "ok": true,
+      "wrong": [],
+      "reason": "T2 停下但同组 T3 不依赖它，其他行继续做。"
+    },
+    {
+      "id": "W07",
+      "ok": true,
+      "wrong": [],
+      "reason": "文件在派工单的只许改文件里，正常修改。"
+    },
+    {
+      "id": "W08",
+      "ok": true,
+      "wrong": [],
+      "reason": "同一行失败多次且原因不清，不改目标不降断言，停下这一行报回。"
+    },
+    {
+      "id": "W09",
+      "ok": true,
+      "wrong": [],
+      "reason": "规则明确要改派工单外的文件哪怕只改一行也不改，停下这一行报回。"
+    },
+    {
+      "id": "W10",
+      "ok": true,
+      "wrong": [],
+      "reason": "工人不改 checklist 状态，在回执里报已完成并附证据。"
+    }
+  ]
+}

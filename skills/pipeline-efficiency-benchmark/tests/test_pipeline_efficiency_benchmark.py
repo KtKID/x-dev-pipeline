@@ -15,10 +15,9 @@ SCRIPTS = SKILL_ROOT / "scripts"
 
 TOOL_SOURCES = {
     "xdev.py": REPO_ROOT / "skills" / "x-dev" / "scripts" / "xdev.py",
-    "validator.py": REPO_ROOT / "skills" / "x-spec" / "scripts" / "validator.py",
-    "flag.py": REPO_ROOT / "skills" / "x-qa-gate" / "scripts" / "flag.py",
+    "validator.py": REPO_ROOT / "skills" / "x-ask-spec" / "scripts" / "validator.py",
     "req.py": REPO_ROOT / "skills" / "x-req" / "scripts" / "req.py",
-    "spec.py": REPO_ROOT / "skills" / "x-spec" / "scripts" / "spec.py",
+    "spec.py": REPO_ROOT / "skills" / "x-ask-spec" / "scripts" / "spec.py",
     "verify.py": REPO_ROOT / "skills" / "x-verify" / "scripts" / "verify.py",
     "metrics.py": REPO_ROOT / "skills" / "pipeline-efficiency-benchmark" / "scripts" / "metrics.py",
 }
@@ -48,7 +47,6 @@ class PipelineEfficiencyBenchmarkTests(unittest.TestCase):
             {
                 "xdev.py",
                 "validator.py",
-                "flag.py",
                 "req.py",
                 "spec.py",
                 "verify.py",
@@ -88,10 +86,10 @@ class PipelineEfficiencyBenchmarkTests(unittest.TestCase):
             payload = json.loads(prepared.stdout)
             self.assertTrue(payload["valid"])
             self.assertEqual(len(payload["skills"]), 9)
-            self.assertIn("x-explore-for-spec", payload["skills"])
+            self.assertIn("x-ask-spec", payload["skills"])
             self.assertIn("x-tech-design", payload["skills"])
             self.assertNotIn("x-spec", payload["skills"])
-            self.assertTrue((workspace / "skills/x-explore-for-spec/templates/spec.md").is_file())
+            self.assertTrue((workspace / "skills/x-ask-spec/templates/spec.md").is_file())
             self.assertIn("x-dev-rag-call", payload["skills"])
             self.assertEqual(len(payload["tools"]), 6)
             manifest = Path(payload["manifest"])

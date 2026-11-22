@@ -1,0 +1,18 @@
+[
+  {"id": "I01", "answer": "重写了生产逻辑", "reason": "test_fine.py 的 `expected = days * DAILY_FINE` 照抄了罚款公式，再和生产结果比，不是手写的期望值。"},
+  {"id": "I02", "answer": "通过", "reason": "`assert overdue_fine(3) == 1.5` 是手写常量，3 天 * 0.5 = 1.5，符合场景 THEN，没有其他问题。"},
+  {"id": "I03", "answer": "mock 掉了被测对象", "reason": "`@patch('src.loan.borrow.borrow', ...)` 把被测函数本身打桩，随后调用 `b.borrow` 测的是 mock 的返回值。"},
+  {"id": "I04", "answer": "通过", "reason": "只 mock 了依赖 count_active 和 save_loan，真实运行 borrow；count=5 时断言返回“已达借阅上限”且 save_loan 未调用，符合场景。"},
+  {"id": "I05", "answer": "只断言调用不断言结果", "reason": "`count.assert_called_once_with('r1')` 只查被调用，没有断言 borrow 返回的“已达借阅上限”。"},
+  {"id": "I06", "answer": "数据测不出对错", "reason": "场景是“已借 5 本再借被拒”，测试只用 count=2 验证 'ok'，错误的 LIMIT（如 4 或 6）也能通过，没有测到上限边界。"},
+  {"id": "I07", "answer": "断言恒真", "reason": "`expect(dueDate(at)).toEqual(dueDate(at))` 两边都是同一个被测函数的结果，无论实现对错都成立。"},
+  {"id": "I08", "answer": "没调用项目代码", "reason": "测试文件内自己定义了 `function dueDate`，测的是复制进来的函数，没有 import src/loan/due.ts。"},
+  {"id": "I09", "answer": "吞掉失败", "reason": "`try { expect(...) } catch (e) { console.log(...) }` 把断言失败吞掉，测试永远绿。"},
+  {"id": "I10", "answer": "绕过要测的流程", "reason": "场景要验证借书入口 borrow 的拦截，测试却直接循环调用 save_loan 写 6 条记录，没有调用 borrow。"},
+  {"id": "I11", "answer": "通过", "reason": "fake timers 固定到 2026-03-15，30 天后为 2026-04-14，跨月结果正确，断言的是 dueDate 的返回值。"},
+  {"id": "I12", "answer": "吞掉失败", "reason": "`@pytest.mark.skip(reason='later')` 跳过了封顶 20 元的测试，场景要求的结果没有被验证。"},
+  {"id": "I13", "answer": "通过", "reason": "`overdue_fine(100) == 20.0` 测封顶，`overdue_fine(0) == 0.0` 测没逾期不罚，两条都是真实调用和手写期望值。"},
+  {"id": "I14", "answer": "没测到场景要的结果", "reason": "场景 THEN 要求“返回‘已逾期，不能续借’且到期日不变”，test_overdue_rejected 只断言了 loan is None 和 err，没有断言 store 中到期日不变。"},
+  {"id": "I15", "answer": "漏了要的", "reason": "场景 THEN 要求这条借阅标为已续借，但 renew 实现里没有 `loan.renewed = True`，续借过的还能再续。"},
+  {"id": "I16", "answer": "做了没要的", "reason": "本次 diff 把 src/loan/borrow.py 的 `LIMIT = 5` 改成 `LIMIT = 6`，场景只涉及续借，且 borrow.py 不在交付文档的涉及文件里。"}
+]

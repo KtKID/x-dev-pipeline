@@ -45,7 +45,7 @@ def _engine(module_name: str, skill_name: str):
         return _load_sibling_engine(module_name, skill_name)
 
 
-spec_engine = _engine("spec", "x-spec")
+spec_engine = _engine("spec", "x-ask-spec")
 
 
 _DIRECT_SKILL_ROOT = Path(__file__).resolve().parents[1]

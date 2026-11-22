@@ -1,0 +1,50 @@
+[
+  {
+    "id": "W01",
+    "situation": "做 T2 时发现要改 src/shared/date.ts 里的一个函数，这个文件不在派工单的“只许改的文件”里。"
+  },
+  {
+    "id": "W02",
+    "situation": "要给自己负责的 T1 新建一个测试文件 tests/renew.edge.test.ts。"
+  },
+  {
+    "id": "W03",
+    "situation": "跑测试时发现 src/fine/rate.ts 有个计算错误，这个文件属于组 B，不在你的派工单里，你这组的行不受影响。"
+  },
+  {
+    "id": "W04",
+    "situation": "T1 做完后，spec 的变更记录需要加一行说明。"
+  },
+  {
+    "id": "W05",
+    "situation": "tech-design 用例 T4 的通过条件写的是“提示已逾期”，但 spec 场景写的是“提示不能续借”，两边对不上。"
+  },
+  {
+    "id": "W06",
+    "situation": "T2 已经停下报回，同组的 T3 不依赖 T2。"
+  },
+  {
+    "id": "W07",
+    "situation": "要改 src/loan/renew.ts，它在派工单的“只许改的文件”里。"
+  },
+  {
+    "id": "W08",
+    "situation": "T1 的测试连续失败了 3 次，看完输出仍不清楚原因。"
+  },
+  {
+    "id": "W09",
+    "situation": "只想顺手把 src/utils/format.ts 里一个拼错的变量名改掉，这个文件不在派工单里，只改一行。"
+  },
+  {
+    "id": "W10",
+    "situation": "T1 已经验证通过，想把 checklist 里 T1 的状态改成 🟢。"
+  },
+  {
+    "id": "W11",
+    "situation": "派工单里这一行要做 fine:feat01 场景2（逾期 3 天罚 1.5 元），适用约束 C3（架构：罚款计算只能放在 src/fine/）。你已经把罚款相关代码挪进了 src/fine/，C3 满足了，但逾期 3 天罚 1.5 元还没实现，也没有测试。"
+  },
+  {
+    "id": "W12",
+    "situation": "你刚拿到派工单，已经把适用约束 C1–C3 读完了，这一行回指的 feat02 场景1 正文还没读，你准备直接开始写代码。"
+  }
+]

@@ -1,0 +1,129 @@
+{
+  "eval": "spec-scope",
+  "score": 20,
+  "total": 20,
+  "cases_passed": 20,
+  "cases": 20,
+  "rows": [
+    {
+      "id": "S01",
+      "ok": true,
+      "wrong": [],
+      "reason": "续借次数上限属于借阅的续借规则，改的是 loan 的数据。"
+    },
+    {
+      "id": "S02",
+      "ok": true,
+      "wrong": [],
+      "reason": "检索结果排序归 catalog 的检索与排序。"
+    },
+    {
+      "id": "S03",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款金额规则归 fine；逾期天数算法不变，loan 不动。"
+    },
+    {
+      "id": "S04",
+      "ok": true,
+      "wrong": [],
+      "reason": "逾期第一天这个触发时机由 loan 的逾期计算决定，loan 新增一条调用通用提醒的场景；message 的通用提醒输入输出没变，不写场景。"
+    },
+    {
+      "id": "S05",
+      "ok": true,
+      "wrong": [],
+      "reason": "评分和短评是新的一块数据，catalog 管图书条目、member 管账号，边界表里没有一行拥有评分与短评，因此新建。"
+    },
+    {
+      "id": "S06",
+      "ok": true,
+      "wrong": [],
+      "reason": "累计借过的本数来自借阅记录，借阅记录归 loan，member 的边界表明确不管借阅记录；个人页只是展示入口。"
+    },
+    {
+      "id": "S07",
+      "ok": true,
+      "wrong": [],
+      "reason": "Node.js 升级是构建与依赖层面的工程改动，使用者看不到变化。"
+    },
+    {
+      "id": "S08",
+      "ok": true,
+      "wrong": [],
+      "reason": "按钮文字只是文案外观的改动，不改变使用者能做的事，只记变更。"
+    },
+    {
+      "id": "S09",
+      "ok": true,
+      "wrong": [],
+      "reason": "借阅数量上限归 loan；读者等级本身不变，member 不写场景。"
+    },
+    {
+      "id": "S10",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款的缴纳方式与缴纳记录归 fine，新增微信这一种缴纳方式改的是 fine 的数据。"
+    },
+    {
+      "id": "S11",
+      "ok": true,
+      "wrong": [],
+      "reason": "账号注销的条件归 member；是否有未还书由 loan 提供查询，loan 的行为没变，只在 member 的 C 里写一句依赖。"
+    },
+    {
+      "id": "S12",
+      "ok": true,
+      "wrong": [],
+      "reason": "阅读进度是新的一块数据，边界表里没有任何一行拥有它，因此新建。"
+    },
+    {
+      "id": "S13",
+      "ok": true,
+      "wrong": [],
+      "reason": "一条场景同时改了罚款和读者等级两块数据，先拆开：罚款清零归 fine，读者等级降一级归 member。"
+    },
+    {
+      "id": "S14",
+      "ok": true,
+      "wrong": [],
+      "reason": "缴清罚款这个触发归 fine；站内信用现有通用提醒，message 的输入输出没变，只在 fine 里新增一条调用场景。"
+    },
+    {
+      "id": "S15",
+      "ok": true,
+      "wrong": [],
+      "reason": "新增消息类型、模板和渠道都归 message；发送时机尚未确定，不写调用方场景。"
+    },
+    {
+      "id": "S16",
+      "ok": true,
+      "wrong": [],
+      "reason": "一条场景改了两块数据，先拆成罚款清零（fine）和读者等级降一级（member）两条，分别加到已有 spec。"
+    },
+    {
+      "id": "S17",
+      "ok": true,
+      "wrong": [],
+      "reason": "通用提醒新增两个可选参数，改变了 message 对调用方的输入输出，所以 message 加到已有；发送时机不变，loan 不动。"
+    },
+    {
+      "id": "S18",
+      "ok": true,
+      "wrong": [],
+      "reason": "假设边界表里 loan 和 fine 都拥有逾期记录，两行重叠，规则要求停下来问用户该归哪一份，并修正边界表。"
+    },
+    {
+      "id": "S19",
+      "ok": true,
+      "wrong": [],
+      "reason": "续借后应还日期的规则归 loan；用户说的是 14 天而 spec 写的是 7 天，这是需求修改，要在 loan 里修改原场景。"
+    },
+    {
+      "id": "S20",
+      "ok": true,
+      "wrong": [],
+      "reason": "高级检索属于 catalog 的检索能力；读者不能再用高级检索，是使用者能做的事变了，要修改或退役原场景。"
+    }
+  ]
+}

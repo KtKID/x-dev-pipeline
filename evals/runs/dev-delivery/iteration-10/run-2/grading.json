@@ -1,0 +1,117 @@
+{
+  "eval": "dev-delivery",
+  "score": 18,
+  "total": 18,
+  "cases_passed": 18,
+  "cases": 18,
+  "rows": [
+    {
+      "id": "D01",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率 91%，renew.py 三行没被跑到，要补测试，补完再跑到 100%。"
+    },
+    {
+      "id": "D02",
+      "ok": true,
+      "wrong": [],
+      "reason": "本 task 新写的测试红了，原有测试是绿的，先修好这个测试再重跑覆盖率。"
+    },
+    {
+      "id": "D03",
+      "ok": true,
+      "wrong": [],
+      "reason": "新文件没出现在报告里，是因为没有测试加载它，补上调用它的测试再跑覆盖率。"
+    },
+    {
+      "id": "D04",
+      "ok": true,
+      "wrong": [],
+      "reason": "新加的 pragma no cover 是测不到的磁盘满兜底，需在问题与处置写 文件路径:行 和理由，xdev check 才认。"
+    },
+    {
+      "id": "D05",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率 100% 之后代码又改了，记录过期（COVERAGE_STALE），重跑覆盖率即可，不占轮数。"
+    },
+    {
+      "id": "D06",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 的 feat02 场景1 改过，SPEC_CHANGED 要先按需求变化同步处理，再记 baseline。"
+    },
+    {
+      "id": "D07",
+      "ok": true,
+      "wrong": [],
+      "reason": "用例 T4 还没有测试，要补写测试，并在用例对应表登记测试位置。"
+    },
+    {
+      "id": "D08",
+      "ok": true,
+      "wrong": [],
+      "reason": "只能人工验证的用例，要写步骤和实际看到的结果到 evidence 的人工记录，结果记人工通过。"
+    },
+    {
+      "id": "D09",
+      "ok": true,
+      "wrong": [],
+      "reason": "验收已通过，下一步是把行升为 ✅、头部改已完成，完成交付。"
+    },
+    {
+      "id": "D10",
+      "ok": true,
+      "wrong": [],
+      "reason": "全部行 🟢、覆盖率 100%、无 Web 界面，开发做完，交验收。Q2 需要功能检查，由验收做。"
+    },
+    {
+      "id": "D11",
+      "ok": true,
+      "wrong": [],
+      "reason": "qdev 开工前还没有运行任何 xdev 命令，先运行 xdev start 记下代码基线，覆盖率才有比较基准。"
+    },
+    {
+      "id": "D12",
+      "ok": true,
+      "wrong": [],
+      "reason": "只记变更没写场景，不做功能检查，覆盖率已 100%，交验收核对记录。"
+    },
+    {
+      "id": "D13",
+      "ok": true,
+      "wrong": [],
+      "reason": "新增场景、覆盖率 100%、无 Web 界面，交验收，由验收派功能检查。"
+    },
+    {
+      "id": "D14",
+      "ok": true,
+      "wrong": [],
+      "reason": "功能检查不通过，P1 要交 x-fix 修，占第 1 轮；修完重跑覆盖率并重做功能检查。"
+    },
+    {
+      "id": "D15",
+      "ok": true,
+      "wrong": [],
+      "reason": "加了测试，回执已过期，先重跑覆盖率，再按同一份派工单重做功能检查。"
+    },
+    {
+      "id": "D16",
+      "ok": true,
+      "wrong": [],
+      "reason": "无关的原有测试红了，spec 和设计都没改这个行为，要先查是不是自己改坏的，不能 skip 或删除。"
+    },
+    {
+      "id": "D17",
+      "ok": true,
+      "wrong": [],
+      "reason": "验收、升行和 P2 登记都已完成，剩下收尾填这一期的 token 用量。"
+    },
+    {
+      "id": "D18",
+      "ok": true,
+      "wrong": [],
+      "reason": "换了新会话接着开发，要先在用量表加一行记录这段工作，再开工。"
+    }
+  ]
+}

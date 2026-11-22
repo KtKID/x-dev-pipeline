@@ -1,0 +1,291 @@
+[
+  {
+    "id": "G01",
+    "note": "用户没说有几个工人。",
+    "rows": [
+      {
+        "row": "T1",
+        "task": "借书页文案改成“确认借阅”（用例 T1）",
+        "files": [
+          "web/BorrowPage.tsx",
+          "tests/borrow-page.test.ts"
+        ],
+        "size": "小"
+      },
+      {
+        "row": "T2",
+        "task": "续借按钮加 loading 状态（用例 T2）",
+        "files": [
+          "web/RenewButton.tsx",
+          "tests/renew-button.test.ts"
+        ],
+        "size": "小"
+      },
+      {
+        "row": "T3",
+        "task": "逾期天数显示改成整数（用例 T3）",
+        "files": [
+          "web/OverdueBadge.tsx",
+          "tests/overdue-badge.test.ts"
+        ],
+        "size": "小"
+      }
+    ]
+  },
+  {
+    "id": "G02",
+    "note": "用户没说有几个工人。",
+    "rows": [
+      {
+        "row": "T1",
+        "task": "续借规则：到期前续借加 14 天（用例 T1、T2）",
+        "files": [
+          "src/loan/renew.ts",
+          "src/loan/date.ts",
+          "tests/renew.test.ts"
+        ],
+        "size": "中"
+      },
+      {
+        "row": "T2",
+        "task": "逾期天数计算（用例 T3、T4）",
+        "files": [
+          "src/loan/overdue.ts",
+          "src/loan/date.ts",
+          "tests/overdue.test.ts"
+        ],
+        "size": "中"
+      },
+      {
+        "row": "T3",
+        "task": "罚款按等级区分费率，含配置、接口和页面（用例 T5–T8）",
+        "files": [
+          "src/fine/rate.ts",
+          "src/fine/api.ts",
+          "config/fine.json",
+          "web/FinePage.tsx",
+          "tests/fine.test.ts"
+        ],
+        "size": "大"
+      },
+      {
+        "row": "T4",
+        "task": "读者个人页显示借阅统计，含接口和页面（用例 T9–T11）",
+        "files": [
+          "src/member/stats.ts",
+          "src/member/api.ts",
+          "web/ProfilePage.tsx",
+          "tests/stats.test.ts"
+        ],
+        "size": "大"
+      }
+    ]
+  },
+  {
+    "id": "G03",
+    "note": "用户没说有几个工人。",
+    "rows": [
+      {
+        "row": "T1",
+        "task": "新增借书接口（用例 T1、T2）",
+        "files": [
+          "src/api/index.ts",
+          "src/loan/borrow.ts",
+          "tests/borrow.test.ts"
+        ],
+        "size": "中"
+      },
+      {
+        "row": "T2",
+        "task": "新增续借接口（用例 T3、T4）",
+        "files": [
+          "src/api/index.ts",
+          "src/loan/renew.ts",
+          "tests/renew.test.ts"
+        ],
+        "size": "中"
+      },
+      {
+        "row": "T3",
+        "task": "新增还书接口（用例 T5、T6）",
+        "files": [
+          "src/api/index.ts",
+          "src/loan/return.ts",
+          "tests/return.test.ts"
+        ],
+        "size": "中"
+      }
+    ]
+  },
+  {
+    "id": "G04",
+    "note": "用户没说有几个工人。",
+    "rows": [
+      {
+        "row": "T1",
+        "task": "书评：数据表、接口、页面（用例 T1–T4）",
+        "files": [
+          "src/review/model.ts",
+          "src/review/api.ts",
+          "web/ReviewList.tsx",
+          "tests/review.test.ts"
+        ],
+        "size": "大"
+      },
+      {
+        "row": "T2",
+        "task": "电子书阅读进度：数据表、接口、阅读器页面（用例 T5–T8）",
+        "files": [
+          "src/ebook/progress.ts",
+          "src/ebook/api.ts",
+          "web/Reader.tsx",
+          "tests/ebook.test.ts"
+        ],
+        "size": "大"
+      },
+      {
+        "row": "T3",
+        "task": "罚款微信缴纳：支付对接、回调、页面（用例 T9–T12）",
+        "files": [
+          "src/fine/wechat.ts",
+          "src/fine/callback.ts",
+          "web/PayPage.tsx",
+          "tests/pay.test.ts"
+        ],
+        "size": "大"
+      },
+      {
+        "row": "T4",
+        "task": "馆藏检索按年份排序：查询、接口、页面（用例 T13–T15）",
+        "files": [
+          "src/catalog/sort.ts",
+          "src/catalog/api.ts",
+          "web/SearchPage.tsx",
+          "tests/sort.test.ts"
+        ],
+        "size": "大"
+      },
+      {
+        "row": "T5",
+        "task": "读者等级规则调整：规则、接口、管理页（用例 T16–T18）",
+        "files": [
+          "src/member/level.ts",
+          "src/member/admin-api.ts",
+          "web/AdminLevel.tsx",
+          "tests/level.test.ts"
+        ],
+        "size": "大"
+      }
+    ]
+  },
+  {
+    "id": "G05",
+    "note": "用户没说有几个工人。T2 要调用 T1 新写的 dueDate 函数。",
+    "rows": [
+      {
+        "row": "T1",
+        "task": "新增 dueDate(起始日, 天数) 公共函数（用例 T1）",
+        "files": [
+          "src/loan/date.ts",
+          "tests/date.test.ts"
+        ],
+        "size": "小"
+      },
+      {
+        "row": "T2",
+        "task": "续借改用 dueDate 计算（用例 T2）",
+        "files": [
+          "src/loan/renew.ts",
+          "tests/renew.test.ts"
+        ],
+        "size": "小"
+      }
+    ]
+  },
+  {
+    "id": "G06",
+    "note": "用户说：这次只有 2 个工人可用。",
+    "rows": [
+      {
+        "row": "T1",
+        "task": "书评功能（用例 T1–T4）",
+        "files": [
+          "src/review/model.ts",
+          "src/review/api.ts",
+          "web/ReviewList.tsx",
+          "tests/review.test.ts"
+        ],
+        "size": "大"
+      },
+      {
+        "row": "T2",
+        "task": "电子书阅读进度（用例 T5–T8）",
+        "files": [
+          "src/ebook/progress.ts",
+          "src/ebook/api.ts",
+          "web/Reader.tsx",
+          "tests/ebook.test.ts"
+        ],
+        "size": "大"
+      },
+      {
+        "row": "T3",
+        "task": "罚款微信缴纳（用例 T9–T12）",
+        "files": [
+          "src/fine/wechat.ts",
+          "src/fine/callback.ts",
+          "web/PayPage.tsx",
+          "tests/pay.test.ts"
+        ],
+        "size": "大"
+      },
+      {
+        "row": "T4",
+        "task": "馆藏检索排序（用例 T13–T15）",
+        "files": [
+          "src/catalog/sort.ts",
+          "src/catalog/api.ts",
+          "web/SearchPage.tsx",
+          "tests/sort.test.ts"
+        ],
+        "size": "大"
+      }
+    ]
+  },
+  {
+    "id": "G07",
+    "note": "用户没说有几个工人。T1 是 feat02 场景1 的实现，T2 是同一场景的测试。",
+    "rows": [
+      {
+        "row": "T1",
+        "task": "实现续借规则：到期前续借加 14 天、逾期拒绝（feat02 场景1-2）",
+        "files": [
+          "src/loan/renew.ts",
+          "src/loan/rules.ts",
+          "src/loan/api.ts"
+        ],
+        "size": "中"
+      },
+      {
+        "row": "T2",
+        "task": "续借规则的单元测试（用例 T1–T3；feat02 场景1-2）",
+        "files": [
+          "tests/renew.test.ts"
+        ],
+        "size": "小"
+      },
+      {
+        "row": "T3",
+        "task": "罚款按等级区分费率，含配置、接口和页面（用例 T4–T7）",
+        "files": [
+          "src/fine/rate.ts",
+          "src/fine/api.ts",
+          "config/fine.json",
+          "web/FinePage.tsx",
+          "tests/fine.test.ts"
+        ],
+        "size": "大"
+      }
+    ]
+  }
+]

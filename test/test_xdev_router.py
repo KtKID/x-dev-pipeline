@@ -15,13 +15,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path[:0] = [
     str(ROOT / "skills" / "x-dev" / "scripts"),
-    str(ROOT / "skills" / "x-qa-gate" / "scripts"),
     str(ROOT / "skills" / "x-verify-spec" / "scripts"),
     str(ROOT / "skills" / "x-req" / "scripts"),
-    str(ROOT / "skills" / "x-spec" / "scripts"),
+    str(ROOT / "skills" / "x-ask-spec" / "scripts"),
 ]
 
-import flag as flag_engine  # noqa: E402
 import req  # noqa: E402
 import validator  # noqa: E402
 import verify as verify_engine  # noqa: E402
@@ -52,15 +50,13 @@ class TestModuleOwnership(unittest.TestCase):
         }:
             self.assertFalse(hasattr(xdev, removed_name), removed_name)
         self.assertIs(xdev.validator, validator)
-        self.assertIs(xdev.flag_engine, flag_engine)
         self.assertIs(xdev.verify_engine, verify_engine)
         self.assertIs(xdev.req, req)
 
     def test_engines_own_moved_functions(self):
         self.assertTrue(hasattr(validator, "detect_type"))
         self.assertTrue(hasattr(validator, "validate_pkg"))
-        self.assertTrue(hasattr(flag_engine, "flag_command"))
-        self.assertTrue(hasattr(flag_engine, "recover_flag_transaction"))
+        self.assertFalse(hasattr(xdev, "flag_engine"))
 
 
 class TestChangeValidation(unittest.TestCase):
@@ -112,35 +108,14 @@ class TestCurrentTaskRouting(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def test_req_instructions_uses_current_registry(self):
-        code, output, error = capture(
-            "instructions",
-            "dev-checklist",
-            "--task",
-            str(self.task),
-            "--json",
-        )
-        self.assertEqual(code, 0, error)
-        payload = json.loads(output)
-        self.assertEqual(payload["profile"], "req")
-        self.assertEqual(payload["artifact"], "dev-checklist")
-        self.assertEqual(payload["requires"], [])
-        self.assertIn("场景回指", payload["template"])
-
     def test_spec2_task_commands_are_rejected(self):
         (self.spec / "spec.md").write_text(
             "> spec_version: 2\n\n# demo\n",
             encoding="utf-8",
         )
-        code, _output, error = capture(
-            "instructions",
-            "dev-checklist",
-            "--task",
-            str(self.task),
-            "--json",
-        )
+        code, _output, error = capture("status", str(self.task), "--json")
         self.assertEqual(code, 2)
-        self.assertIn("spec_version: 3", error)
+        self.assertIn("spec.md", error)
 
         code, output, error = capture("validate", str(self.spec), "--json")
         self.assertEqual(code, 1, error)
@@ -156,7 +131,7 @@ class TestCurrentTaskRouting(unittest.TestCase):
 
         code, _output, error = capture("status", str(legacy), "--json")
         self.assertEqual(code, 2)
-        self.assertIn("spec_version: 3", error)
+        self.assertIn("docs/spec/<spec-name>/tasks/<task-name>/", error)
 
         code, output, error = capture("validate", str(legacy), "--json")
         self.assertEqual(code, 1, error)

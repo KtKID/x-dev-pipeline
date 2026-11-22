@@ -1,0 +1,93 @@
+{
+  "eval": "dev-main",
+  "score": 14,
+  "total": 14,
+  "cases_passed": 14,
+  "cases": 14,
+  "rows": [
+    {
+      "id": "M01",
+      "ok": true,
+      "wrong": [],
+      "reason": "工人报已完成且声称覆盖率 100%，主 agent 必须自己在这组分支上核对，不照抄工人结论。"
+    },
+    {
+      "id": "M02",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率 92% 不通过，这是组 A 第 1 次核对，交回原工人在原会话修复，轮数未满 3。"
+    },
+    {
+      "id": "M03",
+      "ok": true,
+      "wrong": [],
+      "reason": "组 B 已 3 轮仍不过，达到上限，只停这一组升级，其他组照常进行。"
+    },
+    {
+      "id": "M04",
+      "ok": true,
+      "wrong": [],
+      "reason": "合并组 C 时冲突，无法定位到单组时打回后合的那一组（组 C），在最新主干上重做。"
+    },
+    {
+      "id": "M05",
+      "ok": true,
+      "wrong": [],
+      "reason": "派单前 impact 报告 spec 变化，需按变更同步处理后再运行 baseline。"
+    },
+    {
+      "id": "M06",
+      "ok": true,
+      "wrong": [],
+      "reason": "要改的文件不在派工单且不属于其他组，把文件补进涉及文件并重跑 validate 和 graph。"
+    },
+    {
+      "id": "M07",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 变化只影响组 C 的 T5，只停组 C，组 A、B 继续。"
+    },
+    {
+      "id": "M08",
+      "ok": true,
+      "wrong": [],
+      "reason": "所有组已合并，risk Q1 但尚未跑整体覆盖率和 xdev check，需先完成这两步。"
+    },
+    {
+      "id": "M09",
+      "ok": true,
+      "wrong": [],
+      "reason": "整体覆盖率与 xdev check 都已通过，risk Q3 需交 x-qa-gate 审查。"
+    },
+    {
+      "id": "M10",
+      "ok": true,
+      "wrong": [],
+      "reason": "只有一个并行组，主 agent 自己按 x-dev 做完即可。"
+    },
+    {
+      "id": "M11",
+      "ok": true,
+      "wrong": [],
+      "reason": "工人发现的是与本 task 无关的老 bug，登记为后续任务。"
+    },
+    {
+      "id": "M12",
+      "ok": true,
+      "wrong": [],
+      "reason": "risk Q0 且整体覆盖率与 xdev check 都通过，直接升为 ✅ 并交付。"
+    },
+    {
+      "id": "M13",
+      "ok": true,
+      "wrong": [],
+      "reason": "文件正被组 B 改且组 B 未合并，两组不能同时改一个文件，把这一行并进组 B。"
+    },
+    {
+      "id": "M14",
+      "ok": true,
+      "wrong": [],
+      "reason": "risk Q1 的整体覆盖率与 xdev check 已通过，按规则交 x-qa-gate。"
+    }
+  ]
+}

@@ -6,11 +6,10 @@
 
 - `xdev.py`
 - `validator.py`
-- `flag.py`
 - `req.py`
 - `spec.py`
 - `verify.py`
 
 `metrics.py` 同样打包在本目录，供 collect 阶段使用，不进入考生 workspace。
 
-七个工具文件和 manifest 属于 skill package；考生无需访问源仓库的其它目录。
+六个工具文件和 manifest 属于 skill package；考生无需访问源仓库的其它目录。

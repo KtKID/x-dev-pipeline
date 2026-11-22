@@ -43,7 +43,7 @@ iteration-N/
 
 两种迁移 profile：
 
-- `pipeline_candidate`：创建全新 x-dev-pipeline 候选 workspace，复制公开考题、七个阶段 skills、共享 `x-dev-rag-call` 和六个运行 tools。
+- `pipeline_candidate`：创建全新 x-dev-pipeline 候选 workspace，复制公开考题、六个阶段 skills、共享 `x-dev-rag-call` 和五个运行 tools。
 - `public_task_only`：向已有的其他框架 workspace 只添加公开考题，保留其现有环境，不注入 x-dev skills/tools。
 
 创建全新 pipeline candidate：
@@ -76,24 +76,22 @@ python3 skills/pipeline-efficiency-benchmark/scripts/prepare_workspace.py \
 
 `--skills-root` 目录必须包含：
 
-- `x-explore-for-spec`
+- `x-ask-spec`
 - `x-adversarial-risk`
 - `x-tech-design`
 - `x-req`
 - `x-dev`
 - `x-verify-spec`
-- `x-qa-gate`
 - `x-fix`
 
 共享 skill：
 
 - `x-dev-rag-call`
 
-skill 包的 `assets/executor-tools/` 包含七个工具。prepare 向考生 workspace 复制六个运行工具：
+skill 包的 `assets/executor-tools/` 包含六个工具。prepare 向考生 workspace 复制五个运行工具：
 
 - `xdev.py`
 - `validator.py`
-- `flag.py`
 - `req.py`
 - `spec.py`
 - `verify.py`
@@ -114,7 +112,7 @@ python3 skills/pipeline-efficiency-benchmark/scripts/validate_workspace.py \
 preflight 检查：
 
 1. 公开 task 和 workspace 外的 package manifest 均存在。
-2. `pipeline_candidate` 额外要求完整七阶段 skill、共享 `x-dev-rag-call` 和六个运行 tools；`public_task_only` 保持原框架环境。
+2. `pipeline_candidate` 额外要求完整六阶段 skill、共享 `x-dev-rag-call` 和五个运行 tools；`public_task_only` 保持原框架环境。
 3. pipeline candidate 的 tools 与 skill 内 bundled 版本 SHA 一致。
 4. `xdev.py` 的本地导入依赖齐全且 CLI 可启动。
 5. package manifest 中的所有文件保持原 hash。
@@ -136,14 +134,13 @@ exit 0 才能启动执行器。exit 1 保持阻断并修复打包问题。
 运行链：
 
 ```text
-x-explore-for-spec
+x-ask-spec
   → 按风险预算调用 x-adversarial-risk
   → x-tech-design
   → x-req
   → x-dev
-  → x-verify-spec
-  → x-qa-gate
-  → x-fix 与增量复验
+  → x-verify-spec（功能检查 + xdev check）
+  → x-fix 与复验
 ```
 
 阶段切片必须写入 `scope`，例如 `spec_risk_only` 或 `full_pipeline`。不同 scope 的总 Token 不进入同一降幅计算。
@@ -304,7 +301,7 @@ python3 skills/pipeline-efficiency-benchmark/scripts/refresh_bundled_tools.py \
   --source-tools tools
 ```
 
-该命令集中更新七个 bundled tools 和 `assets/executor-tools/manifest.json`。随后运行本 skill 的测试，确认迁移包和 SHA 门禁同步。
+该命令集中更新六个 bundled tools 和 `assets/executor-tools/manifest.json`。随后运行本 skill 的测试，确认迁移包和 SHA 门禁同步。
 
 ## 完成回执
 

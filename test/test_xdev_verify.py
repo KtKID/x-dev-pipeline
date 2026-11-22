@@ -13,10 +13,9 @@ import sys
 
 sys.path[:0] = [
     str(ROOT / "skills" / "x-dev" / "scripts"),
-    str(ROOT / "skills" / "x-qa-gate" / "scripts"),
     str(ROOT / "skills" / "x-verify-spec" / "scripts"),
     str(ROOT / "skills" / "x-req" / "scripts"),
-    str(ROOT / "skills" / "x-spec" / "scripts"),
+    str(ROOT / "skills" / "x-ask-spec" / "scripts"),
 ]
 
 import req  # noqa: E402

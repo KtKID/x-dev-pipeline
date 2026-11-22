@@ -1,0 +1,99 @@
+{
+  "eval": "spec-scope",
+  "score": 15,
+  "total": 15,
+  "cases_passed": 15,
+  "cases": 15,
+  "rows": [
+    {
+      "id": "S01",
+      "ok": true,
+      "wrong": [],
+      "reason": "续借次数上限属于 loan 的续借规则，只改 loan 的场景。"
+    },
+    {
+      "id": "S02",
+      "ok": true,
+      "wrong": [],
+      "reason": "检索结果的排序归 catalog 的检索与排序。"
+    },
+    {
+      "id": "S03",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款金额规则归 fine；逾期天数算法归 loan 且不变，loan 不写场景。"
+    },
+    {
+      "id": "S04",
+      "ok": true,
+      "wrong": [],
+      "reason": "逾期第一天是 loan 计算出的状态，由 loan 的调用方触发提醒；message 的通用提醒行为没变，不写场景，只在 loan 的 C 里写依赖。"
+    },
+    {
+      "id": "S05",
+      "ok": true,
+      "wrong": [],
+      "reason": "读者对图书的评分和短评是新数据，现有边界表没有任何一行拥有它，新建 review 并在边界表加一行。"
+    },
+    {
+      "id": "S06",
+      "ok": true,
+      "wrong": [],
+      "reason": "累计借书数读取的是 loan 拥有的借阅记录，个人页只是展示入口。"
+    },
+    {
+      "id": "S07",
+      "ok": true,
+      "wrong": [],
+      "reason": "Node.js 升级是构建与依赖改动，使用者看不到行为变化，只记变更记录。"
+    },
+    {
+      "id": "S08",
+      "ok": true,
+      "wrong": [],
+      "reason": "检索页按钮文字只改文案不改行为，记入检索所属 catalog 的变更记录。"
+    },
+    {
+      "id": "S09",
+      "ok": true,
+      "wrong": [],
+      "reason": "同时可借数量上限归 loan；读者等级本身的定义没有变，member 不写场景。"
+    },
+    {
+      "id": "S10",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款的缴纳方式和缴纳记录归 fine，新增微信缴纳只改 fine。"
+    },
+    {
+      "id": "S11",
+      "ok": true,
+      "wrong": [],
+      "reason": "账号注销是 member 拥有的行为，注销条件改变所以 member 写场景；借还状态归 loan，只在 member 的 C 里写依赖。"
+    },
+    {
+      "id": "S12",
+      "ok": true,
+      "wrong": [],
+      "reason": "电子书在线阅读和阅读进度是新数据，边界表里没有任何一行拥有它，新建 ebook 并加一行。"
+    },
+    {
+      "id": "S13",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款减免和清零归 fine，读者等级降级改的是 member 拥有的读者等级，两份各写一条场景。"
+    },
+    {
+      "id": "S14",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款缴清是 fine 的缴纳记录变化，由 fine 触发通知；message 的通用提醒没变，不写场景。"
+    },
+    {
+      "id": "S15",
+      "ok": true,
+      "wrong": [],
+      "reason": "新增消息类型、模板和渠道都是 message 拥有的数据，发送时机由调用方决定所以不在此写。"
+    }
+  ]
+}

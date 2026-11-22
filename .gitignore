@@ -9,7 +9,6 @@ tools/__pycache__
 .xcodeatlas
 .zcode/
 docs/spec/codex-session-metrics/tasks/
-skills/x-pipeline-efficiency-workspace/iteration-2/eval-10-voice-chain-end-to-end/with_skill/run-1/workspace/tools/__pycache__
 .*/__pycache__
 deprecated/x-spec-workspace/
 *.pyc
@@ -19,12 +18,4 @@ deprecated/x-spec-workspace/
 /skills/*.skill
 
 # Benchmark runner sandboxes and local runtime state
-/evals/x-dev-receipt-runs/
-evals/x-pipeline-efficiency-workspace/**/run-*/workspace/
-evals/x-pipeline-efficiency-workspace/**/full-pipeline-run-*/workspace/
-evals/x-pipeline-efficiency-workspace/invalid-attempts/**/workspace/
-evals/x-pipeline-efficiency-workspace/**/codex-home/
-evals/x-pipeline-efficiency-workspace/**/grader-workspace/
 
-# Generated reviewer input snapshots; the review reports are canonical
-**/reports/qa-gate/context/

@@ -1,0 +1,8 @@
+[
+  {"id": "V01", "spec_diff": "loan/spec.md：新增 feat02 场景3", "task_record": "spec 归属与确认：loan 加到已有，feat02 场景3；用户于 2026-11-20 14:05 在对话第 12 条消息确认"},
+  {"id": "V02", "spec_diff": "loan/spec.md：新增 feat02 场景3", "task_record": "spec 归属与确认：loan 加到已有，feat02 场景3；已确认"},
+  {"id": "V03", "spec_diff": "engineering/spec.md：变更记录新增一行“Node 16 升级到 20”，没有其他改动", "task_record": "spec 归属与确认：engineering 只记变更；未写场景，无需确认"},
+  {"id": "V04", "spec_diff": "fine/spec.md：修改 feat01 场景2 的罚款金额", "task_record": "spec 归属与确认：fine 只记变更；未写场景，无需确认"},
+  {"id": "V05", "spec_diff": "新建 review/spec.md，含 feat01 场景1–3；docs/spec/README.md 边界表新增一行", "task_record": "spec 归属与确认：review 新建；开发者自检后确认无误"},
+  {"id": "V06", "spec_diff": "catalog/spec.md：退役 feat03 场景2（高级检索）", "task_record": "spec 归属与确认：catalog 加到已有，退役 feat03 场景2；用户于 2026-11-20 09:12 在对话第 4 条消息确认"}
+]

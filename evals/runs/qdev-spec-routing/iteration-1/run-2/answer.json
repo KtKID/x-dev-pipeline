@@ -1,0 +1,12 @@
+[
+  {"id": "Q01", "route": "qdev", "writes": [{"spec": "loan", "action": "log-only"}], "task_spec": "loan", "confirm": false, "tech_design": "task", "reason": "续借应还日期是 loan 的既有行为，修 bug 只是恢复原定义，spec 场景不改，只追加变更记录；1 个源码文件，局部方案写在 task ②。"},
+  {"id": "Q02", "route": "qdev", "writes": [{"spec": "catalog", "action": "append"}], "task_spec": "catalog", "confirm": true, "tech_design": "task", "reason": "检索排序归 catalog，新增一条排序场景；2 个源码文件，未超过 3 个，局部方案写在 task ②。"},
+  {"id": "Q03", "route": "qdev", "writes": [{"spec": "review", "action": "new"}], "task_spec": "review", "confirm": true, "tech_design": "x-tech-design", "reason": "评分和短评是现有边界表都不拥有的新数据，需新建 review spec 并加边界表行；新建 spec 且源码文件超过 3 个，调 x-tech-design；读过的书只是只读依赖 loan，不列入 writes。"},
+  {"id": "Q04", "route": "qdev", "writes": [{"spec": "engineering", "action": "log-only"}], "task_spec": "engineering", "confirm": false, "tech_design": "task", "reason": "ESLint 规则属于构建与工程配置，使用者看不到行为变化，只追加变更记录；1 个文件，局部方案写在 task ②。"},
+  {"id": "Q05", "route": "qdev", "writes": [{"spec": "catalog", "action": "log-only"}], "task_spec": "catalog", "confirm": false, "tech_design": "task", "reason": "只改按钮颜色，属于外观改动、不改行为，所属 catalog 只追加一行变更记录，不写场景。"},
+  {"id": "Q06", "route": "qdev", "writes": [{"spec": "fine", "action": "append"}, {"spec": "member", "action": "append"}], "task_spec": "fine", "confirm": true, "tech_design": "x-tech-design", "reason": "减免清零罚款归 fine，降级改变读者等级归 member，一条需求落到两份 spec，故写 x-tech-design；未涉及高风险迁移或鉴权体系改造，留在 qdev。"},
+  {"id": "Q07", "route": "mainline", "writes": [], "task_spec": null, "confirm": null, "tech_design": null, "reason": "改密码存储算法并迁移已有密码，涉及鉴权和不可逆的数据迁移，属于高风险工作，转完整主线。"},
+  {"id": "Q08", "route": "qdev", "writes": [{"spec": "fine", "action": "append"}], "task_spec": "fine", "confirm": true, "tech_design": "task", "reason": "罚款金额规则归 fine，修改原场景的金额并保留编号；1 个源码文件，局部方案写在 task ②。"},
+  {"id": "Q09", "route": "qdev", "writes": [{"spec": "loan", "action": "append"}], "task_spec": "loan", "confirm": true, "tech_design": "x-tech-design", "reason": "借阅数量上限归 loan，修改原场景；读者等级定义不变，member 不动；4 个源码文件超过 3 个，需调 x-tech-design。"},
+  {"id": "Q10", "route": "qdev", "writes": [{"spec": "engineering", "action": "log-only"}], "task_spec": "engineering", "confirm": false, "tech_design": "task", "reason": "Node 版本升级属于构建、依赖和 CI，使用者看不到行为变化，只追加变更记录；3 个文件未超限，局部方案写在 task ②。"}
+]

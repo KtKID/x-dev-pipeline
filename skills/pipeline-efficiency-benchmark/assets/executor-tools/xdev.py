@@ -3,22 +3,25 @@
 
 本文件只负责参数解析、目标发现和引擎分流：
 
-- validator.py：spec/spec7/change/capability 包校验
-- req.py：spec task 的 scaffold/validate/instructions/status/graph
-- verify.py：Gate ① 事实验证
-- flag.py：QA Gate issue ledger 与状态降级事务
+- checklist_engine.py（x-req）：当前格式 task 的 scaffold/validate/status/graph/impact/baseline
+- delivery.py（x-dev）：开发与交付的 start/coverage/check（代码基线、改动行覆盖率、交付机械核对，含功能检查回执）
+- req.py（x-req）：只服务父 spec 声明 spec_version: 3 的旧契约包
+- validator.py（x-ask-spec）：旧 spec/change 包校验
+- verify.py（x-verify-spec）：只服务旧契约包的 dev-report verify 块
 
 用法：
-  python3 <x-dev-skill-dir>/scripts/xdev.py validate [目标目录 ...] [--include-legacy] [--json]
-  python3 <x-dev-skill-dir>/scripts/xdev.py instructions <artifact-id> --task <task-dir> [--json]
-  python3 <x-dev-skill-dir>/scripts/xdev.py scaffold <task-dir> [--with-diagram] [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py scaffold <task-dir> [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py validate [task 或包目录 ...] [--include-legacy] [--json]
   python3 <x-dev-skill-dir>/scripts/xdev.py status <task-dir> [--json]
   python3 <x-dev-skill-dir>/scripts/xdev.py graph <task-dir> [--json]
-  python3 <x-dev-skill-dir>/scripts/xdev.py verify <task-dir> [--json] [--only <id>]
-  python3 <x-dev-skill-dir>/scripts/xdev.py flag <task-dir> --task T2,T3 --severity P0 \
-      --loc src/a.py:10 --msg "空输入未处理" [--new-round] [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py impact <task-dir> [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py baseline <task-dir> [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py start <task-dir 或 qdev task.md> [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py coverage <目标> --cmd "<全量测试命令>" --report <覆盖率报告> [--out <dir>] [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py check <目标> [--json]
+  python3 <x-dev-skill-dir>/scripts/xdev.py verify <task-dir> [--json] [--only <id>]   # 仅旧契约包
 
-退出码：0 成功；1 校验失败或依赖环；2 用法、目标或 IO 错误。
+退出码：0 成功；1 校验失败、依赖环、有未同步的需求变化、覆盖率不到 100% 或交付核对未通过；2 用法、目标或 IO 错误。
 """
 
 from __future__ import annotations
@@ -60,9 +63,10 @@ def _engine(module_name: str, skill_name: str):
         return _load_sibling_engine(module_name, skill_name)
 
 
-flag_engine = _engine("flag", "x-qa-gate")
 req = _engine("req", "x-req")
-validator = _engine("validator", "x-spec")
+checklist = _engine("checklist_engine", "x-req")
+delivery = _engine("delivery", "x-dev")
+validator = _engine("validator", "x-ask-spec")
 verify_engine = _engine("verify", "x-verify-spec")
 
 
@@ -83,6 +87,21 @@ def discover(root: Path) -> list[Path]:
 
 def validate_target(target: Path, include_legacy: bool) -> dict:
     """按 spec task 或 package 类型委托对应校验引擎。"""
+    spec_md = target / "spec.md"
+    if spec_md.is_file() and not checklist.has_version_marker(spec_md):
+        # 当前格式的 spec 目录：不走旧包校验，查分期（一期最多 5 个 feat），再逐个校验它下面的 task
+        issues = checklist.phase_issues(spec_md)
+        for task_dir in sorted((target / "tasks").glob("*/")) if (target / "tasks").is_dir() else []:
+            if (task_dir / "dev-checklist.md").is_file():
+                issues.extend(checklist.validate_issues(task_dir))
+        return {"path": str(target), "type": "spec", "skipped": False, "issues": issues}
+    if checklist.handles(target):
+        return {
+            "path": str(target),
+            "type": "task",
+            "skipped": False,
+            "issues": checklist.validate_issues(target),
+        }
     if req.spec_of_task_dir(target) is not None:
         if req.resolve_spec_dir(target) is None:
             return {
@@ -93,7 +112,7 @@ def validate_target(target: Path, include_legacy: bool) -> dict:
                     "file": str(target),
                     "line": 0,
                     "rule": "TASK_VERSION",
-                    "msg": "当前 task 引擎只支持父 spec 声明 spec_version: 3",
+                    "msg": "task 上级找不到 spec.md",
                 }],
             }
         return {
@@ -106,7 +125,9 @@ def validate_target(target: Path, include_legacy: bool) -> dict:
 
 
 def task_engine(task_dir: Path):
-    """仅为父 spec 声明 spec_version: 3 的 task 返回 req 引擎。"""
+    """当前格式 task 用 checklist 引擎；父 spec 声明 spec_version: 3 的旧包用 req 引擎。"""
+    if checklist.handles(task_dir):
+        return checklist
     if req.spec_of_task_dir(task_dir) is None:
         return None
     if req.resolve_spec_dir(task_dir) is not None:
@@ -139,49 +160,69 @@ def _build_parser() -> argparse.ArgumentParser:
     status.add_argument("task_dir", help="docs/spec/<spec>/tasks/<task>/")
     status.add_argument("--json", action="store_true", dest="as_json")
 
-    graph = sub.add_parser("graph", help="输出当前 task 依赖拓扑")
+    graph = sub.add_parser("graph", help="按并行组和依赖输出派工顺序")
     graph.add_argument("task_dir", help="docs/spec/<spec>/tasks/<task>/")
     graph.add_argument("--json", action="store_true", dest="as_json")
 
-    instructions = sub.add_parser("instructions", help="返回当前 task 产物填写规则")
-    instructions.add_argument("artifact_id", help="artifact ID")
-    instructions.add_argument("--task", required=True, dest="task_dir")
-    instructions.add_argument("--json", action="store_true", dest="as_json")
+    impact = sub.add_parser("impact", help="对比拆解基线，列出需求变化要同步的 D/T/任务行/测试")
+    impact.add_argument("task_dir", help="docs/spec/<spec>/tasks/<task>/")
+    impact.add_argument("--json", action="store_true", dest="as_json")
 
-    scaffold = sub.add_parser("scaffold", help="增量创建当前 task 包骨架")
+    baseline = sub.add_parser("baseline", help="把当前 spec/tech-design 记为新的拆解基线")
+    baseline.add_argument("task_dir", help="docs/spec/<spec>/tasks/<task>/")
+    baseline.add_argument("--json", action="store_true", dest="as_json")
+
+    scaffold = sub.add_parser("scaffold", help="创建 task 目录和 checklist，自动填头部与拆解基线")
     scaffold.add_argument("task_dir", help="docs/spec/<spec>/tasks/<task>/")
-    scaffold.add_argument("--with-diagram", action="store_true")
+    scaffold.add_argument("--with-diagram", action="store_true", help="仅旧契约包")
     scaffold.add_argument("--json", action="store_true", dest="as_json")
 
-    verify = sub.add_parser("verify", help="复跑 dev-report 并对账自动场景")
+    verify = sub.add_parser("verify", help="仅旧契约包：复跑 dev-report 的 verify 块")
     verify.add_argument("task_dir", help="docs/spec/<spec>/tasks/<task>/")
     verify.add_argument("--json", action="store_true", dest="as_json")
     verify.add_argument("--only", help="只执行指定 auto verify 块")
 
-    flag = sub.add_parser("flag", help="登记 QA Gate issue 并执行状态降级")
-    flag.add_argument("task_dir", help="docs/spec/<spec>/tasks/<task>/")
-    flag.add_argument("--task", required=True, dest="task_ids")
-    flag.add_argument("--severity", required=True, choices=["P0", "P1", "P2"])
-    flag.add_argument("--loc", required=True)
-    flag.add_argument("--msg", required=True)
-    flag.add_argument("--new-round", action="store_true")
-    flag.add_argument("--json", action="store_true", dest="as_json")
+    start = sub.add_parser("start", help="开工：把 git HEAD 记为代码基线，建证据目录")
+    start.add_argument("target", help="task 目录，或 qdev 的 task .md")
+    start.add_argument("--json", action="store_true", dest="as_json")
+
+    cov = sub.add_parser("coverage", help="跑测试并算本次改动行的覆盖率，不到 100%% 退出 1")
+    cov.add_argument("target", help="task 目录，或 qdev 的 task .md")
+    cov.add_argument("--cmd", action="append", default=[], dest="cmd_list", help="全量测试命令（会生成覆盖率报告）；可多次")
+    cov.add_argument("--report", action="append", required=True, help="覆盖率报告：lcov / cobertura XML / coverage.py JSON / Go coverprofile；可多次")
+    cov.add_argument("--out", help="只把记录写到这个目录、不改交付文档（并行开发的工人用）")
+    cov.add_argument("--json", action="store_true", dest="as_json")
+
+    chk = sub.add_parser("check", help="交付机械核对：编号、状态、场景→用例→测试、覆盖率 100%%、功能检查回执")
+    chk.add_argument("target", help="task 目录，或 qdev 的 task .md")
+    chk.add_argument("--json", action="store_true", dest="as_json")
+
     return parser
 
 
 def _task_command(args: argparse.Namespace) -> int:
     task_dir = Path(args.task_dir)
+    if args.cmd == "scaffold" and task_dir.resolve().parent.name == "tasks":
+        spec_md = task_dir.resolve().parent.parent / "spec.md"
+        if spec_md.is_file() and not checklist.has_version_marker(spec_md):
+            return checklist.scaffold(task_dir, args.as_json)
     engine = task_engine(task_dir)
+    if engine is checklist:
+        if args.cmd in {"impact", "baseline"}:
+            return getattr(checklist, args.cmd)(task_dir, args.as_json)
+    elif args.cmd in {"impact", "baseline"}:
+        print("错误：impact / baseline 只支持当前格式的 task", file=sys.stderr)
+        return 2
     if engine is None:
         print(
-            "错误：只支持父 spec 声明 spec_version: 3 的 "
-            f"docs/spec/<spec-name>/tasks/<task-name>/：{task_dir}",
+            "错误：task 必须位于 docs/spec/<spec-name>/tasks/<task-name>/，"
+            f"且上级有 spec.md：{task_dir}",
             file=sys.stderr,
         )
         return 2
-    if args.cmd == "instructions":
-        return engine.instructions(args.artifact_id, task_dir, args.as_json)
     if args.cmd == "scaffold":
+        if engine is checklist:
+            return checklist.scaffold(task_dir, args.as_json)
         return engine.scaffold(task_dir, args.with_diagram, args.as_json)
     if not task_dir.is_dir():
         print(f"错误：不是目录：{task_dir}", file=sys.stderr)
@@ -246,20 +287,27 @@ def _validate_command(args: argparse.Namespace) -> int:
 def main(argv: list[str] | None = None) -> int:
     """解析统一 CLI，并将命令分发给单一实现引擎。"""
     args = _build_parser().parse_args(argv)
-    if args.cmd in {"instructions", "scaffold", "status", "graph"}:
+    if args.cmd in {"scaffold", "status", "graph", "impact", "baseline"}:
         return _task_command(args)
+    if args.cmd in {"start", "coverage", "check"}:
+        try:
+            if args.cmd == "start":
+                return delivery.start(args.target, args.as_json)
+            if args.cmd == "coverage":
+                return delivery.coverage(args.target, args.report, args.cmd_list, args.out, args.as_json)
+            return delivery.check(args.target, args.as_json)
+        except delivery.UsageError as e:
+            print(f"错误：{e}", file=sys.stderr)
+            return 2
     if args.cmd == "verify":
+        if checklist.handles(Path(args.task_dir)):
+            print(
+                "当前格式的 task 不用 verify 命令：交付核对用 xdev check，"
+                "需求变化用 xdev impact 检查。verify 只服务 spec_version: 3 的旧契约包。",
+                file=sys.stderr,
+            )
+            return 2
         return verify_engine.verify(Path(args.task_dir), args.as_json, args.only)
-    if args.cmd == "flag":
-        return flag_engine.flag_command(
-            Path(args.task_dir),
-            args.task_ids,
-            args.severity,
-            args.loc,
-            args.msg,
-            args.new_round,
-            args.as_json,
-        )
     return _validate_command(args)
 
 

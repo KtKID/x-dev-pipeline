@@ -1,0 +1,93 @@
+{
+  "eval": "dev-main",
+  "score": 14,
+  "total": 14,
+  "cases_passed": 14,
+  "cases": 14,
+  "rows": [
+    {
+      "id": "M01",
+      "ok": true,
+      "wrong": [],
+      "reason": "工人报已完成不能采信，主 agent 要在组 A 分支上自己跑 xdev coverage 核对。"
+    },
+    {
+      "id": "M02",
+      "ok": true,
+      "wrong": [],
+      "reason": "组 A 第 1 次核对覆盖率 92%，未到 100%，把未覆盖的行交回原工人在原会话修，轮数记 1。"
+    },
+    {
+      "id": "M03",
+      "ok": true,
+      "wrong": [],
+      "reason": "组 B 已修 3 轮仍不通过，达到 3 轮上限，停组 B 并升级给用户，其他组照常进行。"
+    },
+    {
+      "id": "M04",
+      "ok": true,
+      "wrong": [],
+      "reason": "合并冲突定位不到是哪一组的问题，按规则打回后合的组 C，在最新主干上重做，算一轮。"
+    },
+    {
+      "id": "M05",
+      "ok": true,
+      "wrong": [],
+      "reason": "impact 报出变化，先按 change-sync 同步完（或确认只是措辞变化），再运行 xdev baseline，然后才派单。"
+    },
+    {
+      "id": "M06",
+      "ok": true,
+      "wrong": [],
+      "reason": "需要的文件不属于任何其他组，把 date.ts 补进这一行的涉及文件，重跑 xdev validate 和 graph，更新派工单后让工人继续。"
+    },
+    {
+      "id": "M07",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 变化只影响组 C 的 T5，只停组 C，组 A、B 不受影响，继续进行。"
+    },
+    {
+      "id": "M08",
+      "ok": true,
+      "wrong": [],
+      "reason": "所有组已合并，但还没跑整体覆盖率，需先在主干上跑整体覆盖率，再交验收。"
+    },
+    {
+      "id": "M09",
+      "ok": true,
+      "wrong": [],
+      "reason": "全部合并、整体覆盖率 100%、Web 验收完成，无论 risk 是多少都交 x-verify-spec 验收一次。"
+    },
+    {
+      "id": "M10",
+      "ok": true,
+      "wrong": [],
+      "reason": "只有一个并行组，主 agent 按 x-dev SKILL.md 自己做完即可，不走本文的多 agent 流程。"
+    },
+    {
+      "id": "M11",
+      "ok": true,
+      "wrong": [],
+      "reason": "工人发现的老 bug 与本 task 无关，按规则登记成后续任务，不在本 task 内修。"
+    },
+    {
+      "id": "M12",
+      "ok": true,
+      "wrong": [],
+      "reason": "x-verify-spec 验收已通过，主 agent 把行升为 [x] ✅ 并交付。"
+    },
+    {
+      "id": "M13",
+      "ok": true,
+      "wrong": [],
+      "reason": "rate.ts 正被组 B 改且未合并，两组不能同时改一个文件，把这一行并进组 B 的派工单，由组 B 的工人接着做。"
+    },
+    {
+      "id": "M14",
+      "ok": true,
+      "wrong": [],
+      "reason": "整体覆盖率 100% 已达成，risk 是多少都要交 x-verify-spec 验收一次，不因不涉及 Web 而跳过。"
+    }
+  ]
+}

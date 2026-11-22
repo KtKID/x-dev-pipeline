@@ -1,0 +1,111 @@
+{
+  "eval": "qdev-spec-routing",
+  "score": 85,
+  "total": 85,
+  "cases_passed": 17,
+  "cases": 17,
+  "rows": [
+    {
+      "id": "Q01",
+      "ok": true,
+      "wrong": [],
+      "reason": "loan 已有场景写明续借应还日期加 14 天，代码没照做，属于修 bug，只记变更；只改 1 个源码文件且没有写场景的 spec，局部方案写在 task②。"
+    },
+    {
+      "id": "Q02",
+      "ok": true,
+      "wrong": [],
+      "reason": "按出版年份排序是检索结果的新行为，归 catalog 的检索与排序，加到已有并给用户确认；只有一份 spec 写场景，源码 2 个，走 task②。"
+    },
+    {
+      "id": "Q03",
+      "ok": true,
+      "wrong": [],
+      "reason": "评分和短评是新数据，边界表没有任何一行拥有它，需新建 review 并加边界行；新建 spec 要确认并走 x-tech-design；读过的书只是读取借阅记录，loan 不动。"
+    },
+    {
+      "id": "Q04",
+      "ok": true,
+      "wrong": [],
+      "reason": "ESLint 规则级别属于工程配置，使用者看不到变化，只记变更；只改 1 个配置文件，局部方案写在 task②。"
+    },
+    {
+      "id": "Q05",
+      "ok": true,
+      "wrong": [],
+      "reason": "按钮颜色只是外观，不改行为，归检索页所属的 catalog 只记变更。"
+    },
+    {
+      "id": "Q06",
+      "ok": true,
+      "wrong": [],
+      "reason": "风险规则各条都答否（审批沿用现有权限，没有新规则，也不挪钱）；清零罚款归 fine，降等级改的是 member 的读者等级，场景拆成两条分别加到已有；两份 spec 写场景，走 x-tech-design；主场景是读者申请减免，task 放 fine。"
+    },
+    {
+      "id": "Q07",
+      "ok": true,
+      "wrong": [],
+      "reason": "改密码的加密方式（风险 2）并且要批量迁移已有密码（风险 3），两条都答是，转完整主线。"
+    },
+    {
+      "id": "Q08",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款金额规则归 fine，改每天金额是行为变化，修改原场景并给用户确认；只改 1 个源码文件，走 task②。"
+    },
+    {
+      "id": "Q09",
+      "ok": true,
+      "wrong": [],
+      "reason": "借阅数量上限归 loan，修改原上限规则并给用户确认；会员等级只被读取，member 不动；源码 4 个超过 3 个，走 x-tech-design。"
+    },
+    {
+      "id": "Q10",
+      "ok": true,
+      "wrong": [],
+      "reason": "Node 版本和 CI 属于 engineering 的工程改动，使用者看不到变化，只记变更；源码配置 3 个未超过 3 且没有写场景，局部方案写在 task②。"
+    },
+    {
+      "id": "Q11",
+      "ok": true,
+      "wrong": [],
+      "reason": "loan spec 没写逾期天数怎么算，修 bug 时要补一条场景加到已有并给用户确认；逾期计算归 loan，只改 1 个源码文件，走 task②。"
+    },
+    {
+      "id": "Q12",
+      "ok": true,
+      "wrong": [],
+      "reason": "逾期罚款金额规则归 fine，按读者等级区分是行为变化，加到已有并给用户确认；读者等级只被读取，member 不动；源码只有 rate.ts 和 config/fine.json 两个，测试和文档不算，走 task②。"
+    },
+    {
+      "id": "Q13",
+      "ok": true,
+      "wrong": [],
+      "reason": "定时任务重跑会重复生成罚款（风险 4 答是），转完整主线。"
+    },
+    {
+      "id": "Q14",
+      "ok": true,
+      "wrong": [],
+      "reason": "把罚款退回到微信账户是退款到外部账户，做了就收不回（风险 5 答是），转完整主线。"
+    },
+    {
+      "id": "Q15",
+      "ok": true,
+      "wrong": [],
+      "reason": "单笔封顶 50 元是罚款金额规则，修改原场景并给用户确认；不扣款也不退钱，风险规则都答否；只改 1 个源码文件，走 task②。"
+    },
+    {
+      "id": "Q16",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 和代码都写的加 7 天不是用户要的，属于需求修改，加到已有修改原场景并给用户确认；只改 1 个源码文件，走 task②。"
+    },
+    {
+      "id": "Q17",
+      "ok": true,
+      "wrong": [],
+      "reason": "两个都是设成固定值、重跑结果一样、不涉及金额，风险规则都答否；借阅状态归 loan，账号上的逾期标记归 member，场景拆成两条；两份 spec 写场景，走 x-tech-design；定时任务没有直接使用者，两份各一条场景，按边界表靠前放 member。"
+    }
+  ]
+}

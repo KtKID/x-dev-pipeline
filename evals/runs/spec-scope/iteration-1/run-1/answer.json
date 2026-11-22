@@ -1,0 +1,17 @@
+[
+  {"id": "S01", "writes": [{"spec": "loan", "action": "append"}], "reason": "续借次数上限是 loan 拥有的续借规则，改的是 loan 的数据。"},
+  {"id": "S02", "writes": [{"spec": "catalog", "action": "append"}], "reason": "检索结果的排序归 catalog（检索与排序）。"},
+  {"id": "S03", "writes": [{"spec": "fine", "action": "append"}], "reason": "罚款金额规则归 fine；逾期天数算法不变，loan 不动。"},
+  {"id": "S04", "writes": [{"spec": "loan", "action": "append"}], "reason": "逾期第一天是 loan 的逾期计算结果，由 loan 决定何时调用现有通用提醒；message 的行为没变，只写 loan 的场景。"},
+  {"id": "S05", "writes": [{"spec": "review", "action": "new"}], "reason": "评分和短评是新的数据，catalog、member、loan 的拥有列都不包含，需新建 review 并在边界表加一行。"},
+  {"id": "S06", "writes": [{"spec": "loan", "action": "append"}], "reason": "累计借书数量读取的是 loan 拥有的借阅记录，个人页只是展示入口，member 的数据没变。"},
+  {"id": "S07", "writes": [{"spec": "engineering", "action": "log-only"}], "reason": "Node.js 升级是构建与依赖改动，使用者看不到行为变化，只记变更记录。"},
+  {"id": "S08", "writes": [{"spec": "catalog", "action": "log-only"}], "reason": "只改按钮文字、不改行为，归检索页所属的 catalog，只记变更记录。"},
+  {"id": "S09", "writes": [{"spec": "loan", "action": "append"}], "reason": "借阅数量上限归 loan；读者等级是 member 的数据但本身没变，member 只被读取。"},
+  {"id": "S10", "writes": [{"spec": "fine", "action": "append"}], "reason": "微信缴纳属于 fine 拥有的缴纳方式与缴纳记录。"},
+  {"id": "S11", "writes": [{"spec": "member", "action": "append"}], "reason": "账号注销的规则归 member；未还书的判断只读取 loan 的借阅记录，loan 不动，只在 member 的 C 里写依赖。"},
+  {"id": "S12", "writes": [{"spec": "reading-progress", "action": "new"}], "reason": "在线阅读和阅读进度是新数据，现有各行的拥有列都不包含，需新建 reading-progress 并在边界表加一行。"},
+  {"id": "S13", "writes": [{"spec": "fine", "action": "append"}, {"spec": "member", "action": "append"}], "reason": "减免和罚款清零归 fine，读者等级下降归 member，两份 spec 各自的数据都变了。"},
+  {"id": "S14", "writes": [{"spec": "fine", "action": "append"}], "reason": "缴清罚款后何时发信由 fine 决定，通用提醒的类型和行为没变，message 不动，只在 fine 的 C 里写调用依赖。"},
+  {"id": "S15", "writes": [{"spec": "message", "action": "append"}], "reason": "新增消息类型、模板和渠道都是 message 拥有的数据；发送时机未定，不写 loan 的场景。"}
+]

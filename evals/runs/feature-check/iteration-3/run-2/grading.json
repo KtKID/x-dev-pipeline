@@ -1,0 +1,87 @@
+{
+  "eval": "test-integrity",
+  "score": 13,
+  "total": 13,
+  "cases_passed": 13,
+  "cases": 13,
+  "rows": [
+    {
+      "id": "I01",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/test_fine.py 的 `expected = days * DAILY_FINE` 照抄了生产里的罚款公式，期望值不是手写的常量。"
+    },
+    {
+      "id": "I02",
+      "ok": true,
+      "wrong": [],
+      "reason": "`assert overdue_fine(3) == 1.5` 调用真实被测函数，期望值是手写常量，改坏 DAILY_FINE 或去掉上限都会变红。"
+    },
+    {
+      "id": "I03",
+      "ok": true,
+      "wrong": [],
+      "reason": "`@patch('src.loan.borrow.borrow', ...)` 把被测的 borrow 函数本身替换掉了，再调用 b.borrow 测的只是 mock 的返回值。"
+    },
+    {
+      "id": "I04",
+      "ok": true,
+      "wrong": [],
+      "reason": "被 mock 的只有 count_active 和 save_loan（存储层），真实的 borrow 运行并断言返回 '已达借阅上限' 且 save_loan 未被调用，删掉拦截判断测试会变红。"
+    },
+    {
+      "id": "I05",
+      "ok": true,
+      "wrong": [],
+      "reason": "测试只有 `count.assert_called_once_with('r1')`，没有检查 borrow 的返回值是否为 '已达借阅上限'。"
+    },
+    {
+      "id": "I06",
+      "ok": true,
+      "wrong": [],
+      "reason": "上限场景要测第 6 本被拒，但 `count_active` 只返回 2、借的是第 3 本，LIMIT 改成任何大于 2 的值测试都照样通过。"
+    },
+    {
+      "id": "I07",
+      "ok": true,
+      "wrong": [],
+      "reason": "`expect(dueDate(at)).toEqual(dueDate(at))` 两边都是同一个函数的同一次输入，无论实现对错都成立。"
+    },
+    {
+      "id": "I08",
+      "ok": true,
+      "wrong": [],
+      "reason": "测试文件内自己定义了 `function dueDate(...)` 并测这个副本，没有 import src/loan/due 里的被测函数。"
+    },
+    {
+      "id": "I09",
+      "ok": true,
+      "wrong": [],
+      "reason": "`try { expect(...) } catch (e) { console.log('flaky on CI, ignore', e) }` 把断言失败吞掉，测试永远绿。"
+    },
+    {
+      "id": "I10",
+      "ok": true,
+      "wrong": [],
+      "reason": "场景要验证借书入口 borrow 的拦截，但测试用 `save_loan` 直接写 6 条记录后只查 `count_active > LIMIT`，从未调用 borrow。"
+    },
+    {
+      "id": "I11",
+      "ok": true,
+      "wrong": [],
+      "reason": "`expect(dueDate(new Date()).toISOString().slice(0, 10)).toBe('2026-04-14')` 调用真实 dueDate，用 fake timer 固定时间（时钟替身允许），期望值是手写日期，跨月正确。"
+    },
+    {
+      "id": "I12",
+      "ok": true,
+      "wrong": [],
+      "reason": "`@pytest.mark.skip(reason='later')` 让封顶 20 元的测试直接跳过，永远不运行。"
+    },
+    {
+      "id": "I13",
+      "ok": true,
+      "wrong": [],
+      "reason": "`overdue_fine(long_overdue) == 20.0` 用 fixture 准备 100 天输入（允许），`overdue_fine(0) == 0.0` 覆盖没逾期不罚；去掉 min 上限，100 天会得 50 而变红。"
+    }
+  ]
+}

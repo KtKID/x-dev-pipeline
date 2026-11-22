@@ -1,0 +1,175 @@
+{
+  "eval": "qdev-spec-routing",
+  "score": 70,
+  "total": 80,
+  "cases_passed": 14,
+  "cases": 16,
+  "rows": [
+    {
+      "id": "Q01",
+      "ok": true,
+      "wrong": [],
+      "reason": "修 bug 且 loan 已写明正确行为（续借加 14 天），只记变更不停；风险规则全部答否，只改 1 个源码文件。"
+    },
+    {
+      "id": "Q02",
+      "ok": true,
+      "wrong": [],
+      "reason": "检索与排序归 catalog 拥有，新增一种排序是行为变化，需确认；仅 2 个源码文件，风险规则全否。"
+    },
+    {
+      "id": "Q03",
+      "ok": true,
+      "wrong": [],
+      "reason": "评分和短评是新数据，边界表没有任何一行拥有它，需新建 review 并边界表加行；新建 spec 且源码超过 3 个，走 x-tech-design；读借阅记录只是调用 loan，只在 C 里写依赖。"
+    },
+    {
+      "id": "Q04",
+      "ok": true,
+      "wrong": [],
+      "reason": "ESLint 规则属于工程构建配置，使用者看不到行为变化，只记变更。"
+    },
+    {
+      "id": "Q05",
+      "ok": true,
+      "wrong": [],
+      "reason": "只改按钮颜色，是外观不是行为，所属 spec catalog 只记变更。"
+    },
+    {
+      "id": "Q06",
+      "ok": false,
+      "wrong": [
+        {
+          "field": "route",
+          "expected": "qdev",
+          "got": "转主线"
+        },
+        {
+          "field": "writes",
+          "expected": [
+            [
+              "fine",
+              "加到已有"
+            ],
+            [
+              "member",
+              "加到已有"
+            ]
+          ],
+          "got": []
+        },
+        {
+          "field": "task_spec",
+          "expected": "fine",
+          "got": null
+        },
+        {
+          "field": "confirm",
+          "expected": true,
+          "got": null
+        },
+        {
+          "field": "tech_design",
+          "expected": "x-tech-design",
+          "got": null
+        }
+      ],
+      "reason": "管理员批准涉及权限判断，且批准会同时清零罚款并降低读者等级，重复批准需要防重复，还要跨 fine 与 member 两份 spec 改数据，有风险规则答是。"
+    },
+    {
+      "id": "Q07",
+      "ok": true,
+      "wrong": [],
+      "reason": "改动涉及密码存储（风险规则第 2 条），并要批量迁移已有读者密码（第 3 条），两条都答是。"
+    },
+    {
+      "id": "Q08",
+      "ok": true,
+      "wrong": [],
+      "reason": "逾期罚款金额规则归 fine，修改原场景需确认；只改 1 个源码文件，不批量改已有数据，风险规则全否。"
+    },
+    {
+      "id": "Q09",
+      "ok": true,
+      "wrong": [],
+      "reason": "借阅数量上限归 loan，修改原场景需确认；计划改 4 个源码文件，超过 3 个，走 x-tech-design；读者等级只是读取，member 不写。"
+    },
+    {
+      "id": "Q10",
+      "ok": true,
+      "wrong": [],
+      "reason": "升级 Node.js 属于工程依赖与 CI 配置，使用者看不到行为变化；源码和配置文件仅 3 个，未超过上限，风险规则全否。"
+    },
+    {
+      "id": "Q11",
+      "ok": true,
+      "wrong": [],
+      "reason": "逾期天数怎么算由 loan 决定，但 loan 没有写过这条行为，按修 bug 规则补一条场景，需确认；只改 1 个源码文件，风险规则全否。"
+    },
+    {
+      "id": "Q12",
+      "ok": true,
+      "wrong": [],
+      "reason": "按等级区分的罚款金额归 fine，修改原规则需确认；读者等级归 member，这里只读取，只在 C 里写依赖；测试和文档不计入源码，源码只有 2 个，风险规则全否。"
+    },
+    {
+      "id": "Q13",
+      "ok": false,
+      "wrong": [
+        {
+          "field": "route",
+          "expected": "qdev",
+          "got": "转主线"
+        },
+        {
+          "field": "writes",
+          "expected": [
+            [
+              "fine",
+              "加到已有"
+            ],
+            [
+              "member",
+              "加到已有"
+            ]
+          ],
+          "got": []
+        },
+        {
+          "field": "task_spec",
+          "expected": "member",
+          "got": null
+        },
+        {
+          "field": "confirm",
+          "expected": true,
+          "got": null
+        },
+        {
+          "field": "tech_design",
+          "expected": "x-tech-design",
+          "got": null
+        }
+      ],
+      "reason": "每晚自动生成 20 元罚款属于扣钱类、做了收不回的操作（第 5 条），且定时任务批量处理可能重复生成，需要防重复（第 4 条），两条都答是。"
+    },
+    {
+      "id": "Q14",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款退回微信账户是退款到外部账户，做了收不回的资金操作（第 5 条），答是。"
+    },
+    {
+      "id": "Q15",
+      "ok": true,
+      "wrong": [],
+      "reason": "单笔罚款上限是 fine 的金额规则，新增一条场景需确认；只改 1 个源码文件，风险规则全否。"
+    },
+    {
+      "id": "Q16",
+      "ok": true,
+      "wrong": [],
+      "reason": "loan 原场景写的 7 天本身不是用户要的，属于需求修改而非 bug，修改原场景需确认；只改 1 个源码文件，风险规则全否。"
+    }
+  ]
+}

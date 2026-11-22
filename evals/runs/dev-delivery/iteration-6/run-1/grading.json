@@ -1,0 +1,105 @@
+{
+  "eval": "dev-delivery",
+  "score": 16,
+  "total": 16,
+  "cases_passed": 16,
+  "cases": 16,
+  "rows": [
+    {
+      "id": "D01",
+      "ok": true,
+      "wrong": [],
+      "reason": "改动行覆盖率 91%，缺的 renew.py 12-14 行要补测试，补完再跑 coverage 到 100%。"
+    },
+    {
+      "id": "D02",
+      "ok": true,
+      "wrong": [],
+      "reason": "测试命令红的是本 task 新写的用例，先修好它，再重跑 coverage。"
+    },
+    {
+      "id": "D03",
+      "ok": true,
+      "wrong": [],
+      "reason": "新文件 fine.py 没有任何测试调用，报告里缺它；补能加载它的测试后重跑 coverage。"
+    },
+    {
+      "id": "D04",
+      "ok": true,
+      "wrong": [],
+      "reason": "pragma 排除标记只用于跑不到的防御代码，要在问题与处置写一行 borrow.py:40 和磁盘满兜底的理由，交审查判断。"
+    },
+    {
+      "id": "D05",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率通过之后代码又改了，记录已过期（COVERAGE_STALE），要重跑 coverage 让记录和当前代码对上。"
+    },
+    {
+      "id": "D06",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 场景在基线之后变了，按需求变化同步处理受影响的 D、T、任务行，再运行 xdev baseline。"
+    },
+    {
+      "id": "D07",
+      "ok": true,
+      "wrong": [],
+      "reason": "用例 T4 没有对应测试，要写出测试函数并登记到用例对应表。"
+    },
+    {
+      "id": "D08",
+      "ok": true,
+      "wrong": [],
+      "reason": "只能人工验证的用例，把步骤和实际看到的结果写进 evidence，结果记人工通过。"
+    },
+    {
+      "id": "D09",
+      "ok": true,
+      "wrong": [],
+      "reason": "risk 为 Q0，xdev check 已通过，无需独立审查，由主 agent 把行升为已完成并交付。"
+    },
+    {
+      "id": "D10",
+      "ok": true,
+      "wrong": [],
+      "reason": "risk 为 Q2，xdev check 通过后要交 x-qa-gate 做独立审查。"
+    },
+    {
+      "id": "D11",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 增量已确认、还没运行任何 xdev 命令，开工前先运行 xdev start 记下代码基线。"
+    },
+    {
+      "id": "D12",
+      "ok": true,
+      "wrong": [],
+      "reason": "只记变更、没写场景的 qdev 任务，xdev check 通过即可，不需要 x-qa-gate 审查。"
+    },
+    {
+      "id": "D13",
+      "ok": true,
+      "wrong": [],
+      "reason": "新增了场景的 qdev 任务，xdev check 通过后要交 x-qa-gate 按 Q1 做一次独立审查。"
+    },
+    {
+      "id": "D14",
+      "ok": true,
+      "wrong": [],
+      "reason": "真实性检查第 1 轮不通过，按回执的怎么改修测试，重跑 coverage，再派新的子 agent 检查。"
+    },
+    {
+      "id": "D15",
+      "ok": true,
+      "wrong": [],
+      "reason": "改过测试后真实性记录和覆盖率记录都作废，先重跑 coverage，再派新的子 agent 检查。"
+    },
+    {
+      "id": "D16",
+      "ok": true,
+      "wrong": [],
+      "reason": "原有测试红了，spec 和 tech-design 都没改这个行为，要先查是不能自己改坏的，不能 skip 或删除。"
+    }
+  ]
+}

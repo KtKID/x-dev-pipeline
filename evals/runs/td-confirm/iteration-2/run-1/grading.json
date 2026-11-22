@@ -1,0 +1,57 @@
+{
+  "eval": "td-confirm",
+  "score": 4,
+  "total": 6,
+  "cases_passed": 4,
+  "cases": 6,
+  "rows": [
+    {
+      "id": "T01",
+      "ok": true,
+      "wrong": [],
+      "reason": "设计只含实现层面的选择，不改变使用者看到的结果，tech-design 不需要用户确认，写完直接交接。"
+    },
+    {
+      "id": "T02",
+      "ok": true,
+      "wrong": [],
+      "reason": "缓存延迟会改变使用者看到的数字，属于需要用户拍板的边界取舍，只把这一项单独问，其他设计照常交接。"
+    },
+    {
+      "id": "T03",
+      "ok": false,
+      "wrong": [
+        {
+          "field": "action",
+          "expected": "可以拆任务",
+          "got": "直接交给 x-req"
+        }
+      ],
+      "reason": "tech-design 不需要用户看过或确认，且没有等待拍板的取舍，满足就绪条件，可以直接拆任务。"
+    },
+    {
+      "id": "T04",
+      "ok": true,
+      "wrong": [],
+      "reason": "未决项只影响 feat02 场景3，该场景等用户答复，本轮其他场景照常拆解。"
+    },
+    {
+      "id": "T05",
+      "ok": false,
+      "wrong": [
+        {
+          "field": "action",
+          "expected": "直接交给 x-req",
+          "got": "继续开发，交付时一起告知"
+        }
+      ],
+      "reason": "抽公共函数是实现层选择，不改变使用者结果，无需用户确认；交接后在交付时告知即可。"
+    },
+    {
+      "id": "T06",
+      "ok": true,
+      "wrong": [],
+      "reason": "x-qdev 中调用 x-tech-design 不单独停下，设计已写完且无待拍板取舍，设计结论随交付一起告知用户。"
+    }
+  ]
+}

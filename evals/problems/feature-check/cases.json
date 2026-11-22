@@ -1,0 +1,104 @@
+[
+  {
+    "id": "I01",
+    "scene": "场景：逾期 3 天罚 1.5 元。",
+    "production": "# src/loan/fine.py\nDAILY_FINE = 0.5\n\ndef overdue_fine(days_late: int) -> float:\n    if days_late <= 0:\n        return 0.0\n    return min(days_late * DAILY_FINE, 20.0)\n",
+    "test": "# tests/test_fine.py\nfrom src.loan.fine import overdue_fine, DAILY_FINE\n\ndef test_fine_amount():\n    days = 3\n    expected = days * DAILY_FINE\n    assert overdue_fine(days) == expected\n"
+  },
+  {
+    "id": "I02",
+    "scene": "场景：逾期 3 天罚 1.5 元。",
+    "production": "# src/loan/fine.py\nDAILY_FINE = 0.5\n\ndef overdue_fine(days_late: int) -> float:\n    if days_late <= 0:\n        return 0.0\n    return min(days_late * DAILY_FINE, 20.0)\n",
+    "test": "# tests/test_fine.py\nfrom src.loan.fine import overdue_fine\n\ndef test_fine_amount():\n    assert overdue_fine(3) == 1.5\n"
+  },
+  {
+    "id": "I03",
+    "scene": "场景：已借 5 本的读者再借，提示“已达借阅上限”。",
+    "production": "# src/loan/borrow.py\nfrom src.loan.store import count_active, save_loan\nLIMIT = 5\n\ndef borrow(reader_id, book_id):\n    if count_active(reader_id) >= LIMIT:\n        return '已达借阅上限'\n    save_loan(reader_id, book_id)\n    return 'ok'\n",
+    "test": "# tests/test_borrow.py\nfrom unittest.mock import patch\nfrom src.loan import borrow as b\n\n@patch('src.loan.borrow.borrow', return_value='已达借阅上限')\ndef test_sixth_rejected(mock_borrow):\n    assert b.borrow('r1', 'book6') == '已达借阅上限'\n"
+  },
+  {
+    "id": "I04",
+    "scene": "场景：已借 5 本的读者再借，提示“已达借阅上限”。",
+    "production": "# src/loan/borrow.py\nfrom src.loan.store import count_active, save_loan\nLIMIT = 5\n\ndef borrow(reader_id, book_id):\n    if count_active(reader_id) >= LIMIT:\n        return '已达借阅上限'\n    save_loan(reader_id, book_id)\n    return 'ok'\n",
+    "test": "# tests/test_borrow.py\nfrom unittest.mock import patch\nfrom src.loan.borrow import borrow\n\n@patch('src.loan.borrow.save_loan')\n@patch('src.loan.borrow.count_active', return_value=5)\ndef test_sixth_rejected(count, save):\n    assert borrow('r1', 'book6') == '已达借阅上限'\n    save.assert_not_called()\n"
+  },
+  {
+    "id": "I05",
+    "scene": "场景：已借 5 本的读者再借，提示“已达借阅上限”。",
+    "production": "# src/loan/borrow.py\nfrom src.loan.store import count_active, save_loan\nLIMIT = 5\n\ndef borrow(reader_id, book_id):\n    if count_active(reader_id) >= LIMIT:\n        return '已达借阅上限'\n    save_loan(reader_id, book_id)\n    return 'ok'\n",
+    "test": "# tests/test_borrow.py\nfrom unittest.mock import patch\nfrom src.loan.borrow import borrow\n\n@patch('src.loan.borrow.save_loan')\n@patch('src.loan.borrow.count_active', return_value=5)\ndef test_sixth_rejected(count, save):\n    borrow('r1', 'book6')\n    count.assert_called_once_with('r1')\n"
+  },
+  {
+    "id": "I06",
+    "scene": "场景：已借 5 本的读者再借，提示“已达借阅上限”。",
+    "production": "# src/loan/borrow.py\nfrom src.loan.store import count_active, save_loan\nLIMIT = 5\n\ndef borrow(reader_id, book_id):\n    if count_active(reader_id) >= LIMIT:\n        return '已达借阅上限'\n    save_loan(reader_id, book_id)\n    return 'ok'\n",
+    "test": "# tests/test_borrow.py\nfrom unittest.mock import patch\nfrom src.loan.borrow import borrow\n\n@patch('src.loan.borrow.save_loan')\n@patch('src.loan.borrow.count_active', return_value=2)\ndef test_limit(count, save):\n    assert borrow('r1', 'book3') == 'ok'\n"
+  },
+  {
+    "id": "I07",
+    "scene": "场景：借书日起 30 天后应还。",
+    "production": "// src/loan/due.ts\nexport function dueDate(borrowedAt: Date): Date {\n  const d = new Date(borrowedAt);\n  d.setDate(d.getDate() + 30);\n  return d;\n}\n",
+    "test": "// tests/due.test.ts\nimport { dueDate } from '../src/loan/due';\n\ntest('due in 30 days', () => {\n  const at = new Date('2026-01-01');\n  expect(dueDate(at)).toEqual(dueDate(at));\n});\n"
+  },
+  {
+    "id": "I08",
+    "scene": "场景：借书日起 30 天后应还。",
+    "production": "// src/loan/due.ts\nexport function dueDate(borrowedAt: Date): Date {\n  const d = new Date(borrowedAt);\n  d.setDate(d.getDate() + 30);\n  return d;\n}\n",
+    "test": "// tests/due.test.ts\nfunction dueDate(borrowedAt: Date): Date {\n  const d = new Date(borrowedAt);\n  d.setDate(d.getDate() + 30);\n  return d;\n}\n\ntest('due in 30 days', () => {\n  expect(dueDate(new Date('2026-01-01')).toISOString().slice(0, 10)).toBe('2026-01-31');\n});\n"
+  },
+  {
+    "id": "I09",
+    "scene": "场景：借书日起 30 天后应还。",
+    "production": "// src/loan/due.ts\nexport function dueDate(borrowedAt: Date): Date {\n  const d = new Date(borrowedAt);\n  d.setDate(d.getDate() + 30);\n  return d;\n}\n",
+    "test": "// tests/due.test.ts\nimport { dueDate } from '../src/loan/due';\n\ntest('due in 30 days', () => {\n  try {\n    expect(dueDate(new Date('2026-01-01')).toISOString().slice(0, 10)).toBe('2026-01-31');\n  } catch (e) {\n    console.log('flaky on CI, ignore', e);\n  }\n});\n"
+  },
+  {
+    "id": "I10",
+    "scene": "场景：已借 5 本的读者再借，提示“已达借阅上限”。（这个场景要验证的是借书入口 borrow 的拦截）",
+    "production": "# src/loan/borrow.py\nfrom src.loan.store import count_active, save_loan\nLIMIT = 5\n\ndef borrow(reader_id, book_id):\n    if count_active(reader_id) >= LIMIT:\n        return '已达借阅上限'\n    save_loan(reader_id, book_id)\n    return 'ok'\n",
+    "test": "# tests/test_borrow.py\nfrom src.loan.store import save_loan, count_active, reset\nfrom src.loan.borrow import LIMIT\n\ndef test_sixth_rejected():\n    reset()\n    for i in range(6):\n        save_loan('r1', f'b{i}')\n    assert count_active('r1') > LIMIT\n"
+  },
+  {
+    "id": "I11",
+    "scene": "场景：借书日起 30 天后应还（跨月）。",
+    "production": "// src/loan/due.ts\nexport function dueDate(borrowedAt: Date): Date {\n  const d = new Date(borrowedAt);\n  d.setDate(d.getDate() + 30);\n  return d;\n}\n",
+    "test": "// tests/due.test.ts\nimport { dueDate } from '../src/loan/due';\n\nbeforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(new Date('2026-03-15')); });\n\ntest('due crosses month', () => {\n  expect(dueDate(new Date()).toISOString().slice(0, 10)).toBe('2026-04-14');\n});\n"
+  },
+  {
+    "id": "I12",
+    "scene": "场景：逾期罚款最多 20 元。",
+    "production": "# src/loan/fine.py\nDAILY_FINE = 0.5\n\ndef overdue_fine(days_late: int) -> float:\n    if days_late <= 0:\n        return 0.0\n    return min(days_late * DAILY_FINE, 20.0)\n",
+    "test": "# tests/test_fine.py\nimport pytest\nfrom src.loan.fine import overdue_fine\n\n@pytest.mark.skip(reason='later')\ndef test_cap():\n    assert overdue_fine(100) == 20.0\n"
+  },
+  {
+    "id": "I13",
+    "scene": "场景：逾期罚款最多 20 元；没逾期不罚。",
+    "production": "# src/loan/fine.py\nDAILY_FINE = 0.5\n\ndef overdue_fine(days_late: int) -> float:\n    if days_late <= 0:\n        return 0.0\n    return min(days_late * DAILY_FINE, 20.0)\n",
+    "test": "# tests/test_fine.py\nimport pytest\nfrom src.loan.fine import overdue_fine\n\n@pytest.fixture\ndef long_overdue():\n    return 100\n\ndef test_cap(long_overdue):\n    assert overdue_fine(long_overdue) == 20.0\n\ndef test_not_overdue():\n    assert overdue_fine(0) == 0.0\n"
+  },
+  {
+    "id": "I14",
+    "scene": "场景：逾期的借阅续借被拒；THEN 返回“已逾期，不能续借”，并且到期日不变。",
+    "production": "# src/loan/renew.py\nRENEW_DAYS = 14\n\ndef renew(store, loan_id, now):\n    loan = store.get(loan_id)\n    if loan is None:\n        return None, '借阅记录不存在'\n    if now.date() > loan.due.date():\n        return None, '已逾期，不能续借'\n    loan.due = loan.due + timedelta(days=RENEW_DAYS)\n    loan.renewed = True\n    return loan, None\n",
+    "test": "# tests/test_renew.py\nfrom datetime import datetime\nfrom src.loan.renew import renew\nfrom tests.helpers import store_with_loan\n\ndef test_overdue_rejected():\n    store = store_with_loan('L1', due=datetime(2026, 1, 31))\n    loan, err = renew(store, 'L1', datetime(2026, 2, 1, 0, 10))\n    assert loan is None\n    assert err == '已逾期，不能续借'\n"
+  },
+  {
+    "id": "I15",
+    "scene": "场景：续借成功；THEN 到期日在原到期日上加 14 天，并且这条借阅标为已续借（续借过的不能再续）。",
+    "production": "# src/loan/renew.py\nRENEW_DAYS = 14\n\ndef renew(store, loan_id, now):\n    loan = store.get(loan_id)\n    if loan is None:\n        return None, '借阅记录不存在'\n    loan.due = loan.due + timedelta(days=RENEW_DAYS)\n    return loan, None\n",
+    "test": "# tests/test_renew.py\nfrom datetime import datetime\nfrom src.loan.renew import renew\nfrom tests.helpers import store_with_loan\n\ndef test_renew_adds_14_days():\n    store = store_with_loan('L1', due=datetime(2026, 1, 31))\n    loan, err = renew(store, 'L1', datetime(2026, 1, 20))\n    assert err is None\n    assert loan.due == datetime(2026, 2, 14)\n"
+  },
+  {
+    "id": "I16",
+    "scene": "场景：续借成功；THEN 到期日在原到期日上加 14 天。（交付文档写的涉及文件只有 src/loan/renew.py 和 tests/test_renew.py）",
+    "production": "# src/loan/renew.py\nRENEW_DAYS = 14\n\ndef renew(store, loan_id, now):\n    loan = store.get(loan_id)\n    if loan is None:\n        return None, '借阅记录不存在'\n    if now.date() > loan.due.date():\n        return None, '已逾期，不能续借'\n    loan.due = loan.due + timedelta(days=RENEW_DAYS)\n    loan.renewed = True\n    return loan, None\n\n# 本次 diff 里还有：src/loan/borrow.py\n-LIMIT = 5\n+LIMIT = 6\n",
+    "test": "# tests/test_renew.py\nfrom datetime import datetime\nfrom src.loan.renew import renew\nfrom tests.helpers import store_with_loan\n\ndef test_renew_adds_14_days():\n    store = store_with_loan('L1', due=datetime(2026, 1, 31))\n    loan, err = renew(store, 'L1', datetime(2026, 1, 20))\n    assert err is None\n    assert loan.due == datetime(2026, 2, 14)\n    assert loan.renewed is True\n"
+  },
+  {
+    "id": "I17",
+    "scene": "场景：续借成功；THEN 到期日在原到期日上加 14 天。本轮 tech-design 的 D02：续借天数做成具名常量 RENEW_DAYS，不在业务代码里写死。",
+    "production": "# src/loan/renew.py\ndef renew(store, loan_id, now):\n    loan = store.get(loan_id)\n    if loan is None:\n        return None, '借阅记录不存在'\n    loan.due = loan.due + timedelta(days=14)\n    loan.renewed = True\n    return loan, None\n",
+    "test": "# tests/test_renew.py\nfrom datetime import datetime\nfrom src.loan.renew import renew\nfrom tests.helpers import store_with_loan\n\ndef test_renew_adds_14_days():\n    store = store_with_loan('L1', due=datetime(2026, 1, 31))\n    loan, err = renew(store, 'L1', datetime(2026, 1, 20))\n    assert err is None\n    assert loan.due == datetime(2026, 2, 14)\n    assert loan.renewed is True\n"
+  }
+]

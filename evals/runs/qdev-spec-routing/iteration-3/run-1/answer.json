@@ -1,0 +1,13 @@
+[
+  {"id": "Q01", "route": "qdev", "writes": [{"spec": "loan", "action": "log-only"}], "task_spec": "loan", "confirm": false, "tech_design": "task", "reason": "续借日期算错是 bug，loan 已有场景写明正确行为，场景不改，只记变更记录，不停。"},
+  {"id": "Q02", "route": "qdev", "writes": [{"spec": "catalog", "action": "append"}], "task_spec": "catalog", "confirm": true, "tech_design": "task", "reason": "检索结果排序归 catalog 拥有，新增排序场景需确认；2 个源文件，局部方案即可。"},
+  {"id": "Q03", "route": "qdev", "writes": [{"spec": "review", "action": "new"}], "task_spec": "review", "confirm": true, "tech_design": "x-tech-design", "reason": "评分与短评是新数据，边界表无行拥有它，新建 review spec 需确认；源文件 5 个超过 3，调 x-tech-design。"},
+  {"id": "Q04", "route": "qdev", "writes": [{"spec": "engineering", "action": "log-only"}], "task_spec": "engineering", "confirm": false, "tech_design": "task", "reason": "ESLint 规则属工程配置，使用者看不到行为变化，只记变更记录，不写场景。"},
+  {"id": "Q05", "route": "qdev", "writes": [{"spec": "catalog", "action": "log-only"}], "task_spec": "catalog", "confirm": false, "tech_design": "task", "reason": "只改按钮颜色，不改行为，所属 catalog 只追加一行变更记录。"},
+  {"id": "Q06", "route": "qdev", "writes": [{"spec": "fine", "action": "append"}, {"spec": "member", "action": "append"}], "task_spec": "fine", "confirm": true, "tech_design": "x-tech-design", "reason": "减免与罚款清零归 fine，读者等级变化归 member，两份 spec 都改，需确认；场景跨 2 份 spec，调 x-tech-design。"},
+  {"id": "Q07", "route": "mainline", "writes": [], "task_spec": null, "confirm": null, "tech_design": null, "reason": "涉及密码存储鉴权变更和全量数据迁移，属高风险不可逆操作，转完整主线。"},
+  {"id": "Q08", "route": "qdev", "writes": [{"spec": "fine", "action": "append"}], "task_spec": "fine", "confirm": true, "tech_design": "task", "reason": "罚款金额规则归 fine，修改原场景需确认；只改 1 个源文件，局部方案即可。"},
+  {"id": "Q09", "route": "qdev", "writes": [{"spec": "loan", "action": "append"}], "task_spec": "loan", "confirm": true, "tech_design": "x-tech-design", "reason": "借阅数量上限归 loan，修改原场景需确认；源文件 4 个超过 3，调 x-tech-design。"},
+  {"id": "Q10", "route": "qdev", "writes": [{"spec": "engineering", "action": "log-only"}], "task_spec": "engineering", "confirm": false, "tech_design": "task", "reason": "Node 版本升级属工程改动，使用者看不到变化，只记变更记录；3 个文件未超过阈值。"},
+  {"id": "Q11", "route": "qdev", "writes": [{"spec": "loan", "action": "append"}], "task_spec": "loan", "confirm": true, "tech_design": "task", "reason": "loan 里没有逾期天数规则的场景，修 bug 需补场景并确认；1 个源文件，局部方案即可。"}
+]

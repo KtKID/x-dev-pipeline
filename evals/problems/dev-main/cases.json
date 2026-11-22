@@ -1,0 +1,58 @@
+[
+  {
+    "id": "M01",
+    "situation": "组 A 的工人交回了回执，所有行都报“已完成”，回执里写着覆盖率 100%。"
+  },
+  {
+    "id": "M02",
+    "situation": "主 agent 在组 A 的分支上跑 xdev coverage，测试通过，但改动行覆盖率 92%，列出了 2 处没覆盖的行；这是组 A 第 1 次核对。"
+  },
+  {
+    "id": "M03",
+    "situation": "组 B 已经修了 3 轮，第 3 次核对还是不通过；组 C 正在开发。"
+  },
+  {
+    "id": "M04",
+    "situation": "组 A 已经合进主干。合并组 C 时和组 A 的改动冲突。"
+  },
+  {
+    "id": "M05",
+    "situation": "准备派单前运行 xdev impact，它报告 spec 的 feat02 场景1 变了。"
+  },
+  {
+    "id": "M06",
+    "situation": "组 A 的工人报回：T2 需要改 src/shared/date.ts，这个文件不在派工单里，也不属于其他任何组。"
+  },
+  {
+    "id": "M07",
+    "situation": "开发进行到一半，spec 改了一处，xdev impact 显示只影响组 C 的 T5，组 A、B 不受影响。"
+  },
+  {
+    "id": "M08",
+    "situation": "所有组都已合并，checklist 头部 risk 是 Q1，还没跑整体的覆盖率。"
+  },
+  {
+    "id": "M09",
+    "situation": "所有组都已合并，整体的 xdev coverage 100%，Web 验收做完，risk 是 Q3。"
+  },
+  {
+    "id": "M10",
+    "situation": "checklist 只有一个并行组 A。"
+  },
+  {
+    "id": "M11",
+    "situation": "工人报回：发现借阅统计报表页有个和本 task 无关的老 bug。"
+  },
+  {
+    "id": "M12",
+    "situation": "x-verify-spec 对整个 task 验收通过，risk 是 Q0。"
+  },
+  {
+    "id": "M13",
+    "situation": "组 A 的工人报回：T2 需要改 src/fine/rate.ts，这个文件正在被组 B 改，组 B 还没合并。"
+  },
+  {
+    "id": "M14",
+    "situation": "所有组都已合并，整体的 xdev coverage 100%，不涉及 Web，risk 是 Q1。"
+  }
+]

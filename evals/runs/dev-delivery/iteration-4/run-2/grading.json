@@ -1,0 +1,105 @@
+{
+  "eval": "dev-delivery",
+  "score": 16,
+  "total": 16,
+  "cases_passed": 16,
+  "cases": 16,
+  "rows": [
+    {
+      "id": "D01",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率 91% 且列出了未覆盖的行，要补测试覆盖 renew.py 这几行，再重跑 coverage 直到 100%。"
+    },
+    {
+      "id": "D02",
+      "ok": true,
+      "wrong": [],
+      "reason": "测试命令失败，红的是本 task 新写的测试，原有测试是绿的，先修好这个测试再重跑。"
+    },
+    {
+      "id": "D03",
+      "ok": true,
+      "wrong": [],
+      "reason": "新文件 fine.py 没有任何测试调用，所以报告里没有它；补一个真正调用它的测试后重跑 coverage。"
+    },
+    {
+      "id": "D04",
+      "ok": true,
+      "wrong": [],
+      "reason": "磁盘满兜底分支测试造不出来，属于确实跑不到的防御代码；用排除标记后要在问题与处置写 文件路径:行 和理由。"
+    },
+    {
+      "id": "D05",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率跑完后代码又改了，记录已过期（COVERAGE_STALE），要重跑 coverage 更新记录。"
+    },
+    {
+      "id": "D06",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 场景在基线之后改了（SPEC_CHANGED），要按需求变化同步处理 D、T、任务行和测试，再运行 xdev baseline。"
+    },
+    {
+      "id": "D07",
+      "ok": true,
+      "wrong": [],
+      "reason": "用例 T4 没有对应测试，要写出测试函数并登记到用例对应表。"
+    },
+    {
+      "id": "D08",
+      "ok": true,
+      "wrong": [],
+      "reason": "只能人工验证的用例，要把步骤和实际看到的结果写成 evidence 下的人工记录，结果记人工通过。"
+    },
+    {
+      "id": "D09",
+      "ok": true,
+      "wrong": [],
+      "reason": "风险是 Q0，xdev check 通过后由主 agent 直接把行升为已完成，不交 x-qa-gate。"
+    },
+    {
+      "id": "D10",
+      "ok": true,
+      "wrong": [],
+      "reason": "风险是 Q2，xdev check 通过后要交 x-qa-gate 做一次独立审查。"
+    },
+    {
+      "id": "D11",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 增量已确认但还没运行任何 xdev 命令，开工前要先运行 xdev start 记下代码基线。"
+    },
+    {
+      "id": "D12",
+      "ok": true,
+      "wrong": [],
+      "reason": "只记变更、没写场景的 qdev 任务，xdev check 通过即可，不需要独立审查，直接交付。"
+    },
+    {
+      "id": "D13",
+      "ok": true,
+      "wrong": [],
+      "reason": "新增了场景，xdev check 通过后要交 x-qa-gate 按 Q1 做一次独立审查。"
+    },
+    {
+      "id": "D14",
+      "ok": true,
+      "wrong": [],
+      "reason": "真实性检查第 1 轮不通过，test_fine_amount 重写了生产逻辑，要按回执把期望值改成手算常量，重跑 coverage 后再派新的子 agent 检查。"
+    },
+    {
+      "id": "D15",
+      "ok": true,
+      "wrong": [],
+      "reason": "测试文件在登记通过后又改了，检查记录已作废（INTEGRITY_STALE），要派新的子 agent 检查并重新登记。"
+    },
+    {
+      "id": "D16",
+      "ok": true,
+      "wrong": [],
+      "reason": "原有测试红了而 spec 和设计都没改这个行为，先查是不是自己改坏的，不能删除或 skip 它。"
+    }
+  ]
+}

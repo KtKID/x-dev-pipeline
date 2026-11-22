@@ -7,6 +7,8 @@
 
 ### 步骤 1：理解 Bug
 
+修的是某份 spec 里的功能时，先按 [token 用量](../../x-dev/references/test-reporting.md#token-用量) 运行 `xdev usage start <spec.md> --phase "<这个功能的期次>" --what "修 bug：<一句话>"`，交付时运行 `xdev usage fill <spec.md>`。
+
 从用户描述中提炼：
 - 问题现象（用户实际看到了什么）
 - 复现步骤（如有）
@@ -36,8 +38,8 @@
 
 ### 步骤 4：验证
 
-- 实际运行聚焦反例与受影响回归，按 [共用报告约定](../../x-dev/references/test-reporting.md) 采集当次改动覆盖率
-- 将用例明细、实际结果、未覆盖位置与采集缺口集中到统一测试报告，原始记录放附件；修复记录链接该报告
+- 实际运行聚焦反例与受影响回归；修复落在某个 task 范围内时，按 [证据约定](../../x-dev/references/test-reporting.md) 跑 `xdev coverage` 和 `xdev check`
+- 测试命令、结果和新增反例写进修复报告，原始输出放 `reports/fix/<报告名>-evidence/`
 
 ### 步骤 5：产出修复报告
 

@@ -1,0 +1,146 @@
+{
+  "eval": "qdev-spec-routing",
+  "score": 80,
+  "total": 85,
+  "cases_passed": 16,
+  "cases": 17,
+  "rows": [
+    {
+      "id": "Q01",
+      "ok": true,
+      "wrong": [],
+      "reason": "loan 已写明正确行为，修 bug 只记变更；1 个源文件，风险规则全部答否。"
+    },
+    {
+      "id": "Q02",
+      "ok": true,
+      "wrong": [],
+      "reason": "检索排序归 catalog，改变用户可选的行为，需新增场景；2 个源文件、单 spec，风险规则全部答否。"
+    },
+    {
+      "id": "Q03",
+      "ok": true,
+      "wrong": [],
+      "reason": "评分和短评不属于任何现有 spec 的拥有范围，新建 review 并加边界表行；源文件 5 个超过 3 个，需技术设计。"
+    },
+    {
+      "id": "Q04",
+      "ok": true,
+      "wrong": [],
+      "reason": "lint 规则不改变使用者可见行为，归 engineering 只记变更；风险规则全部答否。"
+    },
+    {
+      "id": "Q05",
+      "ok": true,
+      "wrong": [],
+      "reason": "只改按钮颜色，属于外观变化，所属 catalog 只记变更。"
+    },
+    {
+      "id": "Q06",
+      "ok": false,
+      "wrong": [
+        {
+          "field": "route",
+          "expected": "qdev",
+          "got": "转主线"
+        },
+        {
+          "field": "writes",
+          "expected": [
+            [
+              "fine",
+              "加到已有"
+            ],
+            [
+              "member",
+              "加到已有"
+            ]
+          ],
+          "got": []
+        },
+        {
+          "field": "task_spec",
+          "expected": "fine",
+          "got": null
+        },
+        {
+          "field": "confirm",
+          "expected": true,
+          "got": null
+        },
+        {
+          "field": "tech_design",
+          "expected": "x-tech-design",
+          "got": null
+        }
+      ],
+      "reason": "风险第 4 条答是：管理员重复点击批准会把读者等级降两级，需要处理重复执行。"
+    },
+    {
+      "id": "Q07",
+      "ok": true,
+      "wrong": [],
+      "reason": "风险第 2 条答是（改动密码存储方式）；第 3 条也答是（迁移全部已有密码）。"
+    },
+    {
+      "id": "Q08",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款金额规则归 fine，修改原有费率场景；只影响之后产生的罚款，不批量改已有数据，1 个源文件。"
+    },
+    {
+      "id": "Q09",
+      "ok": true,
+      "wrong": [],
+      "reason": "借阅数量上限归 loan，修改可见规则；4 个源文件超过 3 个，需技术设计，风险规则全部答否。"
+    },
+    {
+      "id": "Q10",
+      "ok": true,
+      "wrong": [],
+      "reason": "运行环境升级属于工程改动，不改变使用者行为；3 个文件未超过 3 个，风险规则全部答否。"
+    },
+    {
+      "id": "Q11",
+      "ok": true,
+      "wrong": [],
+      "reason": "逾期天数归 loan，但 loan spec 还没写这条规则，所以补一条场景而不是只记变更；1 个源文件。"
+    },
+    {
+      "id": "Q12",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款金额规则归 fine，按等级区分修改原场景；读者等级只是读取，member 不动；源文件 2 个，测试和文档不计入。"
+    },
+    {
+      "id": "Q13",
+      "ok": true,
+      "wrong": [],
+      "reason": "风险第 4 条答是：每晚定时任务重跑会重复生成罚款并重复降级，需要防重复。"
+    },
+    {
+      "id": "Q14",
+      "ok": true,
+      "wrong": [],
+      "reason": "风险第 5 条答是：把钱退回外部微信账户是收不回的操作。"
+    },
+    {
+      "id": "Q15",
+      "ok": true,
+      "wrong": [],
+      "reason": "单笔罚款封顶属于罚款金额规则，归 fine 新增场景；只影响之后的计算，1 个源文件。"
+    },
+    {
+      "id": "Q16",
+      "ok": true,
+      "wrong": [],
+      "reason": "loan spec 写的 7 天本身不是用户要的，属于需求修改，修改原场景而不是修 bug；1 个源文件，风险规则全部答否。"
+    },
+    {
+      "id": "Q17",
+      "ok": true,
+      "wrong": [],
+      "reason": "借阅状态归 loan，账号上的逾期标记归 member，场景跨 2 份 spec 需技术设计；主场景无使用者，两份各一条场景，边界表靠前的 member 放 task；设为固定值、重跑结果一样，风险规则全部答否。"
+    }
+  ]
+}

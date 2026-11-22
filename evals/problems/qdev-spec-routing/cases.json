@@ -1,0 +1,141 @@
+[
+  {
+    "id": "Q01",
+    "request": "修 bug：续借后应还日期少算了一天。loan spec 里已有场景写明“续借后应还日期 = 原应还日期 + 14 天”。",
+    "planned_source_files": [
+      "src/loan/renew.ts"
+    ]
+  },
+  {
+    "id": "Q02",
+    "request": "检索结果可以按出版年份从新到旧排序。",
+    "planned_source_files": [
+      "src/catalog/search.ts",
+      "web/search/SortSelect.tsx"
+    ]
+  },
+  {
+    "id": "Q03",
+    "request": "读者可以给读过的书打 1–5 星并写短评，在书的详情页显示。",
+    "planned_source_files": [
+      "db/migrations/add_reviews.sql",
+      "src/review/service.ts",
+      "src/review/api.ts",
+      "web/book/ReviewList.tsx",
+      "web/book/ReviewForm.tsx"
+    ]
+  },
+  {
+    "id": "Q04",
+    "request": "把 ESLint 规则里的 no-console 从 warn 改成 error。",
+    "planned_source_files": [
+      ".eslintrc.json"
+    ]
+  },
+  {
+    "id": "Q05",
+    "request": "检索页“搜索”按钮的颜色改成主题蓝。",
+    "planned_source_files": [
+      "web/search/SearchButton.css"
+    ]
+  },
+  {
+    "id": "Q06",
+    "request": "读者可以申请罚款减免：管理员批准后这笔罚款清零，同时这位读者的读者等级降一级。管理员审批照用现有的“管理员才能操作”权限判断，不新增权限规则。",
+    "planned_source_files": [
+      "src/fine/waiver.ts",
+      "src/member/level.ts",
+      "web/fine/WaiverForm.tsx"
+    ]
+  },
+  {
+    "id": "Q07",
+    "request": "把读者密码的存储从 MD5 改成 bcrypt，并把已有读者的密码全部迁移过去。",
+    "planned_source_files": [
+      "src/member/password.ts",
+      "db/migrations/rehash_passwords.sql"
+    ]
+  },
+  {
+    "id": "Q08",
+    "request": "逾期罚款从每天 0.5 元改成每天 1 元。",
+    "planned_source_files": [
+      "src/fine/rate.ts"
+    ]
+  },
+  {
+    "id": "Q09",
+    "request": "高级读者同时可借的数量从 5 本提高到 10 本。",
+    "planned_source_files": [
+      "src/loan/limit.ts",
+      "src/loan/borrow.ts",
+      "src/loan/rules.ts",
+      "web/loan/LimitHint.tsx"
+    ]
+  },
+  {
+    "id": "Q10",
+    "request": "把项目的 Node.js 从 16 升级到 20。",
+    "planned_source_files": [
+      "package.json",
+      ".nvmrc",
+      ".github/workflows/ci.yml"
+    ]
+  },
+  {
+    "id": "Q11",
+    "request": "修 bug：还书时把还书当天也算进了逾期天数，多算了一天。loan spec 里还没有写过逾期天数怎么算。",
+    "planned_source_files": [
+      "src/loan/overdue.ts"
+    ]
+  },
+  {
+    "id": "Q12",
+    "request": "逾期罚款按读者等级区分：普通读者每天 1 元，高级读者每天 0.5 元。",
+    "planned_source_files": [
+      "src/fine/rate.ts",
+      "config/fine.json",
+      "tests/fine.test.ts",
+      "tests/rate.test.ts",
+      "docs/fine.md"
+    ]
+  },
+  {
+    "id": "Q13",
+    "request": "每晚 0 点自动检查：逾期超过 30 天的借阅，给这位读者生成一笔 20 元的“长期未还”罚款，并把他的读者等级降一级。",
+    "planned_source_files": [
+      "src/jobs/nightly-overdue.ts",
+      "src/fine/create.ts"
+    ]
+  },
+  {
+    "id": "Q14",
+    "request": "读者缴纳的罚款可以在线退回到他的微信账户。",
+    "planned_source_files": [
+      "src/fine/refund.ts",
+      "src/pay/wechat.ts"
+    ]
+  },
+  {
+    "id": "Q15",
+    "request": "单笔逾期罚款最多收 50 元，超过按 50 元算。",
+    "planned_source_files": [
+      "src/fine/rate.ts"
+    ]
+  },
+  {
+    "id": "Q16",
+    "request": "loan 的 spec 里写着“续借后应还日期加 7 天”，代码也是加 7 天。用户说续借一直就应该是加 14 天。",
+    "planned_source_files": [
+      "src/loan/renew.ts"
+    ]
+  },
+  {
+    "id": "Q17",
+    "request": "每晚 0 点自动检查：已逾期的借阅，把借阅状态设为“逾期”；同时把这位读者账号上的“有逾期”标记设为是。两个都是设成固定值，重跑结果一样，不涉及金额。",
+    "planned_source_files": [
+      "src/jobs/nightly-overdue.ts",
+      "src/member/flags.ts"
+    ]
+  }
+]

@@ -1,0 +1,199 @@
+{
+  "Q01": {
+    "route": "qdev",
+    "writes": [
+      [
+        "loan",
+        "只记变更"
+      ]
+    ],
+    "task_spec": "loan",
+    "confirm": false,
+    "tech_design": "task②"
+  },
+  "Q02": {
+    "route": "qdev",
+    "writes": [
+      [
+        "catalog",
+        "加到已有"
+      ]
+    ],
+    "task_spec": "catalog",
+    "confirm": true,
+    "tech_design": "task②"
+  },
+  "Q03": {
+    "route": "qdev",
+    "writes": [
+      [
+        "*",
+        "新建"
+      ]
+    ],
+    "task_spec": "*",
+    "confirm": true,
+    "tech_design": "x-tech-design"
+  },
+  "Q04": {
+    "route": "qdev",
+    "writes": [
+      [
+        "engineering",
+        "只记变更"
+      ]
+    ],
+    "task_spec": "engineering",
+    "confirm": false,
+    "tech_design": "task②"
+  },
+  "Q05": {
+    "route": "qdev",
+    "writes": [
+      [
+        "catalog",
+        "只记变更"
+      ]
+    ],
+    "task_spec": "catalog",
+    "confirm": false,
+    "tech_design": "task②"
+  },
+  "Q06": {
+    "route": "qdev",
+    "writes": [
+      [
+        "fine",
+        "加到已有"
+      ],
+      [
+        "member",
+        "加到已有"
+      ]
+    ],
+    "task_spec": "fine",
+    "confirm": true,
+    "tech_design": "x-tech-design"
+  },
+  "Q07": {
+    "route": "转主线",
+    "writes": [],
+    "task_spec": null,
+    "confirm": null,
+    "tech_design": null
+  },
+  "Q08": {
+    "route": "qdev",
+    "writes": [
+      [
+        "fine",
+        "加到已有"
+      ]
+    ],
+    "task_spec": "fine",
+    "confirm": true,
+    "tech_design": "task②"
+  },
+  "Q09": {
+    "route": "qdev",
+    "writes": [
+      [
+        "loan",
+        "加到已有"
+      ]
+    ],
+    "task_spec": "loan",
+    "confirm": true,
+    "tech_design": "x-tech-design"
+  },
+  "Q10": {
+    "route": "qdev",
+    "writes": [
+      [
+        "engineering",
+        "只记变更"
+      ]
+    ],
+    "task_spec": "engineering",
+    "confirm": false,
+    "tech_design": "task②"
+  },
+  "Q11": {
+    "route": "qdev",
+    "writes": [
+      [
+        "loan",
+        "加到已有"
+      ]
+    ],
+    "task_spec": "loan",
+    "confirm": true,
+    "tech_design": "task②"
+  },
+  "Q12": {
+    "route": "qdev",
+    "writes": [
+      [
+        "fine",
+        "加到已有"
+      ]
+    ],
+    "task_spec": "fine",
+    "confirm": true,
+    "tech_design": "task②"
+  },
+  "Q13": {
+    "route": "转主线",
+    "writes": [],
+    "task_spec": null,
+    "confirm": null,
+    "tech_design": null
+  },
+  "Q14": {
+    "route": "转主线",
+    "writes": [],
+    "task_spec": null,
+    "confirm": null,
+    "tech_design": null
+  },
+  "Q15": {
+    "route": "qdev",
+    "writes": [
+      [
+        "fine",
+        "加到已有"
+      ]
+    ],
+    "task_spec": "fine",
+    "confirm": true,
+    "tech_design": "task②"
+  },
+  "Q16": {
+    "route": "qdev",
+    "writes": [
+      [
+        "loan",
+        "加到已有"
+      ]
+    ],
+    "task_spec": "loan",
+    "confirm": true,
+    "tech_design": "task②"
+  },
+  "Q17": {
+    "route": "qdev",
+    "writes": [
+      [
+        "loan",
+        "加到已有"
+      ],
+      [
+        "member",
+        "加到已有"
+      ]
+    ],
+    "task_spec": "member",
+    "confirm": true,
+    "tech_design": "x-tech-design"
+  }
+}

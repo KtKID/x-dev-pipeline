@@ -1,6 +1,6 @@
 # 统一需求入口验收 · 2026-11-17
 
-本轮合并需求探索与 spec 维护：活跃入口为 `x-explore-for-spec`，旧 `x-explore`、`x-spec` 的 SKILL.md 已移除，当前 spec 模板迁至统一入口。`x-spec/scripts/` 继续提供现有 CLI 兼容加载。同步技术设计、任务拆解和对账中的本轮范围，并更新公开入口、文档及评测打包列表。
+本轮合并需求探索与 spec 维护：活跃入口为 `x-ask-spec`，旧 `x-explore`、`x-spec` 的 SKILL.md 已移除，当前 spec 模板迁至统一入口。`x-spec/scripts/` 继续提供现有 CLI 兼容加载。同步技术设计、任务拆解和对账中的本轮范围，并更新公开入口、文档及评测打包列表。
 
 ## 行为验收
 

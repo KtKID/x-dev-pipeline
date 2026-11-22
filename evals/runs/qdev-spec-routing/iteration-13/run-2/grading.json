@@ -1,0 +1,111 @@
+{
+  "eval": "qdev-spec-routing",
+  "score": 85,
+  "total": 85,
+  "cases_passed": 17,
+  "cases": 17,
+  "rows": [
+    {
+      "id": "Q01",
+      "ok": true,
+      "wrong": [],
+      "reason": "修 bug 且 loan 已有场景写明 +14 天，正确行为已在 spec 里，只记变更；只改 1 个源码文件，没有新写场景，用 task② 局部方案。"
+    },
+    {
+      "id": "Q02",
+      "ok": true,
+      "wrong": [],
+      "reason": "检索与排序归 catalog，新增排序行为是新场景，需确认；只写 1 份 spec 且源码 2 个，用 task② 局部方案。"
+    },
+    {
+      "id": "Q03",
+      "ok": true,
+      "wrong": [],
+      "reason": "评分和短评是现有边界表没有任何行拥有的新数据，新建 review spec；新建 spec 且源码 5 个，走 x-tech-design；'读过才能评分'是业务条件，不触发风险规则。"
+    },
+    {
+      "id": "Q04",
+      "ok": true,
+      "wrong": [],
+      "reason": "ESLint 规则属于构建与工程配置，使用者看不到变化，engineering 只记变更；只改 1 个配置文件。"
+    },
+    {
+      "id": "Q05",
+      "ok": true,
+      "wrong": [],
+      "reason": "只改按钮颜色属于外观，不改行为，所属的 catalog 只记变更；只改 1 个样式文件。"
+    },
+    {
+      "id": "Q06",
+      "ok": true,
+      "wrong": [],
+      "reason": "减免归 fine、读者等级归 member，一条场景拆成两份 spec 各写一条；两份都写了场景，走 x-tech-design；沿用现有管理员权限不新增规则，不触发风险规则。"
+    },
+    {
+      "id": "Q07",
+      "ok": true,
+      "wrong": [],
+      "reason": "改密码存储方式属于风险规则第 2 条（登录、密码），且要批量迁移已有读者密码，属于第 3 条，两条都答是。"
+    },
+    {
+      "id": "Q08",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款金额规则归 fine，修改金额是行为变化，需确认；只写 1 份 spec 且 1 个源码文件，没有批量改写数据。"
+    },
+    {
+      "id": "Q09",
+      "ok": true,
+      "wrong": [],
+      "reason": "借阅数量上限归 loan，读者等级只是被读取，member 不动；源码 4 个超过 3 个，走 x-tech-design；按等级的业务条件不算权限规则。"
+    },
+    {
+      "id": "Q10",
+      "ok": true,
+      "wrong": [],
+      "reason": "升级 Node 版本属于构建、依赖和 CI，使用者看不到变化，engineering 只记变更；涉及 3 个配置文件，未超过 3 个，用 task② 局部方案。"
+    },
+    {
+      "id": "Q11",
+      "ok": true,
+      "wrong": [],
+      "reason": "loan spec 没有写逾期天数怎么算，属于修 bug 但需补场景，加到已有 loan 并需确认；只改 1 个源码文件。"
+    },
+    {
+      "id": "Q12",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款金额按等级区分，规则归 fine，读者等级只是被读取，member 不动；源码只有 2 个，没有新写场景之外的 spec，用 task② 局部方案。"
+    },
+    {
+      "id": "Q13",
+      "ok": true,
+      "wrong": [],
+      "reason": "定时任务重跑会重复生成罚款，属于风险规则第 4 条（防重复），且生成罚款加降级会改变读者账户状态，需要去重设计，答是。"
+    },
+    {
+      "id": "Q14",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款退回微信账户是把钱退到外部账户，属于风险规则第 5 条（做了收不回的资金操作），答是。"
+    },
+    {
+      "id": "Q15",
+      "ok": true,
+      "wrong": [],
+      "reason": "单笔罚款上限是 fine 的金额规则，属于行为变化需确认；只改 1 个源码文件，不涉及不可逆操作。"
+    },
+    {
+      "id": "Q16",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 写的 +7 天不是用户要的，属于需求修改，修改 loan 原场景为 +14 天并需确认；只改 1 个源码文件。"
+    },
+    {
+      "id": "Q17",
+      "ok": true,
+      "wrong": [],
+      "reason": "逾期状态归 loan，有逾期标记归 member，两份 spec 各写一条场景；两份都写了场景，走 x-tech-design；设成固定值重跑结果一样，不涉及金额，不触发风险规则；系统自动触发无用户主场景，两份场景数相同则放在边界表靠前的 member。"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "eval": "dev-delivery",
+  "score": 16,
+  "total": 16,
+  "cases_passed": 16,
+  "cases": 16,
+  "rows": [
+    {
+      "id": "D01",
+      "ok": true,
+      "wrong": [],
+      "reason": "改动行覆盖率 91%，renew.py 第 12-14 行未被跑到，要补测试覆盖后重跑。"
+    },
+    {
+      "id": "D02",
+      "ok": true,
+      "wrong": [],
+      "reason": "本 task 新写的 test_renew_edge 红了，测试命令未通过，先修好再跑覆盖率。"
+    },
+    {
+      "id": "D03",
+      "ok": true,
+      "wrong": [],
+      "reason": "fine.py 是新文件且没有任何测试调用它，报告里没有它，需要补能加载它的测试。"
+    },
+    {
+      "id": "D04",
+      "ok": true,
+      "wrong": [],
+      "reason": "pragma no cover 是跑不到的磁盘满兜底分支，要在问题与处置写一行文件路径和理由。"
+    },
+    {
+      "id": "D05",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率之后代码又改了，覆盖率记录已过期，需重跑 coverage 再检查。"
+    },
+    {
+      "id": "D06",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 场景在基线之后改了，要按需求变化同步处理，再重记基线。"
+    },
+    {
+      "id": "D07",
+      "ok": true,
+      "wrong": [],
+      "reason": "用例 T4 没有对应测试，需要写测试并登记到用例对应表。"
+    },
+    {
+      "id": "D08",
+      "ok": true,
+      "wrong": [],
+      "reason": "只能人工验证的用例，要把步骤和实际结果写进 evidence，并记为人工通过。"
+    },
+    {
+      "id": "D09",
+      "ok": true,
+      "wrong": [],
+      "reason": "Q0 任务 xdev check 通过，不需要独立审查，由主 agent 升为已完成。"
+    },
+    {
+      "id": "D10",
+      "ok": true,
+      "wrong": [],
+      "reason": "Q2 任务需要一次独立审查，交 x-qa-gate 处理。"
+    },
+    {
+      "id": "D11",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 已确认但还没有运行过 xdev，开工前要先记录代码基线。"
+    },
+    {
+      "id": "D12",
+      "ok": true,
+      "wrong": [],
+      "reason": "只记变更、没写场景的改动，xdev check 通过即可，不需要审查。"
+    },
+    {
+      "id": "D13",
+      "ok": true,
+      "wrong": [],
+      "reason": "新增了场景，xdev check 通过后还需要按 Q1 做一次独立审查。"
+    },
+    {
+      "id": "D14",
+      "ok": true,
+      "wrong": [],
+      "reason": "真实性检查第 1 轮不通过，test_fine_amount 重写了生产逻辑，按回执修测试后重跑覆盖率再检查。"
+    },
+    {
+      "id": "D15",
+      "ok": true,
+      "wrong": [],
+      "reason": "改过测试后真实性回执和覆盖率记录都作废，要先重跑 coverage 再派新的子 agent 检查。"
+    },
+    {
+      "id": "D16",
+      "ok": true,
+      "wrong": [],
+      "reason": "项目原有测试变红，本 task 没改该行为，要先查是不是自己改坏的，不能删或 skip。"
+    }
+  ]
+}

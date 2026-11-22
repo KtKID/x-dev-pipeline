@@ -1,3 +1,4 @@
+<!-- 仅服务声明 spec_version: 3 的旧契约包（由 scripts/req.py 的 scaffold --with-diagram 生成）。当前格式的 task 不用本模板，模块边界写在 tech-design 的「范围与模块边界」表。 -->
 # <TASK_NAME> · 影响边界图
 
 <!--

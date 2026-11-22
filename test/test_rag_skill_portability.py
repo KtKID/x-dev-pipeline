@@ -181,7 +181,7 @@ class RagSkillPortabilityTest(unittest.TestCase):
             RAG_SKILL_DIR / "SKILL.md",
             ADVERSARIAL_RISK_SKILL_DIR / "SKILL.md",
             BUG2RAG_SKILL_DIR / "SKILL.md",
-            ROOT / "skills" / "x-explore-for-spec" / "SKILL.md",
+            ROOT / "skills" / "x-ask-spec" / "SKILL.md",
             ROOT / "skills" / "x-req" / "SKILL.md",
         )
         forbidden = (

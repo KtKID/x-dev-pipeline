@@ -1,0 +1,99 @@
+{
+  "eval": "spec-scope",
+  "score": 15,
+  "total": 15,
+  "cases_passed": 15,
+  "cases": 15,
+  "rows": [
+    {
+      "id": "S01",
+      "ok": true,
+      "wrong": [],
+      "reason": "续借次数上限是 loan 拥有的借阅规则，改的是 loan 的数据。"
+    },
+    {
+      "id": "S02",
+      "ok": true,
+      "wrong": [],
+      "reason": "检索结果的排序归 catalog 拥有（检索与排序）。"
+    },
+    {
+      "id": "S03",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款金额规则归 fine；逾期天数算法由 loan 决定且未变，loan 不动。"
+    },
+    {
+      "id": "S04",
+      "ok": true,
+      "wrong": [],
+      "reason": "逾期第一天触发提醒属于 loan 的逾期计算；message 只是被调用发送，行为没变，只在 loan 的 C 里写依赖。"
+    },
+    {
+      "id": "S05",
+      "ok": true,
+      "wrong": [],
+      "reason": "评分和短评是新的一块数据，现有边界表没有任何一行拥有它，新建 review 并在边界表加一行。"
+    },
+    {
+      "id": "S06",
+      "ok": true,
+      "wrong": [],
+      "reason": "个人页显示的累计借书数读取的是 loan 拥有的借阅记录，member 的“不管什么”里明确排除了借阅记录。"
+    },
+    {
+      "id": "S07",
+      "ok": true,
+      "wrong": [],
+      "reason": "Node.js 版本升级是构建和依赖改动，使用者看不到行为变化，只在 engineering 变更记录里记一行。"
+    },
+    {
+      "id": "S08",
+      "ok": true,
+      "wrong": [],
+      "reason": "只改按钮文字、不改行为，只在所属的检索相关 spec（catalog）变更记录里记一行。"
+    },
+    {
+      "id": "S09",
+      "ok": true,
+      "wrong": [],
+      "reason": "同时可借数量上限是 loan 拥有的借阅数量上限；读者等级本身（member 的数据）没有变。"
+    },
+    {
+      "id": "S10",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款的缴纳方式与缴纳记录归 fine 拥有，新增微信缴纳改的是 fine 的数据。"
+    },
+    {
+      "id": "S11",
+      "ok": true,
+      "wrong": [],
+      "reason": "改变的是读者账号注销这一行为（member 所有）；借书状态归 loan，只作为检查条件被读取，在 member 的 C 里写依赖即可。"
+    },
+    {
+      "id": "S12",
+      "ok": true,
+      "wrong": [],
+      "reason": "电子书阅读进度是新的一块数据，不属于 catalog 的图书条目或其他任何现有行，新建 reading-progress 并在边界表加一行。"
+    },
+    {
+      "id": "S13",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款减免和清零归 fine；读者等级降级改的是 member 拥有的读者等级，两份数据分别写进各自的 spec。"
+    },
+    {
+      "id": "S14",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款缴清这一行为改变的是 fine 的缴纳记录；站内信类型和发送是 message 的既有行为，未变，只在 fine 的 C 里写依赖。"
+    },
+    {
+      "id": "S15",
+      "ok": true,
+      "wrong": [],
+      "reason": "新增消息类型及其模板、渠道是 message 拥有的数据；发送时机暂不定，因此不写 loan 的场景。"
+    }
+  ]
+}

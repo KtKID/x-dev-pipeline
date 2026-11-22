@@ -1,0 +1,15 @@
+[
+  {"id": "D01", "action": "补测试后重跑 xdev coverage", "reason": "改动行覆盖率 91% 未到 100%，要为 renew.py:12-14 补测试（并登记用例）后重跑。"},
+  {"id": "D02", "action": "修好失败的测试再重跑 xdev coverage", "reason": "测试命令失败，覆盖率前提是测试通过，先修好既有红测试再重跑。"},
+  {"id": "D03", "action": "补测试后重跑 xdev coverage", "reason": "新文件没有任何测试调用，报告里缺席即视为未覆盖，需补调用它的测试后重跑。"},
+  {"id": "D04", "action": "在问题与处置写理由", "reason": "排除标记只用于确实跑不到的防御代码，需在问题与处置写一行 文件路径:行 和理由，供 xdev check 核对。"},
+  {"id": "D05", "action": "重跑 xdev coverage", "reason": "覆盖率之后代码又改动，记录已过期，需重跑 coverage 让记录和当前代码一致。"},
+  {"id": "D06", "action": "按 change-sync 同步后 xdev baseline", "reason": "spec 场景在拆解基线之后改了，先按需求变化同步核对 D、T、任务行，再运行 xdev baseline。"},
+  {"id": "D07", "action": "写测试并登记到用例对应表", "reason": "用例 T4 没有对应测试，要写测试并在用例对应表登记函数位置。"},
+  {"id": "D08", "action": "写人工记录到 evidence 并记人工通过", "reason": "只能人工验证的用例，要把步骤和实际看到的结果写进 evidence，并记为人工通过。"},
+  {"id": "D09", "action": "升为已完成并交付", "reason": "Q0 任务 xdev check 已通过，由主 agent 把行升为已完成并交付，不需要独立审查。"},
+  {"id": "D10", "action": "交 x-qa-gate", "reason": "Q2 任务需要一次独立审查，xdev check 通过后交给 x-qa-gate。"},
+  {"id": "D11", "action": "运行 xdev start 记代码基线", "reason": "qdev 开工第一步是 xdev start 记录代码基线，之后的覆盖率才有比较对象，写测试之前要先做。"},
+  {"id": "D12", "action": "升为已完成并交付", "reason": "只记变更、没写场景的 qdev 任务，xdev check 通过即可交付，不需要独立审查。"},
+  {"id": "D13", "action": "交 x-qa-gate", "reason": "本轮新增了场景的 qdev 任务，xdev check 通过后要交 x-qa-gate 按 Q1 做一次独立审查。"}
+]

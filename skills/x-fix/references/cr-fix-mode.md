@@ -122,7 +122,7 @@ python3 skills/x-cr/scripts/validate_report.py <CR_REPORT_PATH>
    ```
 
 3. 在「不变量覆盖」中保留 INV-ID 和原始结论，修复结果通过“修复备注”记录
-4. 同步在当前 task 的 `reports/fix/` 或仓库级 `reports/fix/` 记录根因和处置；修复验证按 [共用报告约定](../../x-dev/references/test-reporting.md) 集中到当次改动的测试报告，处置条目链接用例/执行编号
+4. 同步在当前 task 的 `reports/fix/` 或仓库级 `reports/fix/` 记录根因和处置；修复验证按 [证据约定](../../x-dev/references/test-reporting.md) 跑测试并留原始输出；修复落在某个 task 内时重跑 `xdev coverage` 和 `xdev check`，处置条目写明反例测试
 
 ---
 

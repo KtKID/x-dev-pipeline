@@ -1,0 +1,19 @@
+[
+  {"id": "Q01", "route": "qdev", "writes": [{"spec": "loan", "action": "只记变更"}], "task_spec": "loan", "confirm": false, "tech_design": "task②", "reason": "修 bug 且 loan 已有场景写明正确行为（+14 天），只记变更，不需确认；只改 1 个源码文件，局部方案写在 task②。"},
+  {"id": "Q02", "route": "qdev", "writes": [{"spec": "catalog", "action": "加到已有"}], "task_spec": "catalog", "confirm": true, "tech_design": "task②", "reason": "新增一种排序方式属于行为变化，检索与排序归 catalog，要加场景并给用户确认；2 个源码文件，无需正式技术设计。"},
+  {"id": "Q03", "route": "qdev", "writes": [{"spec": "review", "action": "新建"}], "task_spec": "review", "confirm": true, "tech_design": "x-tech-design", "reason": "评分和短评是新数据，现有边界表没有任何一行拥有它，新建 review；读书记录只是读取依赖，不触发转主线；源码文件 5 个超过 3 个，需要 x-tech-design。"},
+  {"id": "Q04", "route": "qdev", "writes": [{"spec": "engineering", "action": "只记变更"}], "task_spec": "engineering", "confirm": false, "tech_design": "task②", "reason": "ESLint 规则属于工程配置，使用者看不到变化，只记变更；只改 1 个配置文件。"},
+  {"id": "Q05", "route": "qdev", "writes": [{"spec": "catalog", "action": "只记变更"}], "task_spec": "catalog", "confirm": false, "tech_design": "task②", "reason": "只改按钮颜色属于外观，不改行为，所属的检索页 catalog 只记变更；1 个样式文件。"},
+  {"id": "Q06", "route": "qdev", "writes": [{"spec": "fine", "action": "加到已有"}, {"spec": "member", "action": "加到已有"}], "task_spec": "fine", "confirm": true, "tech_design": "task②", "reason": "审批用现有权限，不新增权限规则，风险规则都答否；减免归 fine，读者等级降级归 member，拆成两条场景分别加到已有并给用户确认；3 个源码文件未超过上限。"},
+  {"id": "Q07", "route": "转主线", "writes": [], "task_spec": null, "confirm": null, "tech_design": null, "reason": "改密码存储加密方式并批量迁移旧密码，命中风险规则第 2 条（登录、密码）和第 3 条（批量改写已有数据）。"},
+  {"id": "Q08", "route": "qdev", "writes": [{"spec": "fine", "action": "加到已有"}], "task_spec": "fine", "confirm": true, "tech_design": "task②", "reason": "罚款金额规则归 fine，修改原有费率属于行为变化，需要加场景并给用户确认；新规则只作用于新罚款，不批量改已有数据。1 个源码文件。"},
+  {"id": "Q09", "route": "qdev", "writes": [{"spec": "loan", "action": "加到已有"}], "task_spec": "loan", "confirm": true, "tech_design": "x-tech-design", "reason": "借阅数量上限归 loan，修改上限属于行为变化，需要加场景并确认；读者等级只是读取条件，不是权限规则；4 个源码文件超过 3 个，需要 x-tech-design。"},
+  {"id": "Q10", "route": "qdev", "writes": [{"spec": "engineering", "action": "只记变更"}], "task_spec": "engineering", "confirm": false, "tech_design": "task②", "reason": "升级 Node 版本属于构建和依赖，使用者看不到变化，只记变更；3 个配置文件，局部方案写在 task②。"},
+  {"id": "Q11", "route": "qdev", "writes": [{"spec": "loan", "action": "加到已有"}], "task_spec": "loan", "confirm": true, "tech_design": "task②", "reason": "逾期天数归 loan，但 loan 里没有写过逾期天数的计算规则，属于补上缺失的场景，加到已有并给用户确认；1 个源码文件。"},
+  {"id": "Q12", "route": "qdev", "writes": [{"spec": "fine", "action": "加到已有"}], "task_spec": "fine", "confirm": true, "tech_design": "task②", "reason": "罚款金额规则归 fine，按读者等级定价属于行为变化，加到已有并确认；按等级定价是业务条件，不是权限规则；源码与配置文件 2 个，测试和文档不计入。"},
+  {"id": "Q13", "route": "转主线", "writes": [], "task_spec": null, "confirm": null, "tech_design": null, "reason": "定时任务自动生成罚款，重跑会重复生成，命中风险规则第 4 条（防重复、定时任务重跑）。"},
+  {"id": "Q14", "route": "转主线", "writes": [], "task_spec": null, "confirm": null, "tech_design": null, "reason": "罚款退款到外部微信账户是做了就收不回的资金操作，命中风险规则第 5 条。"},
+  {"id": "Q15", "route": "qdev", "writes": [{"spec": "fine", "action": "加到已有"}], "task_spec": "fine", "confirm": true, "tech_design": "task②", "reason": "单笔罚款封顶属于罚款金额规则，归 fine，加到已有并给用户确认；1 个源码文件。"},
+  {"id": "Q16", "route": "qdev", "writes": [{"spec": "loan", "action": "加到已有"}], "task_spec": "loan", "confirm": true, "tech_design": "task②", "reason": "loan 原场景写的 +7 天与用户要求的 +14 天不一致，这是需求修改而不是修 bug，修改原场景并确认；1 个源码文件。"},
+  {"id": "Q17", "route": "qdev", "writes": [{"spec": "loan", "action": "加到已有"}, {"spec": "member", "action": "加到已有"}], "task_spec": "member", "confirm": true, "tech_design": "task②", "reason": "两个都是设成固定值，重跑结果一样，不涉及金额，风险规则都答否；借阅状态归 loan，账号逾期标记归 member，拆成两条场景；两者写场景数相同，按边界表靠前的 member 放 task。"}
+]

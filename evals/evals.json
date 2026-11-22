@@ -1,338 +1,176 @@
 {
-  "skill_name": "x-spec2",
+  "skill_name": "x-dev-pipeline",
   "evals": [
     {
-      "id": 1,
-      "name": "stackchan-esp32s3-voice-link",
-      "prompt_file": "evals/problems/stackchan-esp32s3-voice-link.md",
-      "files": [],
-      "grader": {
-        "rubric": "evals/answers/stackchan-esp32s3-voice-link/rubric.md",
-        "script": "evals/answers/stackchan-esp32s3-voice-link/grader.py"
-      }
-    },
-    {
-      "id": 2,
-      "name": "stackchan-boundary-round-trip-update",
-      "prompt": "清空此前对话，只读取给定的 x-spec2 三文件包与当前仓库。解释为什么设备双工传输是独立模块、当初考虑并否决了什么方案、哪些事实或假设支撑该选择、什么条件下应重评。新证据：目标平台 SDK 已原生提供帧序号、确认、背压、控制优先级和断线续传。判断‘把设备双工传输合并进交互会话协调器’属于原地细化还是意图变化，并列出需要同步更新的 U/J/D、模块与动态模型。输出 update-assessment.md，不修改原包。",
-      "expected_output": "一份只依赖包内 U/J/D 与仓库证据的边界解释和更新分类；能够指出原选择、备选、重评条件以及受影响产物。",
+      "id": 13,
+      "name": "spec-scope",
+      "prompt_file": "evals/problems/spec-scope/prompt.md",
       "files": [
-        "../x-spec2-workspace/iteration-1/eval-1/with_skill/run-1/outputs/spec.md",
-        "../x-spec2-workspace/iteration-1/eval-1/with_skill/run-1/outputs/modules.md",
-        "../x-spec2-workspace/iteration-1/eval-1/with_skill/run-1/outputs/design.md",
-        "evals/stackchan-boundary-round-trip-update.md"
-      ],
-      "expectations": [
-        "回答引用设备双工传输对应 D 及其 U/J 依据，不依赖原始对话或 transcript。",
-        "回答恢复原选择理由、至少一个备选及否决原因、重评条件。",
-        "回答把 SDK 能力变化归类为触发重评的仓库事实变化，并在需求本质、系统目标和不变量保持时判为原地更新。",
-        "回答列出需要同步更新的判断依据、关键决策、模块边界/依赖/接口、Requirement 覆盖和 design.md 动态模型。"
-      ]
-    },
-    {
-      "id": 3,
-      "name": "scenario-pruning-run-ledger-contract",
-      "prompt_file": "evals/problems/scenario-pruning-run-ledger-contract.md",
-      "expected_output": "仅依据给定 spec.md 生成可直接进入开发的运行账本 task-contract.md，覆盖可靠事件归并、版本绑定和恢复验收。",
-      "files": [],
-      "configuration_inputs": {
-        "with_skill": {
-          "label": "compact_spec",
-          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md",
-          "executor_path": "inputs/spec.md"
-        },
-        "without_skill": {
-          "label": "verbose_spec",
-          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md",
-          "executor_path": "inputs/spec.md"
-        }
-      },
-      "expectations": [
-        "一个用户任务对应一个 run，反馈返工使用同一 run 的新 attempt，并在任务创建时绑定 pipeline 版本。",
-        "重复 event_id 幂等，乱序事件可重建逻辑顺序，冲突终态被隔离。",
-        "终态后的迟到证据通过修订关联，不能静默改写已发布结果。",
-        "stage 中断或部分持久化后可以安全重放，避免重复提交，并记录缺失指标原因。",
-        "task contract 给出可实现的数据/状态所有者和清晰范围。",
-        "验收用例包含可执行输入、动作、预期状态与证据。"
+        "skills/x-ask-spec/references/spec-scope.md",
+        "evals/problems/spec-scope/project-spec-index.md",
+        "evals/problems/spec-scope/cases.json"
       ],
       "grader": {
-        "rubric": "evals/answers/scenario-pruning-run-ledger-contract/rubric.md"
+        "rubric": "evals/answers/spec-scope/rubric.md",
+        "script": "evals/scripts/grade.py spec-scope"
       }
     },
     {
-      "id": 4,
-      "name": "scenario-pruning-knowledge-lifecycle",
-      "prompt_file": "evals/problems/scenario-pruning-knowledge-lifecycle.md",
-      "expected_output": "仅依据给定 spec.md 生成知识写入、并发去重、归因修订与重评分 task-contract.md。",
-      "files": [],
-      "configuration_inputs": {
-        "with_skill": {
-          "label": "compact_spec",
-          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md",
-          "executor_path": "inputs/spec.md"
-        },
-        "without_skill": {
-          "label": "verbose_spec",
-          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md",
-          "executor_path": "inputs/spec.md"
-        }
-      },
-      "expectations": [
-        "执行失败、grader 扣分和 rubric 升级后的重评分形成独立记录并保留各自版本。",
-        "两个 writer 并发提交相同证据时只形成一个 canonical 条目，其余请求稳定关联。",
-        "新证据通过追加修订更新根因，历史结论与当时决策引用保持可查询。",
-        "证据不足时根因保持待确认，区分 detected_stage 与 origin_stage，并记录候选原因和缺失证据。",
-        "知识记录能追溯 run、attempt、pipeline 版本、artifact 与原始证据。",
-        "验收用例能够击穿覆盖写入、错误归因和并发重复条目。"
-      ],
-      "grader": {
-        "rubric": "evals/answers/scenario-pruning-knowledge-lifecycle/rubric.md"
-      }
-    },
-    {
-      "id": 5,
-      "name": "scenario-pruning-paired-promotion",
-      "prompt_file": "evals/problems/scenario-pruning-paired-promotion.md",
-      "expected_output": "仅依据给定 spec.md 生成可比配对评测、候选拒绝与并发晋级 task-contract.md。",
-      "files": [],
-      "configuration_inputs": {
-        "with_skill": {
-          "label": "compact_spec",
-          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md",
-          "executor_path": "inputs/spec.md"
-        },
-        "without_skill": {
-          "label": "verbose_spec",
-          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md",
-          "executor_path": "inputs/spec.md"
-        }
-      },
-      "expectations": [
-        "配对 manifest 固定任务、模型、repo、权限、预算和 grader 断言，任一不一致都会使样本失效。",
-        "评测期间生产 baseline 漂移时保留原评测事实，并在晋级前触发重放或重新基准化。",
-        "两个候选并发发布通过版本前置条件或 compare-and-set 保证唯一胜者。",
-        "正确性门槛先于 Token；成本更低但出现关键回归的候选必须被拒绝。",
-        "候选不合格时稳定生产版本继续服务，拒绝依据与评测成本保持可查询。",
-        "决策包能够追溯知识、假设、逐案例结果、审批、发布版本和回滚目标。"
-      ],
-      "grader": {
-        "rubric": "evals/answers/scenario-pruning-paired-promotion/rubric.md"
-      }
-    },
-    {
-      "id": 6,
-      "name": "scenario-pruning-canary-rollback-binding",
-      "prompt_file": "evals/problems/scenario-pruning-canary-rollback-binding.md",
-      "expected_output": "仅依据给定 spec.md 生成 canary 回滚、任务版本绑定和并发切换 task-contract.md。",
-      "files": [],
-      "configuration_inputs": {
-        "with_skill": {
-          "label": "compact_spec",
-          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md",
-          "executor_path": "inputs/spec.md"
-        },
-        "without_skill": {
-          "label": "verbose_spec",
-          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md",
-          "executor_path": "inputs/spec.md"
-        }
-      },
-      "expectations": [
-        "任务创建与 pipeline/路由版本绑定是单一原子动作，run 不会处于未绑定或混合版本。",
-        "回滚提交前已创建任务保持原版本，提交后的新任务全部绑定稳定版本。",
-        "回滚命令可幂等重试，进程在切换中崩溃后能够恢复到明确版本。",
-        "发布与回滚并发时通过序列号、租约或 fencing token 阻止旧操作覆盖新状态。",
-        "canary 触发条件、观测窗口、回滚原因和受影响 run 进入决策记录与知识库。",
-        "验收用例明确覆盖切换边界并能检测混合版本任务。"
-      ],
-      "grader": {
-        "rubric": "evals/answers/scenario-pruning-canary-rollback-binding/rubric.md"
-      }
-    },
-    {
-      "id": 7,
-      "name": "scenario-pruning-contract-risk-routing",
-      "prompt_file": "evals/problems/scenario-pruning-contract-risk-routing.md",
-      "expected_output": "仅依据给定 spec.md 生成阶段契约漂移检测与风险路由校准 task-contract.md。",
-      "files": [],
-      "configuration_inputs": {
-        "with_skill": {
-          "label": "compact_spec",
-          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-002-spec.md",
-          "executor_path": "inputs/spec.md"
-        },
-        "without_skill": {
-          "label": "verbose_spec",
-          "source": "pipeline-data/runs/prun-019f84e4-1296-7fb2-a2a1-50b391b11c1c-001/attempt-001-spec.md",
-          "executor_path": "inputs/spec.md"
-        }
-      },
-      "expectations": [
-        "每个阶段字段定义唯一 producer、consumer 和有效来源，风险、Requirement、Scenario 与报告路径语义一致。",
-        "consumer 读取退役字段或旧路径时产生可定位 CONTRACT_DRIFT 并阻止版本进入 baseline。",
-        "公开契约、共享状态、并发或不可逆操作进入完整 spec/task/verify/独立审查路径。",
-        "低风险轻量路径保留影子 QA，发现 P0/P1 后形成知识并提高同类任务风险权重。",
-        "路由策略有独立版本，run 记录决策输入、profile 和策略版本，可通过历史错误放行率校准。",
-        "验收同时覆盖合法新契约、旧字段漂移和路由低估三类反例。"
-      ],
-      "grader": {
-        "rubric": "evals/answers/scenario-pruning-contract-risk-routing/rubric.md"
-      }
-    },
-    {
-      "id": 8,
-      "name": "instruction-form-adherence",
-      "evaluation_type": "multi_arm_instruction_form",
-      "prompt_file": "evals/problems/instruction-form-adherence/prompt.md",
-      "expected_output": "针对 10 个边界微任务输出可确定性评分的 decisions.json，用三种指令表达各重复三次。",
+      "id": 14,
+      "name": "qdev-spec-routing",
+      "prompt_file": "evals/problems/qdev-spec-routing/prompt.md",
       "files": [
-        "evals/problems/instruction-form-adherence/cases.json"
-      ],
-      "matrix_manifest": "evals/instruction-form-abc.json",
-      "repetitions_per_configuration": 3,
-      "microtasks_per_run": 10,
-      "expectations": [
-        "feedback_same_task：同一用户任务反馈沿用 run 并创建新 attempt。",
-        "duplicate_event_same_payload：相同事件重试幂等收敛。",
-        "duplicate_event_conflicting_payload：冲突 payload 被隔离且已发布终态保持稳定。",
-        "late_evidence_after_terminal：迟到证据通过修订关联。",
-        "crash_after_partial_persist：部分持久化后安全重放并记录缺失指标原因。",
-        "insufficient_origin_evidence：检测阶段与待确认根因阶段保持分离。",
-        "concurrent_knowledge_dedup：并发写入收敛为单一 canonical 并保留来源。",
-        "publish_rollback_fencing：更高 fencing token 阻止迟到发布覆盖回滚。",
-        "task_binding_at_rollback_boundary：切换提交点两侧的任务保持单一版本绑定。",
-        "retired_contract_field：退役字段触发契约漂移并阻止 baseline。"
+        "skills/x-qdev/SKILL.md",
+        "skills/x-qdev/references/risk-rules.md",
+        "skills/x-ask-spec/references/spec-scope.md",
+        "evals/problems/qdev-spec-routing/project-spec-index.md",
+        "evals/problems/qdev-spec-routing/cases.json"
       ],
       "grader": {
-        "rubric": "evals/answers/instruction-form-adherence/rubric.md",
-        "expected": "evals/answers/instruction-form-adherence/expected.json",
-        "script": "evals/scripts/instruction_form_abc.py"
+        "rubric": "evals/answers/qdev-spec-routing/rubric.md",
+        "script": "evals/scripts/grade.py qdev-spec-routing"
       }
     },
     {
-      "id": 9,
-      "name": "task-01-configresolver-spec-quality",
-      "evaluation_type": "paired_skill_spec_generation",
-      "prompt_file": "evals/problems/task-01-configresolver/PROMPT.md",
-      "expected_output": "只生成规格文档；x-spec2 基线生成其 2+1 包，x-spec3 生成单一 spec.md；不实现代码，不运行 xdev。",
-      "files": [],
-      "configuration_inputs": {
-        "with_skill": {
-          "label": "x-spec3",
-          "source": "skills/x-spec3"
-        },
-        "without_skill": {
-          "label": "x-spec2-frozen",
-          "source": "skills/x-spec3-workspace/iteration-1/baseline-x-spec2"
-        }
-      },
-      "expectations": [
-        "普通覆盖语义明确且可测试。",
-        "三层对象递归合并明确且可测试。",
-        "递归合并保留未覆盖兄弟叶子。",
-        "数组整体替换明确且可测试。",
-        "可选字段 nil 删除明确且可测试。",
-        "删除同步移除叶子 Provenance。",
-        "四类核心合并路径均有具体 Scenario。",
-        "required 删除与缺失均断言 ErrRequiredRemoved。",
-        "未知字段断言 ErrUnknownField。",
-        "类型错误断言 ErrTypeMismatch。",
-        "五类 Field.Type 语义完整。",
-        "Provenance 只记录最终叶子与最终来源。",
-        "递归保留与覆盖叶子来源分别验证。",
-        "RFC 6901 转义与原始 Config key 同时明确。",
-        "schema、sources、嵌套输入不可变并深比较。",
-        "nil Data 保持 nil 且空输入有判定。",
-        "Result 与输入可变所有权封闭。",
-        "不同 map 插入顺序输出 DeepEqual。",
-        "100 字段 10000 次、2 秒与 race detector 均覆盖。",
-        "go test、go vet、性能和竞态入口可执行。",
-        "目标与非目标明确。",
-        "目标、上游、下游模块边界明确。",
-        "相关模块不变量明确。",
-        "判断依据有消费者。",
-        "六元组建模覆盖完整。",
-        "unit、smoke、e2e 分层且 E2E 有决策依据。",
-        "TDD 顺序明确。",
-        "Scenario 使用 GIVEN、WHEN、THEN 并标测试层和依据。"
-      ],
-      "grader": {
-        "rubric": "evals/answers/task-01-configresolver-spec-quality/rubric.md",
-        "reference": "evals/problems/EVALUATION.md",
-        "rubric_exposed": false
-      }
-    },
-    {
-      "id": 10,
-      "name": "voice-chain-end-to-end",
-      "evaluation_type": "paired_pipeline_implementation",
-      "prompt_file": "evals/problems/voice-chain-end-to-end/PROMPT.md",
-      "expected_output": "使用冻结的 x-dev-pipeline 完成自包含 Python 语音链路的 spec、req、实现和验证，并通过独立隐藏协议与集成评分。",
+      "id": 15,
+      "name": "change-sync",
+      "prompt_file": "evals/problems/change-sync/prompt.md",
       "files": [
-        "cases/voice-chain/task",
-        "cases/voice-chain/fixture"
-      ],
-      "repetitions_per_configuration": 1,
-      "expectations": [
-        "流式协议处理半包、粘包与错误帧。",
-        "上传、断线续传与完整性校验正确。",
-        "ASR、LLM、TTS 编排及超时、4xx、5xx 策略正确。",
-        "PCM 下行、完整性、顺序与断连隔离正确。",
-        "多设备并发会话完全隔离。",
-        "spec3、req3 与 verify 证据形成可复跑闭环。"
+        "skills/x-tech-design/references/change-sync.md",
+        "evals/problems/change-sync/fixture/spec.md",
+        "evals/problems/change-sync/fixture/tech-design.md",
+        "evals/problems/change-sync/fixture/dev-checklist.md",
+        "evals/problems/change-sync/cases.json"
       ],
       "grader": {
-        "rubric": "evals/answers/voice-chain-end-to-end/rubric.md",
-        "script": "evals/answers/voice-chain-end-to-end/evaluate.py",
-        "rubric_exposed": false
+        "rubric": "evals/answers/change-sync/rubric.md",
+        "script": "evals/scripts/grade.py change-sync"
       }
     },
     {
-      "id": 11,
-      "name": "journal-index-recovery",
-      "evaluation_type": "implementation",
-      "prompt_file": "evals/problems/journal-index-recovery/PROMPT.md",
-      "expected_output": "完成本地 journal/index 实现，并通过独立的状态、恢复、压缩、幂等与进程并发验证。",
+      "id": 16,
+      "name": "qdev-confirm-check",
+      "prompt_file": "evals/problems/qdev-confirm-check/prompt.md",
       "files": [
-        "cases/journal-index-recovery/fixture"
-      ],
-      "repetitions_per_configuration": 2,
-      "expectations": [
-        "CLI、规范日志、幂等与乐观版本语义正确。",
-        "尾部恢复、中间损坏拒绝和已提交 snapshot 处理正确。",
-        "原子压缩保留状态、请求账本和 seq 单调性。",
-        "多进程并发写入和冲突更新保持线性化结果。",
-        "实现只依赖标准库并保持声明的存储布局。",
-        "实现提供可重复运行的验证命令和结果。"
+        "skills/x-verify-spec/references/qdev-reconciliation.md",
+        "evals/problems/qdev-confirm-check/cases.json"
       ],
       "grader": {
-        "rubric": "evals/answers/journal-index-recovery/rubric.md",
-        "script": "evals/answers/journal-index-recovery/evaluate.py",
-        "rubric_exposed": false
+        "rubric": "evals/answers/qdev-confirm-check/rubric.md",
+        "script": "evals/scripts/grade.py qdev-confirm-check"
       }
     },
     {
-      "id": 12,
-      "name": "ledger-audit",
-      "evaluation_type": "implementation",
-      "prompt_file": "evals/problems/ledger-audit/PROMPT.md",
-      "expected_output": "提交 ledger_audit.py、test_ledger_audit.py 和 README.md，实现标准库 CSV 资金流水校验、Decimal 余额计算、确定性 JSON 报告与明确退出码。",
+      "id": 17,
+      "name": "req-grouping",
+      "prompt_file": "evals/problems/req-grouping/prompt.md",
       "files": [
-        "evals/problems/ledger-audit/input.csv"
-      ],
-      "repetitions_per_configuration": 1,
-      "expectations": [
-        "严格按八项优先级校验字段，并把重复 transaction_id 的后续记录判为无效。",
-        "所有金额处理使用 Decimal，posted 记录计入余额与每日汇总，reversed 和无效记录贡献为 0。",
-        "summary、daily_summary 和 invalid_records 的统计、金额格式、真实行号与确定性排序符合题面。",
-        "全部有效、存在无效记录和致命错误分别返回退出码 0、1、2，致命错误写入 stderr 且不产生不完整报告。",
-        "自动化测试覆盖正常流水、主要无效字段、重复 ID、reversed、Decimal 精度、退出码和确定性输出。",
-        "交付仅依赖 Python 3.12 标准库，并包含可直接运行的实现、测试和 README。"
+        "skills/x-req/SKILL.md",
+        "evals/problems/req-grouping/cases.json"
       ],
       "grader": {
-        "rubric": "evals/answers/ledger-audit/rubric.md",
-        "expected": "evals/answers/ledger-audit/expected.json",
-        "rubric_exposed": false
+        "rubric": "evals/answers/req-grouping/rubric.md",
+        "script": "evals/scripts/grade.py req-grouping"
+      }
+    },
+    {
+      "id": 18,
+      "name": "dev-worker",
+      "prompt_file": "evals/problems/dev-worker/prompt.md",
+      "files": [
+        "skills/x-dev/references/parallel-dev.md",
+        "evals/problems/dev-worker/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/dev-worker/rubric.md",
+        "script": "evals/scripts/grade.py dev-worker"
+      }
+    },
+    {
+      "id": 19,
+      "name": "dev-main",
+      "prompt_file": "evals/problems/dev-main/prompt.md",
+      "files": [
+        "skills/x-dev/references/parallel-dev.md",
+        "evals/problems/dev-main/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/dev-main/rubric.md",
+        "script": "evals/scripts/grade.py dev-main"
+      }
+    },
+    {
+      "id": 20,
+      "name": "td-confirm",
+      "prompt_file": "evals/problems/td-confirm/prompt.md",
+      "files": [
+        "skills/x-tech-design/SKILL.md",
+        "skills/x-req/SKILL.md",
+        "skills/x-qdev/SKILL.md",
+        "evals/problems/td-confirm/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/td-confirm/rubric.md",
+        "script": "evals/scripts/grade.py td-confirm"
+      }
+    },
+    {
+      "id": 21,
+      "name": "dev-delivery",
+      "prompt_file": "evals/problems/dev-delivery/prompt.md",
+      "files": [
+        "skills/x-dev/SKILL.md",
+        "skills/x-dev/references/test-reporting.md",
+        "skills/x-qdev/SKILL.md",
+        "skills/x-verify-spec/SKILL.md",
+        "skills/x-verify-spec/references/feature-check.md",
+        "evals/problems/dev-delivery/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/dev-delivery/rubric.md",
+        "script": "evals/scripts/grade.py dev-delivery"
+      }
+    },
+    {
+      "id": 22,
+      "name": "ask-spec",
+      "prompt_file": "evals/problems/ask-spec/prompt.md",
+      "files": [
+        "skills/x-ask-spec/SKILL.md",
+        "evals/problems/ask-spec/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/ask-spec/rubric.md",
+        "script": "evals/scripts/grade.py ask-spec"
+      }
+    },
+    {
+      "id": 23,
+      "name": "feature-check",
+      "prompt_file": "evals/problems/feature-check/prompt.md",
+      "files": [
+        "skills/x-verify-spec/references/feature-check.md",
+        "evals/problems/feature-check/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/feature-check/rubric.md",
+        "script": "evals/scripts/grade.py feature-check"
+      }
+    },
+    {
+      "id": 24,
+      "name": "verify-route",
+      "prompt_file": "evals/problems/verify-route/prompt.md",
+      "files": [
+        "skills/x-verify-spec/SKILL.md",
+        "skills/x-verify-spec/references/feature-check.md",
+        "skills/x-tech-design/SKILL.md",
+        "skills/x-ask-spec/templates/spec.md",
+        "evals/problems/verify-route/cases.json"
+      ],
+      "grader": {
+        "rubric": "evals/answers/verify-route/rubric.md",
+        "script": "evals/scripts/grade.py verify-route"
       }
     }
   ]

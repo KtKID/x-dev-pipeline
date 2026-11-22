@@ -1,0 +1,22 @@
+[
+  {"id": "S01", "writes": [{"spec": "loan", "action": "加到已有"}], "reason": "续借次数上限属于续借规则，续借归 loan 管。"},
+  {"id": "S02", "writes": [{"spec": "catalog", "action": "加到已有"}], "reason": "检索结果排序归 catalog 的「检索与排序」。"},
+  {"id": "S03", "writes": [{"spec": "fine", "action": "加到已有"}], "reason": "罚款金额规则归 fine；逾期天数算法不变，loan 不动。"},
+  {"id": "S04", "writes": [{"spec": "loan", "action": "加到已有"}], "reason": "逾期第一天何时发是调用方（loan）的决定；通用提醒的输入输出没变，message 只是被调用，不写场景。"},
+  {"id": "S05", "writes": [{"spec": "review", "action": "新建"}], "reason": "评分和短评是新的一块数据，边界表里没有任何一行拥有它，因此新建。"},
+  {"id": "S06", "writes": [{"spec": "loan", "action": "加到已有"}], "reason": "展示的是累计借阅记录，借阅记录归 loan；个人页只是入口。"},
+  {"id": "S07", "writes": [{"spec": "engineering", "action": "只记变更"}], "reason": "Node.js 升级是构建与依赖类工程改动，使用者看不到变化。"},
+  {"id": "S08", "writes": [{"spec": "catalog", "action": "只记变更"}], "reason": "只改按钮文字，属于外观与文案，不改行为。"},
+  {"id": "S09", "writes": [{"spec": "loan", "action": "加到已有"}], "reason": "同时可借数量属于借阅数量上限，归 loan；读者等级本身不变，member 不动。"},
+  {"id": "S10", "writes": [{"spec": "fine", "action": "加到已有"}], "reason": "缴纳方式与缴纳记录归 fine，新增微信缴纳改变 fine 的行为。"},
+  {"id": "S11", "writes": [{"spec": "member", "action": "加到已有"}], "reason": "这一场景改变的是账号注销这一状态，归 member；未还书只是被读取的条件，loan 的输入输出不变。"},
+  {"id": "S12", "writes": [{"spec": "reading-progress", "action": "新建"}], "reason": "阅读进度是新的一块读者数据，边界表中没有任何一行拥有它，因此新建。"},
+  {"id": "S13", "writes": [{"spec": "fine", "action": "加到已有"}, {"spec": "member", "action": "加到已有"}], "reason": "一条场景同时改了罚款（fine）和读者等级（member）两块数据，拆开后分别加到两份 spec。"},
+  {"id": "S14", "writes": [{"spec": "fine", "action": "加到已有"}], "reason": "缴清后何时发消息由 fine 决定，通用提醒的输入输出没变，message 只是被调用，不写场景。"},
+  {"id": "S15", "writes": [{"spec": "message", "action": "加到已有"}], "reason": "新增消息类型、模板和渠道归 message 管，属于 message 的输入输出变化；发送时机以后再定，不写发送场景。"},
+  {"id": "S16", "writes": [{"spec": "fine", "action": "加到已有"}, {"spec": "member", "action": "加到已有"}], "reason": "这条场景同时改了罚款和读者等级两块数据，应先拆开，再分别加到 fine 和 member。"},
+  {"id": "S17", "writes": [{"spec": "message", "action": "加到已有"}], "reason": "给通用提醒新增可选参数改变了 message 的输入输出；逾期提醒的发送时机不变，调用方 spec 不动。"},
+  {"id": "S18", "writes": [{"spec": "-", "action": "问用户"}], "reason": "边界表里 loan 和 fine 两行都写了拥有「逾期记录」，表本身有重叠，规则要求停下来问用户。"},
+  {"id": "S19", "writes": [{"spec": "loan", "action": "加到已有"}], "reason": "续借后应还日期的规则归 loan；spec 写的行为与用户要的不一样，属于修改原场景，不是修 bug。"},
+  {"id": "S20", "writes": [{"spec": "catalog", "action": "加到已有"}], "reason": "读者能否使用高级检索是检索能力的变化，归 catalog，需要修改或退役原场景。"}
+]

@@ -1,0 +1,23 @@
+{
+  "D01": "补测试后重跑 xdev coverage",
+  "D02": "修好失败的测试再重跑 xdev coverage",
+  "D03": [
+    "补测试后重跑 xdev coverage",
+    "写测试并登记到用例对应表"
+  ],
+  "D04": "在问题与处置写理由",
+  "D05": "重跑 xdev coverage",
+  "D06": "按 change-sync 同步后 xdev baseline",
+  "D07": "写测试并登记到用例对应表",
+  "D08": "写人工记录到 evidence 并记人工通过",
+  "D09": "升为已完成并交付",
+  "D10": "交 x-verify-spec 验收",
+  "D11": "运行 xdev start 记代码基线",
+  "D12": "交 x-verify-spec 验收",
+  "D13": "交 x-verify-spec 验收",
+  "D14": "交 x-fix 修，修完重跑 coverage 再重做功能检查",
+  "D15": "重跑 xdev coverage 后重做功能检查",
+  "D16": "查是不是自己改坏的，不删不跳过",
+  "D17": "运行 xdev usage fill 填这一期的用量",
+  "D18": "先运行 xdev usage start 在用量表加一行"
+}

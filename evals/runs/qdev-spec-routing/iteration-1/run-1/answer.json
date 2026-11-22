@@ -1,0 +1,12 @@
+[
+  {"id": "Q01", "route": "qdev", "writes": [{"spec": "loan", "action": "append"}], "task_spec": "loan", "confirm": true, "tech_design": "task", "reason": "续借后应还日期是 loan 拥有的借阅数据，单文件修正，属于 loan 的行为变化，需确认 spec 增量。"},
+  {"id": "Q02", "route": "qdev", "writes": [{"spec": "catalog", "action": "append"}], "task_spec": "catalog", "confirm": true, "tech_design": "task", "reason": "检索与排序归 catalog 拥有，新增排序方式改变行为，两个源文件未超过三个，单 spec 小改动。"},
+  {"id": "Q03", "route": "qdev", "writes": [{"spec": "review", "action": "new"}], "task_spec": "review", "confirm": true, "tech_design": "x-tech-design", "reason": "评分和短评是边界表中没有所有者的新数据，需新建 review spec 并加边界表行；计划改动五个文件，需技术设计；借阅记录只是读取依赖，不改 loan。"},
+  {"id": "Q04", "route": "qdev", "writes": [{"spec": "engineering", "action": "log-only"}], "task_spec": "engineering", "confirm": false, "tech_design": "task", "reason": "ESLint 规则属于构建和 lint 工程配置，使用者看不到行为变化，只追加变更记录，不写场景也无需确认。"},
+  {"id": "Q05", "route": "qdev", "writes": [{"spec": "catalog", "action": "log-only"}], "task_spec": "catalog", "confirm": false, "tech_design": "task", "reason": "按钮颜色只是外观改动，不改行为，所属的检索功能 catalog 只追加一行变更记录，无需确认。"},
+  {"id": "Q06", "route": "qdev", "writes": [{"spec": "fine", "action": "append"}, {"spec": "member", "action": "append"}], "task_spec": "fine", "confirm": true, "tech_design": "x-tech-design", "reason": "减免清零罚款归 fine，读者等级降级归 member，一条需求落到两份 spec，需技术设计并确认 spec 增量。"},
+  {"id": "Q07", "route": "mainline", "writes": [], "task_spec": null, "confirm": null, "tech_design": null, "reason": "密码存储和存量迁移涉及鉴权与不可逆的数据迁移，属于高风险工作，必须转完整主线。"},
+  {"id": "Q08", "route": "qdev", "writes": [{"spec": "fine", "action": "append"}], "task_spec": "fine", "confirm": true, "tech_design": "task", "reason": "罚款金额规则归 fine 拥有，修改每天金额改变 fine 的行为，单文件单 spec，需确认 spec 增量。"},
+  {"id": "Q09", "route": "qdev", "writes": [{"spec": "loan", "action": "append"}], "task_spec": "loan", "confirm": true, "tech_design": "x-tech-design", "reason": "借阅数量上限归 loan 拥有，计划改动四个源文件超过三个，需技术设计并确认 spec 增量。"},
+  {"id": "Q10", "route": "qdev", "writes": [{"spec": "engineering", "action": "log-only"}], "task_spec": "engineering", "confirm": false, "tech_design": "task", "reason": "Node.js 版本和 CI 配置升级属于工程改动，使用者看不到行为变化，只追加变更记录；计划文件不超过三个，局部方案即可。"}
+]

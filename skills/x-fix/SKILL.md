@@ -4,20 +4,20 @@ description: |
   Bug 修复执行 skill。分三种入口：
   1. 用户直接报告 Bug → 定位根因 → 修复 → 产出 fix-report-*.md 或 fix-note-*.md（无需 CR 报告）
   2. 有 x-cr 的 CR 报告 → 按稳定 Bn/INV-ID 逐条修复 → 回写同一份 task 内或仓库级 `reports/cr/cr-report-*.md` 主档并产出修复记录
-  3. 有 x-verify-spec / x-qa-gate fail 报告 → 按 issue 清单一次批量修复，产出逐条处置表，交回 gate 增量复审
+  3. x-verify-spec 验收不通过（功能检查回执里的 P0/P1，或 xdev check 列出的问题）→ 按清单一次批量修复，处置写进 checklist「问题与处置」，交回主 agent 关闭
   触发方式："x-fix"、"修一下这个 bug"、"这个功能坏了"、
   "按 CR 报告修复"、"把 CR 问题修了"。
 ---
 
 # x-fix 修复执行框架
 
-修复验证遵循 [共用报告约定](../x-dev/references/test-reporting.md)：当次修复的用例明细、改动覆盖率、未覆盖位置和执行证据集中在一份测试报告及附件。沿用当前任务的报告入口与比较基线，代码变化后的交付批次按约定留存；直接 bug 修复按修复名称建立报告。修复报告/处置表保存根因、处置和测试报告定位。
+修复验证遵循 [证据约定](../x-dev/references/test-reporting.md)：task 内的修复沿用该 task 的代码基线、用例对应表和证据目录，修完重跑 `xdev coverage`（全量测试 + 改动行覆盖率 100%），功能检查和 `xdev check` 由主 agent 做；直接 bug 修复在 `reports/fix/` 写修复报告，测试结果写在报告里，原始输出放同名证据目录。
 
 ## 模式判断（第一步必做）
 
 按输入来源选择模式：
 
-- **有 x-verify-spec / x-qa-gate fail 报告**（包含 `verify-report-*.md`，或 RC/R1/R2/R3 review 问题映射与 `issue-<n>`）→ 加载 `references/qa-gate-fix-mode.md`
+- **x-verify-spec 验收不通过**（功能检查回执 `feature-check.md` 里带 `issue-<n>` 的 P0/P1；`xdev check` 列出的问题；旧契约包的 `verify-report-*.md`）→ 加载 `references/verify-fix-mode.md`
 - **有 x-cr CR 报告**（用户提供 task 内/仓库级 `reports/cr/cr-report-*.md`，或提到"按 CR 报告"、"CR 问题"）→ 加载 `references/cr-fix-mode.md`
 - **用户直接描述 bug 或问题现象** → 加载 `references/bug-fix-mode.md`
 
@@ -25,7 +25,7 @@ description: |
 
 ## 修复报告模板（模式 1 产出物）
 
-所有修复完成后，必须在 `reports/fix/` 产出报告或修补单：
+直接 bug 修复（模式 1）和 CR 驱动修复（模式 2）完成后，必须在 `reports/fix/` 产出报告或修补单；门禁回流（模式 3）不写这里，处置写进 checklist「问题与处置」：
 
 - `reports/fix/fix-report-YYYYMMDD-HHmmss.md`：CR 驱动、跨文件、需要完整闭环的修复
 - `reports/fix/fix-note-YYYYMMDD-HHmmss.md`：人工发现的单点小修补
@@ -56,7 +56,7 @@ description: |
 
 ## 测试验证
 
-[统一测试报告链接、实际结论与未决项定位；用例明细、覆盖率及原始证据在该入口维护]
+[实际运行的测试命令与结果、新增的反例测试、未决项；原始输出放 reports/fix/<报告名>-evidence/]
 ```
 
 报告路径统一写入 `reports/fix/`，文件类型由修复范围决定。
@@ -83,12 +83,11 @@ description: |
 
 ---
 
-## x-cr / x-qa-gate 边界
+## x-cr / 验收回流 边界
 
 - x-cr 报告来自手动软件正确性调查，x-fix 按稳定 Bn/INV-ID 修复，并回写同一份 task 内或仓库级 CR 报告。
-- x-verify-spec / x-qa-gate 报告来自自动门禁，x-fix 按 `references/qa-gate-fix-mode.md` 一次批量修复本轮 issue 清单，修完交回触发 gate 做增量复审。
-- 当前自动门禁链路是 `x-dev -> x-verify-spec -> x-qa-gate -> x-fix`。
-- README `risk: Q0/Q1` 在 verify 通过后交付；Q2/Q3 进入对应深度的 tri-lens reviewer。
+- 验收（x-verify-spec）的问题清单来自功能检查回执和 `xdev check`，x-fix 按 `references/verify-fix-mode.md` 一次批量修复本轮清单，修完交回主 agent：主 agent 重跑 `xdev coverage`，代码或测试改过就重做功能检查，再跑 `xdev check` 关闭。
+- 当前链路是 `x-dev -> x-verify-spec（功能检查 + xdev check）-> x-fix`。risk Q0 不做功能检查。
 - 手动正确性调查和 CR 复查由用户明确触发 x-cr。
 
 ### 单次修复的边界约束
@@ -99,51 +98,50 @@ description: |
 
 ---
 
-## Gate 回流：批量修 + 增量复审
+## Gate 回流：批量修 + 主 agent 关闭
 
-x-fix 同时接收 bug 报告、cr-report，以及 x-verify-spec / x-qa-gate reviewer（RC/R1/R2/R3）的 fail 触发。执行结构是**一次批量修完本轮全部 issue，交回 gate 做增量复审**；增量复审与熔断逻辑见 `skills/x-qa-gate/SKILL.md`「回流」。
+x-fix 同时接收 bug 报告、cr-report，以及验收（x-verify-spec）的问题清单。执行结构是**一次批量修完本轮全部问题，交回主 agent 关闭**；关闭方式与三轮上限见 `skills/x-verify-spec/SKILL.md`「做法」第 5 步。
 
 ### 批量修协议
 
-1. 输入 = 主 agent 提供的**完整 issue 问题映射**（每条含 `issue-<n>`、task、severity、loc、msg 和 reviewer 证据）或 verify 报告的全部 fail 命令。
-2. 按严重度处置：P0 全修；P1 逐条修复或写豁免理由；P2 只登记不修。
+1. 输入 = 主 agent 提供的**完整问题清单**：功能检查回执里的 P0/P1（每条含 `issue-<n>`、位置、严重度、问题类型、证据和怎么改）；`xdev check` 列出的问题，主 agent 按顺序编号 V1、V2…；或旧契约包 verify 报告的全部 fail 命令。
+2. 按严重度处置：P0 全修；P1 逐条修复，或认为报错了就写不采纳理由；P2 只登记不修。
 3. **每修一个 P0 必须留一条可复跑反例**（单元/集成测试断言或 verify 脚本步骤），防止回归。
 4. 修复触及配置、CLI、公开 API、协议/schema 或落盘布局时，先列出修复前已接受的最小输入样本。新增配置字段默认保持可选并提供兼容默认值；spec 明确要求破坏性迁移时，把迁移命令和验收写入处置表。
-5. 修完自跑受影响验证（一个聚焦反例 + 原完整入口 smoke/verify），更新统一测试报告的用例明细、当次改动覆盖率和未覆盖位置，原始证据集中放附件。原始样本必须保持原样参与复跑，禁止只用修复后扩展过的 fixture 证明兼容性。
-6. 证据全绿后产出逐条处置表（见下），控制权交回主 agent 触发增量复审。
-7. 修复过程保持 dev-checklist 状态单元格与 issue ledger 原样；状态升钩由主 agent 在复审通过后完成。
+5. 修完自跑验证：每条问题的聚焦反例 + `xdev coverage`（本 task 全量测试与既有回归、改动行覆盖率仍 100%）；旧契约包为原完整入口 verify。`xdev check` 由主 agent 在重做功能检查后运行。新增的反例测试登记进用例对应表。x-fix 改了代码或测试，交回时在回执里列出改动的文件，主 agent 据此按 [功能检查](../x-verify-spec/references/feature-check.md) 重做一次；写反例测试同样遵守 x-dev「测试是硬规则」。原始样本必须保持原样参与复跑，禁止只用修复后扩展过的 fixture 证明兼容性。
+6. 证据全绿后在 checklist「问题与处置」（qdev 为⑤的同名节）逐条写处置（见下），按下面「回执」一节输出回执，控制权交回主 agent 关闭问题。
+7. 修复过程保持 dev-checklist 状态单元格原样；状态升钩由主 agent 关闭问题后完成。
 
-### fix-attempts 3 轮共享上限
+### 回执
 
-**fix-counter 文件协议**（与 x-verify-spec / x-qa-gate 共享）：
-
-- 路径：`dev-pipeline/tasks/<task>/reports/.fix-counter`
-- 格式：单行 ASCII 整数 + 行尾换行（如 `2\n`）
-- 语义：**批量修轮数**（一轮 = 一份 issue 清单的整体修复），不按问题条数计
-- 读取：`c=$(cat reports/.fix-counter)`；不存在则视为 0
-- 递增（x-fix 的责任）：进入本轮批量修前 `echo $((c+1)) > reports/.fix-counter`（先 +1 再修，避免崩溃后死循环）
-- counter >= 3 → 不进 fix，直接生成 `reports/fix-blocked-report.md` 列出积压问题，要求用户决策（继续 / 修改需求 / 放弃）
-- 重置（x-qa-gate 在 Gate ② 最终 pass 后做）：`echo 0 > reports/.fix-counter`
-
-### fix 报告路径与处置表
-
-| 触发节点 | fix 报告路径 |
-|---------|-------------|
-| x-verify-spec fail | `reports/fix/fix-verify-spec-YYYYMMDD-HHmmss.md` |
-| Gate ② reviewer fail（RC/R1/R2/R3）| `reports/fix/fix-gate-r<轮次>-YYYYMMDD-HHmmss.md` |
-
-报告核心是逐条处置表：
-
-```markdown
-| # | 严重度 | 处置 | 说明 | 反例/验证 |
-|---|--------|------|------|-----------|
-| issue-1 | P0 | ✅ 已修 | 扩展 SQLSTATE 分类 | `cargo test -p x classify_` 新增断言 |
-| issue-2 | P1 | ➖ 豁免 | 理由：... | — |
-| issue-3 | P2 | 📝 登记 | 不修 | — |
+```text
+🔧 x-fix 完成 · <task> · 第 N 轮 · 来源 <功能检查 / xdev check / 旧包 verify> · 已修 P0 ×a、P1 ×b · 豁免 ×c · 登记 P2 ×d · 退回主 agent ×e
 ```
 
-旧路径 `reports/fix/fix-report-*.md` 与 `fix-note-*.md` 仍保留，**只用于直接 bug fix 模式**（用户报告 bug 走原流程）。
+其后列出每条的聚焦反例测试和 `xdev coverage` 的结果，以及退回主 agent 的条目（编号、原因、应交给谁）。
+
+### 3 轮上限
+
+**修复轮数**（验收阶段共用）记在 checklist「问题与处置」（qdev 为⑤的同名节），不另建文件：
+
+- 一轮 = 一份问题清单的整体修复，不按问题条数计。x-fix 开始修之前先写一行 `x-fix 第 N 轮：<本轮问题编号>`，N 接着往下数（先记再修，修到一半中断也算一轮）。
+- 已有 3 行 `x-fix 第 N 轮` 时不再修，写一行 `x-fix 卡住：<积压问题编号和原因>，等用户决定（继续 / 改需求 / 放弃）`，交回主 agent。
+- 多 agent 协作时，各并行组开发阶段的核对轮数另计（见 `skills/x-dev/references/parallel-dev.md`），不写这里。
+
+### 处置记录
+
+门禁回流不另写 fix 报告，处置直接写进 checklist「问题与处置」（qdev 为⑤的同名节），每条一行：
+
+```markdown
+- issue-1 · P0 · ✅ 已修：扩展 SQLSTATE 分类 · 反例 tests/test_classify.py::test_sqlstate_retry
+- 功能检查 · issue-2 · P1 · ➖ 不采纳：<理由>
+- issue-3 · P2 · 📝 登记，不修
+- V1 · ✅ 已修：src/loan/renew.py:12-14 没覆盖，补 tests/test_renew.py::test_renew_edge
+```
+
+历史 task 里的 `reports/fix/fix-verify-spec-*.md`、`fix-gate-r*.md` 保留原样，不再新建。
+`reports/fix/fix-report-*.md` 与 `fix-note-*.md` **只用于直接 bug fix 模式**（用户报告 bug 走原流程）。
 
 ### 子模式
 
-详见 `references/qa-gate-fix-mode.md`，定义 verify-fix / gate-fix 两种子模式的输入识别与特殊规则。
+详见 `references/verify-fix-mode.md`，定义验收回流的输入识别、问题去向与特殊规则。

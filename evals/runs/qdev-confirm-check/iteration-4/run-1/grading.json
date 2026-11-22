@@ -1,0 +1,45 @@
+{
+  "eval": "qdev-confirm-check",
+  "score": 6,
+  "total": 6,
+  "cases_passed": 6,
+  "cases": 6,
+  "rows": [
+    {
+      "id": "V01",
+      "ok": true,
+      "wrong": [],
+      "reason": "diff 新增 feat02 场景3，记录有确认时间 2026-11-20 14:05 和消息位置第 12 条。"
+    },
+    {
+      "id": "V02",
+      "ok": true,
+      "wrong": [],
+      "reason": "diff 新增场景但记录只写“已确认”，缺确认时间和消息位置，需补确认来源。"
+    },
+    {
+      "id": "V03",
+      "ok": true,
+      "wrong": [],
+      "reason": "diff 只有变更记录新增一行，记录写“未写场景，无需确认”，两者一致。"
+    },
+    {
+      "id": "V04",
+      "ok": true,
+      "wrong": [],
+      "reason": "diff 修改了 feat01 场景2 的罚款金额，记录却写“未写场景，无需确认”，与实际改动矛盾。"
+    },
+    {
+      "id": "V05",
+      "ok": true,
+      "wrong": [],
+      "reason": "新建 spec 但确认只是开发者自检，没有用户确认的时间和消息位置，不能由开发者声明代替。"
+    },
+    {
+      "id": "V06",
+      "ok": true,
+      "wrong": [],
+      "reason": "diff 退役 feat03 场景2，记录有确认时间 2026-11-20 09:12 和消息位置第 4 条。"
+    }
+  ]
+}

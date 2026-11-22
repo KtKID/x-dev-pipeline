@@ -1,0 +1,142 @@
+{
+  "eval": "qdev-spec-routing",
+  "score": 80,
+  "total": 85,
+  "cases_passed": 16,
+  "cases": 17,
+  "rows": [
+    {
+      "id": "Q01",
+      "ok": true,
+      "wrong": [],
+      "reason": "修 bug 且 loan 已写明正确行为，只改实现；风险规则全部答否，只改 1 个源码文件。"
+    },
+    {
+      "id": "Q02",
+      "ok": true,
+      "wrong": [],
+      "reason": "按年份排序是新增的用户可见行为，归 catalog 的检索与排序；2 个源码文件，风险全否。"
+    },
+    {
+      "id": "Q03",
+      "ok": false,
+      "wrong": [
+        {
+          "field": "route",
+          "expected": "qdev",
+          "got": "转主线"
+        },
+        {
+          "field": "writes",
+          "expected": [
+            [
+              "*",
+              "新建"
+            ]
+          ],
+          "got": []
+        },
+        {
+          "field": "task_spec",
+          "expected": "*",
+          "got": null
+        },
+        {
+          "field": "confirm",
+          "expected": true,
+          "got": null
+        },
+        {
+          "field": "tech_design",
+          "expected": "x-tech-design",
+          "got": null
+        }
+      ],
+      "reason": "只有读过书的人才能评分，是新增只有某些人能做的操作（风险第 2 条答是），评分数据也不属于任何已有 spec。"
+    },
+    {
+      "id": "Q04",
+      "ok": true,
+      "wrong": [],
+      "reason": "lint 规则属于工程配置，使用者看不到变化；只改 1 个配置文件。"
+    },
+    {
+      "id": "Q05",
+      "ok": true,
+      "wrong": [],
+      "reason": "按钮颜色只是外观变化，不改行为；检索页归 catalog，只记变更不写场景。"
+    },
+    {
+      "id": "Q06",
+      "ok": true,
+      "wrong": [],
+      "reason": "批准后罚款清零归 fine，读者等级降一级归 member，一条场景改了两块数据要拆开；涉及 2 份 spec 需调 x-tech-design；审批沿用现有权限且靠状态防重复，风险全否。"
+    },
+    {
+      "id": "Q07",
+      "ok": true,
+      "wrong": [],
+      "reason": "把密码存储从 MD5 换成 bcrypt 并迁移已有密码，属于登录密码规则变更与批量改写已有数据（风险第 2、3 条答是）。"
+    },
+    {
+      "id": "Q08",
+      "ok": true,
+      "wrong": [],
+      "reason": "逾期罚款金额规则归 fine，修改原场景；只改金额计算，不生成也不扣款，1 个源码文件。"
+    },
+    {
+      "id": "Q09",
+      "ok": true,
+      "wrong": [],
+      "reason": "借阅数量上限归 loan，修改原场景；涉及 4 个源码文件超过 3 个，需调 x-tech-design；读者等级只是被读取，member 不动。"
+    },
+    {
+      "id": "Q10",
+      "ok": true,
+      "wrong": [],
+      "reason": "Node 版本升级属于工程范畴，使用者看不到变化；涉及 3 个文件，未超过 3 个。"
+    },
+    {
+      "id": "Q11",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 里没有逾期天数怎么算的场景，修 bug 要补上这条（归 loan 的逾期计算）；1 个源码文件，风险全否。"
+    },
+    {
+      "id": "Q12",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款金额改为按读者等级区分，归 fine 修改原场景；读者等级只是被读取，member 不动；2 个源码文件，风险全否。"
+    },
+    {
+      "id": "Q13",
+      "ok": true,
+      "wrong": [],
+      "reason": "定时任务自动生成罚款，重跑会重复生成（风险第 4 条答是），需要防重复设计。"
+    },
+    {
+      "id": "Q14",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款退回到外部微信账户是做了就收不回的资金操作（风险第 5 条答是）。"
+    },
+    {
+      "id": "Q15",
+      "ok": true,
+      "wrong": [],
+      "reason": "单笔罚款封顶 50 元属于 fine 的金额规则，新增一条限额场景；1 个源码文件，风险全否。"
+    },
+    {
+      "id": "Q16",
+      "ok": true,
+      "wrong": [],
+      "reason": "loan 里写的续借天数本身不对，按规则修改原场景（归 loan 的续借）；1 个源码文件，风险全否。"
+    },
+    {
+      "id": "Q17",
+      "ok": true,
+      "wrong": [],
+      "reason": "借阅状态归 loan，有逾期标记归 member 账号数据，一条场景改了两块数据要拆开；定时任务只设固定值、重跑结果一样，风险全否；涉及 2 份 spec 需调 x-tech-design；无用户直接操作时按边界表靠前的 member 放 task。"
+    }
+  ]
+}

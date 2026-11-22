@@ -1,0 +1,117 @@
+{
+  "eval": "dev-delivery",
+  "score": 18,
+  "total": 18,
+  "cases_passed": 18,
+  "cases": 18,
+  "rows": [
+    {
+      "id": "D01",
+      "ok": true,
+      "wrong": [],
+      "reason": "改动行覆盖率 91%，未覆盖的 renew.py 行要补测试，补完再跑到 100%。"
+    },
+    {
+      "id": "D02",
+      "ok": true,
+      "wrong": [],
+      "reason": "本 task 新写的测试红了，先修好（修测试或实现），再重跑覆盖率。"
+    },
+    {
+      "id": "D03",
+      "ok": true,
+      "wrong": [],
+      "reason": "fine.py 没有任何测试调用，报告里没有它；先补测试让它被跑到，再重跑。配置没问题，不是范围问题。"
+    },
+    {
+      "id": "D04",
+      "ok": true,
+      "wrong": [],
+      "reason": "确实跑不到的磁盘满兜底分支，用排除标记合法，但必须在问题与处置写一行 文件路径:行 和理由。"
+    },
+    {
+      "id": "D05",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率跑完后代码又改了，记录已过期（COVERAGE_STALE），重跑覆盖率即可；功能检查还没做，暂不用重做。"
+    },
+    {
+      "id": "D06",
+      "ok": true,
+      "wrong": [],
+      "reason": "拆解基线之后 spec 场景改了（SPEC_CHANGED），先按需求变化同步处理 D、T、任务行，再运行 xdev baseline。"
+    },
+    {
+      "id": "D07",
+      "ok": true,
+      "wrong": [],
+      "reason": "用例 T4 还没有任何测试，开发阶段要补测试并在用例对应表登记。"
+    },
+    {
+      "id": "D08",
+      "ok": true,
+      "wrong": [],
+      "reason": "只能人工验证的用例，要在证据目录写 manual 记录（步骤、实际结果），结果记人工通过。"
+    },
+    {
+      "id": "D09",
+      "ok": true,
+      "wrong": [],
+      "reason": "验收已通过，按 x-qdev/x-verify-spec 的通过步骤把状态升为已完成并交付。"
+    },
+    {
+      "id": "D10",
+      "ok": true,
+      "wrong": [],
+      "reason": "行全绿、覆盖率 100%、非 Web，risk Q2 不是 Q0，交验收做功能检查和 xdev check。"
+    },
+    {
+      "id": "D11",
+      "ok": true,
+      "wrong": [],
+      "reason": "qdev 还没记代码基线，覆盖率要和它比，开写代码前先运行 xdev start（用量行已加过，不用再加）。"
+    },
+    {
+      "id": "D12",
+      "ok": true,
+      "wrong": [],
+      "reason": "qdev 只记变更没写场景，覆盖率已 100%，先做完第 5 节的文档自检，再交验收；验收里跳过功能检查。"
+    },
+    {
+      "id": "D13",
+      "ok": true,
+      "wrong": [],
+      "reason": "本轮新增了场景，覆盖率已 100%，交验收，由验收派功能检查并跑 xdev check。"
+    },
+    {
+      "id": "D14",
+      "ok": true,
+      "wrong": [],
+      "reason": "功能检查有 P1（漏了要的或测试重写了生产逻辑），交 x-fix 修，占第 1 轮；修完重跑覆盖率，再重做功能检查。"
+    },
+    {
+      "id": "D15",
+      "ok": true,
+      "wrong": [],
+      "reason": "代码或测试改过，回执已过期，先重跑覆盖率，再按同一份派工单重做功能检查。"
+    },
+    {
+      "id": "D16",
+      "ok": true,
+      "wrong": [],
+      "reason": "原有测试红了，spec 和设计都没改这个行为，先查是不是自己改坏的；不能删、不能 skip 来让覆盖率先跑出来。"
+    },
+    {
+      "id": "D17",
+      "ok": true,
+      "wrong": [],
+      "reason": "验收通过的状态已更新、P2 已登记，验收通过的最后一步是运行 xdev usage fill 填这一期用量。"
+    },
+    {
+      "id": "D18",
+      "ok": true,
+      "wrong": [],
+      "reason": "换了一个会话接着开发，按规则先用 xdev usage start 在用量表加一行，再开始写代码。"
+    }
+  ]
+}

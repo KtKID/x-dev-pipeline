@@ -1,0 +1,9 @@
+[
+  {"id": "C01", "changes": [{"item": "T3", "action": "改"}, {"item": "任务行2", "action": "重开"}, {"item": "tests/renew.test.ts", "action": "改"}], "reason": "feat02场景1的续借天数变成21天，T3预期要改，D02的“起始日取借书日或原应还日期”仍成立不动，承接T3的任务行2重开，T3所在的renew测试文件要改。"},
+  {"id": "C02", "changes": [{"item": "T2", "action": "改"}, {"item": "任务行1", "action": "重开"}, {"item": "tests/borrow.test.ts", "action": "改"}], "reason": "C1上限从5本改为8本，引用C1的T2预期要改，D01在事务内检查上限的约束仍成立，承接T2的任务行1重开，borrow测试文件要改。"},
+  {"id": "C03", "changes": [{"item": "新T", "action": "新增"}, {"item": "任务行2", "action": "重开"}, {"item": "tests/renew.test.ts", "action": "改"}], "reason": "新增feat02场景3要新增一条T，页面显示不带来新的技术约束故不新增D，放进承接feat02的任务行2并重开，renew测试文件要改。"},
+  {"id": "C04", "changes": [{"item": "T5", "action": "退役"}, {"item": "新T", "action": "新增"}, {"item": "任务行3", "action": "重开"}, {"item": "tests/overdue.test.ts", "action": "改"}], "reason": "删除feat03场景1后，只为它存在的T5退役并新增一条验证移除后行为的T，D02被feat01和feat02共用不退役，承接feat03的任务行3重开，overdue测试文件要改。"},
+  {"id": "C05", "changes": [], "reason": "只改措辞、行为不变，所有下游都不动。"},
+  {"id": "C06", "changes": [{"item": "新T", "action": "新增"}, {"item": "任务行2", "action": "重开"}, {"item": "tests/renew.test.ts", "action": "改"}], "reason": "spec不变的修bug场景要为出bug的输入新增一条T，D不动，承接feat02场景1的任务行2重开，renew测试文件要改。"},
+  {"id": "C07", "changes": [{"item": "D02", "action": "改"}, {"item": "T3", "action": "改"}, {"item": "任务行1", "action": "重开"}, {"item": "任务行2", "action": "重开"}, {"item": "任务行3", "action": "重开"}, {"item": "tests/renew.test.ts", "action": "改"}, {"item": "tests/borrow.test.ts", "action": "重跑"}, {"item": "tests/overdue.test.ts", "action": "重跑"}], "reason": "续借日改为续借当天起算，D02的起始日约束不再成立需要改，引用D02的任务行1、2、3全部重开，T3预期要改，renew测试文件要改，borrow和overdue测试文件内容不变只需重跑。"}
+]

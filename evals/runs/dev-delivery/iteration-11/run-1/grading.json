@@ -1,0 +1,117 @@
+{
+  "eval": "dev-delivery",
+  "score": 18,
+  "total": 18,
+  "cases_passed": 18,
+  "cases": 18,
+  "rows": [
+    {
+      "id": "D01",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率 91%，renew.py 第 12-14 行没被跑到，要补测试覆盖这些行后重跑，直到 100%。"
+    },
+    {
+      "id": "D02",
+      "ok": true,
+      "wrong": [],
+      "reason": "新写的 test_renew_edge 红了，是本 task 自己的测试，先修好再跑覆盖率。"
+    },
+    {
+      "id": "D03",
+      "ok": true,
+      "wrong": [],
+      "reason": "fine.py 没出现在报告里是因为还没有测试加载它，补一个调用它的测试后重跑。"
+    },
+    {
+      "id": "D04",
+      "ok": true,
+      "wrong": [],
+      "reason": "磁盘满兜底分支测试环境造不出来，按规则在问题与处置写 borrow.py:40 的文件路径和理由。"
+    },
+    {
+      "id": "D05",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率跑完后代码又改了，记录已过期（COVERAGE_STALE），重跑覆盖率即可。"
+    },
+    {
+      "id": "D06",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 场景改了（SPEC_CHANGED），先按需求变化同步处理 D、T、任务行和测试，再记基线。"
+    },
+    {
+      "id": "D07",
+      "ok": true,
+      "wrong": [],
+      "reason": "用例 T4 还没有测试，要写测试并在用例对应表登记它的测试位置。"
+    },
+    {
+      "id": "D08",
+      "ok": true,
+      "wrong": [],
+      "reason": "只能人工验证的打印版式，写步骤和实际结果到 evidence 的人工记录，结果记人工通过。"
+    },
+    {
+      "id": "D09",
+      "ok": true,
+      "wrong": [],
+      "reason": "验收已通过，把行升为 ✅、头部状态改为已完成，交付。"
+    },
+    {
+      "id": "D10",
+      "ok": true,
+      "wrong": [],
+      "reason": "行全部 🟢、覆盖率 100%、非 Web，下一步交 x-verify-spec 验收（Q2 要做功能检查）。"
+    },
+    {
+      "id": "D11",
+      "ok": true,
+      "wrong": [],
+      "reason": "开工前还没记代码基线，先运行 xdev start，之后覆盖率才有比较基准。"
+    },
+    {
+      "id": "D12",
+      "ok": true,
+      "wrong": [],
+      "reason": "只记变更、没写场景，覆盖率已 100%，直接交验收，不做功能检查。"
+    },
+    {
+      "id": "D13",
+      "ok": true,
+      "wrong": [],
+      "reason": "新增了场景且覆盖率 100%，交 x-verify-spec 验收，由它做功能检查和 xdev check。"
+    },
+    {
+      "id": "D14",
+      "ok": true,
+      "wrong": [],
+      "reason": "功能检查 P1 不通过，按第 1 轮交 x-fix 批量修，修完重跑覆盖率并重做功能检查。"
+    },
+    {
+      "id": "D15",
+      "ok": true,
+      "wrong": [],
+      "reason": "给 test_fine.py 加了测试，回执已过期（COVERAGE_STALE），重跑覆盖率后重做功能检查。"
+    },
+    {
+      "id": "D16",
+      "ok": true,
+      "wrong": [],
+      "reason": "原有测试 test_monthly_total 红了而需求没改，先查是不是自己改坏的，不能删或 skip 来迁就。"
+    },
+    {
+      "id": "D17",
+      "ok": true,
+      "wrong": [],
+      "reason": "验收已通过、行和状态都已更新，最后一步是运行 xdev usage fill 填这一期的 token 用量。"
+    },
+    {
+      "id": "D18",
+      "ok": true,
+      "wrong": [],
+      "reason": "换了会话接着开发，开始写代码前先用 xdev usage start 在用量表加一行。"
+    }
+  ]
+}

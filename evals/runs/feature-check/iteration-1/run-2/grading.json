@@ -1,0 +1,87 @@
+{
+  "eval": "test-integrity",
+  "score": 13,
+  "total": 13,
+  "cases_passed": 13,
+  "cases": 13,
+  "rows": [
+    {
+      "id": "I01",
+      "ok": true,
+      "wrong": [],
+      "reason": "tests/test_fine.py 里 `expected = days * DAILY_FINE` 手动重写了罚款公式，期望值来自复制的业务规则。"
+    },
+    {
+      "id": "I02",
+      "ok": true,
+      "wrong": [],
+      "reason": "`assert overdue_fine(3) == 1.5` 调用真实函数，期望值是手写常量，改坏生产代码会变红。"
+    },
+    {
+      "id": "I03",
+      "ok": true,
+      "wrong": [],
+      "reason": "`@patch('src.loan.borrow.borrow', ...)` 把被测函数本身打桩，`b.borrow` 返回的是 mock 的值，测不到真实逻辑。"
+    },
+    {
+      "id": "I04",
+      "ok": true,
+      "wrong": [],
+      "reason": "真实调用 borrow，只替换了外部存储的 count_active/save_loan，断言返回'已达借阅上限'且 `save.assert_not_called()`，改坏判断会变红。"
+    },
+    {
+      "id": "I05",
+      "ok": true,
+      "wrong": [],
+      "reason": "只有 `count.assert_called_once_with('r1')`，没有断言 borrow 的返回值是否为'已达借阅上限'。"
+    },
+    {
+      "id": "I06",
+      "ok": true,
+      "wrong": [],
+      "reason": "上限是 5，测试只用 `return_value=2` 借第 3 本，远离边界；把 LIMIT 改成 10 或改错判断，这个测试仍然通过。"
+    },
+    {
+      "id": "I07",
+      "ok": true,
+      "wrong": [],
+      "reason": "`expect(dueDate(at)).toEqual(dueDate(at))` 两边是同一次调用，无论实现对错都成立。"
+    },
+    {
+      "id": "I08",
+      "ok": true,
+      "wrong": [],
+      "reason": "测试文件内自己定义了 `function dueDate(...)`，断言的是这份复制品，没有 import src/loan/due。"
+    },
+    {
+      "id": "I09",
+      "ok": true,
+      "wrong": [],
+      "reason": "`try { expect(...) } catch (e) { console.log('flaky on CI, ignore', e); }`，断言失败被吞掉，测试永远绿。"
+    },
+    {
+      "id": "I10",
+      "ok": true,
+      "wrong": [],
+      "reason": "场景要验证借书入口 borrow 的拦截，但测试直接用 save_loan 写 6 条记录再调 count_active，从未调用 borrow。"
+    },
+    {
+      "id": "I11",
+      "ok": true,
+      "wrong": [],
+      "reason": "用 fake timer 固定到 2026-03-15，`dueDate(new Date())` 期望手写常量 '2026-04-14'，真实调用生产函数，改坏 +30 天的逻辑会变红。"
+    },
+    {
+      "id": "I12",
+      "ok": true,
+      "wrong": [],
+      "reason": "`@pytest.mark.skip(reason='later')` 让上限 20 元的断言根本不执行。"
+    },
+    {
+      "id": "I13",
+      "ok": true,
+      "wrong": [],
+      "reason": "`test_cap` 用 100 天断言封顶 20.0（去掉 min 会得 50 而变红），`test_not_overdue` 断言 0 天为 0.0；fixture 只用于准备输入。"
+    }
+  ]
+}

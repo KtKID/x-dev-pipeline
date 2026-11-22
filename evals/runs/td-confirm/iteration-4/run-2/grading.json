@@ -1,0 +1,45 @@
+{
+  "eval": "td-confirm",
+  "score": 6,
+  "total": 6,
+  "cases_passed": 6,
+  "cases": 6,
+  "rows": [
+    {
+      "id": "T01",
+      "ok": true,
+      "wrong": [],
+      "reason": "设计里的决定都只是实现层面的选择，不改变使用者看到的结果，tech-design 不需要用户确认，写完直接交接。"
+    },
+    {
+      "id": "T02",
+      "ok": true,
+      "wrong": [],
+      "reason": "缓存延迟会改变使用者看到的数字，是需要用户拍板的边界取舍，只把这一项单独问用户，设计的其他部分照常交接。"
+    },
+    {
+      "id": "T03",
+      "ok": true,
+      "wrong": [],
+      "reason": "tech-design 不需要用户确认，且没有等用户拍板的取舍，就绪检查第 4 条满足，x-req 可以开始拆任务。"
+    },
+    {
+      "id": "T04",
+      "ok": true,
+      "wrong": [],
+      "reason": "未决的导出问题只影响 feat02 场景3，该场景等答复，本轮其他场景与之无关，先拆。"
+    },
+    {
+      "id": "T05",
+      "ok": true,
+      "wrong": [],
+      "reason": "公共函数 dueDate 只是实现选择，不改变使用者看到的结果，不需用户确认，设计写完直接交给 x-req。"
+    },
+    {
+      "id": "T06",
+      "ok": true,
+      "wrong": [],
+      "reason": "x-qdev 中 tech-design 不单独停下等确认，没有待拍板的取舍，设计结论随交付一起告知用户。"
+    }
+  ]
+}
