@@ -47,12 +47,12 @@ python3 evals/scripts/runs_summary.py spec-scope   # 一组题的全部轮次
 | change-sync | 7 | spec 变了，哪些 D、T、任务行、测试要改、新增、退役、重开或重跑 | `skills/x-tech-design/references/change-sync.md` |
 | qdev-confirm-check | 6 | x-verify-spec 能否发现"改了场景却没记用户确认" | `skills/x-verify-spec/SKILL.md` |
 | req-grouping | 7 | 并行组怎么分：按任务量定组数，不为并行而拆 | `skills/x-req/SKILL.md` |
-| dev-worker | 10 | 工人子 agent 遇到越界情况怎么做 | `skills/x-dev/references/parallel-dev.md` |
+| dev-worker | 12 | 工人子 agent 遇到越界情况怎么做；约束只是任务的一部分 | `skills/x-dev/references/parallel-dev.md` |
 | dev-main | 14 | 主 agent 在多 agent 协作里的下一步 | `skills/x-dev/references/parallel-dev.md` |
 | td-confirm | 6 | tech-design 不需要用户确认，只有会改变结果的取舍单独问 | `skills/x-tech-design/SKILL.md`、`skills/x-req/SKILL.md` |
 | dev-delivery | 16 | 看到 xdev coverage / check 的结果后下一步做什么；不再另写测试报告 | `skills/x-dev/SKILL.md`、`skills/x-dev/references/test-reporting.md`、`skills/x-qdev/SKILL.md` |
 | test-integrity | 13 | 最便宜的模型能不能凭清单识破假测试、又不误报 | `skills/x-dev/references/test-integrity.md` |
-| review-route | 12 | 审查按 risk 派几个 lens、问题算哪个 lens 和严重度、架构偏好怎么处理 | `skills/x-qa-gate/SKILL.md`、`skills/x-tech-design/` |
+| review-route | 12 | 审查按 risk 派几个 lens、问题算哪个 lens 和严重度、架构约束怎么处理 | `skills/x-qa-gate/SKILL.md`、`skills/x-tech-design/SKILL.md`、spec 模板「关键约束」 |
 
 规则里能机械判断的部分（编号引用、文件交集必须同组、依赖无环、risk 计算、需求变化同步清单）由脚本负责，测试在 `test/test_checklist_engine.py`，不需要 LLM 判题。
 

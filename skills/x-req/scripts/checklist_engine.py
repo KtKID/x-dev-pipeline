@@ -48,6 +48,8 @@ BARE_SCENE_RE = re.compile(r"^场景(?P<a>\d+)(?:\s*[-~]\s*(?P<b>\d+))?$")
 CASE_REF_RE = re.compile(r"用例\s*((?:T\d+(?:\s*[–~-]\s*T?\d+)?\s*[、,，/\s]*)+)")
 D_REF_RE = re.compile(r"\bD\d{2,}\b")
 C_REF_RE = re.compile(r"(?<![A-Za-z0-9])C\d+\b")
+# 任务行里的约束引用：本 spec 写 C1，别的 spec（如全项目架构约束所在的 engineering）写 engineering:C1
+ROW_C_REF_RE = re.compile(r"(?<![A-Za-z0-9:])(?:([a-z][\w-]*):)?(C\d+)\b")
 T_IN_TEXT_RE = re.compile(r"\bT\d+\b")
 TEST_FILE_RE = re.compile(r"(^|/)(tests?|__tests__|spec)/|\.test\.|\.spec\.|_test\.|(^|/)test_")
 HIGH_RE = re.compile(r"^高")
@@ -250,7 +252,7 @@ class Row:
 
     @property
     def cs(self) -> set[str]:
-        return set(C_REF_RE.findall(self.task))
+        return {f"{spec}:{c}" if spec else c for spec, c in ROW_C_REF_RE.findall(self.task)}
 
     @property
     def high(self) -> bool:
@@ -616,9 +618,19 @@ def validate_issues(task_dir: Path) -> list[dict]:
             elif ref not in doc.scenes:
                 out.append(issue(f, r.line, "SCENE_REF", f"spec 里没有 {scene_label(ref, main)}"))
         # C / D / 用例
-        for c in sorted(r.cs):
-            if specs.get(main) and c not in specs[main].constraints:
-                out.append(issue(f, r.line, "C_REF", f"spec 里没有约束 {c}"))
+        for ref in sorted(r.cs):
+            owner, _, c = ref.rpartition(":")
+            owner = owner or main
+            if owner not in specs and spec is not None:
+                other = spec.parent.parent / owner / "spec.md"
+                if other.is_file():
+                    specs[owner] = parse_spec(other.read_text(encoding="utf-8"), owner)
+            if owner not in specs:
+                if owner != main:
+                    out.append(issue(f, r.line, "C_REF", f"{ref}：找不到 {owner} 的 spec"))
+            elif c not in specs[owner].constraints:
+                where = "spec" if owner == main else f"{owner} 的 spec"
+                out.append(issue(f, r.line, "C_REF", f"{where} 里没有约束 {c}"))
         if design is not None:
             for d in sorted(r.ds):
                 if d not in design.d_rules:

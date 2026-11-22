@@ -14,7 +14,6 @@
 | `tech-design.md` | Modules, protocols, data flows, technical decisions, and numbered test cases |
 | `dev-checklist.md` | The single delivery file of a task: rows, scenario and test-case references, progress, and a closing "结果" (results) section with the case-to-test mapping, changed-line coverage, and issue handling |
 | `evidence/` | Raw output: test logs, the coverage record, screenshots, manual verification notes |
-| `docs/architecture.md` | Optional project architecture preferences, checked by design, development, and review |
 
 Stable IDs connect requirements, design, tasks, and evidence. Everything a script can decide (IDs, statuses, whether tests pass, whether coverage is 100%) is handled by `xdev`; agents only do what a script cannot.
 
@@ -39,7 +38,7 @@ x-qdev · one task document: requirements → local design → tests → impleme
        → xdev check → one independent review when scenarios were written
 ```
 
-`x-tech-design` is a required prerequisite for task decomposition. `x-verify-tech` is the method behind the review's "design and architecture preferences" lens and can also be invoked on its own.
+`x-tech-design` is a required prerequisite for task decomposition. `x-verify-tech` is the method behind the review's "design and architecture constraints" lens and can also be invoked on its own.
 
 ## Main line: requirements → technical design → tasks → development
 
@@ -57,7 +56,9 @@ After confirming a useful batch of conclusions about behavior, scope, constraint
 
 Each `featNN` represents a user-visible feature. Given/When/Then scenarios describe the normal, boundary, and error behavior needed for the current goal; THEN states an observable result. Feature and scenario IDs remain stable: append new IDs, reuse IDs for edits, and retain traceable records for removals.
 
-The spec also records user-confirmed key constraints: rules that must hold and outcomes that must be prevented. Stable IDs such as `C1` and `C2` identify their scope, observable criteria, confirmation basis, and related scenarios.
+The spec also records user-confirmed key constraints: rules that must hold and outcomes that must be prevented. Stable IDs such as `C1` and `C2` identify their scope, observable criteria, confirmation basis, and related scenarios. The user's requirements on how code is organized (layering, dependencies, technology choices, things not to do) are constraints too, prefixed with "架构：" (architecture); project-wide ones live in the `engineering` spec.
+
+Constraints are only part of the task: the work is defined by the scenarios, and constraints only limit how it is done. Satisfying the constraints while leaving a scenario unfinished does not count as done.
 
 The current selection explicitly identifies the features, scenarios, and completion criteria handed to design and development. The long-term backlog retains future work. A review batch should generally focus on up to 3 features and 10 scenarios; larger scopes can be reviewed in batches within the same spec. One spec owns one block of data; see the [spec scope rules](skills/x-explore-for-spec/references/spec-scope.md). Technical design consumes the confirmed current scope and content baseline.
 
@@ -134,7 +135,7 @@ Coverage only shows code was executed. The main agent then sends a light sub-age
 | Step | What it does | Result |
 |---|---|---|
 | `xdev check` (x-verify-spec) | Script check: structure and IDs, requirement changes synced, every row 🟢, every scenario has a passing case, every case maps to a real test function, high-risk rows have a real-chain case, tests pass and changed-line coverage is 100%, the test-integrity check passed, and neither code nor tests changed since | Pass / fail (each item listed) |
-| `x-qa-gate` | One read-only reviewer chosen by risk, looking at what a script cannot judge: requirement alignment, edge and failure paths, whether tests really prove the scenarios, design and architecture preferences (Q1 skips edge paths; Q2/Q3 cover all four) | Pass / issues found |
+| `x-qa-gate` | One read-only reviewer chosen by risk, looking at what a script cannot judge: requirement alignment, edge and failure paths, whether tests really prove the scenarios, design and architecture constraints (Q1 skips edge paths; Q2/Q3 cover all four) | Pass / issues found |
 
 risk is computed by x-req from the rows: Q0 (purely technical, no scenarios) runs only `xdev check`; Q1 reviews alignment, test strength, design and architecture; Q2 adds edge and failure paths; Q3 uses full inputs and per-lens receipts.
 
@@ -172,7 +173,7 @@ Risk review and bug ingestion share a user-global corpus, with a caller-selected
 | `/x-req` | Split tasks from the confirmed spec and technical design, assigning scenarios, constraints, and test cases |
 | `/x-dev` | Execute one task test-first and reach 100% changed-line coverage |
 | `/x-verify-spec` | Gate ①: run `xdev check` for the mechanical delivery check |
-| `/x-verify-tech` | Check implementation against the technical design, development rules, and architecture preferences (the review's q4-design method; also usable alone) |
+| `/x-verify-tech` | Check implementation against the technical design, development rules, and architecture constraints (the review's q4-design method; also usable alone) |
 | `/x-qa-gate` | One risk-routed independent review |
 | `/x-qdev` | Reduced single-document flow for small tasks |
 | `/x-fix` | Batch-fix issues found by checks, reviews, or correctness investigations |

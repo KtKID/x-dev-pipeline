@@ -12,3 +12,4 @@
 | 4 | 16/16 ×2 | D02 改成“本 task 新写的测试红了”；D03 接受两个答案（grade.py 支持列表答案） |
 | 5 | 16/16 ×2 | 冲突检查后规则改成“测试改了先重跑 coverage 再重查”，D15 的答案和选项名随之改 |
 | 6 | 16/16 ×2 | xdev integrity 并进 xdev check 后复跑；D15 改成“报 COVERAGE_STALE → 重跑 coverage 后重新派子 agent 检查” |
+| 7 | 16/16 ×2 | x-dev 加了“先读场景再读约束”后复跑 |

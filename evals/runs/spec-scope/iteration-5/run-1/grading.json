@@ -1,0 +1,129 @@
+{
+  "eval": "spec-scope",
+  "score": 20,
+  "total": 20,
+  "cases_passed": 20,
+  "cases": 20,
+  "rows": [
+    {
+      "id": "S01",
+      "ok": true,
+      "wrong": [],
+      "reason": "续借次数上限是 loan 拥有的续借规则，改的是 loan 的数据。"
+    },
+    {
+      "id": "S02",
+      "ok": true,
+      "wrong": [],
+      "reason": "检索与排序归 catalog，新增排序方式只改检索结果的输出。"
+    },
+    {
+      "id": "S03",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款金额规则归 fine；逾期天数算法归 loan 且不变，loan 不动。"
+    },
+    {
+      "id": "S04",
+      "ok": true,
+      "wrong": [],
+      "reason": "逾期第一天何时发提醒是调用方（loan）的决定；通用提醒类型不变，message 不动。"
+    },
+    {
+      "id": "S05",
+      "ok": true,
+      "wrong": [],
+      "reason": "读者的评分和短评是新的一块数据，边界表里没有任何一行拥有它，故新建 review 并在边界表加一行。"
+    },
+    {
+      "id": "S06",
+      "ok": true,
+      "wrong": [],
+      "reason": "累计借书数量读取的是借阅记录，借阅记录归 loan（member 的不管什么里明确排除），只是展示，loan 数据不变但场景落在 loan 的数据上。"
+    },
+    {
+      "id": "S07",
+      "ok": true,
+      "wrong": [],
+      "reason": "Node.js 升级是构建与依赖改动，使用者看不到变化，只记变更。"
+    },
+    {
+      "id": "S08",
+      "ok": true,
+      "wrong": [],
+      "reason": "只改按钮文字，属于外观，所属的检索归 catalog，只记变更。"
+    },
+    {
+      "id": "S09",
+      "ok": true,
+      "wrong": [],
+      "reason": "借阅数量上限归 loan；读者等级本身归 member 且未变，member 不动。"
+    },
+    {
+      "id": "S10",
+      "ok": true,
+      "wrong": [],
+      "reason": "缴纳方式与缴纳记录归 fine，新增微信缴纳改的是 fine 的数据。"
+    },
+    {
+      "id": "S11",
+      "ok": true,
+      "wrong": [],
+      "reason": "注销账号归 member，改变的是账号注销的结果；检查未还书只是读取 loan 的数据，loan 的输入输出没变，只在 member 的 C 里写依赖。"
+    },
+    {
+      "id": "S12",
+      "ok": true,
+      "wrong": [],
+      "reason": "阅读进度是新的一块数据，边界表中没有任何一行拥有它，故新建并在边界表加一行。"
+    },
+    {
+      "id": "S13",
+      "ok": true,
+      "wrong": [],
+      "reason": "一条场景改了两块数据（罚款清零归 fine，读者等级降级归 member），先拆成两条，分别加到两份 spec。"
+    },
+    {
+      "id": "S14",
+      "ok": true,
+      "wrong": [],
+      "reason": "罚款缴清这一事件归 fine，由 fine 调用 message 的通用提醒；message 的输入输出不变，不动。"
+    },
+    {
+      "id": "S15",
+      "ok": true,
+      "wrong": [],
+      "reason": "新增消息类型、模板与渠道归 message，改变的是 message 的输入输出；发送时机留待以后，调用方 spec 不写。"
+    },
+    {
+      "id": "S16",
+      "ok": true,
+      "wrong": [],
+      "reason": "一条场景改了罚款（fine）和读者等级（member）两块数据，按规则拆开，分别加到两份 spec。"
+    },
+    {
+      "id": "S17",
+      "ok": true,
+      "wrong": [],
+      "reason": "通用提醒新增两个可选参数，是 message 对调用方的输入输出变化；发送时机不变，调用方 spec 不动。"
+    },
+    {
+      "id": "S18",
+      "ok": true,
+      "wrong": [],
+      "reason": "边界表里 loan 和 fine 两行都写了拥有“逾期记录”，边界表本身写重了，规则要求停下来问用户。"
+    },
+    {
+      "id": "S19",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 写的续借加 7 天不是用户要的，这是需求修改，在 loan 里修改原场景。"
+    },
+    {
+      "id": "S20",
+      "ok": true,
+      "wrong": [],
+      "reason": "读者能否使用高级检索改变了用户能做的事，是行为变化，在 catalog 里修改或退役原场景。"
+    }
+  ]
+}

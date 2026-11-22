@@ -21,7 +21,6 @@ x-dev-pipeline/
 │       ├── dev-checklist.md           # 唯一交付文件：任务表 + 末尾「结果」（用例对应、覆盖率、问题与处置）
 │       ├── evidence/                  # 原始输出：测试日志、coverage.json、截图、人工验证记录
 │       └── reports/                   # .fix-counter、qa-gate issue ledger、cr 报告
-├── docs/architecture.md               # 项目架构偏好（有就用，模板在 x-tech-design/templates/）
 ├── dev-pipeline/tasks/                # 历史 task 档案；工具不再识别、校验或编排
 ├── skills/x-dev/scripts/xdev.py       # 薄 CLI 路由器；delivery.py 做 start/coverage/check
 ├── skills/x-req/scripts/              # checklist_engine.py（当前格式）、req.py（旧 v3 包）
@@ -41,7 +40,7 @@ x-explore-for-spec → x-tech-design → x-req → x-dev ──→ 真实性检�
 ```
 
 - 能用脚本判断的都交给 `xdev`：结构与编号（validate）、需求变化（impact）、派工顺序（graph）、代码基线（start）、改动行覆盖率 100%（coverage）、交付核对（check，也读测试真实性检查的回执）。agent 只做脚本判断不了的事。
-- 独立审查只有一次：x-qa-gate 按 risk 派一个 reviewer（Q0 不派）。四个 lens 是需求对齐、边界、测试是否证明了场景、设计与架构偏好；Q1 做其中三个（不含边界），Q2/Q3 四个都做。x-verify-tech 是 q4-design lens 的方法来源，也可以单独调用。
+- 独立审查只有一次：x-qa-gate 按 risk 派一个 reviewer（Q0 不派）。四个 lens 是需求对齐、边界、测试是否证明了场景、设计与架构约束；Q1 做其中三个（不含边界），Q2/Q3 四个都做。x-verify-tech 是 q4-design lens 的方法来源，也可以单独调用。
 - `cli/` 下的 Go 版本保留不删：计划以后做成“agent 调一个命令就能初始化这套管线、安装必需 skill”的工具，目前暂停维护，行为停在旧引擎，skill 不调用它。
 - x-plan 已废弃，功能合并到 x-req。
 
@@ -65,7 +64,7 @@ x-explore-for-spec → x-tech-design → x-req → x-dev ──→ 真实性检�
 | 审查路由、lens、严重度 P0/P1/P2、issue 登记、回流关闭 | `skills/x-qa-gate/SKILL.md` |
 | 批量修复、`.fix-counter` 3 轮上限、处置记录 | `skills/x-fix/SKILL.md` |
 | 状态码与写权 | `skills/x-dev/references/execution-rules.md` |
-| 架构偏好怎么写、谁用 | `skills/x-tech-design/templates/architecture-preferences.md` |
+| 用户约束怎么写（含“架构：”开头的架构约束、全项目的放 engineering）、约束只是任务的一部分 | `skills/x-explore-for-spec/templates/spec.md`「关键约束」、`spec-scope.md` |
 | 风险错题集边界 | `skills/x-adversarial-risk/references/risk-mistakes.md`（只由 x-adversarial-risk 读取） |
 | x-cr 报告交接（`Schema: x-cr-v2`、Bn/INV-ID） | `skills/x-cr/SKILL.md` |
 | 带 `spec_version: 3` / `adversarial_risk_version: 3` 的旧契约 | 原 req.py / verify.py / validator.py 与 x-adversarial-risk，行为不变 |

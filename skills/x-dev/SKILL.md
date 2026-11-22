@@ -27,7 +27,7 @@ description: |
 
 交付只有一份文件：`dev-checklist.md`。开发结果写在它末尾的「结果」节，原始输出（测试日志、覆盖率记录、截图、人工验证记录）放同目录 `evidence/`。不另写 dev-report 和测试报告。声明 `spec_version: 3` 的旧契约包仍用 `templates/dev-report-template.md`。
 
-本轮承接的 D 机制或用例主定义缺失、有等待用户拍板的取舍时，受影响行阻塞并交来源负责方补齐，不从实现猜设计。项目有 [架构偏好](../x-tech-design/templates/architecture-preferences.md) 文件（默认 `docs/architecture.md`）时，实现遵守它；做不到就停下问用户，不悄悄绕开。
+本轮承接的 D 机制或用例主定义缺失、有等待用户拍板的取舍时，受影响行阻塞并交来源负责方补齐，不从实现猜设计。**先读场景，再读约束。** 要做的事是每一行回指的场景；C 约束（包括本 spec 和 `engineering` spec 里“架构：”开头的架构约束）只限制怎么做。只满足了约束、场景的 THEN 没有测试证明，这一行不算完成；约束做不到就停下问用户，不悄悄绕开。
 
 checklist 的约定（由 x-req 生成）：
 

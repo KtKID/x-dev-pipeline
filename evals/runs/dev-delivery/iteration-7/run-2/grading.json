@@ -1,0 +1,105 @@
+{
+  "eval": "dev-delivery",
+  "score": 16,
+  "total": 16,
+  "cases_passed": 16,
+  "cases": 16,
+  "rows": [
+    {
+      "id": "D01",
+      "ok": true,
+      "wrong": [],
+      "reason": "改动行覆盖率 91%，renew.py 第 12-14 行未被跑到，需补测试后重跑。"
+    },
+    {
+      "id": "D02",
+      "ok": true,
+      "wrong": [],
+      "reason": "红的是本 task 新写的测试，原有测试为绿，先修这个测试再重跑覆盖率。"
+    },
+    {
+      "id": "D03",
+      "ok": true,
+      "wrong": [],
+      "reason": "fine.py 是新文件且没有任何测试调用它，覆盖率范围配置正常，需要先补测试让它进入报告。"
+    },
+    {
+      "id": "D04",
+      "ok": true,
+      "wrong": [],
+      "reason": "磁盘满兜底分支造不出测试环境，属确实跑不到的防御代码，需在问题与处置写 文件:行 和理由。"
+    },
+    {
+      "id": "D05",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率之后代码又被改动，记录已过期（COVERAGE_STALE），需重跑覆盖率。"
+    },
+    {
+      "id": "D06",
+      "ok": true,
+      "wrong": [],
+      "reason": "拆解基线之后 feat02 场景1 变了，先按需求变化同步处理受影响的行，再记新基线。"
+    },
+    {
+      "id": "D07",
+      "ok": true,
+      "wrong": [],
+      "reason": "用例 T4 没有对应测试，需要写测试并在用例对应表登记。"
+    },
+    {
+      "id": "D08",
+      "ok": true,
+      "wrong": [],
+      "reason": "该用例只能人工验证，按规则写人工记录存入 evidence 并记为人工通过。"
+    },
+    {
+      "id": "D09",
+      "ok": true,
+      "wrong": [],
+      "reason": "Q0 任务且 xdev check 已通过，主 agent 直接把行升为 ✅ 并交付，不需要 x-qa-gate 审查。"
+    },
+    {
+      "id": "D10",
+      "ok": true,
+      "wrong": [],
+      "reason": "Q2 任务，xdev check 通过后需交 x-qa-gate 做一次独立审查。"
+    },
+    {
+      "id": "D11",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 增量已确认但还没运行过任何 xdev 命令，开工前要先记录代码基线。"
+    },
+    {
+      "id": "D12",
+      "ok": true,
+      "wrong": [],
+      "reason": "只记变更、没写场景的 qdev 任务，xdev check 通过即可交付，不需要独立审查。"
+    },
+    {
+      "id": "D13",
+      "ok": true,
+      "wrong": [],
+      "reason": "新增了场景，xdev check 通过后需交 x-qa-gate 按 Q1 做一次独立审查。"
+    },
+    {
+      "id": "D14",
+      "ok": true,
+      "wrong": [],
+      "reason": "真实性检查第 1 轮不通过，test_fine_amount 期望值照抄公式，按回执改成手算常量，重跑覆盖率后再派子 agent 检查。"
+    },
+    {
+      "id": "D15",
+      "ok": true,
+      "wrong": [],
+      "reason": "改过测试后覆盖率和真实性记录都作废，需先重跑覆盖率，再重新派子 agent 检查。"
+    },
+    {
+      "id": "D16",
+      "ok": true,
+      "wrong": [],
+      "reason": "原有测试红了且 spec 和设计未改该行为，先查是不是自己改坏的，不能 skip 或删除。"
+    }
+  ]
+}

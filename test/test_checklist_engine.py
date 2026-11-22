@@ -176,6 +176,17 @@ class ChecklistEngineTest(unittest.TestCase):
         self.assertIn("CASE_REF", rules)
         self.assertIn("D_REF", rules)
 
+    def test_constraint_from_engineering_spec(self):
+        eng = self.root / "docs/spec/engineering"
+        eng.mkdir(parents=True)
+        (eng / "spec.md").write_text("# engineering\n\n## 关键约束（用户已确认）\n\n| 编号 | 约束与适用范围 | 判据 | 依据 |\n|---|---|---|---|\n| C1 | 架构：页面不直接调接口 | src/pages 下无 fetch | 用户 11-21；全项目 |\n", encoding="utf-8")
+        self.write_checklist([ROWS[0].replace("C1；", "C1、engineering:C1；")] + ROWS[1:])
+        self.assertEqual(self.issues()[1], [])
+        self.write_checklist([ROWS[0].replace("C1；", "C1、engineering:C9；")] + ROWS[1:])
+        self.assertIn("C_REF", self.issues()[1])
+        self.write_checklist([ROWS[0].replace("C1；", "C1、payment:C1；")] + ROWS[1:])
+        self.assertIn("C_REF", self.issues()[1])
+
     def test_shared_file_in_different_groups_is_rejected(self):
         rows = [ROWS[0], ROWS[1].replace("src/loan/renew.ts", "src/loan/renew.ts, src/loan/borrow.ts"), ROWS[2]]
         self.write_checklist(rows)

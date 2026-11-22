@@ -9,4 +9,4 @@
 | [deepseek-acp-session-new](./deepseek-acp-session-new/spec.md) | 在用 | 编辑器经 ACP 创建 DeepSeek 空会话 | 已保存会话的恢复与后续对话 |
 | [pipeline-self-evolution](./pipeline-self-evolution/spec.md) | 在用 | 运行证据、候选版本的评测、晋级与回滚 | 单次任务的开发与验收流程 |
 | [pipeline-skills](./pipeline-skills/spec.md)（管线 skill） | 在用 | 各 x-* skill 对使用者承诺的流程规则、产物格式和 xdev 命令 | 评测题目与打分（evals/）；旧 spec_version: 3 包的行为 |
-| engineering（工程） | 待建 | 构建、依赖、CI、部署脚本 | 任何使用者能看到的行为 |
+| engineering（工程） | 待建 | 构建、依赖、CI、部署脚本、对全项目都成立的架构约束 | 任何使用者能看到的行为 |

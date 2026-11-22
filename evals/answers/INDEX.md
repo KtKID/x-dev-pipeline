@@ -104,6 +104,7 @@
 
 - 规则：`skills/x-dev/references/parallel-dev.md`「工人的规则」
 - 题面：`evals/problems/dev-worker/`；答案：`evals/answers/dev-worker/expected.json`
+- 对应 spec：`docs/spec/pipeline-skills/spec.md` feat05（W01–W10）、feat10 场景3（W11、W12）
 
 | 用例 | 考的规则 | 正确判断 |
 |---|---|---|
@@ -116,6 +117,8 @@
 | W07 | 派工单内的文件 | 正常改 |
 | W08 | 多次失败原因不清 | 停下报回 |
 | W10 | 状态列只由主 agent 写 | 在回执里报状态 |
+| W11 | 只满足了约束、场景没做 | 把场景做完再报已完成 |
+| W12 | 读完约束、没读场景就动手 | 先读场景正文再动手 |
 
 ## 主 agent 下一步（dev-main）
 
@@ -162,22 +165,22 @@
 | D15 | 检查后又改了测试 | 重跑 xdev coverage 后重新派子 agent 检查 |
 | D16 | 原有测试红了，需求没改这块 | 查是不是自己改坏的，不删不跳过 |
 
-## 独立审查与架构偏好（review-route）
+## 独立审查与架构约束（review-route）
 
-- 规则：`skills/x-qa-gate/SKILL.md`、`skills/x-tech-design/SKILL.md` 第 2 步、`skills/x-tech-design/templates/architecture-preferences.md`
+- 规则：`skills/x-qa-gate/SKILL.md`、`skills/x-tech-design/SKILL.md` 第 2 步、`skills/x-explore-for-spec/templates/spec.md`「关键约束」、`spec-scope.md`
 - 题面：`evals/problems/review-route/`；答案：`evals/answers/review-route/expected.json`
 - 对应 spec：`docs/spec/pipeline-skills/spec.md` feat09、feat10
 
 | 用例 | 考的规则 | 正确判断 |
 |---|---|---|
 | R01–R04 | risk 决定派不派、做哪些 lens | Q0 不派；Q1 q1 q3 q4；Q2 四个；Q3 四个逐 lens 回执 |
-| R05 | 违反架构偏好 | q4-design P1 |
+| R05 | 违反“架构：”约束 | q4-design P1 |
 | R06 | 断言证明不了 THEN | q3-evidence P1 |
 | R07 | 已复现的错误结果 | q2-correctness P0 |
 | R08 | 机械项不重复 | 不做，xdev check 已核对 |
-| R09 | 设计和偏好冲突 | 单独问用户这一项 |
-| R10 | 没有偏好文件 | 不写，只记用户说过的偏好 |
-| R11 | 用户说了新偏好 | 写进架构偏好文件并注明来源 |
+| R09 | 设计和约束冲突 | 单独问用户这一项 |
+| R10 | 用户没说过 | 不写，只记用户说过的约束 |
+| R11 | 用户说了全项目的架构要求 | 写进 engineering spec 的关键约束并注明来源 |
 | R12 | 修复后关闭 issue | 不发回，用反例测试和 xdev check 关闭 |
 
 ## 测试真实性检查（test-integrity）

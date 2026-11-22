@@ -1,7 +1,7 @@
 ---
 name: x-qa-gate
 description: |
-  xdev check 通过后的独立审查。按 checklist 的 risk 派一个只读 reviewer，单轮穷尽检查需求对齐（q1-intent）、边界与失败路径（q2-correctness）、测试是否真的证明了场景（q3-evidence）、技术设计与架构偏好（q4-design）；Q3 用完整输入和逐 lens 回执。发现 P0/P1 后登记 issue 并交 x-fix 批量修复，主 agent 用反例测试、全量测试和 xdev check 关闭 issue。
+  xdev check 通过后的独立审查。按 checklist 的 risk 派一个只读 reviewer，单轮穷尽检查需求对齐（q1-intent）、边界与失败路径（q2-correctness）、测试是否真的证明了场景（q3-evidence）、技术设计与架构约束（q4-design）；Q3 用完整输入和逐 lens 回执。发现 P0/P1 后登记 issue 并交 x-fix 批量修复，主 agent 用反例测试、全量测试和 xdev check 关闭 issue。
 ---
 
 # x-qa-gate · 独立审查
@@ -22,19 +22,19 @@ description: |
 
 ## 四个 lens
 
-- **q1-intent**：实现是否对齐用户原始要求、已确认的场景和 C 约束、既有公开接口和声明的改动范围；有没有做了没要的、漏了要的。
+- **q1-intent**：实现是否对齐用户原始要求、已确认的场景和功能约束（“架构：”开头的约束归 q4-design）、既有公开接口和声明的改动范围；有没有做了没要的、漏了要的。只满足了约束、场景没做完，算漏了要的。
 - **q2-correctness**：非法输入、边界条件、失败路径、状态转换、缓存、并发、幂等和资源清理是否正确。
 - **q3-evidence**：用例对应表里的测试，测的内容是否对得上场景的 THEN 和 C 的禁止结果（有没有漏掉某个预期结果、测的是不是场景说的那件事）；人工验证记录是否有步骤和实际观察；覆盖率排除标记的理由是否成立；场景回指写 None 的行理由是否成立；测试真实性检查里“不采纳”的理由是否成立。测试代码本身有没有造假（重写生产逻辑、mock 掉被测对象、断言恒真等）已由 x-dev 的 [测试真实性检查](../x-dev/references/test-integrity.md) 做过，不重复。
-- **q4-design**：实现是否落实了 tech-design 的 D 机制和 [共用开发规范](../x-tech-design/references/development-rules.md) R1–R7，是否符合项目的 [架构偏好](../x-tech-design/templates/architecture-preferences.md) 文件（默认 `docs/architecture.md`，没有就跳过这一项）。核对方法按 [x-verify-tech](../x-verify-tech/SKILL.md) 第 1–2 节：先列约束，再对照代码；能跑的检查实际跑，语义判断写明文件、调用链和理由。
+- **q4-design**：实现是否落实了 tech-design 的 D 机制和 [共用开发规范](../x-tech-design/references/development-rules.md) R1–R7，是否符合架构约束（本 spec 和 `engineering` spec 关键约束里“架构：”开头的条目，没有就跳过这一项）。核对方法按 [x-verify-tech](../x-verify-tech/SKILL.md) 第 1–2 节：先列约束，再对照代码；能跑的检查实际跑，语义判断写明文件、调用链和理由。
 
 ## 输入
 
 | risk | reviewer 必读 |
 |---|---|
-| Q1 / Q2 | `git diff <代码基线>` + checklist（含「结果」）+ 被回指的场景与 C + 本轮 D + 架构偏好文件 + 用例对应表里的测试文件 |
+| Q1 / Q2 | `git diff <代码基线>` + checklist（含「结果」）+ 被回指的场景与 C + 本 spec 和 engineering spec 里所有“架构：”开头的约束 + 本轮 D + 用例对应表里的测试文件 |
 | Q3 | 以上全部 + spec 的影响边界与不变量 + tech-design 的建模覆盖 + `evidence/` 原始输出 |
 
-主 agent 给出文件路径、节名、`git diff --stat <代码基线>`、`git diff --name-only <代码基线>` 和按需 diff 命令。reviewer 按需读源代码与测试文件。
+reviewer 先读场景再读约束：场景是要做的事，约束只限制怎么做。主 agent 给出文件路径、节名、`git diff --stat <代码基线>`、`git diff --name-only <代码基线>` 和按需 diff 命令。reviewer 按需读源代码与测试文件。
 
 ## 调度纪律
 
@@ -50,7 +50,7 @@ reviewer 等待期间会重复计入主 agent 的上下文，按下面做保持�
 - reviewer 只读，只返回回执；改动统一走 x-fix。
 - 一轮穷尽检查后一次返回全部问题候选；每个 lens 声明“已检查范围内无其他 P0/P1”。
 - 每条候选固定字段：`lens`（q1-intent / q2-correctness / q3-evidence / q4-design）、`task`（可写 `T2,T3`）、`severity`（P0/P1/P2）、`loc`（`file:line`）、`msg`（单条问题）和证据。不写 issue 编号。
-- 严重度：**P0** 会让用户拿到错误结果、丢数据、越权或无法使用，必须有位置和可复现依据，证据不全就降为 P1；**P1** 需求或设计没落实、测试证明不了场景、违反架构偏好、边界或失败路径有确定缺陷；**P2** 不影响正确性的改进建议。P0 或未处置的 P1 使本轮不通过；P2 只登记。
+- 严重度：**P0** 会让用户拿到错误结果、丢数据、越权或无法使用，必须有位置和可复现依据，证据不全就降为 P1；**P1** 需求或设计没落实、测试证明不了场景、违反架构约束、边界或失败路径有确定缺陷；**P2** 不影响正确性的改进建议。P0 或未处置的 P1 使本轮不通过；P2 只登记。
 
 ## issue 登记
 

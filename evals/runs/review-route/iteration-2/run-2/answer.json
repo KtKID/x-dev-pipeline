@@ -1,0 +1,14 @@
+[
+  {"id": "R01", "answer": "不派 reviewer", "reason": "Q0 不派 reviewer，xdev check 通过即交付。"},
+  {"id": "R02", "answer": "q1 q3 q4", "reason": "Q1 是精简 reviewer，只做 q1-intent、q3-evidence、q4-design，不含 q2。"},
+  {"id": "R03", "answer": "q1 q2 q3 q4", "reason": "Q2 是精简 reviewer，四个 lens 全做。"},
+  {"id": "R04", "answer": "q1 q2 q3 q4 逐 lens 回执", "reason": "Q3 是完整 reviewer，四个 lens 全做，读完整输入并逐 lens 分段回执。"},
+  {"id": "R05", "answer": "q4-design P1", "reason": "架构约束归 q4-design；违反架构约束定为 P1，不会让用户拿到错误结果，所以不是 P0。"},
+  {"id": "R06", "answer": "q3-evidence P1", "reason": "测试没有断言场景的 THEN 结果，证明不了场景，归 q3-evidence，定为 P1。"},
+  {"id": "R07", "answer": "q2-correctness P0", "reason": "库存为 0 的边界条件出错，用户能借到不存在的书，有复现依据，属于 q2 边界问题且定为 P0。"},
+  {"id": "R08", "answer": "不做，xdev check 已核对", "reason": "用例对应、测试存在、覆盖率等机械项已由 xdev check 核对，reviewer 不重复。"},
+  {"id": "R09", "answer": "单独问用户这一项", "reason": "设计与架构约束冲突算需要用户拍板的取舍，要单独问用户，不能悄悄违反或改约束。"},
+  {"id": "R10", "answer": "不写，只记用户说过的约束", "reason": "约束只记用户说过并确认的内容，不从现有代码推测。"},
+  {"id": "R11", "answer": "写进 engineering spec 的关键约束并注明来源", "reason": "对整个项目都成立的架构要求写进 engineering 的关键约束，并注明来源是用户的话。"},
+  {"id": "R12", "answer": "不发回，用反例测试和 xdev check 关闭", "reason": "修复不发回原 reviewer，按反例测试、xdev coverage 和 xdev check 关闭 issue。"}
+]
