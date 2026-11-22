@@ -60,6 +60,8 @@ checklist 的约定（由 x-req 生成）：
 
    它会真的跑测试命令（日志存 `evidence/`），再读报告，算出“和代码基线相比改动过的代码行，有几行被测试跑到”。测试文件和文档不算。不到 100% 时它列出 `文件:行`，退出码 1：给这些行补测试（补的测试也要登记到用例对应表），再跑，直到 100%。报告里完全没有的改动文件也算没覆盖，通常是测试没加载它，或覆盖率范围没配到；没有覆盖率工具的语言（如 Shell）怎么处理见证据约定。确实跑不到的防御代码，用语言自带的排除标记（如 Python `# pragma: no cover`）并在「问题与处置」写一行 `文件路径:行 理由`（`xdev check` 按文件路径找这行）。各语言生成报告的命令见 [证据约定](references/test-reporting.md)。
 5. **Web 与界面**：涉及 Web 的任务，agent 亲自在浏览器操作实际功能，有问题就修复复验，通过后截图；其他界面改动打开最终版本截图。截图放 `evidence/`，做法见 [证据约定](references/test-reporting.md#web-与界面验收)。代码因此改了就重跑第 4 步。
+换了一个会话接着开发时，先按 [token 用量](references/test-reporting.md#token-用量) 用 `xdev usage start` 加一行。
+
 6. **交验收**：开发做完了，交 [x-verify-spec](../x-verify-spec/SKILL.md) 验收：它按 risk 决定要不要做一次功能检查（Q0 不做），再跑 `xdev check`，有问题交 x-fix，通过后把行升为 `[x] ✅`。多 agent 协作时只对合并后的整个 task 验收一次，见 [多 agent 协作开发](references/parallel-dev.md)。最后报告下一步（同 spec 的下一个 task，或全部完成）。
 
 ## 回执

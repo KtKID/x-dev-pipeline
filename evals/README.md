@@ -50,7 +50,7 @@ python3 evals/scripts/runs_summary.py spec-scope   # 一组题的全部轮次
 | dev-worker | 12 | 工人子 agent 遇到越界情况怎么做；约束只是任务的一部分 | `skills/x-dev/references/parallel-dev.md` |
 | dev-main | 14 | 主 agent 在多 agent 协作里的下一步 | `skills/x-dev/references/parallel-dev.md` |
 | td-confirm | 6 | tech-design 不需要用户确认，只有会改变结果的取舍单独问 | `skills/x-tech-design/SKILL.md`、`skills/x-req/SKILL.md` |
-| dev-delivery | 16 | 看到 xdev coverage / check / 功能检查的结果后下一步做什么；不再另写测试报告 | `skills/x-dev/SKILL.md`、`skills/x-dev/references/test-reporting.md`、`skills/x-qdev/SKILL.md`、`skills/x-verify-spec/` |
+| dev-delivery | 18 | 看到 xdev coverage / check / 功能检查的结果后下一步做什么；不再另写测试报告 | `skills/x-dev/SKILL.md`、`skills/x-dev/references/test-reporting.md`、`skills/x-qdev/SKILL.md`、`skills/x-verify-spec/` |
 | ask-spec | 12 | 需求讨论时会不会主动复述、追问，何时才写 spec，超过 5 个 feat 怎么分期 | `skills/x-ask-spec/SKILL.md` |
 | feature-check | 17 | 便宜的模型能不能凭清单识破功能漏做多做和假测试、又不误报 | `skills/x-verify-spec/references/feature-check.md` |
 | verify-route | 22 | 验收怎么走：哪种 risk 做功能检查、严重度、哪些交给定期巡检、回执存几份、修完怎么关闭；架构约束怎么处理 | `skills/x-verify-spec/`、`skills/x-tech-design/SKILL.md`、spec 模板「关键约束」 |

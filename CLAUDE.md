@@ -39,7 +39,7 @@ x-ask-spec → x-tech-design → x-req → x-dev ──────────�
 小改动：x-qdev 一个 agent 走完，同样用 xdev start / coverage，再交 x-verify-spec。
 ```
 
-- 能用脚本判断的都交给 `xdev`：结构与编号（validate）、需求变化（impact）、派工顺序（graph）、代码基线（start）、改动行覆盖率 100%（coverage）、交付核对（check，也读功能检查回执）。agent 只做脚本判断不了的事。
+- 能用脚本判断的都交给 `xdev`：结构与编号（validate）、需求变化（impact）、派工顺序（graph）、代码基线（start）、改动行覆盖率 100%（coverage）、交付核对（check，也读功能检查回执）、token 用量（usage，从本机会话记录算，记进 spec「用量」表）。agent 只做脚本判断不了的事。
 - 开发后只验收一次（x-verify-spec），查过的不再查：检查范围只到任务文档和本轮 spec、tech-design：功能检查由一个便宜的子 agent 查本轮场景、约束（含用户当场定的“架构：”约束）和设计 D 做到没有、测试是不是真的、有没有测到场景的预期结果（Q0 不做）；`xdev check` 只做机械核对。全项目的约束（engineering）、开发规范、代码规范、死代码、性能不在每个任务里查，交给定期巡检。
 - `cli/` 下的 Go 版本保留不删：计划以后做成“agent 调一个命令就能初始化这套管线、安装必需 skill”的工具，目前暂停维护，行为停在旧引擎，skill 不调用它。
 - x-plan 已废弃，功能合并到 x-req。
@@ -58,7 +58,7 @@ x-ask-spec → x-tech-design → x-req → x-dev ──────────�
 | qdev 唯一停点（spec 增量给用户确认）与执行授权 | `skills/x-qdev/SKILL.md` 第 1 节 |
 | 并行组、依赖、risk Q0–Q3 怎么算 | `skills/x-req/SKILL.md`，`xdev validate` 核对 |
 | 多 agent 协作：派工单、工人规则、每组核对、合并 | `skills/x-dev/references/parallel-dev.md` |
-| 结果与证据写在哪、覆盖率怎么跑、Web 验收 | `skills/x-dev/references/test-reporting.md` |
+| 结果与证据写在哪、覆盖率怎么跑、Web 验收、token 用量怎么记 | `skills/x-dev/references/test-reporting.md` |
 | 测试是硬规则（全量全绿、改动行 100%，开发者自己跑） | `skills/x-dev/SKILL.md`「测试是硬规则」 |
 | 交付核对的每条规则 | `skills/x-dev/scripts/delivery.py`（说明见 `skills/x-verify-spec/SKILL.md`） |
 | 验收：功能检查（查什么、派工单、回执、严重度 P0/P1/P2）、问题去向、回流关闭 | `skills/x-verify-spec/SKILL.md`、`skills/x-verify-spec/references/feature-check.md` |

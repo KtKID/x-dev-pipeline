@@ -11,6 +11,8 @@ description: 用户提出新增功能或调整现有行为、想讨论产品取�
 
 ## 1. 先看现状
 
+先运行 `date -u +%Y-%m-%dT%H:%M:%SZ` 记下开始时间，这一期的 token 用量从这里算起（见 [token 用量](../x-dev/references/test-reporting.md#token-用量)）。
+
 读用户的要求、`docs/spec/README.md` 边界表和相关 spec、相关代码或界面，弄清现在实际怎么做、已经定过什么。代码和已有 spec 能回答的，不拿去问用户。
 
 ## 2. 苏格拉底式讨论：agent 主动问，直到没有疑问
@@ -53,6 +55,8 @@ description: 用户提出新增功能或调整现有行为、想讨论产品取�
 讨论结论落盘的规则：
 
 **先定归属。** 按 [spec 范围](references/spec-scope.md) 逐条场景问“变化的是谁的数据”，得出每条场景的去处（加到已有 / 新建 / 只记变更 / 问用户）。写入前在对话里列出归属表（spec、去处、场景），和这批 spec 增量一起给用户确认。
+
+spec 写好后，运行 `xdev usage start <spec.md> --phase "<N 期>" --what "<功能>：讨论到验收" --since <第 1 节记下的时间>` 在「用量」表加一行。
 
 **新建**用 [spec 模板](templates/spec.md)；**已有文档**先读全文，定位相应 feat、场景和约束，再局部修改：
 

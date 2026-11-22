@@ -7,6 +7,8 @@
 
 ### 步骤 1：理解 Bug
 
+修的是某份 spec 里的功能时，先按 [token 用量](../../x-dev/references/test-reporting.md#token-用量) 运行 `xdev usage start <spec.md> --phase "<这个功能的期次>" --what "修 bug：<一句话>"`，交付时运行 `xdev usage fill <spec.md>`。
+
 从用户描述中提炼：
 - 问题现象（用户实际看到了什么）
 - 复现步骤（如有）

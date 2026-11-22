@@ -7,3 +7,4 @@
 | iteration | 结果 | 发生了什么 |
 |---|---|---|
 | 1 | 12/12 ×2 | 首次运行，为 pipeline-skills feat12 补的验收题 |
+| 2 | 12/12 ×2 | x-ask-spec 开始讨论前记时间、写好 spec 后 xdev usage start 后复跑 |

@@ -5,6 +5,7 @@
 
 - checklist_engine.py（x-req）：当前格式 task 的 scaffold/validate/status/graph/impact/baseline
 - delivery.py（x-dev）：开发与交付的 start/coverage/check（代码基线、改动行覆盖率、交付机械核对，含功能检查回执）
+- usage.py（x-dev）：token 用量，记进 spec 的「用量」表
 - req.py（x-req）：只服务父 spec 声明 spec_version: 3 的旧契约包
 - validator.py（x-ask-spec）：旧 spec/change 包校验
 - verify.py（x-verify-spec）：只服务旧契约包的 dev-report verify 块
@@ -66,6 +67,7 @@ def _engine(module_name: str, skill_name: str):
 req = _engine("req", "x-req")
 checklist = _engine("checklist_engine", "x-req")
 delivery = _engine("delivery", "x-dev")
+usage = _engine("usage", "x-dev")
 validator = _engine("validator", "x-ask-spec")
 verify_engine = _engine("verify", "x-verify-spec")
 
@@ -197,6 +199,20 @@ def _build_parser() -> argparse.ArgumentParser:
     chk.add_argument("target", help="task 目录，或 qdev 的 task .md")
     chk.add_argument("--json", action="store_true", dest="as_json")
 
+    use = sub.add_parser("usage", help="token 用量：记开始、收尾填数、按期次合计（只读本机会话记录）")
+    use_sub = use.add_subparsers(dest="action")
+    use_start = use_sub.add_parser("start", help="在 spec 的「用量」表追加一行：期次、开始时间、做了什么、本会话编号")
+    use_start.add_argument("spec", help="docs/spec/<spec>/spec.md")
+    use_start.add_argument("--phase", required=True, help="期次，如“1 期”")
+    use_start.add_argument("--what", required=True, help="做了什么，如“续借：讨论到验收”“修 bug：续借时区”")
+    use_start.add_argument("--since", help="开始时间（UTC ISO）；不填就是现在")
+    use_start.add_argument("--session", action="append", default=[], help="本会话的记录文件；不填就按当前目录找最新的")
+    use_fill = use_sub.add_parser("fill", help="把「用量」表里还空着的行算出来填上")
+    use_fill.add_argument("spec", help="docs/spec/<spec>/spec.md")
+    use_fill.add_argument("--session", action="append", default=[], help="额外的会话记录文件（可多次）")
+    use_sum = use_sub.add_parser("sum", help="按期次和工具打印合计")
+    use_sum.add_argument("spec", help="docs/spec/<spec>/spec.md")
+
     return parser
 
 
@@ -299,6 +315,11 @@ def main(argv: list[str] | None = None) -> int:
         except delivery.UsageError as e:
             print(f"错误：{e}", file=sys.stderr)
             return 2
+    if args.cmd == "usage":
+        if not args.action:
+            print("用法：xdev usage start|fill|sum <spec.md>", file=sys.stderr)
+            return 2
+        return usage.main(args)
     if args.cmd == "verify":
         if checklist.handles(Path(args.task_dir)):
             print(

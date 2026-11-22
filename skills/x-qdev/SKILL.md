@@ -12,6 +12,8 @@ description: |
 
 ## 默认协作方式：spec 确认一次，之后连续执行
 
+开始前运行 `date -u +%Y-%m-%dT%H:%M:%SZ` 记下时间；第 2 节写好 spec 增量、给用户看之前，用 `xdev usage start` 加一行（`--since` 填这个时间），验收时 x-verify-spec 会填数字，见 [token 用量](../x-dev/references/test-reporting.md#token-用量)。只记变更、不写场景的改动不记。
+
 qdev 只有一个停点：第 2 节写完 spec 增量后，展示给用户确认。用户确认后，技术设计、用例、实现、自检和公共验收由 agent 连续完成，中途不再停。只记变更、不写场景的改动不停（哪些情况算只记变更见 spec 范围规则第 6–8 步），用 1–3 句话告知改法后直接执行。
 
 用户本轮明确的任务要求就是该范围内的需求依据和执行授权；已有明确结论直接沿用，普通实现选择由 agent 决定并记录。转入完整主线后，x-tech-design 与 x-req 按各自的交接规则执行（tech-design 不需要用户确认）。

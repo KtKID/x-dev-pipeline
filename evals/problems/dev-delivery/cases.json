@@ -41,7 +41,7 @@
   },
   {
     "id": "D11",
-    "situation": "qdev 任务：spec 增量已经用户确认，准备开始写测试和实现，还没运行过任何 xdev 命令。"
+    "situation": "qdev 任务：spec 增量已经用户确认，用量表也已经加过一行，准备开始写测试和实现，还没运行过 xdev start。"
   },
   {
     "id": "D12",
@@ -62,5 +62,13 @@
   {
     "id": "D16",
     "situation": "实现完后跑全量测试，项目原有的 tests/test_report.py::test_monthly_total 红了。本 task 的 spec 和 tech-design 都没有改这个月度汇总的行为。agent 在想要不要先把这个测试标成 skip，好让覆盖率先跑出来。"
+  },
+  {
+    "id": "D17",
+    "situation": "x-verify-spec 验收通过：行已升 ✅，头部状态改为已完成，spec 里本轮 feat 已改为已验收，P2 已登记。"
+  },
+  {
+    "id": "D18",
+    "situation": "task-renew 昨天在另一个会话里开发了一半，今天新开了一个会话接着开发，还没开始写代码。"
   }
 ]

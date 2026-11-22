@@ -162,6 +162,8 @@
 | D10 D12 D13 | 开发做完（Q2 / qdev 没写场景 / qdev 写了场景） | 交 x-verify-spec 验收 |
 | D11 | qdev 开工 | 运行 xdev start 记代码基线 |
 | D14 | 功能检查有 P1 | 交 x-fix 修，修完重跑 coverage 再重做功能检查 |
+| D17 | 验收通过后 | 运行 xdev usage fill 填这一期的用量 |
+| D18 | 换会话接着开发 | 先运行 xdev usage start 在用量表加一行 |
 | D15 | 检查后又改了测试 | 重跑 xdev coverage 后重做功能检查 |
 | D16 | 原有测试红了，需求没改这块 | 查是不是自己改坏的，不删不跳过 |
 

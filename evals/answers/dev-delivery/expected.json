@@ -17,5 +17,7 @@
   "D13": "交 x-verify-spec 验收",
   "D14": "交 x-fix 修，修完重跑 coverage 再重做功能检查",
   "D15": "重跑 xdev coverage 后重做功能检查",
-  "D16": "查是不是自己改坏的，不删不跳过"
+  "D16": "查是不是自己改坏的，不删不跳过",
+  "D17": "运行 xdev usage fill 填这一期的用量",
+  "D18": "先运行 xdev usage start 在用量表加一行"
 }

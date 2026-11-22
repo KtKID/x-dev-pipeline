@@ -1,0 +1,123 @@
+{
+  "eval": "dev-delivery",
+  "score": 17,
+  "total": 18,
+  "cases_passed": 17,
+  "cases": 18,
+  "rows": [
+    {
+      "id": "D01",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率 91% 且 renew.py 有未覆盖行，要补测试跑到这些行，再重跑直到 100%。"
+    },
+    {
+      "id": "D02",
+      "ok": true,
+      "wrong": [],
+      "reason": "新写的测试红了而原有测试是绿的，是测试写错，修测试并在问题与处置记原因后重跑。"
+    },
+    {
+      "id": "D03",
+      "ok": true,
+      "wrong": [],
+      "reason": "fine.py 没有任何测试调用，报告里没有它；要补测试让它被加载并跑到。"
+    },
+    {
+      "id": "D04",
+      "ok": true,
+      "wrong": [],
+      "reason": "新加的 pragma no cover 排除标记必须在问题与处置写 文件路径:行 和理由，xdev check 才放行。"
+    },
+    {
+      "id": "D05",
+      "ok": true,
+      "wrong": [],
+      "reason": "覆盖率跑完后代码又改了，记录过期（COVERAGE_STALE），重跑覆盖率即可。"
+    },
+    {
+      "id": "D06",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 场景改了，报 SPEC_CHANGED，要先按需求变化同步 D、T、任务行和测试，再记基线。"
+    },
+    {
+      "id": "D07",
+      "ok": true,
+      "wrong": [],
+      "reason": "T4 还没有测试，先写测试并在用例对应表登记这个用例。"
+    },
+    {
+      "id": "D08",
+      "ok": true,
+      "wrong": [],
+      "reason": "只能人工验证的用例，要在证据目录写 manual 记录（步骤和实际看到的结果），结果记人工通过。"
+    },
+    {
+      "id": "D09",
+      "ok": true,
+      "wrong": [],
+      "reason": "验收已通过，下一步把行升为 ✅、头部状态改为已完成，并同步 spec 的 feat 状态。"
+    },
+    {
+      "id": "D10",
+      "ok": true,
+      "wrong": [],
+      "reason": "全部行 🟢、覆盖率 100%，风险是 Q2 不是 Q0，需要做功能检查，交 x-verify-spec 验收。"
+    },
+    {
+      "id": "D11",
+      "ok": false,
+      "wrong": [
+        {
+          "field": "action",
+          "expected": "运行 xdev start 记代码基线",
+          "got": "先运行 xdev usage start 在用量表加一行"
+        }
+      ],
+      "reason": "qdev 在 spec 增量写好后先用 xdev usage start 记一行，还没运行过任何 xdev 命令，所以先做这一步，再运行 xdev start。"
+    },
+    {
+      "id": "D12",
+      "ok": true,
+      "wrong": [],
+      "reason": "只记变更没写场景，覆盖率已 100%，跳过功能检查，直接交 x-verify-spec 做 xdev check 验收。"
+    },
+    {
+      "id": "D13",
+      "ok": true,
+      "wrong": [],
+      "reason": "新增了场景，覆盖率已 100%，交 x-verify-spec 验收，由它派功能检查并跑 xdev check。"
+    },
+    {
+      "id": "D14",
+      "ok": true,
+      "wrong": [],
+      "reason": "功能检查不通过的 P1 要交 x-fix 修复（第 1 轮）；修完重跑覆盖率，代码改过就重做功能检查。"
+    },
+    {
+      "id": "D15",
+      "ok": true,
+      "wrong": [],
+      "reason": "回执之后测试文件改过，覆盖率记录过期，要重跑覆盖率，并因代码或测试改过重做功能检查。"
+    },
+    {
+      "id": "D16",
+      "ok": true,
+      "wrong": [],
+      "reason": "原有测试红了，不能 skip 或删除，先查是不是自己改坏的；需求没变，所以应先排查实现。"
+    },
+    {
+      "id": "D17",
+      "ok": true,
+      "wrong": [],
+      "reason": "验收通过且行、头部、spec 状态都已升级，收尾最后一步是运行 xdev usage fill 填用量。"
+    },
+    {
+      "id": "D18",
+      "ok": true,
+      "wrong": [],
+      "reason": "换了会话接着开发，按 x-dev 规则先用 xdev usage start 加一行，再开始写代码。"
+    }
+  ]
+}
