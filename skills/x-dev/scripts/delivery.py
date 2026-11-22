@@ -586,7 +586,7 @@ def check_feature(t: Target, out: list[dict]) -> None:
     if verdict == "不通过" and not blocking:
         open_items = ["（结论不通过，但没列出 P0/P1）"]
     if open_items:
-        problem(out, "FEATURE_CHECK_OPEN", "功能检查的 P0/P1 还没修，也没写不采纳理由：" + "、".join(open_items) + "（交 x-fix）")
+        problem(out, "FEATURE_CHECK_OPEN", "当前回执里还有 P0/P1：" + "、".join(open_items) + "。没修就交 x-fix；修好了要重做功能检查，新回执里没有它才关闭；认为报错了就写不采纳理由")
     record = t.evidence / RECORD
     if record.is_file():
         finished = json.loads(record.read_text(encoding="utf-8")).get("finished_at")

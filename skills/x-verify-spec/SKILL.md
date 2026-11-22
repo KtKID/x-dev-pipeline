@@ -49,8 +49,8 @@ description: |
      - 只加了变更记录、没动任何场景和约束，记录写“未写场景，无需确认” → 核对通过。
    - spec 增量确实写进了所属 spec，场景原文和①一致。
    - changelog 和 task 互相有链接；①写的“修改前定位”能找到旧内容。
-5. **有问题就修**：问题去向见下一节。需要改代码或测试的，一次交 x-fix 批量修完，按 [x-fix 验收回流模式](../x-fix/references/verify-fix-mode.md) 走。x-fix 交回时已重跑 `xdev coverage`；代码或测试改过，主 agent 就重做第 2 步，再跑第 3 步。最多 3 轮（常规 task 是 `reports/.fix-counter`，qdev 是 `<task>-evidence/.fix-counter`），3 轮还不过由 x-fix 写 `fix-blocked-report.md`，主 agent 停下告诉用户卡在哪。
-6. **通过**：`xdev check` 通过，功能检查（要做时）通过或只剩 P2。常规 task：主 agent 把行升为 `[x] ✅`，头部状态改为已完成；qdev：⑤的交付状态写验收通过。修复计数器存在时写回 0。P2 在「问题与处置」各记一行登记。多 agent 协作时只对合并后的整个 task 验收一次，见 [多 agent 协作开发](../x-dev/references/parallel-dev.md)。
+5. **有问题就修**：问题去向见下一节。需要改代码或测试的，一次交 x-fix 批量修完，按 [x-fix 验收回流模式](../x-fix/references/verify-fix-mode.md) 走。x-fix 交回时已重跑 `xdev coverage`；代码或测试改过，主 agent 就重做第 2 步，再跑第 3 步。最多 3 轮，轮数记在「问题与处置」的 `x-fix 第 N 轮` 行；3 轮还不过，x-fix 记一行 `x-fix 卡住`，主 agent 停下告诉用户卡在哪。
+6. **通过**：`xdev check` 通过，功能检查（要做时）通过或只剩 P2。常规 task：主 agent 把行升为 `[x] ✅`，头部状态改为已完成；qdev：⑤的交付状态写验收通过。再把 spec 里本轮 feat 的状态改为“已验收”，变更记录里本轮那一行的状态也改为“已验收（<日期> 验收通过）”。P2 在「问题与处置」各记一行登记。多 agent 协作时只对合并后的整个 task 验收一次，见 [多 agent 协作开发](../x-dev/references/parallel-dev.md)。
 
 ## 问题去向
 

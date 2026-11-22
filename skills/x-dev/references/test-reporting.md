@@ -20,7 +20,7 @@ x-dev、x-qdev、x-fix 共用。交付只看一份文件：常规 task 是 `dev-
 
 `xdev coverage` 只管“本次改动的代码行”：和「代码基线」（`xdev start` 记下的 commit）相比，新增或改过的代码行，加上还没提交的新文件。测试文件、`docs/`、`evals/`、`reports/` 和非代码文件（md、json、yaml 等）不算。要求 100%，不到就补测试。
 
-它做三件事：真的运行 `--cmd` 给的测试命令（日志存 `evidence/test-run-N.log`），读 `--report` 给的覆盖率报告，把结果写进 `evidence/coverage.json` 和「结果」的覆盖率一行。`xdev check` 只认用 `--cmd` 跑出来、测试通过、跑完之后代码没再改的记录。
+它做三件事：真的运行 `--cmd` 给的测试命令（第 N 条命令的日志存 `evidence/test-run-N.log`，重跑时覆盖，只留最新一次），读 `--report` 给的覆盖率报告，把结果写进 `evidence/coverage.json` 和「结果」的覆盖率一行。`xdev check` 只认用 `--cmd` 跑出来、测试通过、跑完之后代码没再改的记录。
 
 覆盖率到 100% 只说明代码被跑到了，不说明测试真的在测。这一点由验收时的 [功能检查](../../x-verify-spec/references/feature-check.md) 查一次，回执存为证据目录里的 `feature-check.md`，`xdev check` 会读它。
 

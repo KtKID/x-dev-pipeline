@@ -9,7 +9,7 @@
 | `[ ] 🟡` | 待验证 | 实现完成，等待验证（多 agent 协作时工人交回、还没合并） |
 | `[!] 🔴` | 开发中失败 | 开发负责方修好后恢复 |
 | `[x] 🟢` | 测试通过 | 用例对应表已登记；等待 x-verify-spec 验收 |
-| `[x] ✅` | 已完成 | 主 agent 在 x-verify-spec 验收通过后升级，同时把 `reports/.fix-counter` 写回 0（存在时） |
+| `[x] ✅` | 已完成 | 主 agent 在 x-verify-spec 验收通过后升级 |
 | `[ ] ↗️` | 已升级 | 超出本 task 范围（如 qdev 转主线、某组 3 轮核对不过、验收 3 轮修复不过）交给用户或主线 |
 
 `xdev status` 与 `xdev graph` 以 emoji 判定状态。多 agent 协作时，状态列只由主 agent 写，见 [多 agent 协作开发](parallel-dev.md)。每次变更状态立即回写 checklist；结果与证据按 [证据约定](test-reporting.md) 写在 checklist 的「结果」节和 `evidence/`。

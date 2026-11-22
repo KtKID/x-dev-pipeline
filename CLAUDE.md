@@ -20,7 +20,7 @@ x-dev-pipeline/
 │   └── tasks/<task>/                  # 当前 task
 │       ├── dev-checklist.md           # 唯一交付文件：任务表 + 末尾「结果」（用例对应、覆盖率、问题与处置）
 │       ├── evidence/                  # 原始输出：测试日志、coverage.json、截图、人工验证记录、功能检查回执
-│       └── reports/                   # .fix-counter、cr 报告
+│       └── reports/                   # cr 报告（task 内 CR）
 ├── dev-pipeline/tasks/                # 历史 task 档案；工具不再识别、校验或编排
 ├── skills/x-dev/scripts/xdev.py       # 薄 CLI 路由器；delivery.py 做 start/coverage/check
 ├── skills/x-req/scripts/              # checklist_engine.py（当前格式）、req.py（旧 v3 包）
@@ -62,7 +62,7 @@ x-ask-spec → x-tech-design → x-req → x-dev ──────────�
 | 测试是硬规则（全量全绿、改动行 100%，开发者自己跑） | `skills/x-dev/SKILL.md`「测试是硬规则」 |
 | 交付核对的每条规则 | `skills/x-dev/scripts/delivery.py`（说明见 `skills/x-verify-spec/SKILL.md`） |
 | 验收：功能检查（查什么、派工单、回执、严重度 P0/P1/P2）、问题去向、回流关闭 | `skills/x-verify-spec/SKILL.md`、`skills/x-verify-spec/references/feature-check.md` |
-| 批量修复、`.fix-counter` 3 轮上限、处置记录 | `skills/x-fix/SKILL.md` |
+| 批量修复、3 轮上限（轮数记在「问题与处置」）、处置记录 | `skills/x-fix/SKILL.md` |
 | 状态码与写权 | `skills/x-dev/references/execution-rules.md` |
 | 用户约束怎么写（含“架构：”开头的架构约束、全项目的放 engineering）、约束只是任务的一部分 | `skills/x-ask-spec/templates/spec.md`「关键约束」、`spec-scope.md` |
 | 风险错题集边界 | `skills/x-adversarial-risk/references/risk-mistakes.md`（只由 x-adversarial-risk 读取） |

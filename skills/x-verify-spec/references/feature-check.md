@@ -13,7 +13,7 @@ x-dev、x-qdev 都用。多 agent 协作时，全部合并后对整个 task 做�
 
 1. 开发阶段做完以后：全部行 `[x] 🟢`，`xdev coverage` 通过（全量测试全绿、改动行覆盖率 100%），Web 验收做完。然后做功能检查，再跑 `xdev check`。
 2. **不做**：checklist 头部 `risk: Q0`；qdev 只记了变更、没写场景（①写着“未写场景，无需确认”）。`xdev check` 也不要求回执。
-3. **重做**：之后代码或测试改过（修问题、补测试、需求变化同步后改了实现），就要先重跑 `xdev coverage`，再重做功能检查。`xdev check` 发现回执比最后一次覆盖率记录旧，就报 FEATURE_CHECK_STALE。重做时把上一份回执和修复的 diff 一起给子 agent，它重点查改动部分，并确认上一份回执里的每个问题都已解决。
+3. **重做**：之后代码或测试改过（修问题、补测试、需求变化同步后改了实现），就要先重跑 `xdev coverage`，再重做功能检查。`xdev check` 发现回执比最后一次覆盖率记录旧，就报 FEATURE_CHECK_STALE。重做就是按同一份派工单整份再查一遍；另附上一份回执，只用来接着编号、确认上次的问题都没了。先派工，等新回执回来再覆盖旧回执。
 
 ## 派谁
 
@@ -35,7 +35,7 @@ task：<task 名>
 代码改动：在 <仓库根目录> 运行 git diff <代码基线> 和 git status --short
 要检查的测试文件：<照抄 xdev check 报 FEATURE_CHECK / FEATURE_CHECK_STALE 时列出的完整清单，清单是“无”就写“无”>
 人工验证记录：<证据目录下的 manual-*.md 路径，没有就写“无”>
-上一份回执和修复 diff：<重做时填，第一次写“无”>
+上一份回执：<重做时填它的路径，第一次写“无”>
 ```
 
 要检查哪些测试文件以 `xdev check` 为准：没有回执、回执没列全或过期时，它都会列出完整清单，派工单照抄。算不算测试文件按路径判断：路径里有 `tests/`、`test/`、`__tests__/`、`spec/`、`fixtures/`、`testdata/`，或文件名形如 `test_*`、`*_test.*`、`*.test.*`、`*.spec.*`、`conftest.py`，并且是代码文件。
@@ -114,5 +114,5 @@ task：<task 名>
 ## 主 agent 怎么处理
 
 - **通过**：回执存好，P2 在「问题与处置」各记一行 `issue-N · P2 · 📝 登记，不修`，然后跑 `xdev check`。
-- **不通过**：把回执里的 P0、P1 按编号交 x-fix 一次修完（见 [x-fix 交付回流模式](../../x-fix/references/verify-fix-mode.md)）。x-fix 修完已重跑 `xdev coverage`，主 agent 再按「什么时候做」第 3 条重做功能检查，最后跑 `xdev check`。批量修复最多 3 轮，3 轮还不过由 x-fix 写 `fix-blocked-report.md`，主 agent 停下告诉用户卡在哪。
+- **不通过**：把回执里的 P0、P1 按编号交 x-fix 一次修完（见 [x-fix 验收回流模式](../../x-fix/references/verify-fix-mode.md)）。x-fix 修完已重跑 `xdev coverage`，主 agent 再按「什么时候做」第 3 条重做功能检查，最后跑 `xdev check`。批量修复最多 3 轮，轮数和卡住时的情况都记在「问题与处置」（见 x-fix「修复轮数」），主 agent 停下告诉用户卡在哪。
 - **认为某条报错了**：不修，在「问题与处置」写一行 `功能检查 · issue-N · 不采纳：<理由>`，编号和回执里的一致。回执里每条 P0、P1 都已经修好（新回执里没有了）或写了不采纳理由，`xdev check` 才放行。不采纳没有第二个人复核，所以要格外慎重。

@@ -120,18 +120,13 @@ x-fix 同时接收 bug 报告、cr-report，以及验收（x-verify-spec）的�
 
 其后列出每条的聚焦反例测试和 `xdev coverage` 的结果，以及退回主 agent 的条目（编号、原因、应交给谁）。
 
-### fix-attempts 3 轮共享上限
+### 3 轮上限
 
-**fix-counter 文件协议**（验收阶段共用；`xdev check` 只读不写）：
+**修复轮数**（验收阶段共用）记在 checklist「问题与处置」（qdev 为⑤的同名节），不另建文件：
 
-- 路径：`docs/spec/<spec>/tasks/<task>/reports/.fix-counter`（qdev 单文档用 `tasks/<task>-evidence/.fix-counter`；历史 task 在原位置）
-- 格式：单行 ASCII 整数 + 行尾换行（如 `2\n`）
-- 语义：**批量修轮数**（一轮 = 一份 issue 清单的整体修复），不按问题条数计
-- 读取：`c=$(cat reports/.fix-counter)`；不存在则视为 0
-- 递增（x-fix 的责任）：进入本轮批量修前 `echo $((c+1)) > reports/.fix-counter`（先 +1 再修，避免崩溃后死循环）
-- counter >= 3 → 不进 fix，直接生成 `reports/fix-blocked-report.md` 列出积压问题，要求用户决策（继续 / 修改需求 / 放弃）
-- 重置：主 agent 在 x-verify-spec 验收通过、行升 ✅ 时写回 0：`echo 0 > reports/.fix-counter`
-- 多 agent 协作时，各并行组开发阶段的核对轮数另计（见 `skills/x-dev/references/parallel-dev.md`），不写这个文件
+- 一轮 = 一份问题清单的整体修复，不按问题条数计。x-fix 开始修之前先写一行 `x-fix 第 N 轮：<本轮问题编号>`，N 接着往下数（先记再修，修到一半中断也算一轮）。
+- 已有 3 行 `x-fix 第 N 轮` 时不再修，写一行 `x-fix 卡住：<积压问题编号和原因>，等用户决定（继续 / 改需求 / 放弃）`，交回主 agent。
+- 多 agent 协作时，各并行组开发阶段的核对轮数另计（见 `skills/x-dev/references/parallel-dev.md`），不写这里。
 
 ### 处置记录
 
