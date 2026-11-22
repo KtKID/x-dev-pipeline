@@ -16,9 +16,15 @@ evals/
 │   └── iteration-N/run-M/
 │       ├── answer.json       # 答题 agent 交的答案
 │       └── grading.json      # 评分脚本当时打的分（逐题对错、错在哪个字段、答题理由）
-├── scripts/                  # 评分、汇总和准备脚本
-└── x-pipeline-efficiency-workspace/   # 旧链路的 token 效率实验（见文末）
+└── scripts/                  # 评分和汇总脚本
 ```
+
+## 新题和老题
+
+- 规则改了就写新题：新行为出新题，原来那组题跟着改写或换成新的一组；不为了保留老分数而留着过时的题。
+- 不再跑的老题直接删掉，题面、答案、评分脚本和题目用到的项目文件一起删，不留“历史参考”。
+- 运行记录只留最近一周的：一周以前的 `runs/<eval>/iteration-*` 和其他评测报告删掉；`HISTORY.md` 保留，里面一行一轮的摘要就是历史。
+- 想找回删掉的东西，看 git 历史。
 
 ## 怎么查看结果
 
@@ -72,37 +78,6 @@ python3 evals/scripts/runs_summary.py spec-scope   # 一组题的全部轮次
 
 评分是确定性的：答案按集合比较，新建 spec 或新增 D/T 的名字不限，只要不和已有编号重名。
 
-## 实现类评测
-
-### x-dev 交付冒烟测试
-
-每次修改 `skills/x-dev/` 后跑一遍「待办清单只看已完成」。任务只执行 x-dev 阶段。独立执行器读取公开题面和当前工作区的 x-dev，评分脚本留在执行目录外。
-
-环境需有可登录的 Codex CLI、Python 3、Node.js、可由 `require('playwright')` 加载的 Playwright 及其 Chromium。Playwright 已装在其他目录时，用 `NODE_PATH` 指向对应 `node_modules`。
-
-```bash
-bash evals/scripts/run_x_dev_receipt.sh
-```
-
-结果在命令打印的 `evals/x-dev-receipt-runs/run-…/` 中。先看 `receipt.md` 和其中的截图，再看 `grading.json`。评分脚本独立在浏览器操作筛选和恢复，并核对回执中的文件、函数名和截图附件。说明是否通俗、截图是否拍到对应状态由人对照回执检查。
-
-CLI 无法连接时，可用同一命令加 `--prepare-only` 生成并校验独立输入。让无历史上下文的执行器在生成的 `workspace/` 中按 `PROMPT.md` 完成任务，把它的原始最终回复存为 run 目录下的 `receipt.md`，再执行 `node evals/answers/x-dev-receipt/grade.cjs <run-dir>`。
-
-### 其他实现题
-
-`evals.json` 里的 voice-chain-end-to-end（完整管线端到端实现语音链路）、journal-index-recovery（本地日志恢复）、ledger-audit（CSV 流水审计）是不绑定单个 skill 的实现题，题面在 `problems/<eval>/PROMPT.md`，评分在 `answers/<eval>/`。
-
-⚠️ voice-chain-end-to-end 的评分（`answers/voice-chain-end-to-end/evaluate.py` 的 `verify_evidence`）和 `skills/pipeline-efficiency-benchmark/assets/executor-tools/` 里的工具包还停在旧链路：要求 dev-report 和 `xdev verify`。现行流程（checklist「结果」+ `xdev check`）下跑它会误判，先刷新工具包并把这一项改成 `xdev check` 再用。
-
-### DeepSeek Harness ACP 配对评测
-
-使用同一份真实 Harness 源码和 [ACP 题面](problems/deepseek-acp/PROMPT.md)，对比冻结版与当前 pipeline。考生在干净工作区实现 ACP 服务；评审独立验收运行行为、阶段交接和 Token。准备命令、评分与预算见 [操作协议](answers/deepseek-acp/BENCHMARK.md)（评审侧）。
-
-
 ## x-cr 评测记录
 
 `runs/x-cr/iteration-1/` 是 x-cr 四组评测的一次 dry-run 记录，汇总在其中的 `summary.md`。题目在 `skills/x-cr/evals/evals.json`。
-
-## 旧链路的 token 效率实验
-
-`x-pipeline-efficiency-workspace/` 是 `skills/pipeline-efficiency-benchmark` 的结果目录，记录的是旧链路（x-spec3 → x-req3 → x-dev → x-verify）在 voice-chain 题上的 token 优化实验，入口见其中的 `README.md` 和 `final-report.md`。被测的旧 skill 已经不在 `skills/` 里，这些结果只作历史参考。

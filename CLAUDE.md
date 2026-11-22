@@ -108,7 +108,7 @@ claude plugin install x-dev-pipeline@x-dev-pipeline --scope user
 ./install-codex.ps1
 ```
 
-确定性工具测试位于 `test/`、`cli/` 及相应 skill 的 `tests/`。技能行为通过隔离任务验证；修改 `skills/x-dev/` 时按 `evals/README.md` 执行交付冒烟测试。
+确定性工具测试位于 `test/`、`cli/` 及相应 skill 的 `tests/`。技能行为用 `evals/` 下的判题评测验证：改了哪份规则，就跑对应那组题，跑法和新题老题的规矩见 `evals/README.md`。
 
 ## 历史改造记录
 
