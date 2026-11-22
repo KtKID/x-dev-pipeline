@@ -48,7 +48,7 @@ BARE_SCENE_RE = re.compile(r"^场景(?P<a>\d+)(?:\s*[-~]\s*(?P<b>\d+))?$")
 CASE_REF_RE = re.compile(r"用例\s*((?:T\d+(?:\s*[–~-]\s*T?\d+)?\s*[、,，/\s]*)+)")
 D_REF_RE = re.compile(r"\bD\d{2,}\b")
 C_REF_RE = re.compile(r"(?<![A-Za-z0-9])C\d+\b")
-# 任务行里的约束引用：本 spec 写 C1，别的 spec（如全项目架构约束所在的 engineering）写 engineering:C1
+# 任务行里的约束引用：本 spec 写 C1，本轮跨多份 spec 时别的 spec 写 fine:C1
 ROW_C_REF_RE = re.compile(r"(?<![A-Za-z0-9:])(?:([a-z][\w-]*):)?(C\d+)\b")
 T_IN_TEXT_RE = re.compile(r"\bT\d+\b")
 TEST_FILE_RE = re.compile(r"(^|/)(tests?|__tests__|spec)/|\.test\.|\.spec\.|_test\.|(^|/)test_")

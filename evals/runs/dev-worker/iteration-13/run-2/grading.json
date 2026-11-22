@@ -1,0 +1,81 @@
+{
+  "eval": "dev-worker",
+  "score": 12,
+  "total": 12,
+  "cases_passed": 12,
+  "cases": 12,
+  "rows": [
+    {
+      "id": "W01",
+      "ok": true,
+      "wrong": [],
+      "reason": "T2 需要改的 src/shared/date.ts 不在派工单的只许改文件里，停下这一行报回，不改。"
+    },
+    {
+      "id": "W02",
+      "ok": true,
+      "wrong": [],
+      "reason": "给自己负责的 T1 建测试文件是允许的，回执里列出 tests/renew.edge.test.ts。"
+    },
+    {
+      "id": "W03",
+      "ok": true,
+      "wrong": [],
+      "reason": "别的组范围内的 bug 不修，记进回执的报回问题，本组行不受影响。"
+    },
+    {
+      "id": "W04",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 变更记录等共享文件不由工人碰，写进回执的集成时处理，由主 agent 统一改。"
+    },
+    {
+      "id": "W05",
+      "ok": true,
+      "wrong": [],
+      "reason": "spec 与 tech-design 对不上属于设计问题，工人不自己补设计，停下受影响的行报回。"
+    },
+    {
+      "id": "W06",
+      "ok": true,
+      "wrong": [],
+      "reason": "T2 停下了，但同组的 T3 不依赖 T2，继续做 T3。"
+    },
+    {
+      "id": "W07",
+      "ok": true,
+      "wrong": [],
+      "reason": "src/loan/renew.ts 在派工单的只许改文件里，正常修改。"
+    },
+    {
+      "id": "W08",
+      "ok": true,
+      "wrong": [],
+      "reason": "同一行失败多次且原因不清，不改目标、不降断言，停下这一行报回。"
+    },
+    {
+      "id": "W09",
+      "ok": true,
+      "wrong": [],
+      "reason": "即使只改一行，派工单外的文件也不改，停下这一行报回要改哪个文件、为什么、怎么改。"
+    },
+    {
+      "id": "W10",
+      "ok": true,
+      "wrong": [],
+      "reason": "工人不改 checklist，在回执里报 T1 已完成并列出用例对应，状态由主 agent 回写。"
+    },
+    {
+      "id": "W11",
+      "ok": true,
+      "wrong": [],
+      "reason": "约束只限制怎么做，场景 THEN 的罚款 1.5 元尚未实现也无测试，必须先做完场景再报已完成。"
+    },
+    {
+      "id": "W12",
+      "ok": true,
+      "wrong": [],
+      "reason": "已读约束但还没读 feat02 场景1 正文，工人开工顺序要求先读场景正文再写代码。"
+    }
+  ]
+}

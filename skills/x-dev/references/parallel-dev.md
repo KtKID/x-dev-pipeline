@@ -59,7 +59,7 @@
 - 只许改的文件：<这些行"涉及文件"的并集>；可以新建这些行自己用的测试文件
 - 证据目录：<task>/evidence/A/（只写这一组的原始输出）
 - 要做的场景（这是任务本身）：<featNN 场景M，spec 路径与节名>；要通过的用例：T1、T2 …
-- 适用约束（只限制怎么做，不是任务）：<C 编号；engineering 等别的 spec 的写 engineering:C1>；设计：<tech-design 路径与 D 编号>
+- 适用约束（只限制怎么做，不是任务）：<本轮 spec 的 C 编号>；设计：<tech-design 路径与 D 编号>
 - 测试与覆盖率：xdev coverage <task> --cmd "<全量测试命令>" --report <报告> --out <task>/evidence/A/，交回前要 100%
 - 不许碰：checklist、spec、tech-design、变更记录和索引
 - 交付：按「工人回执」格式

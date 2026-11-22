@@ -226,11 +226,11 @@ x-qa-gate 并进 x-verify-spec。开发做完只验收一次，查过的不再�
 - WHEN 进入 x-verify-spec 验收
 - THEN risk Q0、qdev 没写场景的不做功能检查；Q1–Q3 都只派一个便宜的子 agent 查一次：功能有没有照场景做到、有没有漏做多做，测试是不是真的在测、有没有测到场景的预期结果；风险高也不加派
 
-场景2: 架构和设计交给定期巡检
-依据与价值：用户 2026-11-22：架构审查、代码腐烂审查、质量审查、死代码检查是夜间常规检查；选定技术设计的决定也全交给巡检。
-- GIVEN 功能检查时发现违反“架构：”约束、没落实 tech-design 的 D、开发规范 R1–R7、代码规范或性能问题
-- WHEN 写回执
-- THEN 不报；这些由 x-audit-arch / x-audit-style / x-audit-perf 定期巡检查，x-audit-arch 按 x-verify-tech 的方法核对架构约束和技术设计
+场景2: 只查本轮的任务文档和设计文档
+依据与价值：用户 2026-11-22：每个任务闭环最后要检查的，是 spec 和 tech-design 里写的约束；架构约束除非用户当场定，不是每个任务都跑架构检查；检查的时候看任务文档、当次设计文档是否都完成，并且测试用例全通过；遵循剃刀法则，如无必要勿增实体，去掉 skill 里扩大范围的引导。
+- GIVEN 功能检查读代码改动
+- WHEN 判断有没有做完
+- THEN 对照本轮场景、本轮用到的 C（用户当场定的“架构：”约束也在内）、本轮 tech-design 的 D，没做到算漏了要的；本轮没用到的约束和设计、engineering 的全项目约束、开发规范 R1–R7、代码规范、性能不报，由 x-audit-arch / x-audit-style / x-audit-perf 定期巡检查；设计和拆任务时也不另设回归用例，已有功能靠全量测试保护
 
 场景3: 按 skill 派工，回执只存一份
 依据与价值：用户 2026-11-22：按 skill 办事才是正规的，不是派活时插一句话来规范；写明白防止以后的 agent 多存一份。
@@ -244,15 +244,15 @@ x-qa-gate 并进 x-verify-spec。开发做完只验收一次，查过的不再�
 - WHEN 运行 `xdev check`
 - THEN 要做功能检查却没有回执、回执没列全改动的测试文件、还有 P0/P1 没修也没写不采纳理由、回执写在最后一次覆盖率之前，都报 FEATURE_CHECK / FEATURE_CHECK_STALE；修完要重跑 coverage、重做功能检查（只看改动部分）再跑 `xdev check`，最多 3 轮；P2 只登记不修；通过时输出写出覆盖率行数和功能检查结果
 
-验收：eval verify-route（V01–V15）、feature-check（16 题）、dev-delivery（D09–D15）、dev-main（M08、M09、M12、M14）；`test/test_delivery.py`。
+验收：eval verify-route（V01–V15、V19、V20）、feature-check（17 题）、dev-delivery（D09–D15）、dev-main（M08、M09、M12、M14）；`test/test_delivery.py`。
 
 ## feat10: 架构要求记在用户约束里
 
-> 状态：已验收
+> 状态：待验收
 
 场景1: 设计和约束冲突就问
 依据与价值：管线目标之一是架构要符合用户偏好；用户 2026-11-21：架构偏好就是用户约束里的一类，不另建文件。
-- GIVEN 本 spec 或 engineering spec 的关键约束里有一条“架构：”约束，方案会违反它
+- GIVEN 本 spec 的关键约束里有一条“架构：”约束，方案会违反它
 - WHEN x-tech-design 写设计
 - THEN 把这一条当作需要用户拍板的取舍单独问，不悄悄违反也不悄悄改约束
 
@@ -260,7 +260,7 @@ x-qa-gate 并进 x-verify-spec。开发做完只验收一次，查过的不再�
 依据与价值：约束是用户的，不能由 agent 从代码推测。
 - GIVEN 用户没说过某个架构要求，或用户在对话里说出新的架构要求
 - WHEN agent 处理
-- THEN 没说过的不从代码推测填写；说过的写进对应 spec 的关键约束，开头写“架构：”并注明来源，对全项目都成立的写进 engineering spec
+- THEN 没说过的不从代码推测填写；说过的写进对应 spec 的关键约束，开头写“架构：”并注明来源，对全项目都成立的写进 engineering spec（它不进单个任务，由定期架构巡检核对）
 
 场景3: 约束只是任务的一部分
 依据与价值：用户 2026-11-21：子 agent 开发时容易只看用户约束、忘了看 feat。
@@ -288,7 +288,7 @@ x-qa-gate 并进 x-verify-spec。开发做完只验收一次，查过的不再�
 
 场景3: 已退役（2026-11-22 并入 feat09 场景4）
 
-验收：eval feature-check（16 题）；`test/test_delivery.py`。
+验收：eval feature-check（17 题）；`test/test_delivery.py`。
 
 ## feat12: 问清需求再写 spec
 
@@ -334,3 +334,4 @@ x-qa-gate 并进 x-verify-spec。开发做完只验收一次，查过的不再�
 | 2026-11-21 | 新增 feat11：测试必须真跑、真测（全量全绿、改动行 100%、轻量子 agent 查假测试） | 用户 2026-11-21 | 已验收（用户 2026-11-21 确认） |
 | 2026-11-21 | 新增 feat12：问清需求再写 spec（x-explore-for-spec 改名 x-ask-spec，苏格拉底式讨论，一期最多 5 个 feat） | 用户 2026-11-21 | 已验收（用户 2026-11-21 确认） |
 | 2026-11-22 | feat09 改为“开发后只验收一次”：x-qa-gate 并进 x-verify-spec，功能检查（含原测试真实性检查）只做一次，Q0 不做，架构和设计交给定期巡检，回执只存一份；feat11 场景2 改为验收时查、场景3 退役并入 feat09 场景4；feat04、feat05、feat07、feat10 的措辞随之改 | 用户 2026-11-22 | 待用户确认 |
+| 2026-11-22 | feat09 场景2 改为“只查本轮的任务文档和设计文档”：本轮 C（含用户当场定的架构约束）和 D 都要查，全项目约束交巡检；去掉扩大范围的引导（engineering 约束进任务、跨 spec 引用 engineering:C1、受影响回归用例、R1–R7 进每次设计）；feat10 场景1/2 随之改 | 用户 2026-11-22 | 待用户确认 |

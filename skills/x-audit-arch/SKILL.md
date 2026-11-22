@@ -8,7 +8,7 @@ description: |
 
 # x-audit-arch · 架构巡检
 
-x-audit-arch 是独立巡检 skill，**不在 x-dev → x-verify-spec 主流程内**。它定期跑（适合每晚），也可由用户手动触发或大里程碑/重构后调用，做全项目视角的架构审查。每个任务的验收不查架构和设计，这些都靠本巡检。
+x-audit-arch 是独立巡检 skill，**不在 x-dev → x-verify-spec 主流程内**。它定期跑（适合每晚），也可由用户手动触发或大里程碑/重构后调用，做全项目视角的架构审查。每个任务的验收只查本轮写下的约束和设计，全项目的架构靠本巡检。
 
 两条核心主线是用户最看重的：**架构一致性**（新代码守住项目既有的模块边界、分层、命名语义，而不是 AI 自己发明一套）和**单一事实源**（同一份关键信息只有一个权威来源，没有散落多处的重复定义）。其余维度（抽象合理性、契约、依赖健康）服务于这两条。
 
@@ -69,7 +69,7 @@ Agent({
 
 ### 0. 用户写下的架构约束与技术设计
 
-每个任务的验收（x-verify-spec）只查功能，不查设计和架构，这些集中在本巡检里查：spec 和 `engineering` spec 关键约束里“架构：”开头的条目、各 spec 的 tech-design D 机制、[共用开发规范](../x-tech-design/references/development-rules.md) R1–R7。核对方法按 [x-verify-tech](../x-verify-tech/SKILL.md) 第 1–2 节：先列约束，再对照代码，能跑的检查实际跑。
+每个任务的验收（x-verify-spec）只查本轮 spec 和 tech-design 写的约束和设计。本巡检看全项目：`engineering` spec 的全项目约束、各 spec 以前定下的“架构：”约束和 D 机制现在是否还守着、[共用开发规范](../x-tech-design/references/development-rules.md) R1–R7。核对方法按 [x-verify-tech](../x-verify-tech/SKILL.md) 第 1–2 节：先列约束，再对照代码，能跑的检查实际跑。
 
 ### 1. 架构一致性 — 模块归属与分层（重点）
 

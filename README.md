@@ -36,7 +36,7 @@ x-qdev · one task document: requirements → local design → tests → impleme
        → x-verify-spec acceptance (one feature check when scenarios were written)
 ```
 
-`x-tech-design` is a required prerequisite for task decomposition. Architecture constraints, technical design, development rules, code style, dead code, and performance are not checked per task; scheduled audits cover them (`x-audit-arch` / `x-audit-style` / `x-audit-perf`, suited to a nightly run). `x-verify-tech` is the method the architecture audit uses to check the design and can also be invoked on its own.
+`x-tech-design` is a required prerequisite for task decomposition. Each task is checked only against this round's spec and tech-design (scenarios, constraints, and design decisions); project-wide constraints, development rules, code style, dead code, and performance are not checked per task; scheduled audits cover them (`x-audit-arch` / `x-audit-style` / `x-audit-perf`, suited to a nightly run). `x-verify-tech` is the method the architecture audit uses to check the design and can also be invoked on its own.
 
 ## Main line: requirements → technical design → tasks → development
 
@@ -132,7 +132,7 @@ The developer runs coverage and adds tests themselves. Coverage only shows code 
 
 | Step | What it does | Result |
 |---|---|---|
-| Feature check (one sub-agent on a cheap model, run once) | Did the feature get done right: the scenarios are met, nothing missing, nothing extra; do the tests really test: no business logic re-implemented in tests, the unit under test is not mocked, no tautological assertions, and the scenarios' expected results are actually asserted | Receipt saved as `evidence/feature-check.md`; P0/P1 fail, P2 is only recorded |
+| Feature check (one sub-agent on a cheap model, run once) | Is everything in the task document and this round's design done: this round's scenarios, constraints, and design decisions are met, nothing missing, nothing extra; do the tests really test: no business logic re-implemented in tests, the unit under test is not mocked, no tautological assertions, and the scenarios' expected results are actually asserted | Receipt saved as `evidence/feature-check.md`; P0/P1 fail, P2 is only recorded |
 | `xdev check` (script) | Mechanical check: structure and IDs, requirement changes synced, every row 🟢, every scenario has a passing case, every case maps to a real test function, high-risk rows have a real-chain case, tests pass and changed-line coverage is 100%, the feature-check receipt passed, and neither code nor tests changed since | Pass / fail (each item listed) |
 
 Both belong to x-verify-spec. risk Q0 (purely technical, no scenarios) skips the feature check and runs only `xdev check`; Q1–Q3 all get the same single feature check.

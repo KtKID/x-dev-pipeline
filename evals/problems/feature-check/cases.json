@@ -94,5 +94,11 @@
     "scene": "场景：续借成功；THEN 到期日在原到期日上加 14 天。（交付文档写的涉及文件只有 src/loan/renew.py 和 tests/test_renew.py）",
     "production": "# src/loan/renew.py\nRENEW_DAYS = 14\n\ndef renew(store, loan_id, now):\n    loan = store.get(loan_id)\n    if loan is None:\n        return None, '借阅记录不存在'\n    if now.date() > loan.due.date():\n        return None, '已逾期，不能续借'\n    loan.due = loan.due + timedelta(days=RENEW_DAYS)\n    loan.renewed = True\n    return loan, None\n\n# 本次 diff 里还有：src/loan/borrow.py\n-LIMIT = 5\n+LIMIT = 6\n",
     "test": "# tests/test_renew.py\nfrom datetime import datetime\nfrom src.loan.renew import renew\nfrom tests.helpers import store_with_loan\n\ndef test_renew_adds_14_days():\n    store = store_with_loan('L1', due=datetime(2026, 1, 31))\n    loan, err = renew(store, 'L1', datetime(2026, 1, 20))\n    assert err is None\n    assert loan.due == datetime(2026, 2, 14)\n    assert loan.renewed is True\n"
+  },
+  {
+    "id": "I17",
+    "scene": "场景：续借成功；THEN 到期日在原到期日上加 14 天。本轮 tech-design 的 D02：续借天数做成具名常量 RENEW_DAYS，不在业务代码里写死。",
+    "production": "# src/loan/renew.py\ndef renew(store, loan_id, now):\n    loan = store.get(loan_id)\n    if loan is None:\n        return None, '借阅记录不存在'\n    loan.due = loan.due + timedelta(days=14)\n    loan.renewed = True\n    return loan, None\n",
+    "test": "# tests/test_renew.py\nfrom datetime import datetime\nfrom src.loan.renew import renew\nfrom tests.helpers import store_with_loan\n\ndef test_renew_adds_14_days():\n    store = store_with_loan('L1', due=datetime(2026, 1, 31))\n    loan, err = renew(store, 'L1', datetime(2026, 1, 20))\n    assert err is None\n    assert loan.due == datetime(2026, 2, 14)\n    assert loan.renewed is True\n"
   }
 ]

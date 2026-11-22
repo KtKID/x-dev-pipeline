@@ -1,0 +1,19 @@
+[
+  {"id": "I01", "answer": "重写了生产逻辑", "reason": "test 用 expected = days * DAILY_FINE 照抄罚款公式算期望值，没有写手算常量。"},
+  {"id": "I02", "answer": "通过", "reason": "调用真实的 overdue_fine(3)，期望值是手写常量 1.5，与场景一致。"},
+  {"id": "I03", "answer": "mock 掉了被测对象", "reason": "@patch('src.loan.borrow.borrow') 把被测函数本身替换掉，断言的是 mock 的返回值。"},
+  {"id": "I04", "answer": "通过", "reason": "真实调用 borrow，只桩掉 count_active 与 save_loan 存储层；断言返回 '已达借阅上限' 且 save_loan 未被调用。"},
+  {"id": "I05", "answer": "只断言调用不断言结果", "reason": "只有 count.assert_called_once_with('r1')，没有断言 borrow 的返回值是否为 '已达借阅上限'。"},
+  {"id": "I06", "answer": "数据测不出对错", "reason": "上限是 5 本，但测试 count_active 只返回 2 并断言 'ok'，错误的 LIMIT 值也能通过。"},
+  {"id": "I07", "answer": "断言恒真", "reason": "expect(dueDate(at)).toEqual(dueDate(at)) 两边都是被测函数，任何实现都成立。"},
+  {"id": "I08", "answer": "没调用项目代码", "reason": "测试文件自己定义了 dueDate 函数，没有 import src/loan/due，测的是复制品。"},
+  {"id": "I09", "answer": "吞掉失败", "reason": "expect 包在 try/catch 里，catch 只打印日志，失败被吞掉，测试永远绿。"},
+  {"id": "I10", "answer": "绕过要测的流程", "reason": "场景要验证借书入口 borrow 的拦截，测试却用 save_loan 直接写 6 条记录，没有调用 borrow。"},
+  {"id": "I11", "answer": "通过", "reason": "固定系统时间 2026-03-15，跨月断言 2026-04-14 为手写常量，与 +30 天的结果一致。"},
+  {"id": "I12", "answer": "吞掉失败", "reason": "@pytest.mark.skip 直接跳过封顶 20 元的测试，场景要求的断言没有执行。"},
+  {"id": "I13", "answer": "通过", "reason": "test_cap 断言 overdue_fine(100) == 20.0，test_not_overdue 断言 overdue_fine(0) == 0.0，两个场景都有真实断言。"},
+  {"id": "I14", "answer": "没测到场景要的结果", "reason": "场景要求 THEN 还要到期日不变，test_overdue_rejected 只断言 loan is None 和错误文案，没有检查 due 未变。"},
+  {"id": "I15", "answer": "漏了要的", "reason": "renew 没有设置 loan.renewed = True，场景要求这条借阅标为已续借、续借过不能再续。"},
+  {"id": "I16", "answer": "做了没要的", "reason": "本次 diff 改了 src/loan/borrow.py 的 LIMIT 5 到 6，超出交付文档写的涉及文件（只有 renew.py 和 test_renew.py）。"},
+  {"id": "I17", "answer": "漏了要的", "reason": "D02 要求 RENEW_DAYS 具名常量，但 renew 里写死了 timedelta(days=14)，没有用 RENEW_DAYS。"}
+]

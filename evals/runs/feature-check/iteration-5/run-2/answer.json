@@ -1,0 +1,19 @@
+[
+  {"id": "I01", "answer": "重写了生产逻辑", "reason": "test_fine.py 的 expected = days * DAILY_FINE 照抄了生产里的罚款公式（import 常量后手算），没有写手算的期望值 1.5。"},
+  {"id": "I02", "answer": "通过", "reason": "overdue_fine(3) == 1.5 用手写常量断言场景 THEN，生产 min(3*0.5, 20.0) 确实返回 1.5，改费率即会变红。"},
+  {"id": "I03", "answer": "mock 掉了被测对象", "reason": "@patch('src.loan.borrow.borrow', return_value='已达借阅上限') 把被测的 borrow 自己打桩，断言的是桩的返回值。"},
+  {"id": "I04", "answer": "通过", "reason": "只 patch 了 count_active（返回 5）和 save_loan（存储层），真实调用 borrow 并断言返回 '已达借阅上限' 且 save_loan 未被调用，把 >= 改成 > 测试会变红。"},
+  {"id": "I05", "answer": "只断言调用不断言结果", "reason": "test_sixth_rejected 只有 count.assert_called_once_with('r1')，没有断言 borrow 返回 '已达借阅上限'。"},
+  {"id": "I06", "answer": "数据测不出对错", "reason": "LIMIT 是 5，测试 count_active 只给 2、只断言返回 'ok'，选的数据离上限远，场景要测的 5 本拒绝没有被测到。"},
+  {"id": "I07", "answer": "断言恒真", "reason": "expect(dueDate(at)).toEqual(dueDate(at)) 两边都是同一个函数同一输入的结果，任何实现都成立。"},
+  {"id": "I08", "answer": "没调用项目代码", "reason": "tests/due.test.ts 没有 import 生产的 dueDate，测试文件里自己定义了一份 function dueDate 来测。"},
+  {"id": "I09", "answer": "吞掉失败", "reason": "断言包在 try { ... } catch (e) { console.log(...) } 里，失败被吞掉，测试永远绿。"},
+  {"id": "I10", "answer": "绕过要测的流程", "reason": "场景要验证借书入口 borrow 的拦截，但 test_sixth_rejected 直接调用 save_loan 写 6 条记录，再断言 count_active > LIMIT，没有调用 borrow。"},
+  {"id": "I11", "answer": "通过", "reason": "fake timer 固定 2026-03-15，断言 dueDate(new Date()) 为 2026-04-14 跨月，调用真实的 dueDate，错误的 +31 实现会变红。"},
+  {"id": "I12", "answer": "吞掉失败", "reason": "@pytest.mark.skip(reason='later') 让 test_cap 整个被跳过，封顶 20 元的场景没有任何执行结果。"},
+  {"id": "I13", "answer": "通过", "reason": "test_cap 断言 overdue_fine(100) == 20.0，test_not_overdue 断言 overdue_fine(0) == 0.0，两条场景 THEN 都有断言且调用真实函数。"},
+  {"id": "I14", "answer": "没测到场景要的结果", "reason": "场景 THEN 要求返回“已逾期，不能续借”并且到期日不变，test_overdue_rejected 只断言 loan is None 和 err，没有检查 loan.due 未被改动。"},
+  {"id": "I15", "answer": "漏了要的", "reason": "场景要求这条借阅标为已续借，但 renew 里没有 loan.renewed = True（production 第 6 行附近只改了 due），代码没做到，测试也没测到。"},
+  {"id": "I16", "answer": "做了没要的", "reason": "本次 diff 在 src/loan/borrow.py 把 LIMIT 从 5 改成 6，场景没提，交付文档写的涉及文件只有 renew.py 和 test_renew.py，改动超出范围。"},
+  {"id": "I17", "answer": "漏了要的", "reason": "本轮 D02 要求续借天数用具名常量 RENEW_DAYS，但 renew 里写死了 timedelta(days=14)，设计没有做到。"}
+]
