@@ -123,7 +123,7 @@ def main() -> int:
                 '依次读取各阶段目录的 `SKILL.md`。阶段产物和实现都写入 `task/`；'
                 '按本地文档判断风险复核和修复是否适用。\n\n'
                 '`x-ask-spec`（问清需求、写 spec）→ 需求确认 → `x-tech-design` → '
-                '`x-req` → `x-dev` → `xdev check`（`x-verify-spec`）→ `x-qa-gate`。\n\n'
+                '`x-req` → `x-dev` → `x-verify-spec`（功能检查 + `xdev check`）。\n\n'
                 '`x-adversarial-risk` 和 `x-fix` 按需使用，`x-dev-rag-call` 为共享依赖。\n',
                 encoding='utf-8',
             )

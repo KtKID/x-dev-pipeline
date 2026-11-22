@@ -18,7 +18,6 @@ BUNDLE_DIR = SKILL_ROOT / "assets" / "executor-tools"
 TOOL_SOURCES = {
     "xdev.py": ("x-dev", "scripts/xdev.py"),
     "validator.py": ("x-ask-spec", "scripts/validator.py"),
-    "flag.py": ("x-qa-gate", "scripts/flag.py"),
     "req.py": ("x-req", "scripts/req.py"),
     "spec.py": ("x-ask-spec", "scripts/spec.py"),
     "verify.py": ("x-verify-spec", "scripts/verify.py"),

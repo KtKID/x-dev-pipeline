@@ -13,7 +13,7 @@
 | `spec.md` | User-visible features, acceptance scenarios, and confirmed key constraints |
 | `tech-design.md` | Modules, protocols, data flows, technical decisions, and numbered test cases |
 | `dev-checklist.md` | The single delivery file of a task: rows, scenario and test-case references, progress, and a closing "结果" (results) section with the case-to-test mapping, changed-line coverage, and issue handling |
-| `evidence/` | Raw output: test logs, the coverage record, screenshots, manual verification notes |
+| `evidence/` | Raw output: test logs, the coverage record, screenshots, manual verification notes, the feature-check receipt |
 
 Stable IDs connect requirements, design, tasks, and evidence. Everything a script can decide (IDs, statuses, whether tests pass, whether coverage is 100%) is handled by `xdev`; agents only do what a script cannot.
 
@@ -25,20 +25,18 @@ Full requirements follow the design-first main line; small, specific changes fol
 flowchart LR
     A["x-ask-spec<br/>clarify, then write the spec"] --> B["x-tech-design"]
     B --> C["x-req"]
-    C --> D["x-dev<br/>implement + 100% coverage"]
-    D --> I["test-integrity check<br/>light sub-agent looks for fake tests"]
-    I --> E["xdev check<br/>mechanical check"]
-    E --> F["x-qa-gate<br/>one independent review"]
-    F --> G["Delivery"]
+    C --> D["x-dev<br/>implement + all tests green + 100% coverage"]
+    D --> E["x-verify-spec<br/>one acceptance: feature check + xdev check"]
+    E --> G["Delivery"]
 ```
 
 ```text
 Small tasks:
 x-qdev · one task document: requirements → local design → tests → implementation → evidence
-       → xdev check → one independent review when scenarios were written
+       → x-verify-spec acceptance (one feature check when scenarios were written)
 ```
 
-`x-tech-design` is a required prerequisite for task decomposition. `x-verify-tech` is the method behind the review's "design and architecture constraints" lens and can also be invoked on its own.
+`x-tech-design` is a required prerequisite for task decomposition. Architecture constraints, technical design, development rules, code style, dead code, and performance are not checked per task; scheduled audits cover them (`x-audit-arch` / `x-audit-style` / `x-audit-perf`, suited to a nightly run). `x-verify-tech` is the method the architecture audit uses to check the design and can also be invoked on its own.
 
 ## Main line: requirements → technical design → tasks → development
 
@@ -128,20 +126,20 @@ xdev coverage <task> --cmd "<full test command>" --report <coverage report>
 
 It really runs the tests, reads the coverage report (lcov, Cobertura XML, coverage.py JSON, Go coverprofile), and computes how many code lines changed since the baseline were executed by tests; test files and documents do not count. Below 100% it lists the missed `file:line` locations, and the agent adds tests until it reaches 100%.
 
-Coverage only shows code was executed. The main agent then sends a light sub-agent to read only the new tests and look for faking or shortcuts: re-implementing business logic inside the test, not calling project code, mocking the unit under test, asserting only that something was called, tautological assertions, swallowed failures, or data that cannot tell right from wrong. Findings are fixed and rechecked. The receipt is saved in the evidence directory and read by `xdev check`; editing tests afterwards means rerunning coverage and rechecking.
+The developer runs coverage and adds tests themselves. Coverage only shows code was executed; whether the tests really test is checked once, by the feature check during acceptance.
 
-## Delivery checks: mechanical check + one independent review
+## Acceptance: checked once after development
 
 | Step | What it does | Result |
 |---|---|---|
-| `xdev check` (x-verify-spec) | Script check: structure and IDs, requirement changes synced, every row 🟢, every scenario has a passing case, every case maps to a real test function, high-risk rows have a real-chain case, tests pass and changed-line coverage is 100%, the test-integrity check passed, and neither code nor tests changed since | Pass / fail (each item listed) |
-| `x-qa-gate` | One read-only reviewer chosen by risk, looking at what a script cannot judge: requirement alignment, edge and failure paths, whether tests really prove the scenarios, design and architecture constraints (Q1 skips edge paths; Q2/Q3 cover all four) | Pass / issues found |
+| Feature check (one sub-agent on a cheap model, run once) | Did the feature get done right: the scenarios are met, nothing missing, nothing extra; do the tests really test: no business logic re-implemented in tests, the unit under test is not mocked, no tautological assertions, and the scenarios' expected results are actually asserted | Receipt saved as `evidence/feature-check.md`; P0/P1 fail, P2 is only recorded |
+| `xdev check` (script) | Mechanical check: structure and IDs, requirement changes synced, every row 🟢, every scenario has a passing case, every case maps to a real test function, high-risk rows have a real-chain case, tests pass and changed-line coverage is 100%, the feature-check receipt passed, and neither code nor tests changed since | Pass / fail (each item listed) |
 
-risk is computed by x-req from the rows: Q0 (purely technical, no scenarios) runs only `xdev check`; Q1 reviews alignment, test strength, design and architecture; Q2 adds edge and failure paths; Q3 uses full inputs and per-lens receipts.
+Both belong to x-verify-spec. risk Q0 (purely technical, no scenarios) skips the feature check and runs only `xdev check`; Q1–Q3 all get the same single feature check.
 
-Issues are registered (P0/P1 rows drop to `[!] 🔴`) and handed to x-fix in one batch. The main agent closes them with each issue's counterexample test, `xdev coverage`, and `xdev check`, without sending fixes back to the original reviewer; at most 3 fix rounds. Handling is recorded in the checklist's "问题与处置" section rather than in separate report files.
+Issues go to x-fix in one batch. After fixing, coverage is rerun; if code or tests changed, the feature check is redone on the changed parts, then `xdev check` runs; at most 3 fix rounds. Handling is recorded in the checklist's "问题与处置" section rather than in separate report files.
 
-With multiple agents, the main agent checks each returned group by running `xdev coverage --out` on that group's branch itself (it does not copy the worker's conclusion) and sends failures back to the same worker; after all groups merge, coverage, `xdev check`, and the review run once for the whole task.
+With multiple agents, the main agent checks each returned group by running `xdev coverage --out` on that group's branch itself (it does not copy the worker's conclusion) and sends failures back to the same worker; after all groups merge, coverage runs once for the whole task, followed by one acceptance.
 
 ## x-qdev · A reduced flow for small tasks
 
@@ -150,8 +148,8 @@ x-qdev records a small change in one task document: ① requirements and changes
 The only stop is the spec increment: for changes that write scenarios, the owner, scenario text, and approach are shown to the user first; after confirmation, design, implementation, document sync, and checks run continuously. A new spec, scenarios spanning two or more specs, or more than 3 source files call x-tech-design; otherwise ② stays brief. If any [risk rule](skills/x-qdev/references/risk-rules.md) answers "yes", it stops and hands over to the main line.
 
 ```text
-x-qdev → xdev start → test-first implementation → xdev coverage (100%) → test-integrity check → xdev check
-       → when scenarios were written: x-qa-gate (Q1) → delivery
+x-qdev → xdev start → test-first implementation → xdev coverage (100%)
+       → x-verify-spec (feature check when scenarios were written + xdev check) → delivery
 ```
 
 ## Optional: adversarial spec risk review
@@ -172,21 +170,20 @@ Risk review and bug ingestion share a user-global corpus, with a caller-selected
 | `/x-tech-design` | Write the technical design from a confirmed spec, defining mechanisms and numbered test cases; sync by ID when requirements change |
 | `/x-req` | Split tasks from the confirmed spec and technical design, assigning scenarios, constraints, and test cases |
 | `/x-dev` | Execute one task test-first and reach 100% changed-line coverage |
-| `/x-verify-spec` | Gate ①: run `xdev check` for the mechanical delivery check |
-| `/x-verify-tech` | Check implementation against the technical design, development rules, and architecture constraints (the review's q4-design method; also usable alone) |
-| `/x-qa-gate` | One risk-routed independent review |
+| `/x-verify-spec` | The single acceptance after development: one feature check + the `xdev check` mechanical check |
+| `/x-verify-tech` | Check implementation against the technical design, development rules, and architecture constraints (the method used by the architecture audit; also usable alone) |
 | `/x-qdev` | Reduced single-document flow for small tasks |
-| `/x-fix` | Batch-fix issues found by checks, reviews, or correctness investigations |
+| `/x-fix` | Batch-fix issues found by acceptance or correctness investigations |
 | `/x-cr` | Investigate correctness problems, modules, diffs, or PRs |
 | `/x-adversarial-risk` | Review spec risk assumptions and add traceable counterexample scenarios |
 | `/x-multi-llm-align` | Align protocols, data structures, or flows |
-| `/x-audit-perf` | Independent performance audit |
-| `/x-audit-style` | Independent style audit |
-| `/x-audit-arch` | Independent architecture audit |
+| `/x-audit-perf` | Scheduled performance audit |
+| `/x-audit-style` | Scheduled style audit (including dead code) |
+| `/x-audit-arch` | Scheduled architecture audit (including architecture constraints, technical design, development rules) |
 
 ## Deterministic engine
 
-`skills/x-dev/scripts/xdev.py` is the single CLI entry: current-format task rules live in `skills/x-req/scripts/checklist_engine.py`, development and delivery checks in `skills/x-dev/scripts/delivery.py`, and QA issue transactions in `skills/x-qa-gate/scripts/flag.py`. Legacy `spec_version: 3` contract packages are still handled by `req.py`, `validator.py`, and `verify.py`.
+`skills/x-dev/scripts/xdev.py` is the single CLI entry: current-format task rules live in `skills/x-req/scripts/checklist_engine.py`, and development and delivery checks in `skills/x-dev/scripts/delivery.py`. Legacy `spec_version: 3` contract packages are still handled by `req.py`, `validator.py`, and `verify.py`.
 
 ```text
 scaffold <task-dir>               create the checklist, fill headers and the decomposition baseline
@@ -197,10 +194,9 @@ start <task>                      record the code baseline (git HEAD)
 coverage <task> --cmd ... --report ...   run tests, compute changed-line coverage, exit 1 below 100%
 check <task>                      mechanical delivery check
 verify <task-dir>                 legacy contract packages only
-flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-round] [--json]
 ```
 
-`<task>` is `docs/spec/<spec-name>/tasks/<task-name>/`; start / coverage / check also accept a qdev task `.md`. The historical `dev-pipeline/tasks/` directory remains a readable archive without runtime validation or orchestration. `flag` coordinates the issue ledger and `dev-checklist.md` through a durable transaction: recovery of a pending transaction returns `recovered:true`, and the caller retries the current issue.
+`<task>` is `docs/spec/<spec-name>/tasks/<task-name>/`; start / coverage / check also accept a qdev task `.md`. The historical `dev-pipeline/tasks/` directory remains a readable archive without runtime validation or orchestration.
 
 ## x-spec2 pilot metrics
 
@@ -246,9 +242,9 @@ For Codex, add the repo entry from `.agents/plugins/marketplace.json` to your ma
 | `[ ] ⏳` | Not started |
 | `[ ] ▶️` | In progress |
 | `[ ] 🟡` | Awaiting verification (worker returned, not merged yet) |
-| `[!] 🔴` | Verification failed / P0-P1 issue downgrade |
+| `[!] 🔴` | Failed during development |
 | `[x] 🟢` | Tests passed, cases registered |
-| `[x] ✅` | Done (Q0: xdev check passed; Q1–Q3: independent review passed) |
+| `[x] ✅` | Done (x-verify-spec acceptance passed) |
 | `[ ] ↗️` | Escalated to the user or the main line |
 
 ## License

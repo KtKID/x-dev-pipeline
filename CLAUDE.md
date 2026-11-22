@@ -19,13 +19,12 @@ x-dev-pipeline/
 ├── docs/spec/<spec>/                  # 一份 spec 管一块数据：spec.md、tech-design.md
 │   └── tasks/<task>/                  # 当前 task
 │       ├── dev-checklist.md           # 唯一交付文件：任务表 + 末尾「结果」（用例对应、覆盖率、问题与处置）
-│       ├── evidence/                  # 原始输出：测试日志、coverage.json、截图、人工验证记录
-│       └── reports/                   # .fix-counter、qa-gate issue ledger、cr 报告
+│       ├── evidence/                  # 原始输出：测试日志、coverage.json、截图、人工验证记录、功能检查回执
+│       └── reports/                   # .fix-counter、cr 报告
 ├── dev-pipeline/tasks/                # 历史 task 档案；工具不再识别、校验或编排
 ├── skills/x-dev/scripts/xdev.py       # 薄 CLI 路由器；delivery.py 做 start/coverage/check
 ├── skills/x-req/scripts/              # checklist_engine.py（当前格式）、req.py（旧 v3 包）
 ├── skills/x-ask-spec/scripts/、x-verify-spec/scripts/   # 旧 v3 包的校验与 verify 引擎
-├── skills/x-qa-gate/scripts/          # QA issue 事务引擎（flag）
 ├── .claude-plugin/、.codex-plugin/、.agents/    # 插件注册
 └── evals/、test/、cli/、examples/
 ```
@@ -33,18 +32,19 @@ x-dev-pipeline/
 ## 核心管线
 
 ```
-x-ask-spec → x-tech-design → x-req → x-dev ──→ 真实性检查 ──→ xdev check ──→ x-qa-gate ──→ ✅
-问清需求再写 spec  技术设计        task     实现+覆盖率  轻量子 agent    机械核对       一次独立审查
-                                                     查假测试      （x-verify-spec）  （Q0 跳过）
-小改动：x-qdev 一个 agent 走完，同样用 xdev start / coverage / check。问题修复交 x-fix。
+x-ask-spec → x-tech-design → x-req → x-dev ──────────→ x-verify-spec ──────────→ ✅
+问清需求再写 spec  技术设计        task     实现+测试全绿      验收一次：功能检查（子 agent，Q0 跳过）
+                                            +覆盖率 100%       + xdev check（脚本记账）
+                                            （开发者自己跑）    问题交 x-fix，最多 3 轮
+小改动：x-qdev 一个 agent 走完，同样用 xdev start / coverage，再交 x-verify-spec。
 ```
 
-- 能用脚本判断的都交给 `xdev`：结构与编号（validate）、需求变化（impact）、派工顺序（graph）、代码基线（start）、改动行覆盖率 100%（coverage）、交付核对（check，也读测试真实性检查的回执）。agent 只做脚本判断不了的事。
-- 独立审查只有一次：x-qa-gate 按 risk 派一个 reviewer（Q0 不派）。四个 lens 是需求对齐、边界、测试是否证明了场景、设计与架构约束；Q1 做其中三个（不含边界），Q2/Q3 四个都做。x-verify-tech 是 q4-design lens 的方法来源，也可以单独调用。
+- 能用脚本判断的都交给 `xdev`：结构与编号（validate）、需求变化（impact）、派工顺序（graph）、代码基线（start）、改动行覆盖率 100%（coverage）、交付核对（check，也读功能检查回执）。agent 只做脚本判断不了的事。
+- 开发后只验收一次（x-verify-spec），查过的不再查：功能检查由一个便宜的子 agent 查功能做对没有、测试是不是真的、有没有测到场景的预期结果（Q0 不做）；`xdev check` 只做机械核对。架构约束、技术设计、开发规范、边界、代码规范、死代码、性能都不在每个任务里查，交给定期巡检。
 - `cli/` 下的 Go 版本保留不删：计划以后做成“agent 调一个命令就能初始化这套管线、安装必需 skill”的工具，目前暂停维护，行为停在旧引擎，skill 不调用它。
 - x-plan 已废弃，功能合并到 x-req。
 
-独立巡检（不在主流程）：`x-audit-perf` / `x-audit-style` / `x-audit-arch`，由用户手动触发或里程碑后跑；`x-cr` 是手动正确性调查。
+定期巡检（不在主流程，适合每晚跑）：`x-audit-arch`（架构约束、技术设计、开发规范、结构，方法来自 x-verify-tech）/ `x-audit-style`（规范、死代码）/ `x-audit-perf`（性能），也可手动触发；`x-cr` 是手动正确性调查。
 
 ## skill 间契约（改 skill 前必读）
 
@@ -59,9 +59,9 @@ x-ask-spec → x-tech-design → x-req → x-dev ──→ 真实性检查 ─�
 | 并行组、依赖、risk Q0–Q3 怎么算 | `skills/x-req/SKILL.md`，`xdev validate` 核对 |
 | 多 agent 协作：派工单、工人规则、每组核对、合并 | `skills/x-dev/references/parallel-dev.md` |
 | 结果与证据写在哪、覆盖率怎么跑、Web 验收 | `skills/x-dev/references/test-reporting.md` |
-| 测试是硬规则（全量全绿、改动行 100%）、测试真实性检查（轻量子 agent 查假测试） | `skills/x-dev/SKILL.md`「测试是硬规则」、`skills/x-dev/references/test-integrity.md` |
+| 测试是硬规则（全量全绿、改动行 100%，开发者自己跑） | `skills/x-dev/SKILL.md`「测试是硬规则」 |
 | 交付核对的每条规则 | `skills/x-dev/scripts/delivery.py`（说明见 `skills/x-verify-spec/SKILL.md`） |
-| 审查路由、lens、严重度 P0/P1/P2、issue 登记、回流关闭 | `skills/x-qa-gate/SKILL.md` |
+| 验收：功能检查（查什么、派工单、回执、严重度 P0/P1/P2）、问题去向、回流关闭 | `skills/x-verify-spec/SKILL.md`、`skills/x-verify-spec/references/feature-check.md` |
 | 批量修复、`.fix-counter` 3 轮上限、处置记录 | `skills/x-fix/SKILL.md` |
 | 状态码与写权 | `skills/x-dev/references/execution-rules.md` |
 | 用户约束怎么写（含“架构：”开头的架构约束、全项目的放 engineering）、约束只是任务的一部分 | `skills/x-ask-spec/templates/spec.md`「关键约束」、`spec-scope.md` |
@@ -73,14 +73,14 @@ x-ask-spec → x-tech-design → x-req → x-dev ──→ 真实性检查 ─�
 
 - **改 skill 行为要记进 spec**：使用者能观察到的 skill 行为变化，写进 `docs/spec/pipeline-skills/spec.md`（新增或修改场景），并写明用哪组 eval 或测试验收；验收题登记在 `evals/answers/INDEX.md`。只改措辞、不改行为的不用记。
 - **YAML frontmatter 是触发依据**：`description` 里的关键词决定 skill 何时被自动触发。改正文是低风险，**改 description 等于改触发面**——评估全局影响后再改。
-- **产物不要变多**：task 只有一份交付文件 `dev-checklist.md`（qdev 是 task `.md`），原始输出放 `evidence/`。门禁回流的处置写进 checklist「问题与处置」；`reports/fix/fix-report-*.md` / `fix-note-*.md` 只用于直接 bug 修复和 CR 驱动修复。历史 task 里的 dev-report、test-report、`fix-verify-spec-*`、`fix-gate-r*` 保留原样，不再新建。
+- **产物不要变多**：task 只有一份交付文件 `dev-checklist.md`（qdev 是 task `.md`），原始输出放 `evidence/`。子 agent 的回执只存规则要求的那一份（功能检查回执 `evidence/feature-check.md`），不另存副本或审查报告。验收回流的处置写进 checklist「问题与处置」；`reports/fix/fix-report-*.md` / `fix-note-*.md` 只用于直接 bug 修复和 CR 驱动修复。历史 task 里的 dev-report、test-report、`fix-verify-spec-*`、`fix-gate-r*` 保留原样，不再新建。
 - **x-cr 报告交接**：task 内 CR 固定写到 `<task>/reports/cr/`，普通仓库 CR 写到仓库级 `reports/cr/`；`Schema: x-cr-v2`、`不变量覆盖`、`审查结论`、`问题详情` 及 Bn/INV-ID 映射是 x-fix 的消费契约，历史报告继续走兼容解析。
 - **manifest 不显式列 skill**：`.claude-plugin/plugin.json` / `.codex-plugin/plugin.json` 都靠 `./skills/` 目录自动发现，新增 skill 不必改 manifest 字段，除非要更新 `defaultPrompt` 示例。
-- **reference 文件保留制**：`skills/x-cr/references/auto-loop-mode.md` 之类的旧 reference **保留**作历史参考，不要删；新逻辑放到 x-qa-gate / x-fix 的 references。
+- **reference 文件保留制**：`skills/x-cr/references/auto-loop-mode.md` 之类的旧 reference **保留**作历史参考，不要删；新逻辑放到 x-verify-spec / x-fix 的 references。
 
 ## 子 agent dispatch 模板
 
-- reviewer：按 `skills/x-qa-gate/SKILL.md` 的「输入」和「调度纪律」组装一次性 prompt。
+- 功能检查：用 `skills/x-verify-spec/references/feature-check.md` 的派工单模板，只填路径，不加话。
 - 多 agent 协作开发的工人：用 `skills/x-dev/references/parallel-dev.md` 的派工单和回执格式。
 
 ## x-spec2 eval 计量边界
@@ -112,4 +112,4 @@ claude plugin install x-dev-pipeline@x-dev-pipeline --scope user
 
 ## 历史改造记录
 
-（历史记录，描述的是当时的设计；现行 reviewer 派法以 `skills/x-qa-gate/SKILL.md` 为准。）`dev-pipeline/tasks/qa-gate-pipeline/` 曾是主线改造任务（v0.2 双层 gate 架构）：把老 `x-cr` 单层闭环升级为 `x-verify-spec` (事实) + `x-qa-gate` (R1/R2/R3 评审) 双层 gate，并把 perf/style 剥离成独立 audit。代码改动已落地，**待用户在新会话跑完 5 个 e2e smoke case 才能升 ✅**。看 `dev-pipeline/tasks/qa-gate-pipeline/changelog.md` 了解最新决策。
+（历史记录，描述的是当时的设计；x-qa-gate 已并进 x-verify-spec，现行做法以 `skills/x-verify-spec/SKILL.md` 为准。）`dev-pipeline/tasks/qa-gate-pipeline/` 曾是主线改造任务（v0.2 双层 gate 架构）：把老 `x-cr` 单层闭环升级为 `x-verify-spec` (事实) + `x-qa-gate` (R1/R2/R3 评审) 双层 gate，并把 perf/style 剥离成独立 audit。代码改动已落地，**待用户在新会话跑完 5 个 e2e smoke case 才能升 ✅**。看 `dev-pipeline/tasks/qa-gate-pipeline/changelog.md` 了解最新决策。

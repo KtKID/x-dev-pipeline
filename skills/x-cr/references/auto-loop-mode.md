@@ -2,24 +2,7 @@
 
 本文件保留旧版 `x-dev -> x-cr -> x-fix` 自动循环的迁移背景。当前 x-cr 主流程已经转为手动软件正确性调查，独立于自动门禁。
 
-当前职责边界：
-
-| 场景 | 使用 skill |
-|------|------------|
-| 用户说某功能不太对，需要查根因 | x-cr |
-| 用户要求 review 模块、文件、diff、PR 的正确性 | x-cr |
-| x-dev 完成后复跑验证命令 | x-verify-spec |
-| README risk Q0/Q1 任务收尾 | x-dev → verify → 交付 |
-| README risk Q2 任务收尾 | x-dev → verify → RC |
-| README risk Q3 任务收尾 | x-dev → verify → R1 → R2 → R3 |
-| x-verify-spec 通过后的流水线质量门禁 | x-qa-gate |
-| verify / qa-gate / CR 报告里的问题修复 | x-fix |
-
-当前自动链路：
-
-```text
-x-dev -> x-verify-spec -> x-qa-gate -> x-fix
-```
+当前职责边界以 [x-cr SKILL.md](../SKILL.md) 和 [x-verify-spec](../../x-verify-spec/SKILL.md) 为准：x-cr 是手动正确性调查；每个任务开发后由 x-verify-spec 验收一次（功能检查 + `xdev check`），问题交 x-fix。下文是旧设计，只作历史参考。
 
 统一开发链路：
 

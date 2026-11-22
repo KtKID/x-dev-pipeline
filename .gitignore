@@ -25,5 +25,3 @@ evals/x-pipeline-efficiency-workspace/**/full-pipeline-run-*/workspace/
 evals/x-pipeline-efficiency-workspace/**/codex-home/
 evals/x-pipeline-efficiency-workspace/**/grader-workspace/
 
-# Generated reviewer input snapshots; the review reports are canonical
-**/reports/qa-gate/context/

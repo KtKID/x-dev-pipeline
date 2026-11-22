@@ -15,13 +15,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path[:0] = [
     str(ROOT / "skills" / "x-dev" / "scripts"),
-    str(ROOT / "skills" / "x-qa-gate" / "scripts"),
     str(ROOT / "skills" / "x-verify-spec" / "scripts"),
     str(ROOT / "skills" / "x-req" / "scripts"),
     str(ROOT / "skills" / "x-ask-spec" / "scripts"),
 ]
 
-import flag as flag_engine  # noqa: E402
 import req  # noqa: E402
 import validator  # noqa: E402
 import verify as verify_engine  # noqa: E402
@@ -52,15 +50,13 @@ class TestModuleOwnership(unittest.TestCase):
         }:
             self.assertFalse(hasattr(xdev, removed_name), removed_name)
         self.assertIs(xdev.validator, validator)
-        self.assertIs(xdev.flag_engine, flag_engine)
         self.assertIs(xdev.verify_engine, verify_engine)
         self.assertIs(xdev.req, req)
 
     def test_engines_own_moved_functions(self):
         self.assertTrue(hasattr(validator, "detect_type"))
         self.assertTrue(hasattr(validator, "validate_pkg"))
-        self.assertTrue(hasattr(flag_engine, "flag_command"))
-        self.assertTrue(hasattr(flag_engine, "recover_flag_transaction"))
+        self.assertFalse(hasattr(xdev, "flag_engine"))
 
 
 class TestChangeValidation(unittest.TestCase):

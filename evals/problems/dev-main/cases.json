@@ -29,11 +29,11 @@
   },
   {
     "id": "M08",
-    "situation": "所有组都已合并，checklist 头部 risk 是 Q1，还没跑整体的覆盖率和 xdev check。"
+    "situation": "所有组都已合并，checklist 头部 risk 是 Q1，还没跑整体的覆盖率。"
   },
   {
     "id": "M09",
-    "situation": "所有组都已合并，整体的 xdev coverage 100%、xdev check 通过，risk 是 Q3。"
+    "situation": "所有组都已合并，整体的 xdev coverage 100%，Web 验收做完，risk 是 Q3。"
   },
   {
     "id": "M10",
@@ -45,7 +45,7 @@
   },
   {
     "id": "M12",
-    "situation": "所有组都已合并，整体的 xdev coverage 100%、xdev check 通过，risk 是 Q0。"
+    "situation": "x-verify-spec 对整个 task 验收通过，risk 是 Q0。"
   },
   {
     "id": "M13",
@@ -53,6 +53,6 @@
   },
   {
     "id": "M14",
-    "situation": "所有组都已合并，整体的 xdev coverage 100%、xdev check 通过，risk 是 Q1。"
+    "situation": "所有组都已合并，整体的 xdev coverage 100%，不涉及 Web，risk 是 Q1。"
   }
 ]

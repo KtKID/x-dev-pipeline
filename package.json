@@ -1,7 +1,7 @@
 {
   "name": "x-dev-pipeline",
   "version": "1.0.0",
-  "description": "Development workflow plugin for Claude Code and Codex — structured spec, user-global risk RAG, task breakdown, implementation, verify, qa-gate, fix loops, and audits.",
+  "description": "Development workflow plugin for Claude Code and Codex — structured spec, user-global risk RAG, task breakdown, implementation, verify, fix loops, and audits.",
   "license": "MIT",
   "keywords": [
     "claude-code",

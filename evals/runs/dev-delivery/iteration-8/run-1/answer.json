@@ -1,0 +1,18 @@
+[
+  {"id": "D01", "action": "补测试后重跑 xdev coverage", "reason": "改动行覆盖率 91%，renew.py 第 12-14 行未覆盖，要补测试再重跑到 100%。"},
+  {"id": "D02", "action": "修好失败的测试再重跑 xdev coverage", "reason": "本 task 新写的测试红了而原有测试是绿的，属于测试写错或实现有误，先修好再跑。"},
+  {"id": "D03", "action": "补测试后重跑 xdev coverage", "reason": "fine.py 是新文件且没有任何测试调用它，报告里完全没有，需要补测试让它被加载并跑到。"},
+  {"id": "D04", "action": "在问题与处置写理由", "reason": "测试环境造不出磁盘满的防御分支，加了 pragma 排除标记，按规定在问题与处置写一行文件路径、行号和理由。"},
+  {"id": "D05", "action": "重跑 xdev coverage", "reason": "覆盖率跑完后代码又改了，记录过期（COVERAGE_STALE），重跑覆盖率即可，不占轮数。"},
+  {"id": "D06", "action": "按 change-sync 同步后 xdev baseline", "reason": "spec 场景在拆解基线后改了（SPEC_CHANGED），先按需求变化同步处理 D、T、任务行，再重置基线。"},
+  {"id": "D07", "action": "写测试并登记到用例对应表", "reason": "用例 T4 分给本 task 但还没有测试，需要写测试并在用例对应表登记。"},
+  {"id": "D08", "action": "写人工记录到 evidence 并记人工通过", "reason": "借书单版式只能人工验证，按规定把步骤和实际结果写进 evidence 的人工记录，结果记人工通过。"},
+  {"id": "D09", "action": "升为已完成并交付", "reason": "x-verify-spec 已验收通过，Q0 不需要功能检查，xdev check 也通过，可以把行升为已完成并交付。"},
+  {"id": "D10", "action": "交 x-verify-spec 验收", "reason": "全部行 🟢、覆盖率 100%、非 Web 界面，Q2 需要功能检查，下一步交 x-verify-spec 验收。"},
+  {"id": "D11", "action": "运行 xdev start 记代码基线", "reason": "qdev 开工第一步是 xdev start 记录代码基线，之后覆盖率才能和它比较，目前还没运行任何 xdev 命令。"},
+  {"id": "D12", "action": "交 x-verify-spec 验收", "reason": "qdev 只记变更没写场景，覆盖率已 100%，跳过功能检查，直接交 x-verify-spec 跑 xdev check 验收。"},
+  {"id": "D13", "action": "交 x-verify-spec 验收", "reason": "新增了场景且覆盖率 100%、非 Web，由 x-verify-spec 派功能检查并跑 xdev check。"},
+  {"id": "D14", "action": "交 x-fix 修，修完重跑 coverage 再重做功能检查", "reason": "功能检查的 P1 问题 issue-1 要交 x-fix 修一次，修完重跑覆盖率并重做功能检查。"},
+  {"id": "D15", "action": "重跑 xdev coverage 后重做功能检查", "reason": "回执通过后又改了测试文件，回执已过期，先重跑覆盖率再重做功能检查。"},
+  {"id": "D16", "action": "查是不是自己改坏的，不删不跳过", "reason": "原有测试红了而本 task 的 spec 和设计都没改这个行为，应先查是不是自己改坏的，不能 skip 或删除。"}
+]

@@ -13,7 +13,7 @@
 | `spec.md` | 用户可感知的功能、验收场景、已确认关键约束 |
 | `tech-design.md` | 模块、协议、数据流、技术决策与编号测试用例 |
 | `dev-checklist.md` | 单个 task 的唯一交付文件：任务行、场景与用例回指、进度，末尾「结果」记用例对应、改动行覆盖率和问题处置 |
-| `evidence/` | 原始输出：测试日志、覆盖率记录、截图、人工验证记录 |
+| `evidence/` | 原始输出：测试日志、覆盖率记录、截图、人工验证记录、功能检查回执 |
 
 需求、设计、任务和证据通过稳定编号关联，每一步都能追到依据、实现位置和实际结果。能用脚本判断的（编号、状态、测试是否通过、覆盖率是否 100%）全交给 `xdev`，agent 只做脚本判断不了的事。
 
@@ -25,20 +25,18 @@
 flowchart LR
     A["x-ask-spec<br/>问清需求再写 spec"] --> B["x-tech-design"]
     B --> C["x-req"]
-    C --> D["x-dev<br/>实现 + 覆盖率 100%"]
-    D --> I["测试真实性检查<br/>轻量子 agent 查假测试"]
-    I --> E["xdev check<br/>机械核对"]
-    E --> F["x-qa-gate<br/>一次独立审查"]
-    F --> G["交付"]
+    C --> D["x-dev<br/>实现 + 测试全绿 + 覆盖率 100%"]
+    D --> E["x-verify-spec<br/>验收一次：功能检查 + xdev check"]
+    E --> G["交付"]
 ```
 
 ```text
 小任务：
 x-qdev · 一份 task 文档：需求 → 局部设计 → 测试 → 实现 → 证据
-       → xdev check → 写了场景的再过一次独立审查
+       → x-verify-spec 验收（写了场景的做一次功能检查）
 ```
 
-`x-tech-design` 是任务拆解的必经前置。`x-verify-tech` 是审查里“设计与架构约束”那一项的方法，也可以单独调用。
+`x-tech-design` 是任务拆解的必经前置。架构约束、技术设计、开发规范、代码规范、死代码和性能不在每个任务里查，交给定期巡检（`x-audit-arch` / `x-audit-style` / `x-audit-perf`，适合每晚跑）；`x-verify-tech` 是架构巡检核对设计的方法，也可以单独调用。
 
 ## 主线：需求 → 技术设计 → 任务 → 开发
 
@@ -128,20 +126,20 @@ xdev coverage <task> --cmd "<全量测试命令>" --report <覆盖率报告>
 
 它真的跑测试，读覆盖率报告（lcov、Cobertura XML、coverage.py JSON、Go coverprofile），算出“和代码基线相比改过的代码行有几行被测试跑到”，测试文件和文档不算。不到 100% 就列出没跑到的 `文件:行`，agent 补测试再跑，直到 100%。
 
-覆盖率只说明代码被跑到了。之后主 agent 派一个轻量子 agent 只读新写的测试，查有没有造假或偷懒：在测试里重写一遍业务逻辑、没调用项目代码、mock 掉被测对象、只断言“被调用了”、断言恒真、吞掉失败、数据测不出对错。查出问题就修测试再查。回执存进证据目录，`xdev check` 会读它；之后测试再改，覆盖率要重跑，回执也要重查。
+覆盖率是开发者自己跑、自己补的。覆盖率只说明代码被跑到了，测试是不是真的在测，由验收时的功能检查查一次。
 
-## 交付检查：机械核对 + 一次独立审查
+## 验收：开发后只查一次
 
 | 环节 | 做什么 | 结论 |
 |---|---|---|
-| `xdev check`（x-verify-spec） | 脚本核对：编号与结构、需求变化已同步、每行 🟢、每个场景都有通过的用例、每个用例对应真实测试函数、高风险行有真实链路用例、测试通过且改动行覆盖率 100%、测试真实性检查通过、之后代码和测试都没再改 | 通过 / 不通过（列出每一项） |
-| `x-qa-gate` | 按 risk 派一个只读 reviewer，看脚本判断不了的事：需求对齐、边界与失败路径、测试是否真的证明了场景、设计与架构约束（Q1 不看边界，Q2/Q3 全看） | 通过 / 发现问题 |
+| 功能检查（子 agent，便宜的模型，只跑一次） | 功能做对了没有：照场景做到了、没漏做、没多做；测试是不是真的在测：没有在测试里重写业务逻辑、没 mock 掉被测对象、断言不是恒真，并且真的测到了场景的预期结果 | 回执存 `evidence/feature-check.md`，P0/P1 不通过，P2 只登记 |
+| `xdev check`（脚本） | 机械核对：编号与结构、需求变化已同步、每行 🟢、每个场景都有通过的用例、每个用例对应真实测试函数、高风险行有真实链路用例、测试通过且改动行覆盖率 100%、功能检查回执通过、之后代码和测试都没再改 | 通过 / 不通过（列出每一项） |
 
-risk 由 x-req 按任务行算出：Q0（纯技术、无场景）只跑 `xdev check`；Q1 审需求对齐、测试证明力、设计与架构；Q2 再加边界与失败路径；Q3 用完整输入、逐项回执。
+两者都属于 x-verify-spec。risk Q0（纯技术、无场景）不做功能检查，只跑 `xdev check`；Q1–Q3 都做一次同样的功能检查。
 
-发现问题时登记 issue（P0/P1 的行降为 `[!] 🔴`），交 x-fix 一次修完。主 agent 用每条问题的反例测试、`xdev coverage` 和 `xdev check` 关闭问题，不发回原 reviewer；修复轮数最多 3 轮。处置写进 checklist「问题与处置」，不另建报告文件。
+发现问题交 x-fix 一次修完。修完重跑 `xdev coverage`，代码或测试改过就重做功能检查（只看改动部分），再跑 `xdev check`；修复轮数最多 3 轮。处置写进 checklist「问题与处置」，不另建报告文件。
 
-多 agent 协作时，每组交回后由主 agent 在这组分支上自己跑 `xdev coverage --out` 核对（不照抄工人的结论），不过就打回原工人；全部合并后整体跑一次覆盖率、`xdev check` 和审查。
+多 agent 协作时，每组交回后由主 agent 在这组分支上自己跑 `xdev coverage --out` 核对（不照抄工人的结论），不过就打回原工人；全部合并后整体跑一次覆盖率，再验收一次。
 
 ## x-qdev · 小任务精简路径
 
@@ -150,8 +148,8 @@ x-qdev 用一份任务文档记录小改动：①需求与变更、②精简技�
 唯一停点是 spec 增量：写了场景的改动，先把归属、场景原文和改法给用户确认，确认后连续做完设计、实现、文档同步和验收。新建 spec、场景跨两份以上 spec 或源码文件超过 3 个时调 x-tech-design，否则在②简写。按 [风险规则](skills/x-qdev/references/risk-rules.md) 有一条答“是”就停下转主线。
 
 ```text
-x-qdev → xdev start → 测试先行实现 → xdev coverage（100%）→ 测试真实性检查 → xdev check
-       → 写了场景的：x-qa-gate（Q1）→ 交付
+x-qdev → xdev start → 测试先行实现 → xdev coverage（100%）
+       → x-verify-spec（写了场景的做功能检查 + xdev check）→ 交付
 ```
 
 ## 可选：Spec 对抗性风险复核
@@ -172,21 +170,20 @@ x-ask-spec → x-adversarial-risk → x-tech-design → x-req
 | `/x-tech-design` | 基于已确认 spec 写技术设计，定义机制与编号用例；需求变化时按编号同步 |
 | `/x-req` | 基于已确认 spec 和技术设计拆 task，分配场景、约束与用例 |
 | `/x-dev` | 执行单个 task，测试先行，改动行覆盖率到 100% |
-| `/x-verify-spec` | Gate ①：运行 `xdev check` 做交付机械核对 |
-| `/x-verify-tech` | 核对实现是否符合技术设计、开发规范和架构约束（审查的 q4-design 方法，也可单独用） |
-| `/x-qa-gate` | 按风险派一次独立审查 |
+| `/x-verify-spec` | 开发后唯一的验收：一次功能检查 + `xdev check` 机械核对 |
+| `/x-verify-tech` | 核对实现是否符合技术设计、开发规范和架构约束（架构巡检用的方法，也可单独用） |
 | `/x-qdev` | 小任务单文档精简路径 |
-| `/x-fix` | 批量修复核对、审查或正确性调查发现的问题 |
+| `/x-fix` | 批量修复验收或正确性调查发现的问题 |
 | `/x-cr` | 调查正确性问题、模块、diff 或 PR |
 | `/x-adversarial-risk` | 复核 spec 风险假设，补充可追溯反例场景 |
 | `/x-multi-llm-align` | 对齐协议、数据结构或流程 |
-| `/x-audit-perf` | 独立性能巡检 |
-| `/x-audit-style` | 独立规范巡检 |
-| `/x-audit-arch` | 独立架构巡检 |
+| `/x-audit-perf` | 定期性能巡检 |
+| `/x-audit-style` | 定期规范巡检（含死代码） |
+| `/x-audit-arch` | 定期架构巡检（含架构约束、技术设计、开发规范） |
 
 ## 确定性引擎
 
-`skills/x-dev/scripts/xdev.py` 是统一 CLI 入口：当前格式 task 的规则在 `skills/x-req/scripts/checklist_engine.py`，开发与交付核对在 `skills/x-dev/scripts/delivery.py`，QA issue 事务在 `skills/x-qa-gate/scripts/flag.py`。旧 `spec_version: 3` 契约包继续由 `req.py`、`validator.py`、`verify.py` 处理。
+`skills/x-dev/scripts/xdev.py` 是统一 CLI 入口：当前格式 task 的规则在 `skills/x-req/scripts/checklist_engine.py`，开发与交付核对在 `skills/x-dev/scripts/delivery.py`。旧 `spec_version: 3` 契约包继续由 `req.py`、`validator.py`、`verify.py` 处理。
 
 ```text
 scaffold <task-dir>               创建 checklist，自动填头部和拆解基线
@@ -197,10 +194,9 @@ start <task>                      记代码基线（git HEAD）
 coverage <task> --cmd ... --report ...   跑测试，算改动行覆盖率，不到 100% 退出 1
 check <task>                      交付机械核对
 verify <task-dir>                 仅旧契约包
-flag <task-dir> --task T2,T3 --severity P0 --loc src/a.py:10 --msg "..." [--new-round] [--json]
 ```
 
-`<task>` 是 `docs/spec/<spec-name>/tasks/<task-name>/`，start / coverage / check 也接受 qdev 的 task `.md`。历史 `dev-pipeline/tasks/` 目录作为可读档案保留，不再获得运行时校验或编排支持。`flag` 通过持久事务协调 issue ledger 与 `dev-checklist.md`：pending 事务恢复返回 `recovered:true`，调用方重试本条 issue。
+`<task>` 是 `docs/spec/<spec-name>/tasks/<task-name>/`，start / coverage / check 也接受 qdev 的 task `.md`。历史 `dev-pipeline/tasks/` 目录作为可读档案保留，不再获得运行时校验或编排支持。
 
 ## x-spec2 pilot 计量
 
@@ -246,9 +242,9 @@ Codex：把 `.agents/plugins/marketplace.json` 中的仓库条目加入 marketpl
 | `[ ] ⏳` | 未开始 |
 | `[ ] ▶️` | 进行中 |
 | `[ ] 🟡` | 待验证（多 agent 时工人交回、还没合并） |
-| `[!] 🔴` | 验证失败 / P0-P1 issue 降级 |
+| `[!] 🔴` | 开发中失败 |
 | `[x] 🟢` | 测试通过，用例已登记 |
-| `[x] ✅` | 已完成（Q0：xdev check 通过；Q1–Q3：独立审查通过） |
+| `[x] ✅` | 已完成（x-verify-spec 验收通过） |
 | `[ ] ↗️` | 已升级给用户或主线 |
 
 ## License

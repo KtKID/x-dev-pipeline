@@ -1,0 +1,74 @@
+[
+  {
+    "id": "V01",
+    "situation": "开发做完，全部行 🟢、xdev coverage 100%，checklist 头部 risk 是 Q0。问：验收怎么做？"
+  },
+  {
+    "id": "V02",
+    "situation": "开发做完，全部行 🟢、xdev coverage 100%，risk 是 Q1。问：验收怎么做？"
+  },
+  {
+    "id": "V03",
+    "situation": "开发做完，全部行 🟢、xdev coverage 100%，risk 是 Q3，有两个高风险行。问：验收怎么做？"
+  },
+  {
+    "id": "V04",
+    "situation": "qdev 做完，①写着“只记变更，未写场景，无需确认”，xdev coverage 100%。问：验收怎么做？"
+  },
+  {
+    "id": "V05",
+    "situation": "功能检查子 agent 读代码时发现：页面组件 src/pages/Loan.tsx 直接调了 fetch，而 engineering spec 的关键约束 C1 写着“架构：页面组件不直接调接口，统一经过 src/api/”。场景本身都做到了。问：要不要写进功能检查回执？"
+  },
+  {
+    "id": "V06",
+    "situation": "功能检查发现：test_sixth_rejected 只断言函数被调用了一次，没断言返回“已达借阅上限”，实现改错它也不会红。问：严重度？"
+  },
+  {
+    "id": "V07",
+    "situation": "功能检查发现：借书接口在库存为 0 时会把库存写成 -1，用户能借到不存在的书，已复现。问：严重度？"
+  },
+  {
+    "id": "V08",
+    "situation": "功能检查发现：场景要求续借后“标为已续借”，代码没做这一步。问：严重度？"
+  },
+  {
+    "id": "V09",
+    "situation": "功能检查子 agent 想重新核对每个用例对应的测试文件是否存在、改动行覆盖率是否 100%。问：该不该做？"
+  },
+  {
+    "id": "V10",
+    "situation": "主 agent 派功能检查时，想在派工单末尾加一句“覆盖率已核对过，不要重复检查”。问：怎么办？"
+  },
+  {
+    "id": "V11",
+    "situation": "功能检查回执已存为 evidence/feature-check.md。主 agent 想再复制一份到 reports/feature-check-review.md，方便用户查看。问：怎么办？"
+  },
+  {
+    "id": "V12",
+    "situation": "功能检查报了 issue-1（P1，测试断言恒真），x-fix 改了这个测试并交回。问：主 agent 接下来怎么做？"
+  },
+  {
+    "id": "V13",
+    "situation": "功能检查回执结论通过，只有 issue-1 是 P2（建议补一个时区测试）。问：怎么处理 issue-1？"
+  },
+  {
+    "id": "V14",
+    "situation": "功能检查子 agent 注意到 checklist 头部“状态：待验证”，而任务行都已是 🟢。问：要不要写进回执？"
+  },
+  {
+    "id": "V15",
+    "situation": "功能检查子 agent 想核对代码是否落实了 tech-design 的 D02（续借天数做成具名常量）。问：该不该查？"
+  },
+  {
+    "id": "V16",
+    "situation": "x-tech-design 写设计时发现：要满足新场景，最省事的方案是引入第二个校验库 yup，但 engineering spec 的关键约束 C2 写着“架构：校验统一用 Zod，不引入第二个校验库”。问：怎么办？"
+  },
+  {
+    "id": "V17",
+    "situation": "项目的 spec 里没有任何“架构：”约束。x-tech-design 看到现有代码全部用 Zod。问：要不要据此写一条架构约束？"
+  },
+  {
+    "id": "V18",
+    "situation": "用户在对话里说：“以后所有新功能都不要加全局单例。”这是对整个项目的要求。问：怎么办？"
+  }
+]

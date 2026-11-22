@@ -1,0 +1,20 @@
+{
+  "V01": "只跑 xdev check，不做功能检查",
+  "V02": "派一个子 agent 做一次功能检查，再跑 xdev check",
+  "V03": "派一个子 agent 做一次功能检查，再跑 xdev check",
+  "V04": "只跑 xdev check，不做功能检查",
+  "V05": "不报，交给定期架构巡检",
+  "V06": "P1",
+  "V07": "P0",
+  "V08": "P1",
+  "V09": "不做，xdev check 已核对",
+  "V10": "不加，照派工单模板只填路径",
+  "V11": "不另存，只留 evidence/feature-check.md 一份",
+  "V12": "重跑 xdev coverage，重做功能检查，再跑 xdev check",
+  "V13": "在问题与处置登记，不修",
+  "V14": "不报，记账由主 agent 和 xdev check 管",
+  "V15": "不报，交给定期架构巡检",
+  "V16": "单独问用户这一项",
+  "V17": "不写，只记用户说过的约束",
+  "V18": "写进 engineering spec 的关键约束并注明来源"
+}

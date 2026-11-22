@@ -1,31 +1,26 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-08-04T14:44:50.402435+00:00",
-  "source_skills": "/Volumes/machub_app/proj/x-dev-pipeline/skills",
+  "generated_at": "2026-11-22T05:59:12.235850+00:00",
+  "source_skills": "/home/claude/x-dev-pipeline/skills",
   "tools": [
     {
       "name": "xdev.py",
       "source": "x-dev/scripts/xdev.py",
-      "sha256": "sha256:df54574dda93521e79f8d297015e7fc0b9583dc051bc6160f58a5de6f62633bb"
+      "sha256": "sha256:2940d95d1c56dedb833079237043cc74f11465fd25e84b9632f1afec7739f7ed"
     },
     {
       "name": "validator.py",
-      "source": "x-spec/scripts/validator.py",
-      "sha256": "sha256:d37c7c7039de105bca4a047b21ec7f08f1670d3a67aba422c0db604b966b6cc2"
-    },
-    {
-      "name": "flag.py",
-      "source": "x-qa-gate/scripts/flag.py",
-      "sha256": "sha256:49b079d63cf638676a91a3d02ae6479adef19cae3aac2346c198c438cbd79b13"
+      "source": "x-ask-spec/scripts/validator.py",
+      "sha256": "sha256:f42dabf8379bf1e8b1d1e6ff1a13ccaade3ba8fa61013ae3d6d9fe3a2d011c6e"
     },
     {
       "name": "req.py",
       "source": "x-req/scripts/req.py",
-      "sha256": "sha256:6a04f03e6eb96c8d0b23d44c486d452881642e28aa85fd6f1fd4f592a5d4beed"
+      "sha256": "sha256:6df1bf70701d755b228dfc8136625069e62c0c0c513fcdf761925293c3e686b9"
     },
     {
       "name": "spec.py",
-      "source": "x-spec/scripts/spec.py",
+      "source": "x-ask-spec/scripts/spec.py",
       "sha256": "sha256:eb7cf096343b9ad285397a9d5388f7ef2676a4dca780b7f5f9691657166d5438"
     },
     {

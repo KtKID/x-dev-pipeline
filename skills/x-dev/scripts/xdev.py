@@ -4,11 +4,10 @@
 本文件只负责参数解析、目标发现和引擎分流：
 
 - checklist_engine.py（x-req）：当前格式 task 的 scaffold/validate/status/graph/impact/baseline
-- delivery.py（x-dev）：开发与交付的 start/coverage/check（代码基线、改动行覆盖率、交付机械核对，含测试真实性检查回执）
+- delivery.py（x-dev）：开发与交付的 start/coverage/check（代码基线、改动行覆盖率、交付机械核对，含功能检查回执）
 - req.py（x-req）：只服务父 spec 声明 spec_version: 3 的旧契约包
 - validator.py（x-ask-spec）：旧 spec/change 包校验
 - verify.py（x-verify-spec）：只服务旧契约包的 dev-report verify 块
-- flag.py（x-qa-gate）：QA Gate issue ledger 与状态降级事务
 
 用法：
   python3 <x-dev-skill-dir>/scripts/xdev.py scaffold <task-dir> [--json]
@@ -21,8 +20,6 @@
   python3 <x-dev-skill-dir>/scripts/xdev.py coverage <目标> --cmd "<全量测试命令>" --report <覆盖率报告> [--out <dir>] [--json]
   python3 <x-dev-skill-dir>/scripts/xdev.py check <目标> [--json]
   python3 <x-dev-skill-dir>/scripts/xdev.py verify <task-dir> [--json] [--only <id>]   # 仅旧契约包
-  python3 <x-dev-skill-dir>/scripts/xdev.py flag <task-dir> --task T2,T3 --severity P0 \
-      --loc src/a.py:10 --msg "空输入未处理" [--new-round] [--json]
 
 退出码：0 成功；1 校验失败、依赖环、有未同步的需求变化、覆盖率不到 100% 或交付核对未通过；2 用法、目标或 IO 错误。
 """
@@ -66,7 +63,6 @@ def _engine(module_name: str, skill_name: str):
         return _load_sibling_engine(module_name, skill_name)
 
 
-flag_engine = _engine("flag", "x-qa-gate")
 req = _engine("req", "x-req")
 checklist = _engine("checklist_engine", "x-req")
 delivery = _engine("delivery", "x-dev")
@@ -197,18 +193,10 @@ def _build_parser() -> argparse.ArgumentParser:
     cov.add_argument("--out", help="只把记录写到这个目录、不改交付文档（并行开发的工人用）")
     cov.add_argument("--json", action="store_true", dest="as_json")
 
-    chk = sub.add_parser("check", help="交付机械核对：编号、状态、场景→用例→测试、覆盖率 100%%")
+    chk = sub.add_parser("check", help="交付机械核对：编号、状态、场景→用例→测试、覆盖率 100%%、功能检查回执")
     chk.add_argument("target", help="task 目录，或 qdev 的 task .md")
     chk.add_argument("--json", action="store_true", dest="as_json")
 
-    flag = sub.add_parser("flag", help="登记 QA Gate issue 并执行状态降级")
-    flag.add_argument("task_dir", help="docs/spec/<spec>/tasks/<task>/")
-    flag.add_argument("--task", required=True, dest="task_ids")
-    flag.add_argument("--severity", required=True, choices=["P0", "P1", "P2"])
-    flag.add_argument("--loc", required=True)
-    flag.add_argument("--msg", required=True)
-    flag.add_argument("--new-round", action="store_true")
-    flag.add_argument("--json", action="store_true", dest="as_json")
     return parser
 
 
@@ -320,16 +308,6 @@ def main(argv: list[str] | None = None) -> int:
             )
             return 2
         return verify_engine.verify(Path(args.task_dir), args.as_json, args.only)
-    if args.cmd == "flag":
-        return flag_engine.flag_command(
-            Path(args.task_dir),
-            args.task_ids,
-            args.severity,
-            args.loc,
-            args.msg,
-            args.new_round,
-            args.as_json,
-        )
     return _validate_command(args)
 
 

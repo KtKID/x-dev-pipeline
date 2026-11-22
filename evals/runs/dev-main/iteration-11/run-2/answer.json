@@ -1,0 +1,16 @@
+[
+  {"id": "M01", "action": "自己在这组分支上跑覆盖率核对", "reason": "工人报已完成且写了覆盖率 100%，但主 agent 必须自己在该组分支上跑 xdev coverage，不照抄工人结论。"},
+  {"id": "M02", "action": "交回原工人修", "reason": "测试通过但改动行覆盖率 92%，是组 A 第 1 次核对未过，把 coverage 输出交回原工人在原会话修（未到 3 轮上限）。"},
+  {"id": "M03", "action": "停这组并升级给用户", "reason": "组 B 已修 3 轮第 3 次核对仍不过，达到 3 轮上限，停这一组升级给用户；组 C 照常进行。"},
+  {"id": "M04", "action": "打回后合的组重做", "reason": "合并组 C 时与已合的组 A 冲突，定位不到是哪一组的行时，打回后合的组 C，在最新主干上重做，算一轮。"},
+  {"id": "M05", "action": "先同步再记新基线", "reason": "派单前 xdev impact 报出 spec 变化，要先按 change-sync 同步（或确认只是措辞），再运行 xdev baseline。"},
+  {"id": "M06", "action": "调整派工单和清单并重跑校验", "reason": "要改的文件不在派工单里且不属于别的组，把文件补进涉及文件，重跑 xdev validate 和 xdev graph，更新派工单后让工人继续。"},
+  {"id": "M07", "action": "只停受影响的组", "reason": "spec 变化只影响组 C 的 T5，只停组 C，组 A、B 不受影响，继续进行。"},
+  {"id": "M08", "action": "整体跑覆盖率", "reason": "所有组已合并，但还没跑整体覆盖率，收尾第一步是全量覆盖率，之后才交验收。"},
+  {"id": "M09", "action": "交 x-verify-spec 验收", "reason": "所有组已合并，整体覆盖率 100%，Web 验收已做完，下一步是交 x-verify-spec 对整个 task 验收一次，risk 多少都交。"},
+  {"id": "M10", "action": "不走多 agent 流程", "reason": "只有一个并行组，主 agent 自己按 x-dev SKILL.md 做完即可，不用本文流程。"},
+  {"id": "M11", "action": "登记成后续任务", "reason": "工人发现的老 bug 与本 task 无关，登记成后续任务，不在本 task 里修。"},
+  {"id": "M12", "action": "升为已完成并交付", "reason": "x-verify-spec 验收通过，主 agent 把行升为 [x] ✅ 并交付，risk 为 Q0 不影响这一步。"},
+  {"id": "M13", "action": "把这一行并进那一组", "reason": "两组不能同时改同一文件，组 B 还没合并，把这一行的并行组改成组 B，文件补进涉及文件，追加进组 B 的派工单由组 B 工人接着做。"},
+  {"id": "M14", "action": "交 x-verify-spec 验收", "reason": "所有组已合并且整体覆盖率 100%，不涉及 Web，下一步是交 x-verify-spec 对整个 task 验收一次，risk Q1 照交。"}
+]

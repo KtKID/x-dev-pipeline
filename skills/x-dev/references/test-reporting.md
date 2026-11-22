@@ -11,7 +11,7 @@ x-dev、x-qdev、x-fix 共用。交付只看一份文件：常规 task 是 `dev-
 
 - **用例对应表**：`用例 | 测试位置 | 层级 | 结果`。一个用例一行，测试位置写到函数（`path::name`，多个用顿号分隔），层级写 unit / smoke / 集成 / e2e / 人工，结果写 通过 / 人工通过 / 失败。人工验证的测试位置指向证据目录里的记录文件（步骤、实际看到的结果、结论）。
 - **覆盖率一行**：由 `xdev coverage` 写入，不手填。
-- **问题与处置**：卡住的行、改过的测试及原因、加了覆盖率排除标记的 `文件路径:行` 及理由、QA issue 的处置（issue-N · 严重度 · 怎么修的 · 哪条反例测试），各一行。没有写“无”。
+- **问题与处置**：卡住的行、改过的测试及原因、加了覆盖率排除标记的 `文件路径:行` 及理由、功能检查问题的处置（issue-N · 严重度 · 怎么修的 · 哪条反例测试，或 `功能检查 · issue-N · 不采纳：理由`），各一行。没有写“无”。
 - 多 agent 协作时再加「派工记录」，见 [多 agent 协作开发](parallel-dev.md)。
 
 不写过程叙述，不复制测试输出；要看原始输出就去证据目录。
@@ -22,7 +22,7 @@ x-dev、x-qdev、x-fix 共用。交付只看一份文件：常规 task 是 `dev-
 
 它做三件事：真的运行 `--cmd` 给的测试命令（日志存 `evidence/test-run-N.log`），读 `--report` 给的覆盖率报告，把结果写进 `evidence/coverage.json` 和「结果」的覆盖率一行。`xdev check` 只认用 `--cmd` 跑出来、测试通过、跑完之后代码没再改的记录。
 
-覆盖率到 100% 只说明代码被跑到了，不说明测试真的在测。之后还要做 [测试真实性检查](test-integrity.md)，回执存为证据目录里的 `test-integrity.md`，`xdev check` 会读它。
+覆盖率到 100% 只说明代码被跑到了，不说明测试真的在测。这一点由验收时的 [功能检查](../../x-verify-spec/references/feature-check.md) 查一次，回执存为证据目录里的 `feature-check.md`，`xdev check` 会读它。
 
 常用命令（报告格式自动识别）：
 
@@ -35,9 +35,9 @@ x-dev、x-qdev、x-fix 共用。交付只看一份文件：常规 task 是 `dev-
 
 多个语言时 `--cmd`、`--report` 各给多次。报告文件放进 `.gitignore`，别让它算成改动。`--cmd` 跑的必须是本 task 的全量测试加既有回归，不是只跑新测试。
 
-排除标记（Python `# pragma: no cover`、JS `/* istanbul ignore */`、`c8 ignore` 等）只用于确实跑不到的防御代码。`xdev coverage` 会列出改动行里新加的排除标记，`xdev check` 要求「问题与处置」里有一行写着这个文件路径和理由，审查时再看理由是否成立。
+排除标记（Python `# pragma: no cover`、JS `/* istanbul ignore */`、`c8 ignore` 等）只用于确实跑不到的防御代码。`xdev coverage` 会列出改动行里新加的排除标记，`xdev check` 要求「问题与处置」里有一行写着这个文件路径和理由。
 
-计入覆盖率的语言按扩展名判断（Python、Go、JS/TS、Java、Kotlin、Rust、C/C++、Ruby、PHP、C#、Swift、Shell 等）。没有覆盖率工具的语言（比如 Shell 脚本）改动后会显示“报告里没有”：能用 kcov 之类的工具出 Cobertura 报告就加进 `--report`；实在没有，在「问题与处置」写 `文件路径 理由`，`xdev check` 认这一行，审查判断理由是否成立。
+计入覆盖率的语言按扩展名判断（Python、Go、JS/TS、Java、Kotlin、Rust、C/C++、Ruby、PHP、C#、Swift、Shell 等）。没有覆盖率工具的语言（比如 Shell 脚本）改动后会显示“报告里没有”：能用 kcov 之类的工具出 Cobertura 报告就加进 `--report`；实在没有，在「问题与处置」写 `文件路径 理由`，`xdev check` 认这一行。
 
 ## Web 与界面验收
 

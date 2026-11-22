@@ -12,7 +12,7 @@ printf 'Run: %s\n' "$run_dir"
 
 mkdir -p "$workspace/skills"
 # xdev.py 会加载同级 skill 的引擎，规则文件也互相链接，所以一起复制
-for skill in x-dev x-req x-qa-gate x-spec x-verify-spec x-verify-tech x-tech-design x-fix; do
+for skill in x-dev x-req x-ask-spec x-verify-spec x-verify-tech x-tech-design x-fix; do
   cp -R "$repo_dir/skills/$skill" "$workspace/skills/$skill"
 done
 python3 "$benchmark/prepare_workspace.py" --profile public_task_only --allow-existing \

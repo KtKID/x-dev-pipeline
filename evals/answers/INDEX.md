@@ -134,20 +134,20 @@
 | M05 | 开工前 impact 有变化 | 先同步再记新基线 |
 | M06 | 工人要改范围外文件，且不属于别的组 | 调整派工单和清单并重跑校验 |
 | M07 | 中途需求变化只影响一组 | 只停受影响的组 |
-| M08 | 全部合并后 | 整体跑覆盖率和 xdev check |
-| M09 | xdev check 通过、Q3 | 交 x-qa-gate |
+| M08 | 全部合并后 | 整体跑覆盖率 |
+| M09 | 整体覆盖率 100%、Q3 | 交 x-verify-spec 验收 |
 | M10 | 只有一组 | 不走多 agent 流程 |
 | M11 | 和本 task 无关的 bug | 登记成后续任务 |
-| M12 | xdev check 通过、Q0 | 升为已完成并交付 |
+| M12 | 验收通过 | 升为已完成并交付 |
 | M13 | 要改的文件属于另一组 | 把这一行并进那一组 |
-| M14 | xdev check 通过、Q1 | 交 x-qa-gate |
+| M14 | 整体覆盖率 100%、Q1 | 交 x-verify-spec 验收 |
 
 ## 开发收尾（dev-delivery）
 
-- 规则：`skills/x-dev/SKILL.md`「测试是硬规则」与「执行」第 4–8 步、`skills/x-dev/references/test-reporting.md`、`skills/x-qdev/SKILL.md` 第 4–5 节
+- 规则：`skills/x-dev/SKILL.md`「测试是硬规则」与「执行」第 4–6 步、`skills/x-dev/references/test-reporting.md`、`skills/x-qdev/SKILL.md` 第 4–5 节、`skills/x-verify-spec/SKILL.md`、`skills/x-verify-spec/references/feature-check.md`
 - 题面：`evals/problems/dev-delivery/`；答案：`evals/answers/dev-delivery/expected.json`
-- 对应 spec：`docs/spec/pipeline-skills/spec.md` feat07、feat08、feat11 场景1
-- 测什么：看到 `xdev coverage` / `xdev check` 的结果后，agent 知不知道下一步；交付不再另写测试报告。
+- 对应 spec：`docs/spec/pipeline-skills/spec.md` feat07、feat08、feat09 场景4、feat11 场景1
+- 测什么：看到 `xdev coverage` / `xdev check` / 功能检查的结果后，agent 知不知道下一步；交付不再另写测试报告。
 
 | 用例 | 考的规则 | 正确判断 |
 |---|---|---|
@@ -156,42 +156,49 @@
 | D04 | 新加覆盖率排除标记 | 在问题与处置写理由 |
 | D05 | 覆盖率跑完代码又改了 | 重跑 xdev coverage |
 | D06 | SPEC_CHANGED | 按 change-sync 同步后 xdev baseline |
-| D07 | 用例没对应测试 | 写测试并登记到用例对应表 |
+| D07 | 开发阶段用例还没有测试 | 写测试并登记到用例对应表 |
 | D08 | 只能人工验证 | 写人工记录到 evidence 并记人工通过 |
-| D09 D12 | Q0 / qdev 没写场景，check 通过 | 升为已完成并交付 |
-| D10 D13 | Q2 / qdev 写了场景，check 通过 | 交 x-qa-gate |
+| D09 | 验收通过 | 升为已完成并交付 |
+| D10 D12 D13 | 开发做完（Q2 / qdev 没写场景 / qdev 写了场景） | 交 x-verify-spec 验收 |
 | D11 | qdev 开工 | 运行 xdev start 记代码基线 |
-| D14 | 真实性检查不通过 | 按回执修测试，重跑 coverage 后再检查 |
-| D15 | 检查后又改了测试 | 重跑 xdev coverage 后重新派子 agent 检查 |
+| D14 | 功能检查有 P1 | 交 x-fix 修，修完重跑 coverage 再重做功能检查 |
+| D15 | 检查后又改了测试 | 重跑 xdev coverage 后重做功能检查 |
 | D16 | 原有测试红了，需求没改这块 | 查是不是自己改坏的，不删不跳过 |
 
-## 独立审查与架构约束（review-route）
+## 验收路由与架构约束（verify-route）
 
-- 规则：`skills/x-qa-gate/SKILL.md`、`skills/x-tech-design/SKILL.md` 第 2 步、`skills/x-ask-spec/templates/spec.md`「关键约束」、`spec-scope.md`
-- 题面：`evals/problems/review-route/`；答案：`evals/answers/review-route/expected.json`
+- 规则：`skills/x-verify-spec/SKILL.md`、`skills/x-verify-spec/references/feature-check.md`、`skills/x-tech-design/SKILL.md` 第 2 步、`skills/x-ask-spec/templates/spec.md`「关键约束」
+- 题面：`evals/problems/verify-route/`；答案：`evals/answers/verify-route/expected.json`
 - 对应 spec：`docs/spec/pipeline-skills/spec.md` feat09、feat10
 
 | 用例 | 考的规则 | 正确判断 |
 |---|---|---|
-| R01–R04 | risk 决定派不派、做哪些 lens | Q0 不派；Q1 q1 q3 q4；Q2 四个；Q3 四个逐 lens 回执 |
-| R05 | 违反“架构：”约束 | q4-design P1 |
-| R06 | 断言证明不了 THEN | q3-evidence P1 |
-| R07 | 已复现的错误结果 | q2-correctness P0 |
-| R08 | 机械项不重复 | 不做，xdev check 已核对 |
-| R09 | 设计和约束冲突 | 单独问用户这一项 |
-| R10 | 用户没说过 | 不写，只记用户说过的约束 |
-| R11 | 用户说了全项目的架构要求 | 写进 engineering spec 的关键约束并注明来源 |
-| R12 | 修复后关闭 issue | 不发回，用反例测试和 xdev check 关闭 |
+| V01 V04 | Q0、qdev 没写场景 | 只跑 xdev check，不做功能检查 |
+| V02 V03 | Q1、Q3 | 派一个子 agent 做一次功能检查，再跑 xdev check |
+| V05 V15 | 架构约束、技术设计 D | 不报，交给定期架构巡检 |
+| V06 V08 | 测试问题、漏了要的 | P1 |
+| V07 | 已复现的错误结果 | P0 |
+| V09 | 机械项不重复 | 不做，xdev check 已核对 |
+| V10 | 派工单不加话 | 不加，照派工单模板只填路径 |
+| V11 | 回执只存一份 | 不另存，只留 evidence/feature-check.md 一份 |
+| V12 | 修完测试后关闭 | 重跑 xdev coverage，重做功能检查，再跑 xdev check |
+| V13 | P2 | 在问题与处置登记，不修 |
+| V14 | 记账类 | 不报，记账由主 agent 和 xdev check 管 |
+| V16 | 设计和约束冲突 | 单独问用户这一项 |
+| V17 | 用户没说过 | 不写，只记用户说过的约束 |
+| V18 | 用户说了全项目的架构要求 | 写进 engineering spec 的关键约束并注明来源 |
 
-## 测试真实性检查（test-integrity）
+## 功能检查（feature-check）
 
-- 规则：`skills/x-dev/references/test-integrity.md`
-- 题面：`evals/problems/test-integrity/`；答案：`evals/answers/test-integrity/expected.json`
-- 对应 spec：`docs/spec/pipeline-skills/spec.md` feat11 场景2
-- 测什么：最便宜的模型只凭这份清单，能不能分出真测试和假测试；并且不把外部依赖的 mock、fixture、手写常量误报成问题。
+- 规则：`skills/x-verify-spec/references/feature-check.md`
+- 题面：`evals/problems/feature-check/`；答案：`evals/answers/feature-check/expected.json`
+- 对应 spec：`docs/spec/pipeline-skills/spec.md` feat09 场景1、feat11 场景2
+- 测什么：便宜的模型只凭这份清单，能不能分出功能漏做、多做，测试是真是假、有没有测到场景要的结果；并且不把外部依赖的 mock、fixture、手写常量误报成问题。
 
 | 用例 | 考的规则 | 正确判断 |
 |---|---|---|
+| I15 | 代码没做到场景的一个 THEN | 漏了要的 |
+| I16 | 改了场景没提、也不在涉及文件里的代码 | 做了没要的 |
 | I01 | 期望值照抄生产公式 | 重写了生产逻辑 |
 | I08 | 测试文件里自己定义了被测函数 | 没调用项目代码 |
 | I10 | 直接写存储，没调借书入口 | 绕过要测的流程 |
@@ -200,6 +207,7 @@
 | I07 | 期望值来自被测函数自己 | 断言恒真 |
 | I09 I12 | try/catch 吞断言、skip | 吞掉失败 |
 | I06 | 上限 5 本只借 2 本 | 数据测不出对错 |
+| I14 | 代码做到了，测试没断言“到期日不变” | 没测到场景要的结果 |
 | I02 I04 I11 I13 | 手写常量、只 mock 存储、假时钟、fixture | 通过 |
 
 ## 问清需求再写 spec（ask-spec）

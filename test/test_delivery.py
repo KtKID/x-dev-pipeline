@@ -149,6 +149,7 @@ class DeliveryTest(unittest.TestCase):
         os.environ["COVER_ALL"] = "1"
         code, out, _ = self.coverage()
         self.assertEqual(code, 0, out)
+        self.receipt(checked="无")
         code, rules, payload = self.check()
         self.assertEqual(rules, [], payload)
         self.assertEqual(code, 0)
@@ -174,6 +175,7 @@ class DeliveryTest(unittest.TestCase):
         self.assertIn("COVERAGE", self.check()[1])
         path = self.task / "dev-checklist.md"
         path.write_text(path.read_text(encoding="utf-8") + "\n### 问题与处置\n\n- src/loan/run.sh 没有 shell 覆盖率工具，T1 的 smoke 会调它\n", encoding="utf-8")
+        self.receipt(checked="无")
         self.assertEqual(self.check()[1], [])
 
     def test_no_git_repo_is_usage_error(self):
@@ -219,12 +221,12 @@ class DeliveryTest(unittest.TestCase):
         self.assertTrue((self.root / "w/coverage.json").is_file())
         self.assertEqual(before, (self.task / "dev-checklist.md").read_text(encoding="utf-8"))
 
-    # integrity
+    # 功能检查回执
     def receipt(self, verdict="通过", rows="", checked="tests/test_borrow.py"):
-        path = self.task / "evidence" / "test-integrity.md"
+        path = self.task / "evidence" / "feature-check.md"
         path.write_text(
-            f"测试真实性检查回执 · task-core · 结论：{verdict}\n已检查：{checked}（共 3 个测试函数）\n\n"
-            "| 测试位置 | 问题类型 | 证据 | 怎么改 |\n|---|---|---|---|\n" + rows + "\n穷尽声明：已检查范围内没有其他问题。\n",
+            f"功能检查回执 · task-core · 结论：{verdict} · P0 ×0 · P1 ×0 · P2 ×0\n已检查：{checked}（共 3 个测试函数）\n\n"
+            "| 编号 | 位置 | 严重度 | 问题类型 | 证据 | 怎么改 |\n|---|---|---|---|---|---|\n" + rows + "\n穷尽声明：已检查范围内没有其他问题。\n",
             encoding="utf-8")
         return str(path)
 
@@ -232,21 +234,43 @@ class DeliveryTest(unittest.TestCase):
         f = self.root / "tests/test_borrow.py"
         f.write_text(f.read_text(encoding="utf-8") + extra, encoding="utf-8")
 
-    def test_changed_test_needs_integrity_receipt(self):
+    def test_q1_needs_feature_check_even_without_test_changes(self):
         os.environ["COVER_ALL"] = "1"
-        self.change_test()
         self.coverage()
-        rules = self.check()[1]
-        self.assertIn("INTEGRITY", rules)
-        msg = " ".join(p["msg"] for p in self.check()[2]["problems"])
-        self.assertIn("tests/test_borrow.py", msg)  # 列出要查的测试文件
-
-    def test_integrity_pass(self):
-        os.environ["COVER_ALL"] = "1"
-        self.change_test()
-        self.coverage()
-        self.receipt()
+        problems = self.check()[2]["problems"]
+        self.assertEqual([p["rule"] for p in problems], ["FEATURE_CHECK"])
+        self.assertIn("派工单照抄这份完整清单）：无", problems[0]["msg"])
+        self.receipt(checked="无")
         self.assertEqual(self.check()[1], [])
+
+    def test_q0_skips_feature_check(self):
+        os.environ["COVER_ALL"] = "1"
+        rows = [r.replace(r.split("|")[3], " None ") for r in ROWS]
+        self.write(rows, MAPPING, risk="Q0")
+        self.change_test()
+        self.coverage()
+        self.assertEqual(self.check()[1], [])
+        code, out, _ = run("check", str(self.task))
+        self.assertEqual(code, 0, out)
+        self.assertIn("不需要功能检查", out)
+
+    def test_changed_test_is_listed(self):
+        os.environ["COVER_ALL"] = "1"
+        self.change_test()
+        self.coverage()
+        self.assertIn("FEATURE_CHECK", self.check()[1])
+        msg = " ".join(p["msg"] for p in self.check()[2]["problems"])
+        self.assertIn("tests/test_borrow.py", msg)
+
+    def test_feature_check_pass_shows_coverage_and_p2(self):
+        os.environ["COVER_ALL"] = "1"
+        self.change_test()
+        self.coverage()
+        self.receipt(rows="| issue-1 | tests/test_borrow.py::test_more | P2 | 数据测不出对错 | x | y |\n")
+        code, out, _ = run("check", str(self.task))
+        self.assertEqual(code, 0, out)
+        self.assertIn("改动行覆盖率 100%（4/4 行）", out)
+        self.assertIn("功能检查通过（P2 ×1）", out)
 
     def test_test_edit_after_receipt_makes_both_stale(self):
         os.environ["COVER_ALL"] = "1"
@@ -257,19 +281,30 @@ class DeliveryTest(unittest.TestCase):
         self.assertIn("COVERAGE_STALE", self.check()[1])
         time.sleep(0.01)
         self.coverage()
-        self.assertIn("INTEGRITY_STALE", self.check()[1])
+        self.assertIn("FEATURE_CHECK_STALE", self.check()[1])
         self.receipt()
-        self.assertNotIn("INTEGRITY_STALE", self.check()[1])
+        self.assertNotIn("FEATURE_CHECK_STALE", self.check()[1])
 
-    def test_integrity_fail_until_fixed_or_rebutted(self):
+    def test_p1_blocks_until_fixed_or_rebutted(self):
         os.environ["COVER_ALL"] = "1"
         self.change_test()
         self.coverage()
-        self.receipt("不通过", "| tests/test_borrow.py::test_more | 断言恒真 | tests/test_borrow.py:3 `assert 1 == 1` | 断言借书结果 |\n")
-        self.assertIn("INTEGRITY", self.check()[1])
+        self.receipt("不通过", "| issue-1 | tests/test_borrow.py::test_more | P1 | 断言恒真 | tests/test_borrow.py:3 `assert 1 == 1` | 断言借书结果 |\n"
+                             "| issue-12 | src/loan/borrow.py:2 | P0 | 漏了要的 | x | y |\n")
+        self.assertIn("FEATURE_CHECK_OPEN", self.check()[1])
         path = self.task / "dev-checklist.md"
-        path.write_text(path.read_text(encoding="utf-8") + "\n### 问题与处置\n\n- 测试真实性 · tests/test_borrow.py::test_more · 不采纳：这是占位冒烟，真实断言在 test_borrow_ok\n", encoding="utf-8")
+        path.write_text(path.read_text(encoding="utf-8") + "\n### 问题与处置\n\n- 功能检查 · issue-1 · 不采纳：这是占位冒烟，真实断言在 test_borrow_ok\n", encoding="utf-8")
+        msg = " ".join(p["msg"] for p in self.check()[2]["problems"])
+        self.assertIn("issue-12", msg)
+        self.assertNotIn("issue-1、", msg)
+        path.write_text(path.read_text(encoding="utf-8") + "- 功能检查 · issue-12 · 不采纳：第 2 行就是上限判断\n", encoding="utf-8")
         self.assertEqual(self.check()[1], [])
+
+    def test_failed_verdict_without_blocking_issue_is_flagged(self):
+        os.environ["COVER_ALL"] = "1"
+        self.coverage()
+        self.receipt("不通过", checked="无")
+        self.assertIn("FEATURE_CHECK_OPEN", self.check()[1])
 
     def test_receipt_must_list_every_changed_test_exactly(self):
         os.environ["COVER_ALL"] = "1"
@@ -277,9 +312,11 @@ class DeliveryTest(unittest.TestCase):
         (self.root / "tests/test_new.py").write_text("def test_new(): pass\n", encoding="utf-8")
         self.coverage()
         self.receipt()
-        self.assertIn("INTEGRITY", self.check()[1])
+        self.assertIn("FEATURE_CHECK", self.check()[1])
         self.receipt(checked="x/tests/test_borrow.py.bak、tests/test_new.py")
-        self.assertIn("INTEGRITY", self.check()[1])
+        problems = self.check()[2]["problems"]
+        self.assertEqual([p["rule"] for p in problems], ["FEATURE_CHECK"])
+        self.assertIn("tests/test_borrow.py、tests/test_new.py", problems[0]["msg"])  # 重做时也给完整清单
         self.receipt(checked="\n- tests/test_borrow.py\n- tests/test_new.py")
         self.assertEqual(self.check()[1], [])
 
@@ -287,10 +324,16 @@ class DeliveryTest(unittest.TestCase):
         os.environ["COVER_ALL"] = "1"
         self.change_test()
         self.coverage()
-        path = self.task / "evidence" / "test-integrity.md"
-        path.write_text("测试真实性检查回执 · task-core · 结论：通过\n已检查：tests/test_borrow.py\n\n## 问题\n\n"
-                        "| 测试位置 | 问题类型 | 证据 | 怎么改 |\n|---|---|---|---|\n| tests/test_borrow.py::test_more | 断言恒真 | x | y |\n", encoding="utf-8")
-        self.assertIn("INTEGRITY", self.check()[1])
+        path = self.task / "evidence" / "feature-check.md"
+        path.write_text("功能检查回执 · task-core · 结论：通过\n已检查：tests/test_borrow.py\n\n## 问题\n\n"
+                        "| 编号 | 位置 | 严重度 | 问题类型 | 证据 | 怎么改 |\n|---|---|---|---|---|---|\n| issue-1 | tests/test_borrow.py::test_more | P1 | 断言恒真 | x | y |\n", encoding="utf-8")
+        self.assertIn("FEATURE_CHECK_OPEN", self.check()[1])
+
+    def test_old_receipt_name_is_not_accepted(self):
+        os.environ["COVER_ALL"] = "1"
+        self.coverage()
+        (self.task / "evidence" / "test-integrity.md").write_text("测试真实性检查回执 · task-core · 结论：通过\n已检查：无\n", encoding="utf-8")
+        self.assertIn("FEATURE_CHECK", self.check()[1])
 
     # check
     def test_check_without_coverage_record(self):
@@ -405,14 +448,31 @@ class QdevCheckTest(unittest.TestCase):
         os.chdir(self.cwd)
         self.tmp.cleanup()
 
-    def rules(self):
+    def rules(self, receipt=True):
         run("coverage", str(self.task), "--cmd", "python3 make_report.py", "--report", "cov.json")
+        if receipt:
+            (self.root / "docs/spec/loan/tasks/limit-hint-evidence/feature-check.md").write_text(
+                "功能检查回执 · limit-hint · 结论：通过 · P0 ×0 · P1 ×0 · P2 ×0\n已检查：无\n\n"
+                "| 编号 | 位置 | 严重度 | 问题类型 | 证据 | 怎么改 |\n|---|---|---|---|---|---|\n", encoding="utf-8")
         code, out, _ = run("check", str(self.task), "--json")
         return code, [p["rule"] for p in json.loads(out)["problems"]]
 
     def test_qdev_passes(self):
         self.assertEqual(self.rules(), (0, []))
         self.assertTrue((self.root / "docs/spec/loan/tasks/limit-hint-evidence/coverage.json").is_file())
+
+    def test_qdev_with_scenes_needs_feature_check(self):
+        self.assertEqual(self.rules(receipt=False), (1, ["FEATURE_CHECK"]))
+
+    def test_qdev_without_scenes_skips_feature_check(self):
+        text = self.task.read_text(encoding="utf-8").replace("2026-11-21 用户回复“可以”", "只记变更，未写场景，无需确认")
+        self.task.write_text(text, encoding="utf-8")
+        self.assertEqual(self.rules(receipt=False), (0, []))
+
+    def test_qdev_mixed_confirmation_still_needs_feature_check(self):
+        text = self.task.read_text(encoding="utf-8").replace("2026-11-21 用户回复“可以”", "engineering 只记变更，无需确认；loan 已确认（2026-11-21 用户回复“可以”）")
+        self.task.write_text(text, encoding="utf-8")
+        self.assertEqual(self.rules(receipt=False), (1, ["FEATURE_CHECK"]))
 
     def test_qdev_missing_confirmation_and_case(self):
         text = self.task.read_text(encoding="utf-8")

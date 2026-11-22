@@ -18,7 +18,6 @@ PIPELINE_STAGES = (
     "x-req",
     "x-dev",
     "x-verify-spec",
-    "x-qa-gate",
     "x-fix",
 )
 
@@ -29,7 +28,6 @@ REQUIRED_SKILLS = (*PIPELINE_STAGES, *SHARED_SKILLS)
 EXECUTOR_TOOLS = (
     "xdev.py",
     "validator.py",
-    "flag.py",
     "req.py",
     "spec.py",
     "verify.py",

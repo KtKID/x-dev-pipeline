@@ -7,7 +7,7 @@
 - check：交付前的机械核对（原 x-verify-spec 里能用脚本判断的部分）：
   结构与编号、需求变化已同步、行状态、每个场景都有通过的用例、每个用例都有真实存在的测试、
   高风险行有真实链路用例、覆盖率记录 100% 且代码之后没再改过、
-  测试真实性检查回执（证据目录 test-integrity.md）通过且是在最后一次跑覆盖率之后写的。
+  功能检查回执（证据目录 feature-check.md，risk Q0 不要求）通过且是在最后一次跑覆盖率之后写的。
 
 对象：
 - 常规 task：docs/spec/<spec>/tasks/<task>/（读写 dev-checklist.md，证据放 <task>/evidence/）。
@@ -35,7 +35,7 @@ DOC_DIRS = ("docs/", "evals/", "reports/")
 PASS_WORDS = {"通过", "人工通过"}
 REAL_LAYERS = ("smoke", "e2e", "集成", "integration", "真实链路")
 RECORD = "coverage.json"
-RECEIPT = "test-integrity.md"
+RECEIPT = "feature-check.md"
 SKIP_DIRS = re.compile(r"(^|/)(evidence|[^/]+-evidence)/")
 
 
@@ -496,7 +496,7 @@ def coverage_summary(result: dict, record: str) -> str:
     return f"{mark} {result['percent']:g}%（{lines}）· {tests} · 基线 {result['base'][:12]} · 记录 {record}"
 
 
-# ───────────────────────────── integrity ─────────────────────────────
+# ───────────────────────────── 功能检查回执 ─────────────────────────────
 
 def is_test_file(path: str) -> bool:
     if any(path.startswith(d) for d in DOC_DIRS) or SKIP_DIRS.search(path):
@@ -510,11 +510,11 @@ def changed_test_files(root: Path, base: str) -> list[str]:
     return sorted(p for p in names if is_test_file(p) and (root / p).is_file())
 
 
-def parse_integrity_receipt(text: str) -> tuple[str | None, list[str], set[str]]:
-    """返回 (结论, 问题行的测试位置, “已检查”里列出的文件)。"""
+def parse_feature_receipt(text: str) -> tuple[str | None, list[tuple[str, str]], set[str]]:
+    """返回 (结论, [(编号, 严重度)], “已检查”里列出的文件)。"""
     m = re.search(r"结论\s*[:：]\s*(不通过|通过)", text)
     verdict = m.group(1) if m else None
-    locations: list[str] = []
+    issues: list[tuple[str, str]] = []
     columns: list[str] = []
     for raw in text.splitlines():
         line = raw.strip()
@@ -523,62 +523,75 @@ def parse_integrity_receipt(text: str) -> tuple[str | None, list[str], set[str]]
             continue
         cells = split_cells(line)
         if not columns:
-            if any(c.startswith("测试位置") for c in cells):
+            if any(c.startswith("编号") for c in cells) and any(c.startswith("严重度") for c in cells):
                 columns = cells
             continue
         if all(re.fullmatch(r":?-{2,}:?", c) for c in cells if c):
             continue
         row = {name: (cells[i] if i < len(cells) else "") for i, name in enumerate(columns)}
-        loc = col(row, "测试位置").strip("` ")
-        if loc and not loc.startswith("<"):
-            locations.append(loc)
+        iid = col(row, "编号").strip("` ")
+        if iid and not iid.startswith("<"):
+            issues.append((iid, col(row, "严重度").strip("` ").upper()))
     checked: set[str] = set()
     sm = re.search(r"已检查\s*[:：](.*?)(?:\n\s*\n|\n\s*\||\Z)", text, re.S)
     if sm:
         body = re.sub(r"[（(]共[^）)]*[）)]", "", sm.group(1))
         checked = {x.strip("` ") for x in re.split(r"[、,，;；\s]+", body) if x.strip("` ")}
-    return verdict, locations, checked
+        checked.discard("无")
+    return verdict, issues, checked
 
 
-def check_integrity(t: Target, out: list[dict]) -> None:
-    """测试真实性检查：有新增或改动的测试时，证据目录里要有子 agent 的回执，结论通过
-    （或每条问题都在「问题与处置」写了不采纳理由），列全改动的测试文件，
-    并且回执写在最后一次跑覆盖率之后（测试一改覆盖率就要重跑，旧回执随之过期）。"""
+def needs_feature_check(t: Target) -> bool:
+    """risk Q0 和只记变更、没写场景的 qdev 不做功能检查。"""
+    text = t.text()
+    if t.kind == "checklist":
+        return (header(text, "risk") or "").upper() != "Q0"
+    confirm = table_section_line(text, "spec 归属与确认") or ""
+    # 只有整条记录都是“无需确认”才跳过；一份 spec 无需确认、另一份已确认的混合情况仍要检查
+    return "无需确认" not in confirm or bool(re.search(r"已确认|用户确认|用户回复", confirm))
+
+
+def check_feature(t: Target, out: list[dict]) -> None:
+    """功能检查回执（证据目录 feature-check.md）：要做时必须有；“已检查”列全改动的测试文件；
+    P0/P1 都没了（结论通过）或每条都在「问题与处置」写了不采纳理由；
+    回执写在最后一次跑覆盖率之后（代码或测试一改覆盖率就要重跑，旧回执随之过期）。"""
+    if not needs_feature_check(t):
+        return
     base = header(t.text(), "代码基线")
     if base is None:
         return
     try:
         tests = changed_test_files(t.root, base)
     except UsageError as e:
-        problem(out, "INTEGRITY", f"无法列出改动的测试：{e}")
-        return
-    if not tests:
+        problem(out, "FEATURE_CHECK", f"无法列出改动的测试：{e}")
         return
     rp = t.evidence / RECEIPT
     where = rel(rp, t.root)
+    listing = "要检查的测试文件（派工单照抄这份完整清单）：" + ("、".join(tests) if tests else "无")
     if not rp.is_file():
-        problem(out, "INTEGRITY", f"有新增或改动的测试，但没有测试真实性检查回执 {where}：派轻量子 agent 检查这些测试：" + "、".join(tests))
+        problem(out, "FEATURE_CHECK", f"没有功能检查回执 {where}：按 x-verify-spec 的功能检查派子 agent。{listing}")
         return
     text = rp.read_text(encoding="utf-8")
-    verdict, findings, checked = parse_integrity_receipt(text)
-    if "测试真实性检查回执" not in text or verdict is None:
-        problem(out, "INTEGRITY", f"{where} 格式不对：要有“测试真实性检查回执”和“结论：通过/不通过”")
+    verdict, issues, checked = parse_feature_receipt(text)
+    if "功能检查回执" not in text or verdict is None:
+        problem(out, "FEATURE_CHECK", f"{where} 格式不对：要有“功能检查回执”和“结论：通过/不通过”")
         return
     missing = [p for p in tests if p not in checked]
     if missing:
-        problem(out, "INTEGRITY", "回执的“已检查”没有列出这些测试文件：" + "、".join(missing))
-    notes = section_text(t.text(), "问题与处置")
-    open_items = [loc for loc in findings
-                  if not any("测试真实性" in ln and loc in ln and "不采纳" in ln for ln in notes.splitlines())]
-    if verdict == "不通过" and not findings:
-        open_items = ["（结论不通过，但没列出具体问题）"]
+        problem(out, "FEATURE_CHECK", "回执的“已检查”没有列出这些测试文件：" + "、".join(missing) + f"。重做功能检查，{listing}")
+    notes = section_text(t.text(), "问题与处置").splitlines()
+    blocking = [iid for iid, sev in issues if sev in ("P0", "P1")]
+    open_items = [iid for iid in blocking
+                  if not any("功能检查" in ln and re.search(rf"{re.escape(iid)}(?!\d)", ln) and "不采纳" in ln for ln in notes)]
+    if verdict == "不通过" and not blocking:
+        open_items = ["（结论不通过，但没列出 P0/P1）"]
     if open_items:
-        problem(out, "INTEGRITY", "测试真实性检查的问题还没修，也没写不采纳理由：" + "、".join(open_items))
+        problem(out, "FEATURE_CHECK_OPEN", "功能检查的 P0/P1 还没修，也没写不采纳理由：" + "、".join(open_items) + "（交 x-fix）")
     record = t.evidence / RECORD
     if record.is_file():
         finished = json.loads(record.read_text(encoding="utf-8")).get("finished_at")
         if finished and rp.stat().st_mtime < finished:
-            problem(out, "INTEGRITY_STALE", "覆盖率在真实性检查之后重跑过（测试可能改了）：重新派子 agent 检查，覆盖回执")
+            problem(out, "FEATURE_CHECK_STALE", f"覆盖率在功能检查之后重跑过（代码或测试改了）：重做功能检查，覆盖回执。{listing}")
 
 
 # ───────────────────────────── check ─────────────────────────────
@@ -715,7 +728,7 @@ def check_checklist(t: Target) -> list[dict]:
             cases_needed.setdefault(cid, "tech-design 里回指本轮场景")
     check_mapping(t, cases_needed, scenes_needed, design_cases, rows_high, ce, main, out)
     check_coverage_record(t, out)
-    check_integrity(t, out)
+    check_feature(t, out)
     return out
 
 
@@ -734,8 +747,27 @@ def check_qdev(t: Target) -> list[dict]:
                 cases_needed[cid] = "③"
     check_mapping(t, cases_needed, set(), {}, [], ce, "", out)
     check_coverage_record(t, out)
-    check_integrity(t, out)
+    check_feature(t, out)
     return out
+
+
+def coverage_line(t: Target) -> str:
+    try:
+        data = json.loads((t.evidence / RECORD).read_text(encoding="utf-8"))
+        return f"改动行覆盖率 {data['percent']:g}%（{data['covered']}/{data['total']} 行）"
+    except (OSError, ValueError, KeyError):
+        return "改动行覆盖率 100%"
+
+
+def feature_line(t: Target) -> str:
+    if not needs_feature_check(t):
+        return "不需要功能检查（Q0 或未写场景）"
+    try:
+        _, issues, _ = parse_feature_receipt((t.evidence / RECEIPT).read_text(encoding="utf-8"))
+    except OSError:
+        return "功能检查已核对"
+    p2 = sum(1 for _, sev in issues if sev == "P2")
+    return f"功能检查通过（P2 ×{p2}）"
 
 
 def table_section_line(text: str, key: str) -> str | None:
@@ -753,7 +785,7 @@ def check(raw: str, as_json: bool = False) -> int:
         for p in out:
             print(f"  [{p['rule']}]" + (f" 第 {p['line']} 行" if p["line"] else "") + f" {p['msg']}")
     else:
-        print(f"✅ 交付检查通过 · {rel(t.doc, t.root)} · 编号、状态、场景→用例→测试、改动行覆盖率 100%、测试真实性已核对")
+        print(f"✅ 交付检查通过 · {rel(t.doc, t.root)} · 编号、状态、场景→用例→测试 · {coverage_line(t)} · {feature_line(t)}")
     return 0 if not out else 1
 
 

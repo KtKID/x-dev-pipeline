@@ -1,0 +1,105 @@
+{
+  "eval": "feature-check",
+  "score": 16,
+  "total": 16,
+  "cases_passed": 16,
+  "cases": 16,
+  "rows": [
+    {
+      "id": "I01",
+      "ok": true,
+      "wrong": [],
+      "reason": "test_fine.py 的 `expected = days * DAILY_FINE` 照抄了生产里的罚款公式，没有写成手算的常量 1.5。"
+    },
+    {
+      "id": "I02",
+      "ok": true,
+      "wrong": [],
+      "reason": "`assert overdue_fine(3) == 1.5` 调用真实函数，期望值是手写常量，断言的是场景要的 1.5 元。"
+    },
+    {
+      "id": "I03",
+      "ok": true,
+      "wrong": [],
+      "reason": "`@patch('src.loan.borrow.borrow', ...)` 把被测函数 borrow 本身打桩，断言的其实是 mock 的返回值。"
+    },
+    {
+      "id": "I04",
+      "ok": true,
+      "wrong": [],
+      "reason": "真实调用 borrow，只桩掉 count_active 和 save_loan 这两个依赖，断言返回“已达借阅上限”且 save_loan 未被调用。"
+    },
+    {
+      "id": "I05",
+      "ok": true,
+      "wrong": [],
+      "reason": "test_sixth_rejected 只有 `count.assert_called_once_with('r1')`，没有检查 borrow 返回的“已达借阅上限”。"
+    },
+    {
+      "id": "I06",
+      "ok": true,
+      "wrong": [],
+      "reason": "`count_active` 返回 2 再借 book3，没有触到 5 本的上限边界，上限写错也会通过（与“上限是 5 本，测试只借 2 本”同类）。"
+    },
+    {
+      "id": "I07",
+      "ok": true,
+      "wrong": [],
+      "reason": "`expect(dueDate(at)).toEqual(dueDate(at))` 两边都是同一个函数的结果，无论实现对错都成立。"
+    },
+    {
+      "id": "I08",
+      "ok": true,
+      "wrong": [],
+      "reason": "test 文件里自己定义了 `function dueDate(...)`，没有 import src/loan/due，测的是测试文件内的副本。"
+    },
+    {
+      "id": "I09",
+      "ok": true,
+      "wrong": [],
+      "reason": "`try { expect(...) } catch (e) { console.log(...) }` 把断言失败吞掉，测试永远是绿的。"
+    },
+    {
+      "id": "I10",
+      "ok": true,
+      "wrong": [],
+      "reason": "场景要验证借书入口 borrow 的拦截，但测试直接用 save_loan 写 6 条记录，从未调用 borrow。"
+    },
+    {
+      "id": "I11",
+      "ok": true,
+      "wrong": [],
+      "reason": "固定系统时间为 2026-03-15，`dueDate(new Date())` 期望 2026-04-14，真实调用 dueDate 且覆盖了跨月。"
+    },
+    {
+      "id": "I12",
+      "ok": true,
+      "wrong": [],
+      "reason": "`@pytest.mark.skip(reason='later')` 让罚款封顶的测试被跳过，失败被藏起来。"
+    },
+    {
+      "id": "I13",
+      "ok": true,
+      "wrong": [],
+      "reason": "`overdue_fine(100) == 20.0` 覆盖封顶，`overdue_fine(0) == 0.0` 覆盖没逾期不罚，都是真实调用、手写期望值。"
+    },
+    {
+      "id": "I14",
+      "ok": true,
+      "wrong": [],
+      "reason": "场景要求拒绝且到期日不变，但 test_overdue_rejected 只断言了 loan is None 和错误文案，没有检查 store 里的 due 是否不变。"
+    },
+    {
+      "id": "I15",
+      "ok": true,
+      "wrong": [],
+      "reason": "场景要求续借后把这条借阅标为已续借，但 renew.py 的 renew 没有设置 loan.renewed，代码里没做到。"
+    },
+    {
+      "id": "I16",
+      "ok": true,
+      "wrong": [],
+      "reason": "diff 里 src/loan/borrow.py 的 `LIMIT = 5` 改为 `LIMIT = 6`，该文件不在交付文档写的涉及文件（只有 renew.py 和 test_renew.py）内，且与续借场景无关。"
+    }
+  ]
+}

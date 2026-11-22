@@ -9,10 +9,10 @@
 - M05：开工前 impact 有变化 → 先同步再记基线。
 - M06：工人要改范围外文件 → 主 agent 调整派工单和清单，重跑 validate/graph。
 - M07：中途需求变化 → 只停受影响的组。
-- M08：全部合并后 → 先整体跑覆盖率和 xdev check。
-- M09：xdev check 通过且 Q3 → 交 x-qa-gate。
+- M08：全部合并后 → 先整体跑覆盖率。
+- M09：整体覆盖率 100% 且 Q3 → 交 x-verify-spec 验收。
 - M10：只有一组 → 不走多 agent 流程。
 - M11：无关的 bug → 登记成后续任务。
-- M12：xdev check 通过且 Q0 → 主 agent 升 ✅ 并交付，不派 reviewer。
-- M14：xdev check 通过且 Q1 → 交 x-qa-gate（Q1 也要一次独立审查）。
+- M12：验收通过 → 主 agent 升 ✅ 并交付。
+- M14：整体覆盖率 100% 且 Q1 → 交 x-verify-spec 验收。
 - M13：要改的文件属于另一组 → 按硬规则把这一行并进那一组。

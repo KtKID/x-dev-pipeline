@@ -16,7 +16,6 @@ SCRIPTS = SKILL_ROOT / "scripts"
 TOOL_SOURCES = {
     "xdev.py": REPO_ROOT / "skills" / "x-dev" / "scripts" / "xdev.py",
     "validator.py": REPO_ROOT / "skills" / "x-ask-spec" / "scripts" / "validator.py",
-    "flag.py": REPO_ROOT / "skills" / "x-qa-gate" / "scripts" / "flag.py",
     "req.py": REPO_ROOT / "skills" / "x-req" / "scripts" / "req.py",
     "spec.py": REPO_ROOT / "skills" / "x-ask-spec" / "scripts" / "spec.py",
     "verify.py": REPO_ROOT / "skills" / "x-verify" / "scripts" / "verify.py",
@@ -48,7 +47,6 @@ class PipelineEfficiencyBenchmarkTests(unittest.TestCase):
             {
                 "xdev.py",
                 "validator.py",
-                "flag.py",
                 "req.py",
                 "spec.py",
                 "verify.py",

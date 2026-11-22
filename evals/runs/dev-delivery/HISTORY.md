@@ -13,3 +13,4 @@
 | 5 | 16/16 ×2 | 冲突检查后规则改成“测试改了先重跑 coverage 再重查”，D15 的答案和选项名随之改 |
 | 6 | 16/16 ×2 | xdev integrity 并进 xdev check 后复跑；D15 改成“报 COVERAGE_STALE → 重跑 coverage 后重新派子 agent 检查” |
 | 7 | 16/16 ×2 | x-dev 加了“先读场景再读约束”后复跑 |
+| 8 | 16/16 ×2 | 开发做完一律交 x-verify-spec 验收；D09/D10/D12–D15 随新流程改写，D05、D07 题面写明是开发阶段 |

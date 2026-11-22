@@ -18,7 +18,6 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path[:0] = [
     str(ROOT / "skills" / "pipeline-efficiency-benchmark" / "scripts"),
     str(ROOT / "skills" / "x-dev" / "scripts"),
-    str(ROOT / "skills" / "x-qa-gate" / "scripts"),
     str(ROOT / "skills" / "x-verify-spec" / "scripts"),
     str(ROOT / "skills" / "x-req" / "scripts"),
     str(ROOT / "skills" / "x-ask-spec" / "scripts"),

@@ -7,20 +7,17 @@
 | `[ ] ⏳` | 未开始 | 等待依赖满足；需求变化后重开的行也回到这里 |
 | `[ ] ▶️` | 进行中 | x-dev 已开始实现 |
 | `[ ] 🟡` | 待验证 | 实现完成，等待验证（多 agent 协作时工人交回、还没合并） |
-| `[!] 🔴` | 验证失败 | x-fix 批量修复 |
-| `[x] 🟢` | 测试通过 | 用例对应表已登记；等待 `xdev check` 和审查 |
-| `[x] ✅` | 已完成 | 主 agent 升级：risk Q0 在 `xdev check` 通过后；Q1/Q2/Q3 在 x-qa-gate 通过后。同时把 `reports/.fix-counter` 写回 0（存在时） |
-| `[ ] ↗️` | 已升级 | 超出本 task 范围（如 qdev 转主线、某组 3 轮验收不过）交给用户或主线 |
+| `[!] 🔴` | 开发中失败 | 开发负责方修好后恢复 |
+| `[x] 🟢` | 测试通过 | 用例对应表已登记；等待 x-verify-spec 验收 |
+| `[x] ✅` | 已完成 | 主 agent 在 x-verify-spec 验收通过后升级，同时把 `reports/.fix-counter` 写回 0（存在时） |
+| `[ ] ↗️` | 已升级 | 超出本 task 范围（如 qdev 转主线、某组 3 轮核对不过、验收 3 轮修复不过）交给用户或主线 |
 
 `xdev status` 与 `xdev graph` 以 emoji 判定状态。多 agent 协作时，状态列只由主 agent 写，见 [多 agent 协作开发](parallel-dev.md)。每次变更状态立即回写 checklist；结果与证据按 [证据约定](test-reporting.md) 写在 checklist 的「结果」节和 `evidence/`。
 
-### QA Gate 写权
+### 验收问题的写权
 
-- 子 agent 实现或修复代码时保持 checklist 状态单元格与 `reports/qa-gate/qa-gate-report-*.md` 原样。
-- `python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" flag ...` 是 issue ledger 和 P0/P1 `[!] 🔴` 降级的唯一写入口。
-- 主 agent 按 reviewer 候选顺序串行调用 `flag`；每个 task 长期只保留一份 `dev-checklist.md`。
-- x-fix 修完、主 agent 按 x-qa-gate「回流」关闭问题后，主 agent 亲自确认并把对应 `[!]` 升为 `[x]`。
-- P2 flag 只登记 issue，所有 task 状态保持原样。
+- 功能检查的问题只写在证据目录的 `feature-check.md` 回执里，编号 issue-1、issue-2…；处置写进 checklist「问题与处置」。不另建 issue 登记本，验收发现问题时不把行降为 🔴。
+- 子 agent（功能检查、x-fix）不改 checklist 状态列；状态由主 agent 写。
 
 ## Verify 块（仅旧契约包）
 
@@ -40,4 +37,4 @@ expect_contains: <关键输出>
 
 ## Risk 路由
 
-checklist 头部的 `risk` 由 x-req 按任务行算出（`xdev validate` 核对）。`xdev check` 通过后：Q0 直接交付，由主 agent 升 ✅；Q1 / Q2 / Q3 交 x-qa-gate，怎么审以 [x-qa-gate](../../x-qa-gate/SKILL.md) 的「路由」为准。
+checklist 头部的 `risk` 由 x-req 按任务行算出（`xdev validate` 核对）。验收时 risk Q0 不做功能检查，只跑 `xdev check`；Q1 / Q2 / Q3 都做一次同样的功能检查。见 [x-verify-spec](../../x-verify-spec/SKILL.md)。
