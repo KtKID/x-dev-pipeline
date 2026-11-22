@@ -1,0 +1,19 @@
+[
+  {"id": "I01", "answer": "重写了生产逻辑", "reason": "tests/test_fine.py 的 `expected = days * DAILY_FINE` 照抄了罚款公式，期望值不是手写常量。"},
+  {"id": "I02", "answer": "通过", "reason": "`assert overdue_fine(3) == 1.5` 调用真实被测函数，期望值是手写常量，与场景 3 天罚 1.5 元一致。"},
+  {"id": "I03", "answer": "mock 掉了被测对象", "reason": "`@patch('src.loan.borrow.borrow', ...)` 把被测函数 borrow 自己打桩，随后断言的是 mock 的返回值。"},
+  {"id": "I04", "answer": "通过", "reason": "只 mock 了 count_active 和 save_loan（存储层），真实调用 borrow，断言返回 '已达借阅上限' 且 save_loan 未被调用。"},
+  {"id": "I05", "answer": "只断言调用不断言结果", "reason": "`count.assert_called_once_with('r1')` 是唯一断言，没有检查 borrow 返回的 '已达借阅上限'。"},
+  {"id": "I06", "answer": "数据测不出对错", "reason": "上限是 5 本，`count_active` 返回 2 只测了未达上限的 'ok' 路径，错误的上限实现（如 3）也能通过。"},
+  {"id": "I07", "answer": "断言恒真", "reason": "`expect(dueDate(at)).toEqual(dueDate(at))` 两边都是同一被测函数的输出，无论实现对错都成立。"},
+  {"id": "I08", "answer": "没调用项目代码", "reason": "测试文件内 `function dueDate(...)` 是自己复制的实现，没有 import src/loan/due.ts 里的被测函数。"},
+  {"id": "I09", "answer": "吞掉失败", "reason": "`try { expect(...) } catch (e) { console.log(...) }` 把断言失败吞掉，测试永远绿。"},
+  {"id": "I10", "answer": "绕过要测的流程", "reason": "场景要验证借书入口 borrow 的拦截，但测试直接循环调用 save_loan 写 6 条记录，从未调用 borrow。"},
+  {"id": "I11", "answer": "通过", "reason": "用 fake timer 固定 3/15，断言 dueDate 返回 4/14，真实调用被测函数且跨月结果正确；mock 时钟属于允许的做法。"},
+  {"id": "I12", "answer": "吞掉失败", "reason": "`@pytest.mark.skip(reason='later')` 让 20 元封顶的测试根本不运行，等于把失败藏起来。"},
+  {"id": "I13", "answer": "通过", "reason": "`overdue_fine(100) == 20.0` 与 `overdue_fine(0) == 0.0` 分别覆盖封顶和没逾期两条要求，真实调用且期望值为常量。"},
+  {"id": "I14", "answer": "没测到场景要的结果", "reason": "场景要求被拒时到期日不变，测试只断言了 loan is None 和错误信息，没有检查 loan 的 due 不变。"},
+  {"id": "I15", "answer": "漏了要的", "reason": "场景 THEN 要求这条借阅标为已续借，production 的 renew 里没有设置 renewed 的语句，测试也没断言这一点。"},
+  {"id": "I16", "answer": "做了没要的", "reason": "本次 diff 改了 src/loan/borrow.py 的 `LIMIT = 5` 为 `LIMIT = 6`，超出交付文档写的涉及文件（只有 renew.py 和 test_renew.py）且场景没提借阅上限。"},
+  {"id": "I17", "answer": "漏了要的", "reason": "本轮 D02 要求续借天数用具名常量 RENEW_DAYS，但 production 第 5 行直接写死了 `timedelta(days=14)`。"}
+]

@@ -1,0 +1,111 @@
+{
+  "eval": "feature-check",
+  "score": 17,
+  "total": 17,
+  "cases_passed": 17,
+  "cases": 17,
+  "rows": [
+    {
+      "id": "I01",
+      "ok": true,
+      "wrong": [],
+      "reason": "test_fine.py 的 `expected = days * DAILY_FINE` 照抄生产里的罚款公式（DAILY_FINE 从生产代码 import），不是手写的 1.5。"
+    },
+    {
+      "id": "I02",
+      "ok": true,
+      "wrong": [],
+      "reason": "`assert overdue_fine(3) == 1.5` 调用真实函数，期望值是手写常量，与场景“逾期 3 天罚 1.5 元”一致。"
+    },
+    {
+      "id": "I03",
+      "ok": true,
+      "wrong": [],
+      "reason": "`@patch('src.loan.borrow.borrow', return_value='已达借阅上限')` 把被测函数 borrow 本身打桩，测的是 mock 的返回值。"
+    },
+    {
+      "id": "I04",
+      "ok": true,
+      "wrong": [],
+      "reason": "只 mock 了 count_active 和 save_loan（存储层），真实运行 borrow，断言返回“已达借阅上限”且 save_loan 未被调用。"
+    },
+    {
+      "id": "I05",
+      "ok": true,
+      "wrong": [],
+      "reason": "`count.assert_called_once_with('r1')` 是唯一断言，没有检查 borrow 返回“已达借阅上限”这一场景要求的结果。"
+    },
+    {
+      "id": "I06",
+      "ok": true,
+      "wrong": [],
+      "reason": "上限是 5 本，`count_active` 桩成 2 且只借一本并断言 'ok'，没有触及第 6 本被拒的边界，错误实现也能通过。"
+    },
+    {
+      "id": "I07",
+      "ok": true,
+      "wrong": [],
+      "reason": "`expect(dueDate(at)).toEqual(dueDate(at))` 两边都是同一被测函数的结果，任何实现都成立。"
+    },
+    {
+      "id": "I08",
+      "ok": true,
+      "wrong": [],
+      "reason": "测试文件内自己定义了 `function dueDate(...)`，测的是复制进来的函数，没有 import src/loan/due.ts 的被测函数。"
+    },
+    {
+      "id": "I09",
+      "ok": true,
+      "wrong": [],
+      "reason": "`try { expect(...) } catch (e) { console.log(...) }` 把断言失败吞掉，测试永远绿。"
+    },
+    {
+      "id": "I10",
+      "ok": true,
+      "wrong": [],
+      "reason": "场景要验证借书入口 borrow 的拦截，但测试直接循环调用 save_loan 写 6 条记录，再断言 count_active > LIMIT，从未调用 borrow。"
+    },
+    {
+      "id": "I11",
+      "ok": true,
+      "wrong": [],
+      "reason": "fake timer 设为 2026-03-15，`dueDate(new Date())` 真实运行并断言 2026-04-14，跨月结果正确，期望值为手写常量。"
+    },
+    {
+      "id": "I12",
+      "ok": true,
+      "wrong": [],
+      "reason": "`@pytest.mark.skip(reason='later')` 让封顶 20 元的测试根本不执行，场景要求的上限没有被验证。"
+    },
+    {
+      "id": "I13",
+      "ok": true,
+      "wrong": [],
+      "reason": "`overdue_fine(100) == 20.0` 真实调用并断言封顶，`overdue_fine(0) == 0.0` 覆盖没逾期不罚，两条场景 THEN 都有断言。"
+    },
+    {
+      "id": "I14",
+      "ok": true,
+      "wrong": [],
+      "reason": "场景要求“被拒且到期日不变”，test_overdue_rejected 只断言 loan is None 和返回错误文案，没有比较 store 中借阅记录的 due 是否不变。"
+    },
+    {
+      "id": "I15",
+      "ok": true,
+      "wrong": [],
+      "reason": "场景要求续借成功后“这条借阅标为已续借”，但 renew.py 的 renew 没有设置 loan.renewed = True，代码未做到，测试也未断言此项。"
+    },
+    {
+      "id": "I16",
+      "ok": true,
+      "wrong": [],
+      "reason": "本次 diff 里 src/loan/borrow.py 把 `LIMIT = 5` 改成 `LIMIT = 6`，超出交付文档写的涉及文件（只有 renew.py 和 test_renew.py），也是场景没提的行为变化。"
+    },
+    {
+      "id": "I17",
+      "ok": true,
+      "wrong": [],
+      "reason": "本轮 D02 要求续借天数用具名常量 RENEW_DAYS，但 renew.py 写死为 `timedelta(days=14)`，设计未落实。"
+    }
+  ]
+}

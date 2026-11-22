@@ -244,7 +244,7 @@ x-qa-gate 并进 x-verify-spec。开发做完只验收一次，查过的不再�
 - WHEN 运行 `xdev check`
 - THEN 要做功能检查却没有回执、回执没列全改动的测试文件、回执写在最后一次覆盖率之前，报 FEATURE_CHECK / FEATURE_CHECK_STALE；当前回执里还有 P0/P1 又没写不采纳理由，报 FEATURE_CHECK_OPEN；修完要重跑 coverage、按同一份派工单整份重做功能检查（附上一份回执接着编号）再跑 `xdev check`；修复轮数记在「问题与处置」，最多 3 轮，不另建计数文件；P2 只登记不修；通过时输出写出覆盖率行数和功能检查结果，主 agent 把 spec 里本轮 feat 和变更记录的状态改为已验收
 
-验收：eval verify-route（V01–V15、V19、V20）、feature-check（17 题）、dev-delivery（D09–D15）、dev-main（M08、M09、M12、M14）；`test/test_delivery.py`。
+验收：eval verify-route（V01–V15、V19–V22）、feature-check（17 题）、dev-delivery（D09–D15）、dev-main（M08、M09、M12、M14）；`test/test_delivery.py`。
 
 ## feat10: 架构要求记在用户约束里
 
@@ -336,3 +336,4 @@ x-qa-gate 并进 x-verify-spec。开发做完只验收一次，查过的不再�
 | 2026-11-22 | feat09 改为“开发后只验收一次”：x-qa-gate 并进 x-verify-spec，功能检查（含原测试真实性检查）只做一次，Q0 不做，架构和设计交给定期巡检，回执只存一份；feat11 场景2 改为验收时查、场景3 退役并入 feat09 场景4；feat04、feat05、feat07、feat10 的措辞随之改 | 用户 2026-11-22 | 待用户确认 |
 | 2026-11-22 | feat09 场景2 改为“只查本轮的任务文档和设计文档”：本轮 C（含用户当场定的架构约束）和 D 都要查，全项目约束交巡检；去掉扩大范围的引导（engineering 约束进任务、跨 spec 引用 engineering:C1、受影响回归用例、R1–R7 进每次设计）；feat10 场景1/2 随之改 | 用户 2026-11-22 | 待用户确认 |
 | 2026-11-22 | feat09 场景4：重做功能检查改为整份重查；修复轮数记进「问题与处置」，去掉 .fix-counter 和 fix-blocked-report；验收通过时把 spec 里本轮 feat 状态改为已验收 | 用户 2026-11-22 | 待用户确认 |
+| 2026-11-22 | feat09：严重度写明属于漏做、多做或测试问题的至少是 P1，现在代码碰巧对不能降级；P2 只给其余建议，附真实的正例和反例 | 用户 2026-11-22 | 待用户确认 |

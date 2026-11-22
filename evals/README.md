@@ -53,7 +53,7 @@ python3 evals/scripts/runs_summary.py spec-scope   # 一组题的全部轮次
 | dev-delivery | 16 | 看到 xdev coverage / check / 功能检查的结果后下一步做什么；不再另写测试报告 | `skills/x-dev/SKILL.md`、`skills/x-dev/references/test-reporting.md`、`skills/x-qdev/SKILL.md`、`skills/x-verify-spec/` |
 | ask-spec | 12 | 需求讨论时会不会主动复述、追问，何时才写 spec，超过 5 个 feat 怎么分期 | `skills/x-ask-spec/SKILL.md` |
 | feature-check | 17 | 便宜的模型能不能凭清单识破功能漏做多做和假测试、又不误报 | `skills/x-verify-spec/references/feature-check.md` |
-| verify-route | 20 | 验收怎么走：哪种 risk 做功能检查、严重度、哪些交给定期巡检、回执存几份、修完怎么关闭；架构约束怎么处理 | `skills/x-verify-spec/`、`skills/x-tech-design/SKILL.md`、spec 模板「关键约束」 |
+| verify-route | 22 | 验收怎么走：哪种 risk 做功能检查、严重度、哪些交给定期巡检、回执存几份、修完怎么关闭；架构约束怎么处理 | `skills/x-verify-spec/`、`skills/x-tech-design/SKILL.md`、spec 模板「关键约束」 |
 
 规则里能机械判断的部分（编号引用、文件交集必须同组、依赖无环、risk 计算、需求变化同步清单）由脚本负责，测试在 `test/test_checklist_engine.py`，不需要 LLM 判题。
 
