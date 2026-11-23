@@ -18,7 +18,7 @@ description: |
 
 ### 1. 读报告
 
-- 用户给了路径就用；没给就找当前 task 的 `reports/cr/` 下最新一份，再找仓库根目录 `reports/cr/` 下最新一份。
+- 用户给了路径就用；没给就找当前 task 的 `reports/cr/`（qdev 是 `task-<name>-evidence/cr/`）下最新一份，再找仓库根目录 `reports/cr/` 下最新一份。
 - 找不到：停下，告诉用户先跑 x-cr。
 - 先跑校验，不通过就停下，把校验错误交给用户（报告要回 x-cr 改）：
 
@@ -26,7 +26,7 @@ description: |
   python3 skills/x-cr/scripts/validate_report.py <报告路径>
   ```
 
-- 问题表里状态已经是“已修”“误报不修”的跳过。
+- 问题表里状态已经是“已修”“误报不修”的跳过；“待确认”的看用户有没有给出答案，给了就按答案修，没给就保持原样。
 
 ### 2. 列计划
 
@@ -58,7 +58,8 @@ description: |
 ### 4. 跑测试
 
 - 跑项目全量测试，必须全绿。
-- 在 task 里修的（报告在 `docs/spec/<spec>/tasks/<task>/reports/cr/`），再跑 `xdev coverage`，改动行覆盖率 100%，做法见 [证据约定](../x-dev/references/test-reporting.md)。
+- 在 task 里修的（报告在常规 task 的 `reports/cr/` 或 qdev task 的 `task-<name>-evidence/cr/`），再跑 `xdev coverage`，改动行覆盖率 100%，做法见 [证据约定](../x-dev/references/test-reporting.md)。
+- 不在 task 里的（报告在仓库根目录 `reports/cr/`）：只跑项目全量测试，不跑 `xdev coverage`。
 - 测试没全绿：接着修，修不好就把那条改“待确认”，写清卡在哪。
 
 ### 5. 回写报告

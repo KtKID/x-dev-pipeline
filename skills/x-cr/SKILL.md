@@ -38,7 +38,7 @@ description: |
 
 判尺就是“这段代码必须做到什么”。按这个顺序找，用原来的编号，不另起编号：
 
-1. **有 spec**：在 task 里就从 `dev-checklist.md` 的 `> spec:` 找到 spec。读本轮相关 feat 的**场景**（GIVEN/WHEN/THEN）、**关键约束 C**，再读同目录 `tech-design.md` 的 **D 规则**。编号写成 `<spec 名>:C2`、`<spec 名>:feat03-场景2`、`<spec 名>:D04`。
+1. **有 spec**：常规 task 从 `dev-checklist.md` 的 `> spec:` 找到 spec，qdev task 从 task 文件头的 `> 所属 spec：` 找。读本轮相关 feat 的**场景**（GIVEN/WHEN/THEN）、**关键约束 C**，再读同目录 `tech-design.md` 的 **D 规则**。编号写成 `<spec 名>:C2`、`<spec 名>:feat03-场景2`、`<spec 名>:D04`。
 2. **没有 spec**：用接口文档、协议或 schema、调用方的用法、已有测试（尤其是负向测试）。编号写 `新1`、`新2`，来源写清文件位置。
 3. **spec 没写但代码里明显该守的规则**（比如服务端不能信客户端传的 role）：也记下来，编号 `新N`，来源写“spec 没写”加代码证据。报告里提醒用户补进 spec，不自己改 spec。
 
@@ -72,7 +72,8 @@ spec 和用户现在说的不一样时，这条规则的结论写“来源不一
 
 按 [references/report-template.md](references/report-template.md) 写一份报告：
 
-- 在 task 里：`docs/spec/<spec>/tasks/<task>/reports/cr/cr-YYYYMMDD-HHmmss.md`
+- 在常规 task 里：`docs/spec/<spec>/tasks/<task>/reports/cr/cr-YYYYMMDD-HHmmss.md`
+- 在 qdev task 里：`docs/spec/<spec>/tasks/task-<name>-evidence/cr/cr-YYYYMMDD-HHmmss.md`
 - 其他：仓库根目录 `reports/cr/cr-YYYYMMDD-HHmmss.md`
 
 每个问题写：严重度、位置（文件 + 函数 + 行）、反例、证据、影响、怎么改。位置要让人能直接打开找到，比如 `src/loan/renew.py` 的 `renew()`，第 12–14 行。

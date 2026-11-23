@@ -16,7 +16,7 @@ from pathlib import Path
 RULE_ID_RE = re.compile(r"^(?:[a-z0-9][a-z0-9-]*:(?:C\d+|D\d+|feat\d+-场景\d+)|新\d+)$")
 ISSUE_ID_RE = re.compile(r"^B\d+$")
 DETAIL_RE = re.compile(r"^### (B\d+):", re.MULTILINE)
-HASH_RE = re.compile(r"\b[0-9a-f]{7,40}\b")
+HASH_RE = re.compile(r"(?<![\w/.])(?=[0-9a-f]*\d)(?=[0-9a-f]*[a-f])[0-9a-f]{7,40}(?![\w/.(])")
 
 RESULTS = {"守住了", "被打破", "没法验证", "没走到", "来源不一"}
 NEEDS_ISSUE = {"被打破", "没法验证", "来源不一"}
@@ -157,7 +157,7 @@ def validate_text(text: str) -> list[str]:
         seen_rules.add(rule_id)
         if result not in RESULTS:
             errors.append(f"{rule_id} 的结论不对：`{result}`，只能是 守住了、被打破、没法验证、没走到、来源不一")
-        linked_ids = [x.strip() for x in linked.split("、") if x.strip() not in {"", "-"}]
+        linked_ids = [x.strip() for x in re.split(r"[、,，]", linked) if x.strip() not in {"", "-"}]
         if result in NEEDS_ISSUE and not linked_ids:
             errors.append(f"{rule_id} 结论是{result}，要连到一个问题（B1…）")
         for issue_id in linked_ids:

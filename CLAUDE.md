@@ -41,7 +41,7 @@ x-ask-spec → x-tech-design → x-req → x-dev ──────────�
 
 - 能用脚本判断的都交给 `xdev`：结构与编号（validate）、需求变化（impact）、派工顺序（graph）、代码基线（start）、改动行覆盖率 100%（coverage）、交付核对（check，也读功能检查回执）、token 用量（usage，从本机会话记录算，记进 spec「用量」表）。agent 只做脚本判断不了的事。
 - 开发后只验收一次（x-verify-spec），查过的不再查：检查范围只到任务文档和本轮 spec、tech-design：功能检查由一个便宜的子 agent 查本轮场景、约束（含用户当场定的“架构：”约束）和设计 D 做到没有、测试是不是真的、有没有测到场景的预期结果（Q0 不做）；`xdev check` 只做机械核对。全项目的约束（engineering）、开发规范、代码规范、死代码、性能不在每个任务里查，交给定期巡检。
-- `cli/` 下的 Go 版本保留不删：计划以后做成“agent 调一个命令就能初始化这套管线、安装必需 skill”的工具，目前暂停维护，行为停在旧引擎，skill 不调用它。
+- `cli/` 下的 Go 版本保留不删：计划以后做成“agent 调一个命令就能初始化这套管线、安装必需 skill”的工具，目前暂停维护，行为停在旧引擎（包括 `xdev cr` 仍按旧的 x-cr-v2 格式校验），skill 不调用它。
 - x-plan 已废弃，功能合并到 x-req。
 
 定期巡检（不在主流程，适合每晚跑）：`x-audit-arch`（全项目约束、以前定下的设计是否还守着、开发规范、结构，方法来自 x-verify-tech）/ `x-audit-style`（规范、死代码）/ `x-audit-perf`（性能），也可手动触发；`x-cr` 是手动正确性调查，要修时交 `x-fix` 按报告修；用户直接报的 bug 走 `x-qdev`。
