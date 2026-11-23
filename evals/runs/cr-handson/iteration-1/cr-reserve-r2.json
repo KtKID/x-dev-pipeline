@@ -1,0 +1,48 @@
+{
+  "case": "cr-reserve",
+  "stage": "cr",
+  "passed": 8,
+  "total": 8,
+  "items": [
+    {
+      "check": "报告位置",
+      "ok": true,
+      "detail": "期望在 reports/cr/，实际新增：['reports/cr/cr-20261123-041330.md']"
+    },
+    {
+      "check": "报告通过校验脚本",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "没改代码和文档",
+      "ok": true,
+      "detail": "改动：[]"
+    },
+    {
+      "check": "找到：有库存也能预约",
+      "ok": true,
+      "detail": "要规则 ['reserve:feat01-场景1'] 结论 被打破，问题严重度 ['P1', 'P0']、位置含 reserve；规则表：[('reserve:C1', '来源不一', ['B2']), ('reserve:feat01-场景1', '被打破', ['B1']), ('reserve:feat01-场景2', '守住了', []), ('reserve:feat02-场景1', '守住了', []), ('新1', '没法验证', ['B3']), ('新2', '守住了', [])]；问题：{'B1': ('P1', '`src/library/reserve.py` 的 `reserve()`，第 32–38 行（`AvailableError` 定义在第 11–12 行，从未被抛出）'), 'B2': ('P2', '`docs/spec/reserve/spec.md` 的 C1 与 `src/library/reserve.py` 第 4 行'), 'B3': ('P2', '`src/library/api.py` 的 `api_reserve()`，第 5–6 行')}"
+    },
+    {
+      "check": "找到：预约上限 spec 3 本 vs 用户 5 本",
+      "ok": true,
+      "detail": "要规则 ['reserve:C1'] 结论 来源不一，问题严重度 ['P2']；规则表：[('reserve:C1', '来源不一', ['B2']), ('reserve:feat01-场景1', '被打破', ['B1']), ('reserve:feat01-场景2', '守住了', []), ('reserve:feat02-场景1', '守住了', []), ('新1', '没法验证', ['B3']), ('新2', '守住了', [])]；问题：{'B1': ('P1', '`src/library/reserve.py` 的 `reserve()`，第 32–38 行（`AvailableError` 定义在第 11–12 行，从未被抛出）'), 'B2': ('P2', '`docs/spec/reserve/spec.md` 的 C1 与 `src/library/reserve.py` 第 4 行'), 'B3': ('P2', '`src/library/api.py` 的 `api_reserve()`，第 5–6 行')}"
+    },
+    {
+      "check": "没误报：取消预约误报（api 层已核对归属）",
+      "ok": true,
+      "detail": "误报的问题：[]"
+    },
+    {
+      "check": "没误报：取消预约误报",
+      "ok": true,
+      "detail": "误报的问题：[]"
+    },
+    {
+      "check": "reserve:feat02-场景1 结论",
+      "ok": true,
+      "detail": "期望 ['守住了']，实际 守住了"
+    }
+  ]
+}

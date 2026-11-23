@@ -1,0 +1,82 @@
+diff --git a/src/library/loan.py b/src/library/loan.py
+index d012d5a..8a2ea20 100644
+--- a/src/library/loan.py
++++ b/src/library/loan.py
+@@ -39,16 +39,15 @@ class LoanStore:
+ def renew(store: LoanStore, loan_id: int, today: date) -> Loan:
+     """续借一次，返回更新后的借阅。"""
+     loan = store.get(loan_id)
+-    loan.renew_count += 1
+-    if loan.renew_count > MAX_RENEWALS + 1:
++    if loan.renew_count >= MAX_RENEWALS:
+         raise RenewLimitError(f"loan {loan_id} 已续借 {MAX_RENEWALS} 次")
+     if today > loan.due:
+         raise OverdueError(f"loan {loan_id} 已逾期")
++    loan.renew_count += 1
+     loan.due = loan.due + timedelta(days=RENEW_DAYS)
+     return loan
+ 
+ 
+ def list_loans(store: LoanStore, session_member_id: int, request: dict) -> list[Loan]:
+     """读者查借阅记录。session_member_id 来自登录会话，request 是客户端传来的参数。"""
+-    member_id = request.get("member_id", session_member_id)
+-    return store.by_member(member_id)
++    return store.by_member(session_member_id)
+diff --git a/tests/test_loan.py b/tests/test_loan.py
+index 4933095..6a68ba5 100644
+--- a/tests/test_loan.py
++++ b/tests/test_loan.py
+@@ -2,9 +2,18 @@ from datetime import date
+ import sys
+ from pathlib import Path
+ 
++import pytest
++
+ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+ 
+-from library.loan import Loan, LoanStore, list_loans, renew  # noqa: E402
++from library.loan import (  # noqa: E402
++    Loan,
++    LoanStore,
++    OverdueError,
++    RenewLimitError,
++    list_loans,
++    renew,
++)
+ 
+ 
+ def make_store():
+@@ -25,3 +34,33 @@ def test_list_own_loans():
+     store = make_store()
+     loans = list_loans(store, session_member_id=10, request={})
+     assert [loan.book for loan in loans] == ["三体"]
++
++
++def test_third_renewal_is_rejected():
++    # B1 反例：MAX_RENEWALS=2，第 3 次续借必须被拒绝，到期日和次数都不变
++    store = make_store()
++    renew(store, 1, today=date(2026, 11, 20))
++    renew(store, 1, today=date(2026, 11, 20))
++    due_before = store.get(1).due
++    with pytest.raises(RenewLimitError):
++        renew(store, 1, today=date(2026, 11, 20))
++    loan = store.get(1)
++    assert loan.renew_count == 2
++    assert loan.due == due_before
++
++
++def test_overdue_renewal_does_not_consume_count():
++    # B2 反例：逾期续借被拒绝后，续借次数和到期日都不变
++    store = LoanStore([Loan(2, member_id=20, book="活着", due=date(2026, 11, 1))])
++    with pytest.raises(OverdueError):
++        renew(store, 2, today=date(2026, 11, 20))
++    loan = store.get(2)
++    assert loan.renew_count == 0
++    assert loan.due == date(2026, 11, 1)
++
++
++def test_list_ignores_client_member_id():
++    # B3 反例：读者 10 已登录，request 里传 member_id=20，仍只返回自己的借阅
++    store = make_store()
++    loans = list_loans(store, session_member_id=10, request={"member_id": 20})
++    assert [loan.book for loan in loans] == ["三体"]

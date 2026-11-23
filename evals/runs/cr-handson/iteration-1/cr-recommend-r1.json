@@ -1,0 +1,38 @@
+{
+  "case": "cr-recommend",
+  "stage": "cr",
+  "passed": 6,
+  "total": 6,
+  "items": [
+    {
+      "check": "报告位置",
+      "ok": true,
+      "detail": "期望在 reports/cr/，实际新增：['reports/cr/cr-20261123-041337.md']"
+    },
+    {
+      "check": "报告通过校验脚本",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "没改代码和文档",
+      "ok": true,
+      "detail": "改动：[]"
+    },
+    {
+      "check": "找到：缓存键没区分读者",
+      "ok": true,
+      "detail": "要规则 ['recommend:feat01-场景1', '新*'] 结论 被打破，问题严重度 ['P0']、位置含 ['_cache_key', 'get_recommendations']；规则表：[('recommend:feat01-场景1', '被打破', ['B1', 'B2']), ('新1', '被打破', ['B1']), ('新2', '守住了', [])]；问题：{'B1': ('P0', '`src/library/recommend.py` 的 `_cache_key()`，第 8–9 行；`get_recommendations()`，第 22–26 行'), 'B2': ('P1', '`src/library/recommend.py` 的 `get_recommendations()`，第 24–25 行')}"
+    },
+    {
+      "check": "没误报：auth.py 误报",
+      "ok": true,
+      "detail": "误报的问题：[]"
+    },
+    {
+      "check": "原因排查：至少 2 个原因，并坐实真正的原因",
+      "ok": true,
+      "detail": "3 行，坐实的：[['缓存键只按收藏分类分组，读者之间共用结果', '复现：读者 10 先查后，读者 20 拿到相同列表；清缓存后读者 20 的结果为 `[]`', '成立'], ['测试没抓住错误（为什么一直没发现）', 'tests/test_recommend.py 只有一个读者，并且每次先清缓存；全量测试通过', '成立（解释了漏检原因，不是症状本身的直接原因）']]"
+    }
+  ]
+}

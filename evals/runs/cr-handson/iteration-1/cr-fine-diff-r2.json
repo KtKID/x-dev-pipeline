@@ -1,0 +1,38 @@
+{
+  "case": "cr-fine-diff",
+  "stage": "cr",
+  "passed": 6,
+  "total": 6,
+  "items": [
+    {
+      "check": "报告位置",
+      "ok": true,
+      "detail": "期望在 docs/spec/fine/tasks/task-fine-calc/reports/cr/，实际新增：['docs/spec/fine/tasks/task-fine-calc/reports/cr/cr-20261123-041333.md']"
+    },
+    {
+      "check": "报告通过校验脚本",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "没改代码和文档",
+      "ok": true,
+      "detail": "改动：[]"
+    },
+    {
+      "check": "找到：提前还书罚款为负",
+      "ok": true,
+      "detail": "要规则 ['fine:C1', 'fine:feat01-场景2'] 结论 被打破，问题严重度 ['P0', 'P1']、位置含 calc_fine；规则表：[('fine:C1', '被打破', ['B1']), ('fine:feat01-场景1', '守住了', []), ('fine:feat01-场景2', '被打破', ['B1']), ('fine:D01', '守住了', []), ('新1', '没法验证', ['B2'])]；问题：{'B1': ('P1', '`src/library/fine.py` 的 `calc_fine()`，第 9–10 行'), 'B2': ('P2', '`src/library/loan.py` 的 `renew()`，第 14–15 行')}"
+    },
+    {
+      "check": "没误报：diff 之外的 member.py",
+      "ok": true,
+      "detail": "误报的问题：[]"
+    },
+    {
+      "check": "没误报：命名风格",
+      "ok": true,
+      "detail": "误报的问题：[]"
+    }
+  ]
+}
