@@ -36,7 +36,7 @@ x-qdev · 一份 task 文档：需求 → 局部设计 → 测试 → 实现 →
        → x-verify-spec 验收（写了场景的做一次功能检查）
 ```
 
-`x-tech-design` 是任务拆解的必经前置。每个任务只查本轮 spec 和 tech-design 写的场景、约束和设计；全项目的约束、开发规范、代码规范、死代码和性能不在每个任务里查，交给定期巡检（`x-audit-arch` / `x-audit-style` / `x-audit-perf`，适合每晚跑）；`x-verify-tech` 是架构巡检核对设计的方法，也可以单独调用。
+`x-tech-design` 是任务拆解的必经前置。每个任务只查本轮 spec 和 tech-design 写的场景、约束和设计；全项目的约束、开发规范、代码规范、死代码和性能不在每个任务里查，交给定期巡检 `x-code-audit`（适合每晚跑）；`x-verify-tech` 是巡检里核对设计和约束的方法，也可以单独调用。
 
 ## 主线：需求 → 技术设计 → 任务 → 开发
 
@@ -171,15 +171,13 @@ x-ask-spec → x-adversarial-risk → x-tech-design → x-req
 | `/x-req` | 基于已确认 spec 和技术设计拆 task，分配场景、约束与用例 |
 | `/x-dev` | 执行单个 task，测试先行，改动行覆盖率到 100% |
 | `/x-verify-spec` | 开发后唯一的验收：一次功能检查 + `xdev check` 机械核对 |
-| `/x-verify-tech` | 核对实现是否符合技术设计、开发规范和架构约束（架构巡检用的方法，也可单独用） |
+| `/x-verify-tech` | 核对实现是否符合技术设计、开发规范和架构约束（代码巡检用的方法，也可单独用） |
 | `/x-qdev` | 小任务单文档精简路径 |
 | `/x-fix` | 按 x-cr 的 CR 报告修复，修复证据写回同一份报告 |
 | `/x-cr` | 调查正确性问题、模块、diff 或 PR |
 | `/x-adversarial-risk` | 复核 spec 风险假设，补充可追溯反例场景 |
 | `/x-multi-llm-align` | 对齐协议、数据结构或流程 |
-| `/x-audit-perf` | 定期性能巡检 |
-| `/x-audit-style` | 定期规范巡检（含死代码） |
-| `/x-audit-arch` | 定期架构巡检（含架构约束、技术设计、开发规范） |
+| `/x-code-audit` | 定期代码巡检，也可查单个模块：lint 配置、死代码、文档对代码、模块、架构、性能，一次一份报告 |
 
 ## 确定性引擎
 

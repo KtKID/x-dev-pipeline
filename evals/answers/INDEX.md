@@ -269,6 +269,16 @@
 | cr-recommend | 已知问题原因不明时逐个排除；隔离突破 P0 | 原因排查坐实缓存键 |
 | fix-mixed | 已修跳过、误报不改、来源不一待确认、行号过期按函数找、不修报告外 | B1/B2 修、B3 误报、B4 待确认、B5 不动、extend_due 不动 |
 
+## 代码巡检（code-audit）
+
+- 规则：`skills/x-code-audit/`
+- 题面：`evals/problems/code-audit/`；考点：`evals/answers/code-audit/checks.json`；判分：`evals/scripts/audit_grade.py`
+
+| 用例 | 考的规则 | 正确做法 |
+|---|---|---|
+| full | 一份报告、8 位检查 ID、开头写范围、verify 通过、P0→P2、大白话三要素；AI 层找到吞异常、职责混杂、只断言 mock 的测试、N+1、常量多处不一致；不把 week_header 的七天双循环报成严重性能问题，不在 L4–L6 审命名 | 全部满足 |
+| module | 只查 src/library/notify：找到 send() 把失败当成功；L2/L4/L6 不报模块外的问题 | 全部满足 |
+
 ## 还没有题的规则
 
 - 暂无。

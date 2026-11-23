@@ -36,7 +36,7 @@ x-qdev · one task document: requirements → local design → tests → impleme
        → x-verify-spec acceptance (one feature check when scenarios were written)
 ```
 
-`x-tech-design` is a required prerequisite for task decomposition. Each task is checked only against this round's spec and tech-design (scenarios, constraints, and design decisions); project-wide constraints, development rules, code style, dead code, and performance are not checked per task; scheduled audits cover them (`x-audit-arch` / `x-audit-style` / `x-audit-perf`, suited to a nightly run). `x-verify-tech` is the method the architecture audit uses to check the design and can also be invoked on its own.
+`x-tech-design` is a required prerequisite for task decomposition. Each task is checked only against this round's spec and tech-design (scenarios, constraints, and design decisions); project-wide constraints, development rules, code style, dead code, and performance are not checked per task; the scheduled `x-code-audit` covers them (suited to a nightly run). `x-verify-tech` is the method the architecture audit uses to check the design and can also be invoked on its own.
 
 ## Main line: requirements → technical design → tasks → development
 
@@ -171,15 +171,13 @@ Risk review and bug ingestion share a user-global corpus, with a caller-selected
 | `/x-req` | Split tasks from the confirmed spec and technical design, assigning scenarios, constraints, and test cases |
 | `/x-dev` | Execute one task test-first and reach 100% changed-line coverage |
 | `/x-verify-spec` | The single acceptance after development: one feature check + the `xdev check` mechanical check |
-| `/x-verify-tech` | Check implementation against the technical design, development rules, and architecture constraints (the method used by the architecture audit; also usable alone) |
+| `/x-verify-tech` | Check implementation against the technical design, development rules, and architecture constraints (the method used by the code audit; also usable alone) |
 | `/x-qdev` | Reduced single-document flow for small tasks |
 | `/x-fix` | Fix issues from an x-cr report and write the fix evidence back into the same report |
 | `/x-cr` | Investigate correctness problems, modules, diffs, or PRs |
 | `/x-adversarial-risk` | Review spec risk assumptions and add traceable counterexample scenarios |
 | `/x-multi-llm-align` | Align protocols, data structures, or flows |
-| `/x-audit-perf` | Scheduled performance audit |
-| `/x-audit-style` | Scheduled style audit (including dead code) |
-| `/x-audit-arch` | Scheduled architecture audit (including architecture constraints, technical design, development rules) |
+| `/x-code-audit` | Scheduled code audit, or one module on demand: lint setup, dead code, docs vs code, module, architecture, performance; one report per run |
 
 ## Deterministic engine
 

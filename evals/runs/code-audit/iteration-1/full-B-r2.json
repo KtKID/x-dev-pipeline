@@ -1,0 +1,100 @@
+{
+  "case": "full",
+  "items": [
+    {
+      "check": "只产出一份报告",
+      "ok": true,
+      "detail": "reports/audit/ 下有：['audit-c399b228.md']"
+    },
+    {
+      "check": "文件名带 8 位检查 ID",
+      "ok": true,
+      "detail": "audit-c399b228.md"
+    },
+    {
+      "check": "开头写了检查 ID 和范围",
+      "ok": true,
+      "detail": "检查 ID=c399b228 范围=全量（第一次巡检）"
+    },
+    {
+      "check": "audit.py verify 通过",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "报告状态是完成",
+      "ok": true,
+      "detail": "完成"
+    },
+    {
+      "check": "写了结论",
+      "ok": true,
+      "detail": "| 层 | 结果 | 问题数 |\n|---|---|---|\n| L1 机器检查 | 有问题 | 6 |\n| L2 死代码 | 有问题 | 5 |\n| L3 文"
+    },
+    {
+      "check": "没改代码、配置和文档",
+      "ok": true,
+      "detail": "[]"
+    },
+    {
+      "check": "问题按 P0 → P2 排序",
+      "ok": true,
+      "detail": "['P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P1', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2']"
+    },
+    {
+      "check": "每个问题都写了是什么、影响、位置",
+      "ok": true,
+      "detail": "缺的：A[]"
+    },
+    {
+      "check": "找到：send() 把失败当成功",
+      "ok": true,
+      "detail": "要 {'name': 'send() 把失败当成功', 'layer': ['L4'], 'file': 'mailer.py', 'func': 'send', 'severity': ['P0', 'P1']}"
+    },
+    {
+      "check": "找到：续借顺带发邮件、写日志文件（职责混杂）",
+      "ok": true,
+      "detail": "要 {'name': '续借顺带发邮件、写日志文件（职责混杂）', 'layer': ['L4'], 'file': 'loan.py', 'func': 'renew', 'severity': ['P1', 'P2']}"
+    },
+    {
+      "check": "找到：续借测试只断言 mock 被调用",
+      "ok": true,
+      "detail": "要 {'name': '续借测试只断言 mock 被调用', 'layer': ['L4'], 'file': ['test_library.py', 'loan.py'], 'text': ['mock', '测试'], 'severity': ['P1', 'P2']}"
+    },
+    {
+      "check": "找到：读者列表页循环里查库（N+1）",
+      "ok": true,
+      "detail": "要 {'name': '读者列表页循环里查库（N+1）', 'layer': ['L6'], 'file': 'views.py', 'func': 'member_page', 'severity': ['P0', 'P1']}"
+    },
+    {
+      "check": "找到：MAX_RENEWALS 两处定义且不一致",
+      "ok": true,
+      "detail": "要 {'name': 'MAX_RENEWALS 两处定义且不一致', 'layer': ['L5'], 'text': ['MAX_RENEWALS'], 'severity': ['P1']}"
+    },
+    {
+      "check": "没误报：把 handle_overdue 说成 0 引用（它经 dispatch 按名字调用；说清是 dispatch 只有测试在用的，算对）",
+      "ok": true,
+      "detail": "误报：[]"
+    },
+    {
+      "check": "没误报：把七天表头的双重循环报成严重性能问题",
+      "ok": true,
+      "detail": "误报：[]"
+    },
+    {
+      "check": "没误报：在 L4–L6 逐行审命名（这是 lint 的事）",
+      "ok": true,
+      "detail": "误报：[]"
+    }
+  ],
+  "issues": 32,
+  "by_severity": {
+    "P0": 0,
+    "P1": 12,
+    "P2": 20
+  },
+  "ai_issues_with_fix": 0,
+  "ai_issues": 10,
+  "passed": 17,
+  "total": 17
+}

@@ -44,7 +44,7 @@ x-ask-spec → x-tech-design → x-req → x-dev ──────────�
 - `cli/` 下的 Go 版本保留不删：计划以后做成“agent 调一个命令就能初始化这套管线、安装必需 skill”的工具，目前暂停维护，行为停在旧引擎（包括 `xdev cr` 仍按旧的 x-cr-v2 格式校验），skill 不调用它。
 - x-plan 已废弃，功能合并到 x-req。
 
-定期巡检（不在主流程，适合每晚跑）：`x-audit-arch`（全项目约束、以前定下的设计是否还守着、开发规范、结构，方法来自 x-verify-tech）/ `x-audit-style`（规范、死代码）/ `x-audit-perf`（性能），也可手动触发；`x-cr` 是手动正确性调查，要修时交 `x-fix` 按报告修；用户直接报的 bug 走 `x-qdev`。
+定期巡检（不在主流程，适合每晚跑，也可手动查单个模块）：`x-code-audit`，六层从便宜到贵：L1 lint 配置、L2 死代码、L3 文档对代码、L4 模块、L5 架构（以前定下的设计和约束是否还守着，方法来自 x-verify-tech）、L6 性能，一次只出一份报告；`x-cr` 是手动正确性调查，要修时交 `x-fix` 按报告修；用户直接报的 bug 走 `x-qdev`。
 
 ## skill 间契约（改 skill 前必读）
 

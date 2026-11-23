@@ -1,0 +1,75 @@
+{
+  "case": "module",
+  "items": [
+    {
+      "check": "只产出一份报告",
+      "ok": true,
+      "detail": "reports/audit/ 下有：['audit-055d1b4c.md']"
+    },
+    {
+      "check": "文件名带 8 位检查 ID",
+      "ok": true,
+      "detail": "audit-055d1b4c.md"
+    },
+    {
+      "check": "开头写了检查 ID 和范围",
+      "ok": true,
+      "detail": "检查 ID=055d1b4c 范围=指定模块 src/library/notify"
+    },
+    {
+      "check": "audit.py verify 通过",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "报告状态是完成",
+      "ok": true,
+      "detail": "完成"
+    },
+    {
+      "check": "写了结论",
+      "ok": true,
+      "detail": "| 层 | 结果 | 问题数 |\n|---|---|---|\n| L1 机器检查 | 有问题 | 5 |\n| L2 死代码 | 没问题 | 0 |\n| L3 文"
+    },
+    {
+      "check": "没改代码、配置和文档",
+      "ok": true,
+      "detail": "[]"
+    },
+    {
+      "check": "问题按 P0 → P2 排序",
+      "ok": true,
+      "detail": "['P1', 'P1', 'P1', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2', 'P2']"
+    },
+    {
+      "check": "每个问题都写了是什么、影响、位置",
+      "ok": true,
+      "detail": "缺的：A[]"
+    },
+    {
+      "check": "找到：send() 把失败当成功",
+      "ok": true,
+      "detail": "要 {'name': 'send() 把失败当成功', 'layer': ['L4'], 'file': 'mailer.py', 'func': 'send', 'severity': ['P0', 'P1']}"
+    },
+    {
+      "check": "没误报：把 handle_overdue 说成 0 引用（它经 dispatch 按名字调用；说清是 dispatch 只有测试在用的，算对）",
+      "ok": true,
+      "detail": "误报：[]"
+    },
+    {
+      "check": "L2/L4/L6 只报 src/library/notify 里的问题（它的测试除外）",
+      "ok": true,
+      "detail": "范围外：[]"
+    }
+  ],
+  "issues": 11,
+  "by_severity": {
+    "P0": 0,
+    "P1": 3,
+    "P2": 8
+  },
+  "ai_issues_with_fix": 4,
+  "ai_issues": 4,
+  "passed": 12,
+  "total": 12
+}
