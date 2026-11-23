@@ -19,4 +19,4 @@
 
 ## 下游动作
 
-- [ ] 将本轮全部 failure 与 uncovered 交 x-fix（mode: verify-fix）。
+- [ ] 将本轮全部 failure 与 uncovered 退回开发者修（见 x-dev references/acceptance-fix.md）。

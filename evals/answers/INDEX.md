@@ -161,7 +161,7 @@
 | D09 | 验收通过 | 升为已完成并交付 |
 | D10 D12 D13 | 开发做完（Q2 / qdev 没写场景 / qdev 写了场景） | 交 x-verify-spec 验收 |
 | D11 | qdev 开工 | 运行 xdev start 记代码基线 |
-| D14 | 功能检查有 P1 | 交 x-fix 修，修完重跑 coverage 再重做功能检查 |
+| D14 | 功能检查有 P1 | 退回开发者修，修完重跑 coverage 再重做功能检查 |
 | D17 | 验收通过后 | 运行 xdev usage fill 填这一期的用量 |
 | D18 | 换会话接着开发 | 先运行 xdev usage start 在用量表加一行 |
 | D15 | 检查后又改了测试 | 重跑 xdev coverage 后重做功能检查 |
@@ -183,7 +183,7 @@
 | V09 | 机械项不重复 | 不做，xdev check 已核对 |
 | V10 | 派工单不加话 | 不加，照派工单模板只填路径 |
 | V11 | 回执只存一份 | 不另存，只留 evidence/feature-check.md 一份 |
-| V12 | x-fix 修完（已重跑 coverage）后关闭 | 重做功能检查，再跑 xdev check |
+| V12 | 开发者修完（已重跑 coverage）后关闭 | 重做功能检查，再跑 xdev check |
 | V13 | P2 | 在问题与处置登记，不修 |
 | V21 | 测试没测到设计写的结果，代码碰巧对 | P1 |
 | V22 | 只是写法可以更简洁 | P2 |
@@ -254,6 +254,54 @@
 | T06 | qdev 里调 x-tech-design | 继续开发，交付时一起告知 |
 
 干扰项"停下等用户确认整份设计"任何一题选它都算错。
+
+## 查代码对不对（cr-review）
+
+- 规则：`skills/x-cr/SKILL.md`、`skills/x-cr/references/`
+- 题面：`evals/problems/cr-review/`；答案：`evals/answers/cr-review/expected.json`、`rubric.md`
+
+| 用例 | 考的规则 | 正确判断 |
+|---|---|---|
+| R01 R02 | 范围：没给就查 git diff，diff 空就问 | 查 diff / 问用户 |
+| R03 R04 R05 R06 | 判尺沿用 spec 原编号；spec 没写的用 新N | loan:C2 / loan:D04 / loan:feat03-场景2 / 新1 |
+| R07 | spec 没写的规则只提醒，不改 spec | 报告里提醒补 |
+| R08 R09 R10 R11 | 五种结论 | 守住了 / 没走到 / 来源不一 / 没法验证 |
+| R12 | 没法验证也开问题 | 开问题，一般 P2 |
+| R13 R14 R15 | 严重度看影响 | P0 / P1 / P2 |
+| R16 | 风格不报 | 不报 |
+| R17 R18 | 原因排查只在原因不明时做 | 不做 / 列 2–4 个原因 |
+| R19 | 位置写文件、函数、行 | 不写哈希 |
+| R20 | task 里报告放 task 的 reports/cr/ | task 路径 |
+| R21 | x-cr 不改代码 | 交 x-fix |
+| R22 | 测试没测到反例路径不能判守住了 | 自己走代码或跑反例 |
+
+## 按 CR 报告修复（cr-fix）
+
+- 规则：`skills/x-fix/SKILL.md`、CR 报告模板「x-fix 回写的修复」；分工看 x-qdev 第 1 节、x-verify-spec「问题去向」
+- 题面：`evals/problems/cr-fix/`；答案：`evals/answers/cr-fix/expected.json`、`rubric.md`
+
+| 用例 | 考的规则 | 正确判断 |
+|---|---|---|
+| F01 F02 | 分工：直接报 bug、验收问题都不走 x-fix | x-qdev / 退回开发者 |
+| F03 F04 F05 | 读报告：没报告、校验不过就停；已修跳过 | 停 / 停 / 跳过 |
+| F06 F07 F08 | P2 有明确动作才修；来源不一待确认 | 修 / 待确认 / 待确认 |
+| F09 | 列计划不停 | 接着做 |
+| F10 | 误报写理由和位置 | 误报不修 |
+| F11 F22 | P0/P1 先写真反例测试 | 先写测试 / mock 掉不行 |
+| F12 F13 | 证据写回报告，写文件和函数 | 不写哈希、不另建文件 |
+| F14 | 不修报告外的问题 | 写进回执 |
+| F15 F16 | task 内跑 coverage，仓库级只跑全量 | 两种 |
+| F17 | 顺带修好的也记 | 已修并写明 |
+| F18 | 行号对不上重新找 | 找不到待确认 |
+| F19 | 兼容：新字段给默认值 | 默认值 |
+| F20 | 写完再校验 | 再跑校验 |
+| F21 | 修不好不删测试 | 待确认写卡点 |
+
+## 实操：x-cr → x-fix（cr-handson）
+
+- 规则：`skills/x-cr/`、`skills/x-fix/SKILL.md`
+- 题面：`evals/problems/cr-handson/`；考点和隐藏测试：`evals/answers/cr-handson/`
+- 测什么：真跑一遍。项目里埋了 3 个问题（C1 被打破、D01 被打破、spec 没写的越权），看 x-cr 能否全找到并按格式出报告，x-fix 能否修好、写回证据、通过隐藏测试。
 
 ## 还没有题的规则
 

@@ -34,7 +34,7 @@
       "x-ask-spec add dark mode toggle to settings page",
       "x-req turn this feature request into a task package",
       "x-verify-spec accept the latest task",
-      "x-fix fix issues from the latest x-verify-spec acceptance"
+      "x-fix fix the issues in the latest x-cr report"
     ],
     "composerIcon": "./assets/logo.png",
     "logo": "./assets/logo.png"

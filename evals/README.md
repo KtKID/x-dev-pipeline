@@ -60,6 +60,9 @@ python3 evals/scripts/runs_summary.py spec-scope   # 一组题的全部轮次
 | ask-spec | 12 | 需求讨论时会不会主动复述、追问，何时才写 spec，超过 5 个 feat 怎么分期 | `skills/x-ask-spec/SKILL.md` |
 | feature-check | 17 | 便宜的模型能不能凭清单识破功能漏做多做和假测试、又不误报 | `skills/x-verify-spec/references/feature-check.md` |
 | verify-route | 22 | 验收怎么走：哪种 risk 做功能检查、严重度、哪些交给定期巡检、回执存几份、修完怎么关闭；架构约束怎么处理 | `skills/x-verify-spec/`、`skills/x-tech-design/SKILL.md`、spec 模板「关键约束」 |
+| cr-review | 22 | x-cr：查什么范围、判尺编号、五种结论、严重度、什么时候做原因排查、位置怎么写 | `skills/x-cr/` |
+| cr-fix | 22 | x-fix：只修 CR 报告、哪些修哪些待确认、反例测试、修复证据写回报告、跑哪些测试 | `skills/x-fix/SKILL.md`、CR 报告模板 |
+| cr-handson | 实操 | 在埋了 3 个问题的小项目上先跑 x-cr 出报告、再跑 x-fix 修，用校验脚本和隐藏测试判 | `skills/x-cr/`、`skills/x-fix/` |
 
 规则里能机械判断的部分（编号引用、文件交集必须同组、依赖无环、risk 计算、需求变化同步清单）由脚本负责，测试在 `test/test_checklist_engine.py`，不需要 LLM 判题。
 

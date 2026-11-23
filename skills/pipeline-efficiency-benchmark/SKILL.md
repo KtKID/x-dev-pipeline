@@ -140,7 +140,7 @@ x-ask-spec
   → x-req
   → x-dev
   → x-verify-spec（功能检查 + xdev check）
-  → x-fix 与复验
+  → 开发者修验收问题与复验
 ```
 
 阶段切片必须写入 `scope`，例如 `spec_risk_only` 或 `full_pipeline`。不同 scope 的总 Token 不进入同一降幅计算。

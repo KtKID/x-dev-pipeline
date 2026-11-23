@@ -1,6 +1,6 @@
 # 证据约定
 
-x-dev、x-qdev、x-fix 共用。交付只看一份文件：常规 task 是 `dev-checklist.md` 末尾的「结果」节，qdev 是 task 的⑤。原始输出放证据目录，不另写测试报告或 dev-report。
+x-dev、x-qdev 共用，x-fix 修 task 内的 CR 问题时也按这里跑覆盖率。交付只看一份文件：常规 task 是 `dev-checklist.md` 末尾的「结果」节，qdev 是 task 的⑤。原始输出放证据目录，不另写测试报告或 dev-report。
 
 | 对象 | 交付文档 | 证据目录 |
 |---|---|---|

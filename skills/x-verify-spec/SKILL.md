@@ -1,7 +1,7 @@
 ---
 name: x-verify-spec
 description: |
-  开发后唯一的一道验收，支持 x-dev 的 dev-checklist 与 x-qdev 单文档。先派一个便宜的子 agent 做一次功能检查：本轮场景、约束和设计有没有做到、有没有漏做多做，测试是不是真的在测、有没有测到场景的预期结果；再运行 xdev check 机械核对编号、状态、场景→用例→测试、测试全绿、改动行覆盖率 100% 和功能检查回执。risk Q0 不做功能检查。发现问题交 x-fix 批量修，最多 3 轮。全项目的约束、规范和性能交给定期巡检，这里不查。触发：x-dev/x-qdev 交付、用户提到 x-verify-spec、verify、验收或复核 task。
+  开发后唯一的一道验收，支持 x-dev 的 dev-checklist 与 x-qdev 单文档。先派一个便宜的子 agent 做一次功能检查：本轮场景、约束和设计有没有做到、有没有漏做多做，测试是不是真的在测、有没有测到场景的预期结果；再运行 xdev check 机械核对编号、状态、场景→用例→测试、测试全绿、改动行覆盖率 100% 和功能检查回执。risk Q0 不做功能检查。发现问题退回开发者修（规则在 x-dev 的 references/acceptance-fix.md），最多 3 轮。全项目的约束、规范和性能交给定期巡检，这里不查。触发：x-dev/x-qdev 交付、用户提到 x-verify-spec、verify、验收或复核 task。
 ---
 
 # x-verify-spec · 验收
@@ -49,18 +49,18 @@ description: |
      - 只加了变更记录、没动任何场景和约束，记录写“未写场景，无需确认” → 核对通过。
    - spec 增量确实写进了所属 spec，场景原文和①一致。
    - changelog 和 task 互相有链接；①写的“修改前定位”能找到旧内容。
-5. **有问题就修**：问题去向见下一节。需要改代码或测试的，一次交 x-fix 批量修完，按 [x-fix 验收回流模式](../x-fix/references/verify-fix-mode.md) 走。x-fix 交回时已重跑 `xdev coverage`；代码或测试改过，主 agent 就重做第 2 步，再跑第 3 步。最多 3 轮，轮数记在「问题与处置」的 `x-fix 第 N 轮` 行；3 轮还不过，x-fix 记一行 `x-fix 卡住`，主 agent 停下告诉用户卡在哪。
+5. **有问题就修**：问题去向见下一节。需要改代码或测试的，退回开发者一次修完，按 [验收问题怎么修](../x-dev/references/acceptance-fix.md) 走。开发者修完已重跑 `xdev coverage`；代码或测试改过，就重做第 2 步，再跑第 3 步。最多 3 轮，轮数记在「问题与处置」的 `修复第 N 轮` 行；3 轮还不过，记一行 `修复卡住`，停下告诉用户卡在哪。
 6. **通过**：`xdev check` 通过，功能检查（要做时）通过或只剩 P2。常规 task：主 agent 把行升为 `[x] ✅`，头部状态改为已完成；qdev：⑤的交付状态写验收通过。再把 spec 里本轮 feat 的状态改为“已验收”，变更记录里本轮那一行的状态也改为“已验收（<日期> 验收通过）”。P2 在「问题与处置」各记一行登记。最后运行 `xdev usage fill <spec.md>` 填这一期的 token 用量（见 [token 用量](../x-dev/references/test-reporting.md#token-用量)）；报“不在本机”的行不影响验收。多 agent 协作时只对合并后的整个 task 验收一次，见 [多 agent 协作开发](../x-dev/references/parallel-dev.md)。
 
 ## 问题去向
 
 | 问题 | 交给谁 |
 |---|---|
-| FEATURE_CHECK_OPEN（功能检查的 P0、P1）；TESTS、COVERAGE、HIGH_RISK、MAPPING_PATH（测试不存在）、CASE_UNMAPPED、SCENE_UNCOVERED、MAPPING_RESULT（用例失败） | x-fix，占一轮 |
+| FEATURE_CHECK_OPEN（功能检查的 P0、P1）；TESTS、COVERAGE、HIGH_RISK、MAPPING_PATH（测试不存在）、CASE_UNMAPPED、SCENE_UNCOVERED、MAPPING_RESULT（用例失败） | 开发者修（x-dev / x-qdev），占一轮 |
 | COVERAGE_STALE | 主 agent 重跑 `xdev coverage`，不占轮数；已经做过功能检查的，接着重做功能检查 |
 | FEATURE_CHECK、FEATURE_CHECK_STALE（回执缺失、没列全或过期） | 主 agent 按报错里的完整清单重新派子 agent，不占轮数 |
 | COVERAGE_EXCLUDE、MAPPING_MANUAL、MAPPING（表为空）、ROW_STATUS、CODE_BASELINE | 开发负责方补记录或状态（x-dev / x-qdev），不占轮数 |
-| 结构与编号类、SPEC_CHANGED、SPEC_CONFIRM | 来源负责方（x-req / x-tech-design / x-ask-spec），不调 x-fix。SPEC_CHANGED 按 [需求变化同步](../x-tech-design/references/change-sync.md) 处理后 `xdev baseline` |
+| 结构与编号类、SPEC_CHANGED、SPEC_CONFIRM | 来源负责方（x-req / x-tech-design / x-ask-spec），不占轮数。SPEC_CHANGED 按 [需求变化同步](../x-tech-design/references/change-sync.md) 处理后 `xdev baseline` |
 | 需求本身有歧义 | 列出 feat / 场景和要确认的行为，交 x-ask-spec 问用户 |
 
 一次列全，不自动启动其他 skill。

@@ -35,7 +35,7 @@ x-dev-pipeline/
 x-ask-spec → x-tech-design → x-req → x-dev ──────────→ x-verify-spec ──────────→ ✅
 问清需求再写 spec  技术设计        task     实现+测试全绿      验收一次：功能检查（子 agent，Q0 跳过）
                                             +覆盖率 100%       + xdev check（脚本记账）
-                                            （开发者自己跑）    问题交 x-fix，最多 3 轮
+                                            （开发者自己跑）    问题退回开发者修，最多 3 轮
 小改动：x-qdev 一个 agent 走完，同样用 xdev start / coverage，再交 x-verify-spec。
 ```
 
@@ -44,7 +44,7 @@ x-ask-spec → x-tech-design → x-req → x-dev ──────────�
 - `cli/` 下的 Go 版本保留不删：计划以后做成“agent 调一个命令就能初始化这套管线、安装必需 skill”的工具，目前暂停维护，行为停在旧引擎，skill 不调用它。
 - x-plan 已废弃，功能合并到 x-req。
 
-定期巡检（不在主流程，适合每晚跑）：`x-audit-arch`（全项目约束、以前定下的设计是否还守着、开发规范、结构，方法来自 x-verify-tech）/ `x-audit-style`（规范、死代码）/ `x-audit-perf`（性能），也可手动触发；`x-cr` 是手动正确性调查。
+定期巡检（不在主流程，适合每晚跑）：`x-audit-arch`（全项目约束、以前定下的设计是否还守着、开发规范、结构，方法来自 x-verify-tech）/ `x-audit-style`（规范、死代码）/ `x-audit-perf`（性能），也可手动触发；`x-cr` 是手动正确性调查，要修时交 `x-fix` 按报告修；用户直接报的 bug 走 `x-qdev`。
 
 ## skill 间契约（改 skill 前必读）
 
@@ -62,21 +62,22 @@ x-ask-spec → x-tech-design → x-req → x-dev ──────────�
 | 测试是硬规则（全量全绿、改动行 100%，开发者自己跑） | `skills/x-dev/SKILL.md`「测试是硬规则」 |
 | 交付核对的每条规则 | `skills/x-dev/scripts/delivery.py`（说明见 `skills/x-verify-spec/SKILL.md`） |
 | 验收：功能检查（查什么、派工单、回执、严重度 P0/P1/P2）、问题去向、回流关闭 | `skills/x-verify-spec/SKILL.md`、`skills/x-verify-spec/references/feature-check.md` |
-| 批量修复、3 轮上限（轮数记在「问题与处置」）、处置记录 | `skills/x-fix/SKILL.md` |
+| 验收问题怎么修、3 轮上限（轮数记在「问题与处置」）、处置记录 | `skills/x-dev/references/acceptance-fix.md` |
+| 按 CR 报告修复、修复证据回写 | `skills/x-fix/SKILL.md` |
 | 状态码与写权 | `skills/x-dev/references/execution-rules.md` |
 | 用户约束怎么写（含“架构：”开头的架构约束、全项目的放 engineering）、约束只是任务的一部分 | `skills/x-ask-spec/templates/spec.md`「关键约束」、`spec-scope.md` |
 | 风险错题集边界 | `skills/x-adversarial-risk/references/risk-mistakes.md`（只由 x-adversarial-risk 读取） |
-| x-cr 报告交接（`Schema: x-cr-v2`、Bn/INV-ID） | `skills/x-cr/SKILL.md` |
+| CR 报告格式（规则表、问题表、B1 编号、x-fix 回写的「修复」段） | `skills/x-cr/references/report-template.md`，`skills/x-cr/scripts/validate_report.py` 核对 |
 | 带 `spec_version: 3` / `adversarial_risk_version: 3` 的旧契约 | 原 req.py / verify.py / validator.py 与 x-adversarial-risk，行为不变 |
 
 ## 改 skill 时的注意事项
 
 - **改 skill 行为要记进 spec**：使用者能观察到的 skill 行为变化，写进 `docs/spec/pipeline-skills/spec.md`（新增或修改场景），并写明用哪组 eval 或测试验收；验收题登记在 `evals/answers/INDEX.md`。只改措辞、不改行为的不用记。
 - **YAML frontmatter 是触发依据**：`description` 里的关键词决定 skill 何时被自动触发。改正文是低风险，**改 description 等于改触发面**——评估全局影响后再改。
-- **产物不要变多**：task 只有一份交付文件 `dev-checklist.md`（qdev 是 task `.md`），原始输出放 `evidence/`。子 agent 的回执只存规则要求的那一份（功能检查回执 `evidence/feature-check.md`），不另存副本或审查报告。验收回流的处置写进 checklist「问题与处置」；`reports/fix/fix-report-*.md` / `fix-note-*.md` 只用于直接 bug 修复和 CR 驱动修复。历史 task 里的 dev-report、test-report、`fix-verify-spec-*`、`fix-gate-r*` 保留原样，不再新建。
-- **x-cr 报告交接**：task 内 CR 固定写到 `<task>/reports/cr/`，普通仓库 CR 写到仓库级 `reports/cr/`；`Schema: x-cr-v2`、`不变量覆盖`、`审查结论`、`问题详情` 及 Bn/INV-ID 映射是 x-fix 的消费契约，历史报告继续走兼容解析。
+- **产物不要变多**：task 只有一份交付文件 `dev-checklist.md`（qdev 是 task `.md`），原始输出放 `evidence/`。子 agent 的回执只存规则要求的那一份（功能检查回执 `evidence/feature-check.md`），不另存副本或审查报告。验收回流的处置写进 checklist「问题与处置」；按 CR 报告修复的证据写回同一份 CR 报告。不再新建 `reports/fix/` 下的任何文件；历史 task 里的 dev-report、test-report、`reports/fix/*` 保留原样。
+- **x-cr 报告交接**：task 内 CR 写到 `<task>/reports/cr/`，其他写到仓库级 `reports/cr/`；格式只有一种，见 `skills/x-cr/references/report-template.md`，不做旧格式兼容。
 - **manifest 不显式列 skill**：`.claude-plugin/plugin.json` / `.codex-plugin/plugin.json` 都靠 `./skills/` 目录自动发现，新增 skill 不必改 manifest 字段，除非要更新 `defaultPrompt` 示例。
-- **reference 文件保留制**：`skills/x-cr/references/auto-loop-mode.md` 之类的旧 reference **保留**作历史参考，不要删；新逻辑放到 x-verify-spec / x-fix 的 references。
+- **过时内容直接删**：不再使用的 reference、模板、旧模式直接删除，不留“历史参考”；要找回看 git 历史。
 
 ## 子 agent dispatch 模板
 

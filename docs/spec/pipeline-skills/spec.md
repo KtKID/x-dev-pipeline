@@ -3,7 +3,7 @@
 > spec：pipeline-skills
 > 主要入口：skills/x-*/SKILL.md、skills/*/references/、skills/x-dev/scripts/xdev.py、skills/x-dev/scripts/delivery.py、skills/x-req/scripts/checklist_engine.py
 > 状态：在用
-> 最近更新：2026-11-22
+> 最近更新：2026-11-23
 
 管线 skill 的行为本身也按 spec 管：改一条 skill 规则，就在这里新增或修改场景，并写明用哪组 eval 或测试验收。
 
@@ -11,7 +11,7 @@
 
 ## 本次目标与完成条件
 
-- 本次目标与范围：第一批（feat01–feat06）补入 spec-scope-qdev 分支已改好的 skill 行为；第二批（feat07–feat12）是交付精简、覆盖率 100%、审查去重、架构约束、测试真实性检查和问清需求再写 spec，用户 2026-11-21 已确认。
+- 本次目标与范围：第一批（feat01–feat06）补入 spec-scope-qdev 分支已改好的 skill 行为；第二批（feat07–feat12）是交付精简、覆盖率 100%、审查去重、架构约束、测试真实性检查和问清需求再写 spec，用户 2026-11-21 已确认；第三批（feat14–feat15）是 x-cr、x-fix 按新版精简，用户 2026-11-23 定的方案。
 - 验证证据：每个场景列出的 eval 最近一轮全对；`test/` 全部通过。
 - 完成条件：用户确认本 spec（2026-11-20 已确认），feat06 补题验收（td-confirm 已通过）。
 
@@ -190,9 +190,9 @@ spec 变了，顺着编号找到要动的 D、T、任务行和测试。
 
 场景2: 门禁修复不另建报告
 依据与价值：同上。
-- GIVEN x-fix 修完验收（功能检查或 xdev check）发现的问题
+- GIVEN 开发者修完验收（功能检查或 xdev check）发现的问题，或 x-fix 修完 CR 报告里的问题
 - WHEN 记录处置
-- THEN 每条一行写进 checklist「问题与处置」；只有直接 bug 修复和 CR 驱动修复才写 reports/fix/
+- THEN 验收问题每条一行写进 checklist「问题与处置」；CR 问题的修复证据写回同一份 CR 报告；不再新建 reports/fix/ 下的任何文件
 
 验收：eval dev-delivery（16 题）；`test/test_delivery.py`。
 
@@ -240,9 +240,9 @@ x-qa-gate 并进 x-verify-spec。开发做完只验收一次，查过的不再�
 
 场景4: 脚本把关、问题回流
 依据与价值：能自动化的就不让 agent 猜；用户 2026-11-22：修复次数记在 checklist 里，不需要另一份文件。
-- GIVEN 回执已存好，或 x-fix 修完了功能检查的 P0/P1
+- GIVEN 回执已存好，或开发者修完了功能检查的 P0/P1
 - WHEN 运行 `xdev check`
-- THEN 要做功能检查却没有回执、回执没列全改动的测试文件、回执写在最后一次覆盖率之前，报 FEATURE_CHECK / FEATURE_CHECK_STALE；当前回执里还有 P0/P1 又没写不采纳理由，报 FEATURE_CHECK_OPEN；修完要重跑 coverage、按同一份派工单整份重做功能检查（附上一份回执接着编号）再跑 `xdev check`；修复轮数记在「问题与处置」，最多 3 轮，不另建计数文件；P2 只登记不修；通过时输出写出覆盖率行数和功能检查结果，主 agent 把 spec 里本轮 feat 和变更记录的状态改为已验收
+- THEN 要做功能检查却没有回执、回执没列全改动的测试文件、回执写在最后一次覆盖率之前，报 FEATURE_CHECK / FEATURE_CHECK_STALE；当前回执里还有 P0/P1 又没写不采纳理由，报 FEATURE_CHECK_OPEN；修完要重跑 coverage、按同一份派工单整份重做功能检查（附上一份回执接着编号）再跑 `xdev check`；修复轮数记在「问题与处置」的 `修复第 N 轮` 行，最多 3 轮，不另建计数文件；P2 只登记不修；通过时输出写出覆盖率行数和功能检查结果，主 agent 把 spec 里本轮 feat 和变更记录的状态改为已验收
 
 验收：eval verify-route（V01–V15、V19–V22）、feature-check（17 题）、dev-delivery（D09–D15）、dev-main（M08、M09、M12、M14）；`test/test_delivery.py`。
 
@@ -344,6 +344,60 @@ x-qa-gate 并进 x-verify-spec。开发做完只验收一次，查过的不再�
 
 验收：`test/test_usage.py`；eval dev-delivery（D17、D18）。
 
+## feat14: 查代码对不对（x-cr）
+
+> 状态：待实现
+> 期次：1 期
+
+用户手动让 agent 查一个现象、模块、文件、diff 或 PR 有没有真会出错的地方，得到一份能直接交给 x-fix 的报告。
+
+场景1: 判尺来自当前 spec
+依据与价值：用户 2026-11-23：x-cr 没按新版优化；旧流程要读的「影响边界与不变量」等章节已不存在。
+- GIVEN 要查的代码属于某份 spec
+- WHEN x-cr 找判尺
+- THEN 读本轮场景、关键约束 C 和 tech-design 的 D，沿用原编号写成 `<spec 名>:C2`、`<spec 名>:feat03-场景2`、`<spec 名>:D04`；spec 没写但代码明显该守的规则编号 `新N`，报告里提醒用户补进 spec，不自己改 spec
+
+场景2: 每条规则造反例，给五种结论之一
+依据与价值：用户 2026-11-23 同意精简：保留“找规则 → 最小反例 → 结论”主线，删掉旧的模块展开表、根因分类表和覆盖收口声明。
+- GIVEN 一条规则
+- WHEN x-cr 造最小反例、顺着代码路径走一遍
+- THEN 结论只有守住了、被打破、没法验证、没走到、来源不一；被打破、没法验证、来源不一都开问题；原因排查只在已知 bug 原因不明时做
+
+场景3: 报告只有一种格式，脚本核对
+依据与价值：用户 2026-11-23：不要 v2，直接改；能自动化的交给脚本。
+- GIVEN x-cr 写完报告
+- WHEN 运行 `validate_report.py`
+- THEN 核对「范围」「规则表」「问题」三节、规则编号、结论、问题表和 `### Bn:` 一一对应、严重度和状态合法；不做旧格式兼容；x-cr 只出报告，不改代码
+
+验收：eval cr-review（22 题）、cr-handson（x-cr 阶段）；`test/test_x_cr_report_validator.py`。
+
+## feat15: 按 CR 报告修复（x-fix）
+
+> 状态：待实现
+> 期次：1 期
+
+x-fix 只修 CR 报告里的问题，修复证据写回同一份报告。
+
+场景1: 只接 CR 报告
+依据与价值：用户 2026-11-23：x-fix 只对 CR 报告的内容修复；直接报的 bug 走 x-qdev；验收问题退回开发者（选 A）。
+- GIVEN 用户直接报 bug，或 x-verify-spec 验收不通过
+- WHEN 选择谁来修
+- THEN 直接报的 bug 走 x-qdev（先读代码找根因，按 spec 范围规则第 8 步进 spec）；验收问题按 x-dev 的 acceptance-fix.md 由开发者修，轮数记 `修复第 N 轮`；都不走 x-fix
+
+场景2: 修复证据写回报告
+依据与价值：用户 2026-11-23：修复后在 CR 报告里写修复证据，比如代码函数位置；不用 commit 哈希做证据，没人看。
+- GIVEN x-fix 修完一条 Bn
+- WHEN 记录结果
+- THEN 在该 `### Bn:` 下加「修复」段（结果、改动位置写文件和函数、反例测试、验证结果），问题表状态同步改；误报写理由，待确认写要确认的事；不另建修复报告；校验脚本拒绝写了 commit 哈希的改动位置
+
+场景3: 修得真、测得全
+依据与价值：测试是硬规则。
+- GIVEN 要修 P0/P1
+- WHEN x-fix 动手
+- THEN 先写一条调用项目代码、修前失败修后通过的反例测试；修完跑项目全量测试全绿，task 内的报告再跑 `xdev coverage` 到改动行 100%；不修报告外的问题，修不好改待确认写清卡点
+
+验收：eval cr-fix（22 题）、cr-handson（x-fix 阶段，隐藏测试）；`test/test_x_cr_report_validator.py`。
+
 ## 变更记录
 
 | 日期 | 改了什么 | 依据 / task | 状态 |
@@ -359,3 +413,4 @@ x-qa-gate 并进 x-verify-spec。开发做完只验收一次，查过的不再�
 | 2026-11-22 | feat09 场景4：重做功能检查改为整份重查；修复轮数记进「问题与处置」，去掉 .fix-counter 和 fix-blocked-report；验收通过时把 spec 里本轮 feat 状态改为已验收 | 用户 2026-11-22 | 已验收（用户 2026-11-22 确认） |
 | 2026-11-22 | feat09：严重度写明属于漏做、多做或测试问题的至少是 P1，现在代码碰巧对不能降级；P2 只给其余建议，附真实的正例和反例 | 用户 2026-11-22 | 已验收（用户 2026-11-22 确认） |
 | 2026-11-22 | 新增 feat13：每期记 token 用量（spec「用量」表、xdev usage start / fill / sum） | 用户 2026-11-22 | 已验收（用户 2026-11-22 确认） |
+| 2026-11-23 | 新增 feat14（x-cr 改读当前 spec 的场景、C、D，报告只有一种格式）、feat15（x-fix 只修 CR 报告，证据写回报告）；feat07 场景2、feat09 场景4 改为验收问题退回开发者修，不再新建 reports/fix/ | 用户 2026-11-23 | 待实现 |

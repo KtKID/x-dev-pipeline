@@ -1,0 +1,90 @@
+[
+  {
+    "id": "R01",
+    "situation": "用户在图书馆借阅系统仓库里只说了一句“x-cr 检查一下”，没给文件或模块。当前 git diff 改了 src/loan/renew.py。问：查什么范围？"
+  },
+  {
+    "id": "R02",
+    "situation": "用户只说“review 一下”，没给文件、模块、PR 或现象，当前 git diff 是空的。问：怎么办？"
+  },
+  {
+    "id": "R03",
+    "situation": "在 task 里查，dev-checklist.md 写着 `> spec: docs/spec/loan/spec.md`。要查的规则是 loan spec「关键约束」表里的 C2：每本书最多续借 2 次。问：规则表里这条的编号写什么？"
+  },
+  {
+    "id": "R04",
+    "situation": "同一个 task，要查的规则来自 docs/spec/loan/tech-design.md 的 D04：续借次数在服务端判断，前端只展示。问：编号写什么？"
+  },
+  {
+    "id": "R05",
+    "situation": "同一个 task，要查的规则是 loan spec 里 feat03 的场景2（GIVEN 书已逾期 WHEN 读者续借 THEN 拒绝并提示先还书）。问：编号写什么？"
+  },
+  {
+    "id": "R06",
+    "situation": "loan spec 里没写读者只能查自己的借阅，但代码里 GET /loans?member_id= 直接用请求参数里的 member_id 查库。这是规则表里的第一条 spec 没写的规则。问：编号写什么？"
+  },
+  {
+    "id": "R07",
+    "situation": "查的过程中发现一条 spec 没写、但代码明显该守的规则（服务端不能信请求里传的 member_id）。问：x-cr 对 spec 怎么处理？"
+  },
+  {
+    "id": "R08",
+    "situation": "规则 loan:C2。反例：已续借 2 次的书再续借一次。代码 renew() 里有 `if loan.renew_count >= 2: raise` 且 tests/test_renew.py 有一条用例真的调 renew() 测了第 3 次被拒。问：这条规则的结论？"
+  },
+  {
+    "id": "R09",
+    "situation": "用户让查的 diff 只改了 src/loan/logging.py 的日志格式，续借次数检查在 src/loan/renew.py，diff 和调用链都不经过它。问：loan:C2 的结论？"
+  },
+  {
+    "id": "R10",
+    "situation": "loan spec 的 C3 写着“单笔罚款上限 50 元”，用户这次在对话里说“罚款上限一直是 100 元”，代码按 100 元实现。问：这条规则的结论？"
+  },
+  {
+    "id": "R11",
+    "situation": "要判断续借是否会重复扣押金，关键代码在一个没给出源码的外部支付服务里，日志也没记扣款请求。问：这条规则的结论？"
+  },
+  {
+    "id": "R12",
+    "situation": "某条规则的结论是“没法验证”。问：要不要开问题？"
+  },
+  {
+    "id": "R13",
+    "situation": "读者 A 登录后，把请求里的 member_id 改成读者 B 的，就能看到并取消 B 的预约。问：严重度？"
+  },
+  {
+    "id": "R14",
+    "situation": "续借时传入非法日期格式，接口返回 500，读者重试正确格式就能续借成功，不影响任何数据。问：严重度？"
+  },
+  {
+    "id": "R15",
+    "situation": "续借次数检查目前代码是对的，但 tests/test_renew.py 里那条用例只断言 renew() 被调用过，测不出次数限制错了。问：严重度？"
+  },
+  {
+    "id": "R16",
+    "situation": "发现 src/loan/renew.py 里一个变量叫 `tmp2`，命名很差，但不影响任何结果。问：报不报？"
+  },
+  {
+    "id": "R17",
+    "situation": "用户说“第 2 次续借就被拒了”，一读代码看到 `if loan.renew_count >= 1:`，明显写错成 1。问：要不要做原因排查（列几个可能原因逐个排除）？"
+  },
+  {
+    "id": "R18",
+    "situation": "用户说“刷新 token 后还是 401”，看了 token 刷新代码没发现问题，现象对不上代码。问：下一步？"
+  },
+  {
+    "id": "R19",
+    "situation": "报告里写问题 B1 的位置。问：位置怎么写？"
+  },
+  {
+    "id": "R20",
+    "situation": "在 task docs/spec/loan/tasks/task-renew-limit/ 里做的调查。问：报告放哪个目录？"
+  },
+  {
+    "id": "R21",
+    "situation": "用户说“帮我查查续借为什么不对，先别改”。查完发现一个 P0。问：x-cr 接下来做什么？"
+  },
+  {
+    "id": "R22",
+    "situation": "规则 loan:feat03-场景2（逾期书不能续借）。测试全绿，但所有续借测试用的都是没逾期的书。问：能判守住了吗？"
+  }
+]

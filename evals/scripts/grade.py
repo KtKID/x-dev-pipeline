@@ -2,7 +2,7 @@
 """确定性评分：spec / qdev / 链路同步 / 分组 / 多 agent 开发几组 JSON 判题。
 
 用法：python3 evals/scripts/grade.py <kind> <answer.json> [--json]
-kind：spec-scope、qdev-spec-routing、change-sync、qdev-confirm-check、req-grouping、dev-worker、dev-main、td-confirm、dev-delivery、verify-route、feature-check、ask-spec
+kind：spec-scope、qdev-spec-routing、change-sync、qdev-confirm-check、req-grouping、dev-worker、dev-main、td-confirm、dev-delivery、verify-route、feature-check、ask-spec、cr-review、cr-fix
 退出码：0 全对，1 有错题，2 输入错误。
 """
 import json
@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-KINDS = ("spec-scope", "qdev-spec-routing", "change-sync", "qdev-confirm-check", "req-grouping", "dev-worker", "dev-main", "td-confirm", "dev-delivery", "verify-route", "feature-check", "ask-spec")
+KINDS = ("spec-scope", "qdev-spec-routing", "change-sync", "qdev-confirm-check", "req-grouping", "dev-worker", "dev-main", "td-confirm", "dev-delivery", "verify-route", "feature-check", "ask-spec", "cr-review", "cr-fix")
 EXISTING_SPECS = {"member", "catalog", "loan", "fine", "message", "engineering"}
 QDEV_FIELDS = ["route", "writes", "task_spec", "confirm", "tech_design"]
 
@@ -118,7 +118,7 @@ def grade_case(kind, exp, got):
     if kind == "spec-scope":
         ok = norm_writes(got.get("writes")) == {tuple(x) for x in exp}
         return (1 if ok else 0), 1, ([] if ok else [{"field": "writes", "expected": exp, "got": got.get("writes")}])
-    if kind in ("verify-route", "feature-check"):
+    if kind in ("verify-route", "feature-check", "cr-review", "cr-fix"):
         ok = str(got.get("answer", "")).strip() == exp
         return (1 if ok else 0), 1, ([] if ok else [{"field": "answer", "expected": exp, "got": got.get("answer")}])
     if kind in ("dev-worker", "dev-main", "td-confirm", "dev-delivery", "ask-spec"):
