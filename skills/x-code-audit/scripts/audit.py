@@ -736,6 +736,21 @@ def py_module_name(rel: str) -> list[str]:
     return [n for n in names if n]
 
 
+TYPE_ONLY: set[tuple[str, str]] = set()
+
+
+def _type_checking_nodes(tree: ast.AST) -> set[int]:
+    """返回所有写在 `if TYPE_CHECKING:` 下的 import 节点 id：它们只在类型检查时生效，运行时不导入。"""
+    ids = set()
+    for node in ast.walk(tree):
+        if isinstance(node, ast.If) and "TYPE_CHECKING" in ast.unparse(node.test):
+            for sub in node.body:
+                for n in ast.walk(sub):
+                    if isinstance(n, (ast.Import, ast.ImportFrom)):
+                        ids.add(id(n))
+    return ids
+
+
 def import_graph(root: Path, files: list[str]) -> dict[str, set[str]]:
     index = {}
     for f in files:
@@ -750,6 +765,7 @@ def import_graph(root: Path, files: list[str]) -> dict[str, set[str]]:
                 tree = ast.parse(text)
             except SyntaxError:
                 continue
+            typing_only = _type_checking_nodes(tree)
             for node in ast.walk(tree):
                 targets = []
                 if isinstance(node, ast.Import):
@@ -762,6 +778,10 @@ def import_graph(root: Path, files: list[str]) -> dict[str, set[str]]:
                         targets = [node.module] + [f"{node.module}.{a.name}" for a in node.names]
                 for t in targets:
                     if t in index and index[t] != f:
+                        if id(node) in typing_only and index[t] not in graph[f]:
+                            TYPE_ONLY.add((f, index[t]))
+                        elif id(node) not in typing_only:
+                            TYPE_ONLY.discard((f, index[t]))
                         graph[f].add(index[t])
         elif Path(f).suffix in {".ts", ".tsx", ".js", ".jsx"}:
             for spec in re.findall(r"""(?:from|import|require\()\s*['"](\.[^'"]+)['"]""", text):
@@ -839,6 +859,15 @@ def cmd_l5(rep: Report) -> list[dict]:
         if not relevant(comp):
             continue
         path = cycle_path(graph, comp)
+        typed = [(a, b) for a, b in zip(path, path[1:]) if (a, b) in TYPE_ONLY]
+        if typed:
+            cyc_rows.append([" → ".join(path) + "（其中 " + "、".join(f"{Path(a).name} → {Path(b).name}" for a, b in typed) + " 只在类型检查时导入）"])
+            issues.append(issue("L5", "P2", f"类型上的循环依赖：{Path(path[0]).name} 和 {Path(path[1]).name}",
+                                "这几个文件互相引用：" + " → ".join(f"`{p}`" for p in path) + "。其中一段写在 `if TYPE_CHECKING:` 下，只在类型检查时导入，运行时不会成环。",
+                                "运行时不会报错，但两边在类型上绑在一起：改其中一个的类型，另一个也得跟着改，也没法单独拿出去用。",
+                                f"`{typed[0][0]}`", "依赖路径：" + " → ".join(path) + "；类型导入：" + "、".join(f"{a} → {b}" for a, b in typed),
+                                "把共用的类型放到第三个模块，两边都从那里导入", src))
+            continue
         cyc_rows.append([" → ".join(path)])
         issues.append(issue("L5", "P1", f"循环依赖：{Path(path[0]).name} 和 {Path(path[1]).name} 互相引用",
                             "这几个文件互相 import，形成一个环：" + " → ".join(f"`{p}`" for p in path) + "。",
@@ -1017,11 +1046,15 @@ def cmd_verify(rep: Report) -> list[str]:
                 errors.append(f"{u['单位']}（{u['层']} {u['范围']}）缺检查项「{name}」")
             elif row[1] not in RESULTS:
                 errors.append(f"{u['单位']} 的「{name}」结论不对：{row[1]}，只能是 没问题 / 有问题 / 没法判断")
+            elif row[1] == "有问题" and re.search(r"已由 (U\d+) 报过", row[2]):
+                ref = re.search(r"已由 (U\d+) 报过", row[2]).group(1)
+                if not any(i.get("来源") == ref for i in rep.issues()):
+                    errors.append(f"{u['单位']} 的「{name}」说已由 {ref} 报过，但问题里没有 {ref} 报的条目")
             elif row[1] == "有问题":
                 err = check_location(root, row[2])
                 if err:
                     errors.append(f"{u['单位']} 的「{name}」：{err}")
-        has_issue = [r for r in items.values() if r[1] == "有问题"]
+        has_issue = [r for r in items.values() if r[1] == "有问题" and not re.search(r"已由 U\d+ 报过", r[2])]
         unit_issues = [i for i in rep.issues() if i.get("来源") == u["单位"]]
         if has_issue and not unit_issues:
             errors.append(f"{u['单位']} 有检查项写了“有问题”，但问题里没有它的条目")

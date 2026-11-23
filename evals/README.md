@@ -61,6 +61,7 @@ python3 evals/scripts/runs_summary.py spec-scope   # 一组题的全部轮次
 | feature-check | 17 | 便宜的模型能不能凭清单识破功能漏做多做和假测试、又不误报 | `skills/x-verify-spec/references/feature-check.md` |
 | verify-route | 22 | 验收怎么走：哪种 risk 做功能检查、严重度、哪些交给定期巡检、回执存几份、修完怎么关闭；架构约束怎么处理 | `skills/x-verify-spec/`、`skills/x-tech-design/SKILL.md`、spec 模板「关键约束」 |
 | cr-handson | 5 道实操 | 在埋了问题和陷阱的小项目上真跑 x-cr / x-fix：找全问题、不误报、报告位置和格式、修好、反例测试修前失败、报告只追加；脚本判分加隐藏测试 | `skills/x-cr/`、`skills/x-fix/SKILL.md` |
+| code-audit | 2 道实操（全量、单模块） | 真跑 x-code-audit：一份报告、检查 ID、verify 通过、埋的问题找到、陷阱不误报、单模块不越界 | `skills/x-code-audit/` |
 
 规则里能机械判断的部分（编号引用、文件交集必须同组、依赖无环、risk 计算、需求变化同步清单）由脚本负责，测试在 `test/test_checklist_engine.py`，不需要 LLM 判题。
 

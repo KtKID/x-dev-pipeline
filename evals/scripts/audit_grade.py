@@ -62,6 +62,8 @@ def match(iss: dict, rule: dict) -> bool:
         return False
     if rule.get("title_text") and not any(t in iss.get("标题", "") for t in rule["title_text"]):
         return False
+    if rule.get("unless_text") and any(t in blob for t in rule["unless_text"]):
+        return False
     return True
 
 
@@ -114,8 +116,8 @@ def grade(case: str, work: Path) -> dict:
     if checks.get("scope_only"):
         scope = checks["scope_only"]
         out = [f"A{n}" for n, i in enumerate(issues, 1)
-               if i.get("层") in ("L2", "L4", "L6") and scope not in i.get("位置", "")]
-        item(f"L2/L4/L6 只报 {scope} 里的问题", not out, f"范围外：{out}")
+               if i.get("层") in ("L2", "L4", "L6") and scope not in i.get("位置", "") and "tests/" not in i.get("位置", "")]
+        item(f"L2/L4/L6 只报 {scope} 里的问题（它的测试除外）", not out, f"范围外：{out}")
     return {"case": case, "items": items, "issues": len(issues),
             "by_severity": {s: sev.count(s) for s in A.SEVERITIES},
             "ai_issues_with_fix": sum(1 for i in issues if i.get("层") in ("L4", "L6") and i.get("怎么改")),

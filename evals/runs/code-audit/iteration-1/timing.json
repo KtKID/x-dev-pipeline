@@ -1,0 +1,6 @@
+{"full-A-r1": {"total_tokens": 129426, "duration_ms": 157805},
+ "full-A-r2": {"total_tokens": 133067, "duration_ms": 162454},
+ "full-B-r1": {"total_tokens": 121858, "duration_ms": 157241},
+ "full-B-r2": {"total_tokens": 139700, "duration_ms": 198245},
+ "module-A-r1": {"total_tokens": 109769, "duration_ms": 86906},
+ "module-B-r1": {"total_tokens": 101456, "duration_ms": 91626}}
