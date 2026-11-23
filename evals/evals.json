@@ -174,45 +174,17 @@
       }
     },
     {
-      "name": "cr-review",
-      "prompt_file": "evals/problems/cr-review/prompt.md",
-      "files": [
-        "skills/x-cr/SKILL.md",
-        "skills/x-cr/references/report-template.md",
-        "skills/x-cr/references/invariant-review.md",
-        "skills/x-cr/references/bayesian-review.md",
-        "evals/problems/cr-review/cases.json"
-      ],
-      "grader": {
-        "rubric": "evals/answers/cr-review/rubric.md",
-        "script": "evals/scripts/grade.py cr-review"
-      }
-    },
-    {
-      "name": "cr-fix",
-      "prompt_file": "evals/problems/cr-fix/prompt.md",
-      "files": [
-        "skills/x-fix/SKILL.md",
-        "skills/x-cr/references/report-template.md",
-        "skills/x-qdev/SKILL.md",
-        "skills/x-verify-spec/SKILL.md",
-        "evals/problems/cr-fix/cases.json"
-      ],
-      "grader": {
-        "rubric": "evals/answers/cr-fix/rubric.md",
-        "script": "evals/scripts/grade.py cr-fix"
-      }
-    },
-    {
       "name": "cr-handson",
-      "prompt_file": "evals/problems/cr-handson/prompt-cr.md",
+      "prompt_file": "evals/problems/cr-handson/prompt.md",
       "files": [
-        "evals/problems/cr-handson/project/",
-        "evals/problems/cr-handson/prompt-fix.md"
+        "evals/problems/cr-handson/cases/<题目>/request.md",
+        "skills/x-cr/",
+        "skills/x-fix/SKILL.md"
       ],
       "grader": {
         "rubric": "evals/answers/cr-handson/rubric.md",
-        "script": "skills/x-cr/scripts/validate_report.py + evals/answers/cr-handson/hidden_test.py（评审按 rubric 判）"
+        "setup": "evals/scripts/handson_setup.py <题目> <副本>",
+        "script": "evals/scripts/handson_grade.py <题目> cr|fix <副本>"
       }
     }
   ]

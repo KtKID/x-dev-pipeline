@@ -1,0 +1,33 @@
+{
+  "stage": "fix",
+  "report": "reports/cr/cr-20261120-101500.md",
+  "statuses": {
+    "B1": "已修",
+    "B2": "已修",
+    "B3": "误报不修",
+    "B4": "待确认",
+    "B5": "已修"
+  },
+  "regression_for": [
+    "B1",
+    "B2"
+  ],
+  "unchanged_funcs": [
+    [
+      "src/library/loan.py",
+      "return_book"
+    ],
+    [
+      "src/library/loan.py",
+      "fine_cap"
+    ],
+    [
+      "src/library/loan.py",
+      "extend_due"
+    ],
+    [
+      "src/library/loan.py",
+      "overdue_days"
+    ]
+  ]
+}

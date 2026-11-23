@@ -1,0 +1,51 @@
+{
+  "stage": "cr",
+  "report_dir": "reports/cr",
+  "expect_issues": [
+    {
+      "name": "有库存也能预约",
+      "func": "reserve",
+      "severity": [
+        "P1",
+        "P0"
+      ],
+      "rules": [
+        "reserve:feat01-场景1"
+      ]
+    },
+    {
+      "name": "预约上限 spec 3 本 vs 用户 5 本",
+      "severity": [
+        "P2"
+      ],
+      "rules": [
+        "reserve:C1"
+      ],
+      "rule_result": "来源不一"
+    }
+  ],
+  "forbid_issues": [
+    {
+      "name": "取消预约误报（api 层已核对归属）",
+      "func": "cancel_reservation",
+      "severity": [
+        "P0",
+        "P1"
+      ]
+    },
+    {
+      "name": "取消预约误报",
+      "func": "api_cancel",
+      "severity": [
+        "P0",
+        "P1"
+      ]
+    }
+  ],
+  "rule_results": {
+    "reserve:feat02-场景1": [
+      "守住了"
+    ]
+  },
+  "need_cause_table": false
+}

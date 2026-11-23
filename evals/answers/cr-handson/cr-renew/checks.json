@@ -1,0 +1,43 @@
+{
+  "stage": "cr",
+  "report_dir": "reports/cr",
+  "expect_issues": [
+    {
+      "name": "续借上限多放行一次",
+      "func": "renew",
+      "severity": [
+        "P0",
+        "P1"
+      ],
+      "rules": [
+        "loan:C1"
+      ]
+    },
+    {
+      "name": "先加次数再校验",
+      "func": "renew",
+      "severity": [
+        "P1",
+        "P2"
+      ],
+      "rules": [
+        "loan:D01",
+        "loan:feat01-场景2"
+      ]
+    },
+    {
+      "name": "越权查借阅",
+      "func": "list_loans",
+      "severity": [
+        "P0"
+      ],
+      "rules": [
+        "loan:feat02-场景1",
+        "新*"
+      ]
+    }
+  ],
+  "forbid_issues": [],
+  "rule_results": {},
+  "need_cause_table": false
+}

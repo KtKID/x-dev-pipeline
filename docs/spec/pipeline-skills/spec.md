@@ -369,7 +369,7 @@ x-qa-gate 并进 x-verify-spec。开发做完只验收一次，查过的不再�
 - WHEN 运行 `validate_report.py`
 - THEN 核对「范围」「规则表」「问题」三节、规则编号、结论、问题表和 `### Bn:` 一一对应、严重度和状态合法；不做旧格式兼容；x-cr 只出报告，不改代码
 
-验收：eval cr-review（22 题）、cr-handson（x-cr 阶段）；`test/test_x_cr_report_validator.py`。
+验收：eval cr-handson（cr-renew、cr-fine-diff、cr-reserve、cr-recommend 的 x-cr 阶段）；`test/test_x_cr_report_validator.py`。
 
 ## feat15: 按 CR 报告修复（x-fix）
 
@@ -396,7 +396,7 @@ x-fix 只修 CR 报告里的问题，修复证据写回同一份报告。
 - WHEN x-fix 动手
 - THEN 先写一条调用项目代码、修前失败修后通过的反例测试；修完跑项目全量测试全绿，task 内的报告再跑 `xdev coverage` 到改动行 100%；不修报告外的问题，修不好改待确认写清卡点
 
-验收：eval cr-fix（22 题）、cr-handson（x-fix 阶段，隐藏测试）；`test/test_x_cr_report_validator.py`。
+验收：eval cr-handson（cr-renew 接 x-fix、fix-mixed，隐藏测试）；`test/test_x_cr_report_validator.py`。
 
 ## 变更记录
 
@@ -414,4 +414,3 @@ x-fix 只修 CR 报告里的问题，修复证据写回同一份报告。
 | 2026-11-22 | feat09：严重度写明属于漏做、多做或测试问题的至少是 P1，现在代码碰巧对不能降级；P2 只给其余建议，附真实的正例和反例 | 用户 2026-11-22 | 已验收（用户 2026-11-22 确认） |
 | 2026-11-22 | 新增 feat13：每期记 token 用量（spec「用量」表、xdev usage start / fill / sum） | 用户 2026-11-22 | 已验收（用户 2026-11-22 确认） |
 | 2026-11-23 | 新增 feat14（x-cr 改读当前 spec 的场景、C、D，报告只有一种格式）、feat15（x-fix 只修 CR 报告，证据写回报告）；feat07 场景2、feat09 场景4 改为验收问题退回开发者修，不再新建 reports/fix/ | 用户 2026-11-23 | 待实现 |
-| 2026-11-23 | feat14、feat15 验收题首轮：cr-review 22/22 ×2、cr-fix 22/22 ×2、cr-handson 实操 x-cr 与 x-fix 全过（haiku） | evals/runs/cr-review/、cr-fix/、cr-handson/ | 待用户确认 |
