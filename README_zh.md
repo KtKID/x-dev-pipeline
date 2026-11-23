@@ -137,7 +137,7 @@ xdev coverage <task> --cmd "<全量测试命令>" --report <覆盖率报告>
 
 两者都属于 x-verify-spec。risk Q0（纯技术、无场景）不做功能检查，只跑 `xdev check`；Q1–Q3 都做一次同样的功能检查。
 
-发现问题交 x-fix 一次修完。修完重跑 `xdev coverage`，代码或测试改过就重做功能检查（只看改动部分），再跑 `xdev check`；修复轮数最多 3 轮。处置写进 checklist「问题与处置」，不另建报告文件。
+发现问题退回开发者一次修完。修完重跑 `xdev coverage`，代码或测试改过就整份重做功能检查，再跑 `xdev check`；修复轮数最多 3 轮。处置写进 checklist「问题与处置」，不另建报告文件。
 
 多 agent 协作时，每组交回后由主 agent 在这组分支上自己跑 `xdev coverage --out` 核对（不照抄工人的结论），不过就打回原工人；全部合并后整体跑一次覆盖率，再验收一次。
 
@@ -173,7 +173,7 @@ x-ask-spec → x-adversarial-risk → x-tech-design → x-req
 | `/x-verify-spec` | 开发后唯一的验收：一次功能检查 + `xdev check` 机械核对 |
 | `/x-verify-tech` | 核对实现是否符合技术设计、开发规范和架构约束（架构巡检用的方法，也可单独用） |
 | `/x-qdev` | 小任务单文档精简路径 |
-| `/x-fix` | 批量修复验收或正确性调查发现的问题 |
+| `/x-fix` | 按 x-cr 的 CR 报告修复，修复证据写回同一份报告 |
 | `/x-cr` | 调查正确性问题、模块、diff 或 PR |
 | `/x-adversarial-risk` | 复核 spec 风险假设，补充可追溯反例场景 |
 | `/x-multi-llm-align` | 对齐协议、数据结构或流程 |

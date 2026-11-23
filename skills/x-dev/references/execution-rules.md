@@ -17,7 +17,7 @@
 ### 验收问题的写权
 
 - 功能检查的问题只写在证据目录的 `feature-check.md` 回执里，编号 issue-1、issue-2…；处置写进 checklist「问题与处置」。不另建 issue 登记本，验收发现问题时不把行降为 🔴。
-- 子 agent（功能检查、x-fix）不改 checklist 状态列；状态由主 agent 写。
+- 子 agent（功能检查、并行工人）不改 checklist 状态列；状态由主 agent 写。
 
 ## Verify 块（仅旧契约包）
 
@@ -33,7 +33,7 @@ expect_contains: <关键输出>
 
 - auto 块执行命令；manual 块只记录 `steps`。
 - req 的 `scenario:` 只填写单个 Scenario ID 并精确匹配；verify 块按 ID 分别保存证据。
-- `python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" verify <task-dir> --json` 返回 0、1、2；1 的全部 failure 与 uncovered 同轮进入 x-fix，2 回到 dev-report 编辑（旧契约包的 dev-report 用 `templates/dev-report-template.md`）。
+- `python3 "${XDEV_SKILL_DIR}/scripts/xdev.py" verify <task-dir> --json` 返回 0、1、2；1 的全部 failure 与 uncovered 同轮按 [验收问题怎么修](acceptance-fix.md) 修，2 回到 dev-report 编辑（旧契约包的 dev-report 用 `templates/dev-report-template.md`）。
 
 ## Risk 路由
 

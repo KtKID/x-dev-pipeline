@@ -45,7 +45,7 @@
   },
   {
     "id": "V12",
-    "situation": "功能检查报了 issue-1（P1，测试断言恒真），x-fix 改了这个测试并交回，回执里写着它已重跑 xdev coverage，结果 100% 通过。问：主 agent 接下来怎么做？"
+    "situation": "功能检查报了 issue-1（P1，测试断言恒真），主 agent 按验收问题的修法改了这个测试，已重跑 xdev coverage，结果 100% 通过。问：接下来怎么做？"
   },
   {
     "id": "V13",

@@ -19,7 +19,7 @@ x-audit-style 是独立巡检 skill，不在主流程内。做全项目视角的
 1. 用户触发（手动调用 / 周期性）。
 2. dispatch 子 agent。
 3. 输出 audit-style 报告到 `reports/audit/audit-style-YYYYMMDD-HHmmss.md`。
-4. 不自动触发 x-fix——由用户决定。
+4. 不自动触发修复——由用户决定。
 
 ## 子 agent dispatch
 

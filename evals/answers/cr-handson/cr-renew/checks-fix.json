@@ -1,0 +1,7 @@
+{
+  "stage": "fix",
+  "report": "*",
+  "statuses": "all_p0p1_fixed",
+  "regression_for": "all_p0p1",
+  "unchanged_funcs": []
+}

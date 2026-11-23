@@ -1,0 +1,68 @@
+{
+  "case": "cr-renew",
+  "stage": "fix",
+  "passed": 12,
+  "total": 12,
+  "items": [
+    {
+      "check": "报告通过校验脚本",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "B1 状态是已修",
+      "ok": true,
+      "detail": "实际 已修"
+    },
+    {
+      "check": "B2 状态是已修",
+      "ok": true,
+      "detail": "实际 已修"
+    },
+    {
+      "check": "B3 状态是已修",
+      "ok": true,
+      "detail": "实际 已修"
+    },
+    {
+      "check": "报告原有内容没被改",
+      "ok": true,
+      "detail": "不见了的行：[]"
+    },
+    {
+      "check": "问题表只改了状态",
+      "ok": true,
+      "detail": "改了别的格子：[]"
+    },
+    {
+      "check": "没新建修复报告或其他文档",
+      "ok": true,
+      "detail": "[]"
+    },
+    {
+      "check": "项目全量测试全绿",
+      "ok": true,
+      "detail": "5 passed in 0.01s"
+    },
+    {
+      "check": "隐藏测试全过",
+      "ok": true,
+      "detail": "4 passed in 0.01s"
+    },
+    {
+      "check": "B1 的反例测试修之前会失败",
+      "ok": true,
+      "detail": "找不到：[]；修之前就通过（测不出错）：[]"
+    },
+    {
+      "check": "B2 的反例测试修之前会失败",
+      "ok": true,
+      "detail": "找不到：[]；修之前就通过（测不出错）：[]"
+    },
+    {
+      "check": "B3 的反例测试修之前会失败",
+      "ok": true,
+      "detail": "找不到：[]；修之前就通过（测不出错）：[]"
+    }
+  ]
+}

@@ -172,6 +172,20 @@
         "rubric": "evals/answers/verify-route/rubric.md",
         "script": "evals/scripts/grade.py verify-route"
       }
+    },
+    {
+      "name": "cr-handson",
+      "prompt_file": "evals/problems/cr-handson/prompt.md",
+      "files": [
+        "evals/problems/cr-handson/cases/<题目>/request.md",
+        "skills/x-cr/",
+        "skills/x-fix/SKILL.md"
+      ],
+      "grader": {
+        "rubric": "evals/answers/cr-handson/rubric.md",
+        "setup": "evals/scripts/handson_setup.py <题目> <副本>",
+        "script": "evals/scripts/handson_grade.py <题目> cr|fix <副本>"
+      }
     }
   ]
 }

@@ -9,7 +9,7 @@
 - V09：覆盖率和用例对应由 xdev check 核对，功能检查不重复。
 - V10：派工单照模板只填路径，不加话。
 - V11：回执只存 evidence/feature-check.md 一份。
-- V12：x-fix 已重跑 coverage → 主 agent 重做功能检查，再跑 xdev check（不必再跑一次 coverage）。
+- V12：开发者修完已重跑 coverage → 重做功能检查，再跑 xdev check（不必再跑一次 coverage）。
 - V13：P2 只登记不修。
 - V14：头部状态这类记账不报。
 - V16：方案和本 spec 的“架构：”约束冲突 → 单独问用户。

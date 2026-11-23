@@ -1,0 +1,64 @@
+diff --git a/src/library/loan.py b/src/library/loan.py
+index 6410d2e..b7d47bc 100644
+--- a/src/library/loan.py
++++ b/src/library/loan.py
+@@ -31,13 +31,12 @@ class LoanStore:
+ 
+ def list_loans(store: LoanStore, session_member_id: int, request: dict) -> list[Loan]:
+     """session_member_id 来自登录会话，request 来自客户端。"""
+-    member_id = request.get("member_id") or session_member_id
+-    return store.by_member(member_id)
++    return store.by_member(session_member_id)
+ 
+ 
+ def renew(store: LoanStore, loan_id: int) -> Loan:
+     loan = store.loans[loan_id]
+-    if loan.renew_count > MAX_RENEWALS:
++    if loan.renew_count >= MAX_RENEWALS:
+         raise RenewLimitError("已到续借上限")
+     loan.renew_count += 1
+     loan.due = loan.due + timedelta(days=RENEW_DAYS)
+diff --git a/tests/test_loan.py b/tests/test_loan.py
+index c0289f2..9fe987a 100644
+--- a/tests/test_loan.py
++++ b/tests/test_loan.py
+@@ -4,7 +4,15 @@ from pathlib import Path
+ 
+ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+ 
+-from library.loan import Loan, LoanStore, overdue_days, renew  # noqa: E402
++from library.loan import (  # noqa: E402
++    Loan,
++    LoanStore,
++    RenewLimitError,
++    list_loans,
++    overdue_days,
++    renew,
++)
++import pytest  # noqa: E402
+ 
+ 
+ def test_renew_once():
+@@ -12,5 +20,22 @@ def test_renew_once():
+     assert renew(store, 1).renew_count == 1
+ 
+ 
++def test_renew_after_limit():
++    store = LoanStore([Loan(1, 10, date(2026, 12, 1))])
++    renew(store, 1)
++    renew(store, 1)
++    due_before = store.loans[1].due
++    with pytest.raises(RenewLimitError):
++        renew(store, 1)
++    assert store.loans[1].renew_count == 2
++    assert store.loans[1].due == due_before
++
++
++def test_list_loans_ignores_client_member_id():
++    store = LoanStore([Loan(1, 10, date(2026, 12, 1)), Loan(2, 20, date(2026, 12, 1))])
++    result = list_loans(store, session_member_id=10, request={"member_id": 20})
++    assert [loan.member_id for loan in result] == [10]
++
++
+ def test_overdue_days_never_negative():
+     assert overdue_days(Loan(1, 10, date(2026, 12, 1)), date(2026, 11, 1)) == 0

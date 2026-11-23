@@ -161,7 +161,7 @@
 | D09 | 验收通过 | 升为已完成并交付 |
 | D10 D12 D13 | 开发做完（Q2 / qdev 没写场景 / qdev 写了场景） | 交 x-verify-spec 验收 |
 | D11 | qdev 开工 | 运行 xdev start 记代码基线 |
-| D14 | 功能检查有 P1 | 交 x-fix 修，修完重跑 coverage 再重做功能检查 |
+| D14 | 功能检查有 P1 | 退回开发者修，修完重跑 coverage 再重做功能检查 |
 | D17 | 验收通过后 | 运行 xdev usage fill 填这一期的用量 |
 | D18 | 换会话接着开发 | 先运行 xdev usage start 在用量表加一行 |
 | D15 | 检查后又改了测试 | 重跑 xdev coverage 后重做功能检查 |
@@ -183,7 +183,7 @@
 | V09 | 机械项不重复 | 不做，xdev check 已核对 |
 | V10 | 派工单不加话 | 不加，照派工单模板只填路径 |
 | V11 | 回执只存一份 | 不另存，只留 evidence/feature-check.md 一份 |
-| V12 | x-fix 修完（已重跑 coverage）后关闭 | 重做功能检查，再跑 xdev check |
+| V12 | 开发者修完（已重跑 coverage）后关闭 | 重做功能检查，再跑 xdev check |
 | V13 | P2 | 在问题与处置登记，不修 |
 | V21 | 测试没测到设计写的结果，代码碰巧对 | P1 |
 | V22 | 只是写法可以更简洁 | P2 |
@@ -254,6 +254,20 @@
 | T06 | qdev 里调 x-tech-design | 继续开发，交付时一起告知 |
 
 干扰项"停下等用户确认整份设计"任何一题选它都算错。
+
+## 实操：x-cr 与 x-fix（cr-handson）
+
+- 规则：`skills/x-cr/`、`skills/x-fix/SKILL.md`
+- 题面：`evals/problems/cr-handson/`；考点、隐藏测试：`evals/answers/cr-handson/<题目>/`；判分：`evals/scripts/handson_grade.py`
+- 测什么：真跑。每道题埋了问题和陷阱，脚本核对报告、代码、测试。
+
+| 题目 | 考的规则 | 正确做法 |
+|---|---|---|
+| cr-renew | 判尺原编号、严重度、位置、不改代码；接 x-fix：都修、反例修前失败 | 三个问题都找到；修完隐藏测试过 |
+| cr-fine-diff | 没给范围查 diff、task 里报告位置、不报 diff 外问题和风格 | 只报 calc_fine 负数罚款 |
+| cr-reserve | 来源不一开 P2；调用方已守住的不误报 | 报有库存能预约、上限说法不一；不报 cancel_reservation |
+| cr-recommend | 已知问题原因不明时逐个排除；隔离突破 P0 | 原因排查坐实缓存键 |
+| fix-mixed | 已修跳过、误报不改、来源不一待确认、行号过期按函数找、不修报告外 | B1/B2 修、B3 误报、B4 待确认、B5 不动、extend_due 不动 |
 
 ## 还没有题的规则
 

@@ -20,7 +20,7 @@ x-audit-perf 是独立巡检 skill，**不在 x-dev → x-verify-spec 主流程�
 2. dispatch 一个子 agent，prompt 包含本 SKILL.md 的检查清单 + 项目代码。
 3. 子 agent 输出 audit-perf 报告。
 4. 写到 `reports/audit/audit-perf-YYYYMMDD-HHmmss.md`。
-5. 不自动触发 x-fix——由用户决定哪些问题进入 backlog。
+5. 不自动触发修复——由用户决定哪些问题进入 backlog。
 
 ## 子 agent dispatch
 

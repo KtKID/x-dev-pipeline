@@ -1,0 +1,37 @@
+{
+  "stage": "cr",
+  "report_dir": "reports/cr",
+  "expect_issues": [
+    {
+      "name": "缓存键没区分读者",
+      "func": [
+        "_cache_key",
+        "get_recommendations"
+      ],
+      "severity": [
+        "P0"
+      ],
+      "rules": [
+        "recommend:feat01-场景1",
+        "新*"
+      ]
+    }
+  ],
+  "forbid_issues": [
+    {
+      "name": "auth.py 误报",
+      "file": "auth.py",
+      "severity": [
+        "P0",
+        "P1"
+      ]
+    }
+  ],
+  "rule_results": {},
+  "need_cause_table": true,
+  "cause_keywords": [
+    "缓存",
+    "cache",
+    "_cache_key"
+  ]
+}

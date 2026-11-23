@@ -1,0 +1,39 @@
+{
+  "stage": "cr",
+  "report_dir": "docs/spec/fine/tasks/task-fine-calc/reports/cr",
+  "expect_issues": [
+    {
+      "name": "提前还书罚款为负",
+      "func": "calc_fine",
+      "severity": [
+        "P0",
+        "P1"
+      ],
+      "rules": [
+        "fine:C1",
+        "fine:feat01-场景2"
+      ]
+    }
+  ],
+  "forbid_issues": [
+    {
+      "name": "diff 之外的 member.py",
+      "file": "member.py"
+    },
+    {
+      "name": "命名风格",
+      "text": [
+        "命名",
+        "变量名",
+        "tmp2"
+      ]
+    }
+  ],
+  "rule_results": {
+    "loan:C1": [
+      "没走到",
+      "守住了"
+    ]
+  },
+  "need_cause_table": false
+}

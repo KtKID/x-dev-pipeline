@@ -137,7 +137,7 @@ The developer runs coverage and adds tests themselves. Coverage only shows code 
 
 Both belong to x-verify-spec. risk Q0 (purely technical, no scenarios) skips the feature check and runs only `xdev check`; Q1–Q3 all get the same single feature check.
 
-Issues go to x-fix in one batch. After fixing, coverage is rerun; if code or tests changed, the feature check is redone on the changed parts, then `xdev check` runs; at most 3 fix rounds. Handling is recorded in the checklist's "问题与处置" section rather than in separate report files.
+Issues go back to the developer to fix in one batch. After fixing, coverage is rerun; if code or tests changed, the whole feature check is redone, then `xdev check` runs; at most 3 fix rounds. Handling is recorded in the checklist's "问题与处置" section rather than in separate report files.
 
 With multiple agents, the main agent checks each returned group by running `xdev coverage --out` on that group's branch itself (it does not copy the worker's conclusion) and sends failures back to the same worker; after all groups merge, coverage runs once for the whole task, followed by one acceptance.
 
@@ -173,7 +173,7 @@ Risk review and bug ingestion share a user-global corpus, with a caller-selected
 | `/x-verify-spec` | The single acceptance after development: one feature check + the `xdev check` mechanical check |
 | `/x-verify-tech` | Check implementation against the technical design, development rules, and architecture constraints (the method used by the architecture audit; also usable alone) |
 | `/x-qdev` | Reduced single-document flow for small tasks |
-| `/x-fix` | Batch-fix issues found by acceptance or correctness investigations |
+| `/x-fix` | Fix issues from an x-cr report and write the fix evidence back into the same report |
 | `/x-cr` | Investigate correctness problems, modules, diffs, or PRs |
 | `/x-adversarial-risk` | Review spec risk assumptions and add traceable counterexample scenarios |
 | `/x-multi-llm-align` | Align protocols, data structures, or flows |

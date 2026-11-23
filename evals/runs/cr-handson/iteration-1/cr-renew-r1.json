@@ -1,0 +1,38 @@
+{
+  "case": "cr-renew",
+  "stage": "cr",
+  "passed": 6,
+  "total": 6,
+  "items": [
+    {
+      "check": "报告位置",
+      "ok": true,
+      "detail": "期望在 reports/cr/，实际新增：['reports/cr/cr-20261123-041339.md']"
+    },
+    {
+      "check": "报告通过校验脚本",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "没改代码和文档",
+      "ok": true,
+      "detail": "改动：[]"
+    },
+    {
+      "check": "找到：续借上限多放行一次",
+      "ok": true,
+      "detail": "要规则 ['loan:C1'] 结论 被打破，问题严重度 ['P0', 'P1']、位置含 renew；规则表：[('loan:C1', '被打破', ['B1']), ('loan:D01', '被打破', ['B2']), ('loan:feat01-场景1', '守住了', []), ('loan:feat01-场景2', '守住了', []), ('loan:feat02-场景1', '被打破', ['B3']), ('新1', '没法验证', ['B4'])]；问题：{'B1': ('P1', '`src/library/loan.py` 的 `renew()`，第 43 行'), 'B2': ('P1', '`src/library/loan.py` 的 `renew()`，第 42 行与第 45–46 行'), 'B3': ('P0', '`src/library/loan.py` 的 `list_loans()`，第 53 行'), 'B4': ('P2', '`src/library/loan.py` 的 `renew()`，第 39 行')}"
+    },
+    {
+      "check": "找到：先加次数再校验",
+      "ok": true,
+      "detail": "要规则 ['loan:D01', 'loan:feat01-场景2'] 结论 被打破，问题严重度 ['P1', 'P2']、位置含 renew；规则表：[('loan:C1', '被打破', ['B1']), ('loan:D01', '被打破', ['B2']), ('loan:feat01-场景1', '守住了', []), ('loan:feat01-场景2', '守住了', []), ('loan:feat02-场景1', '被打破', ['B3']), ('新1', '没法验证', ['B4'])]；问题：{'B1': ('P1', '`src/library/loan.py` 的 `renew()`，第 43 行'), 'B2': ('P1', '`src/library/loan.py` 的 `renew()`，第 42 行与第 45–46 行'), 'B3': ('P0', '`src/library/loan.py` 的 `list_loans()`，第 53 行'), 'B4': ('P2', '`src/library/loan.py` 的 `renew()`，第 39 行')}"
+    },
+    {
+      "check": "找到：越权查借阅",
+      "ok": true,
+      "detail": "要规则 ['loan:feat02-场景1', '新*'] 结论 被打破，问题严重度 ['P0']、位置含 list_loans；规则表：[('loan:C1', '被打破', ['B1']), ('loan:D01', '被打破', ['B2']), ('loan:feat01-场景1', '守住了', []), ('loan:feat01-场景2', '守住了', []), ('loan:feat02-场景1', '被打破', ['B3']), ('新1', '没法验证', ['B4'])]；问题：{'B1': ('P1', '`src/library/loan.py` 的 `renew()`，第 43 行'), 'B2': ('P1', '`src/library/loan.py` 的 `renew()`，第 42 行与第 45–46 行'), 'B3': ('P0', '`src/library/loan.py` 的 `list_loans()`，第 53 行'), 'B4': ('P2', '`src/library/loan.py` 的 `renew()`，第 39 行')}"
+    }
+  ]
+}

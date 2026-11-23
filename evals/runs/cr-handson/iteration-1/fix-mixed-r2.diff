@@ -1,0 +1,55 @@
+diff --git a/src/library/loan.py b/src/library/loan.py
+index 6410d2e..b7d47bc 100644
+--- a/src/library/loan.py
++++ b/src/library/loan.py
+@@ -31,13 +31,12 @@ class LoanStore:
+ 
+ def list_loans(store: LoanStore, session_member_id: int, request: dict) -> list[Loan]:
+     """session_member_id 来自登录会话，request 来自客户端。"""
+-    member_id = request.get("member_id") or session_member_id
+-    return store.by_member(member_id)
++    return store.by_member(session_member_id)
+ 
+ 
+ def renew(store: LoanStore, loan_id: int) -> Loan:
+     loan = store.loans[loan_id]
+-    if loan.renew_count > MAX_RENEWALS:
++    if loan.renew_count >= MAX_RENEWALS:
+         raise RenewLimitError("已到续借上限")
+     loan.renew_count += 1
+     loan.due = loan.due + timedelta(days=RENEW_DAYS)
+diff --git a/tests/test_loan.py b/tests/test_loan.py
+index c0289f2..d73438c 100644
+--- a/tests/test_loan.py
++++ b/tests/test_loan.py
+@@ -2,9 +2,11 @@ import sys
+ from datetime import date
+ from pathlib import Path
+ 
++import pytest
++
+ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+ 
+-from library.loan import Loan, LoanStore, overdue_days, renew  # noqa: E402
++from library.loan import Loan, LoanStore, RenewLimitError, list_loans, overdue_days, renew  # noqa: E402
+ 
+ 
+ def test_renew_once():
+@@ -14,3 +16,17 @@ def test_renew_once():
+ 
+ def test_overdue_days_never_negative():
+     assert overdue_days(Loan(1, 10, date(2026, 12, 1)), date(2026, 11, 1)) == 0
++
++
++def test_list_loans_ignores_client_member_id():
++    store = LoanStore([Loan(1, 10, date(2026, 12, 1)), Loan(2, 20, date(2026, 12, 1))])
++    loans = list_loans(store, 10, {"member_id": 20})
++    assert [loan.member_id for loan in loans] == [10]
++
++
++def test_renew_after_limit():
++    store = LoanStore([Loan(1, 10, date(2026, 12, 1))])
++    renew(store, 1)
++    renew(store, 1)
++    with pytest.raises(RenewLimitError):
++        renew(store, 1)

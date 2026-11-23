@@ -11,7 +11,7 @@
 
 每道题是一个当前状态，按规则判断下一步。`action` 只能取下面16个值之一：
 
-`补测试后重跑 xdev coverage`、`修好失败的测试再重跑 xdev coverage`、`在问题与处置写理由`、`重跑 xdev coverage`、`按 change-sync 同步后 xdev baseline`、`写测试并登记到用例对应表`、`写人工记录到 evidence 并记人工通过`、`升为已完成并交付`、`交 x-verify-spec 验收`、`运行 xdev start 记代码基线`、`交 x-fix 修，修完重跑 coverage 再重做功能检查`、`重跑 xdev coverage 后重做功能检查`、`查是不是自己改坏的，不删不跳过`、`另写一份测试报告`、`运行 xdev usage fill 填这一期的用量`、`先运行 xdev usage start 在用量表加一行`
+`补测试后重跑 xdev coverage`、`修好失败的测试再重跑 xdev coverage`、`在问题与处置写理由`、`重跑 xdev coverage`、`按 change-sync 同步后 xdev baseline`、`写测试并登记到用例对应表`、`写人工记录到 evidence 并记人工通过`、`升为已完成并交付`、`交 x-verify-spec 验收`、`运行 xdev start 记代码基线`、`退回开发者修，修完重跑 coverage 再重做功能检查`、`重跑 xdev coverage 后重做功能检查`、`查是不是自己改坏的，不删不跳过`、`另写一份测试报告`、`运行 xdev usage fill 填这一期的用量`、`先运行 xdev usage start 在用量表加一行`
 
 把结果写成一个 JSON 数组，保存到调用方给你的输出路径。不要输出别的文件。格式：
 
