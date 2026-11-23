@@ -1,0 +1,28 @@
+{
+  "full": {
+    "request": "request-full.md",
+    "expect": [
+      {"name": "send() 把失败当成功", "layer": ["L4"], "file": "mailer.py", "func": "send", "severity": ["P0", "P1"]},
+      {"name": "续借顺带发邮件、写日志文件（职责混杂）", "layer": ["L4"], "file": "loan.py", "func": "renew", "severity": ["P1", "P2"]},
+      {"name": "续借测试只断言 mock 被调用", "layer": ["L4"], "file": ["test_library.py", "loan.py"], "text": ["mock", "测试"], "severity": ["P1", "P2"]},
+      {"name": "读者列表页循环里查库（N+1）", "layer": ["L6"], "file": "views.py", "func": "member_page", "severity": ["P0", "P1"]},
+      {"name": "MAX_RENEWALS 两处定义且不一致", "layer": ["L5"], "text": ["MAX_RENEWALS"], "severity": ["P1"]}
+    ],
+    "forbid": [
+      {"name": "把 handle_overdue 当死代码（其实经 dispatch 按名字调用）", "layer": ["L2"], "text": ["handle_overdue"]},
+      {"name": "把七天表头的双重循环报成严重性能问题", "layer": ["L6"], "func": "week_header", "severity": ["P0", "P1"]},
+      {"name": "在 L4–L6 逐行审命名（这是 lint 的事）", "layer": ["L4", "L5", "L6"], "title_text": ["命名", "变量名"]}
+    ],
+    "scope_only": null
+  },
+  "module": {
+    "request": "request-module.md",
+    "expect": [
+      {"name": "send() 把失败当成功", "layer": ["L4"], "file": "mailer.py", "func": "send", "severity": ["P0", "P1"]}
+    ],
+    "forbid": [
+      {"name": "把 handle_overdue 当死代码", "layer": ["L2"], "text": ["handle_overdue"]}
+    ],
+    "scope_only": "src/library/notify"
+  }
+}
